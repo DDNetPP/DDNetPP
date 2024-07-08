@@ -2150,6 +2150,8 @@ void CGameContext::OnMessage(int MsgId, CUnpacker *pUnpacker, int ClientId)
 
 	if(!pRawMsg)
 		return;
+	if(!DDPPOnMessage(MsgId, pRawMsg, pUnpacker, ClientId))
+		return;
 
 	if(Server()->ClientIngame(ClientId))
 	{

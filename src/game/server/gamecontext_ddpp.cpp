@@ -97,9 +97,23 @@ void CGameContext::DestructDDPP()
 	}
 }
 
+bool CGameContext::DDPPOnMessage(int MsgId, void *pRawMsg, CUnpacker *pUnpacker, int ClientId)
+{
+	if(Server()->ClientIngame(ClientId))
+	{
+		if(MsgId == NETMSGTYPE_SV_MODIFYTILE)
+		{
+			CNetMsg_Sv_ModifyTile *pMsg = (CNetMsg_Sv_ModifyTile *)pRawMsg;
+			Collision()->ModifyTile(pMsg->m_X, pMsg->m_Y, pMsg->m_Group, pMsg->m_Layer, pMsg->m_Index, pMsg->m_Flags);
+			Server()->SendPackMsg(pMsg, MSGFLAG_VITAL, -1);
+		}
+	}
+	return true;
+}
+
 int CGameContext::AmountPoliceFarmPlayers()
 {
-	int num = 0;
+	int Num = 0;
 	for(const auto &pPlayer : m_apPlayers)
 	{
 		if(!pPlayer)
@@ -107,9 +121,9 @@ int CGameContext::AmountPoliceFarmPlayers()
 		if(!pPlayer->GetCharacter())
 			continue;
 		if(pPlayer->GetCharacter()->m_OnMoneytile == CCharacter::MONEYTILE_POLICE)
-			num++;
+			Num++;
 	}
-	return num;
+	return Num;
 }
 
 void CGameContext::CheckDeactivatePoliceFarm()

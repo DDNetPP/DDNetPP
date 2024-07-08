@@ -177,6 +177,8 @@ public:
 	void LoadCosmetics(int id);
 	void DeleteCosmetics(int id);
 	void CheckDDPPshutdown();
+	// if it returns false the message should be dropped
+	bool DDPPOnMessage(int MsgId, void *pRawMsg, CUnpacker *pUnpacker, int ClientId);
 
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
