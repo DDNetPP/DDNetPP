@@ -323,6 +323,7 @@ public:
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
 	void Fire(bool Fire = true);
 	int GetReloadTimer() { return m_ReloadTimer; }
+	void MineTeeBreakBlock();
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 *	All these variables are stored in CSaveTeeDDPP                       *

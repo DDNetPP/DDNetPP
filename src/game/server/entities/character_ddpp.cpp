@@ -3087,6 +3087,36 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 	return false;
 }
 
+void CCharacter::MineTeeBreakBlock()
+{
+	if(!g_Config.m_SvMineTee)
+		return;
+
+	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+	int x = round_to_int(m_Core.m_Pos.x + (Direction.x * 32)) / 32;
+	int y = round_to_int(m_Core.m_Pos.y + (Direction.y * 32)) / 32;
+	// dbg_msg("minetee", "x=%d y=%d pos(%.2f/%.2f) dir(%.2f/%.2f", x, y, m_Core.m_Pos.x, m_Core.m_Pos.y, Direction.x, Direction.y);
+	// clear dirt
+	CNetMsg_Sv_ModifyTile Msg;
+	Msg.m_X = x;
+	Msg.m_Y = y;
+	Msg.m_Group = 1;
+	Msg.m_Layer = 1;
+	Msg.m_Index = 0;
+	Msg.m_Flags = 0;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+	// clear collision
+	Msg.m_X = x;
+	Msg.m_Y = y;
+	Msg.m_Group = 1;
+	Msg.m_Layer = 0;
+	Msg.m_Index = 0;
+	Msg.m_Flags = 0;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+	// update collsion server side
+	Collision()->ModifyTile(Msg.m_X, Msg.m_Y, Msg.m_Group, Msg.m_Layer, Msg.m_Index, Msg.m_Flags);
+}
+
 bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 {
 	if(m_ReloadTimer != 0)
@@ -3156,6 +3186,8 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 		if(m_Core.m_HammerHitDisabled)
 			break;
+
+		MineTeeBreakBlock();
 
 		CCharacter *apEnts[MAX_CLIENTS];
 		int Hits = 0;

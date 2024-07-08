@@ -584,3 +584,16 @@ Messages = [
 		NetTick("m_WaitUntil")
 	]),
 ]
+
+# ddnet++ messages
+
+Messages += [
+	NetMessageEx("Sv_ModifyTile", "modify-tile@msg.zillyhuhn.com", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_Group"),
+		NetIntAny("m_Layer"),
+		NetIntAny("m_Index"),
+		NetIntAny("m_Flags"),
+	]),
+]

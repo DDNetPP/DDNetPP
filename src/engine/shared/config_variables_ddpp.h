@@ -8,12 +8,11 @@
 #define ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H
 #undef ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H // this file will be included several times
 
-// refine macros only to please my IDE should be defined already
 #ifndef MACRO_CONFIG_INT
-#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Save, Desc) int m_##Name;
-#endif
-#ifndef MACRO_CONFIG_STR
-#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc) char m_##Name[Len]; // Flawfinder: ignore
+#error "The config macros must be defined"
+#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Save, Desc) ;
+#define MACRO_CONFIG_COL(Name, ScriptName, Def, Save, Desc) ;
+#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc) ;
 #endif
 
 MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)")
@@ -202,6 +201,8 @@ MACRO_CONFIG_INT(SvBlockDMarena, sv_block_dm_arena, 1, 1, 2, CFGFLAG_SERVER, "1=
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame 2=only logged in")
 
 MACRO_CONFIG_INT(SvAdventureBots, sv_adventure_bots, 0, 0, 2, CFGFLAG_SERVER, "number of vanilla pvp bots to spawn at TILE_BOTSPAWN_1")
+
+MACRO_CONFIG_INT(SvMineTee, sv_mine_tee, 0, 0, 1, CFGFLAG_SERVER, "break blocks near by with hammer")
 
 //FNN fake neural network
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")

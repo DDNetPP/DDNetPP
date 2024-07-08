@@ -149,6 +149,7 @@ public:
 	vec2 GetSurvivalSpawn(int Num);
 	vec2 GetBlockTournamentSpawn(int Num);
 	int CountSurvivalSpawns() const { return m_NumSurvivalSpawns; };
+	void ModifyTile(int x, int y, int Group, int Layer, int Index, int Flags);
 
 	std::vector<std::vector<vec2>> m_vTiles;
 	// DDNet++ end
