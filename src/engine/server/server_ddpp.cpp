@@ -56,6 +56,11 @@ void CServer::DDPPRegisterDatabases()
 	}
 }
 
+IEngineMap *CServer::Map()
+{
+	return m_pMap;
+}
+
 void CServer::BotJoin(int BotId)
 {
 	const char *pNames[] = {//Array für die Namen

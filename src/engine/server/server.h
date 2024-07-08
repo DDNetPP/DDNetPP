@@ -65,6 +65,24 @@ public:
 
 class CServer : public IServer
 {
+	// DDNet++ START
+
+public:
+	IEngineMap *Map() override;
+	void BotJoin(int BotId) override;
+	void BotLeave(int BotId, bool Silent = false) override;
+	void DDPPRegisterDatabases();
+	int LoadMapLive(const char *pMapName) override;
+
+	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
+	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
+
+	class CDbConnectionPool *m_pDDPPConnectionPool;
+	class CDbConnectionPool *DDPPDbPool() const { return m_pDDPPConnectionPool; }
+
+private:
+	// DDNet++ END
+
 	friend class CServerLogger;
 
 	class IGameServer *m_pGameServer;
@@ -437,14 +455,6 @@ public:
 	static void ConchainLoglevel(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainStdoutOutputLevel(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
-	// ddnet++
-
-	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
-	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
-
-	class CDbConnectionPool *m_pDDPPConnectionPool;
-	class CDbConnectionPool *DDPPDbPool() { return m_pDDPPConnectionPool; }
-
 #if defined(CONF_FAMILY_UNIX)
 	static void ConchainConnLoggingServerChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 #endif
@@ -504,13 +514,6 @@ public:
 
 	void SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR *pAddr);
 #endif
-
-	// DDNet++
-
-	void BotJoin(int BotId) override;
-	void BotLeave(int BotId, bool silent = false) override;
-	void DDPPRegisterDatabases();
-	int LoadMapLive(const char *pMapName) override;
 };
 
 extern CServer *CreateServer();

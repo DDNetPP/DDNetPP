@@ -13,6 +13,7 @@
 
 #include "kernel.h"
 #include "message.h"
+#include <engine/map.h>
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 #include <game/generated/protocol7.h>
@@ -29,6 +30,16 @@ enum
 
 class IServer : public IInterface
 {
+	// ddnet++ START
+public:
+	virtual IEngineMap *Map() = 0;
+	virtual void BotJoin(int BotId) = 0;
+	virtual void BotLeave(int BotId, bool Silent = false) = 0;
+	virtual int LoadMapLive(const char *pMapName) = 0;
+
+private:
+	// ddnet++ END
+
 	MACRO_INTERFACE("server")
 protected:
 	int m_CurrentGameTick;
@@ -270,9 +281,6 @@ public:
 
 	virtual int *GetIdMap(int ClientId) = 0;
 
-	virtual void BotJoin(int BotId) = 0;
-	virtual void BotLeave(int BotId, bool silet = false) = 0;
-	virtual int LoadMapLive(const char *pMapName) = 0;
 	virtual bool DnsblWhite(int ClientId) = 0;
 	virtual bool DnsblPending(int ClientId) = 0;
 	virtual bool DnsblBlack(int ClientId) = 0;
@@ -301,7 +309,6 @@ class IGameServer : public IInterface
 protected:
 public:
 	// DDNet++ start
-
 	virtual void IncrementWrongRconAttempts() = 0;
 	virtual void OnStartBlockTournament() = 0;
 	virtual void LogoutAllPlayers() = 0;
