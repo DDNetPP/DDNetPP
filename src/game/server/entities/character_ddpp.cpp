@@ -3089,7 +3089,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 
 void CCharacter::MineTeeBreakBlock()
 {
-	if(!g_Config.m_SvMineTee)
+	if(!g_Config.m_SvMineTeeHammer)
 		return;
 
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));

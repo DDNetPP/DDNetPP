@@ -103,6 +103,9 @@ bool CGameContext::DDPPOnMessage(int MsgId, void *pRawMsg, CUnpacker *pUnpacker,
 	{
 		if(MsgId == NETMSGTYPE_SV_MODIFYTILE)
 		{
+			if(!g_Config.m_SvMineTeeEditor)
+				return true;
+
 			CNetMsg_Sv_ModifyTile *pMsg = (CNetMsg_Sv_ModifyTile *)pRawMsg;
 			Collision()->ModifyTile(pMsg->m_X, pMsg->m_Y, pMsg->m_Group, pMsg->m_Layer, pMsg->m_Index, pMsg->m_Flags);
 			Server()->SendPackMsg(pMsg, MSGFLAG_VITAL, -1);

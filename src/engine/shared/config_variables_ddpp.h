@@ -202,7 +202,8 @@ MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER,
 
 MACRO_CONFIG_INT(SvAdventureBots, sv_adventure_bots, 0, 0, 2, CFGFLAG_SERVER, "number of vanilla pvp bots to spawn at TILE_BOTSPAWN_1")
 
-MACRO_CONFIG_INT(SvMineTee, sv_mine_tee, 0, 0, 1, CFGFLAG_SERVER, "break blocks near by with hammer")
+MACRO_CONFIG_INT(SvMineTeeHammer, sv_mine_tee_hammer, 0, 0, 1, CFGFLAG_SERVER, "break blocks near by with hammer")
+MACRO_CONFIG_INT(SvMineTeeEditor, sv_mine_tee_editor, 0, 0, 1, CFGFLAG_SERVER, "custom clients can place any tile anywhere")
 
 //FNN fake neural network
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")
