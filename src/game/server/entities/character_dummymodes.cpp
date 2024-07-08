@@ -11,9 +11,9 @@
 #include <game/server/ddpp/shop.h>
 
 // twbl
-#include <shared/types.h>
 #include <bots/sample.h>
 #include <server/set_state.h>
+#include <shared/types.h>
 
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline

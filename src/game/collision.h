@@ -108,14 +108,6 @@ public:
 
 	vec2 CpSpeed(int index, int Flags = 0) const;
 
-	int GetCustTile(int x, int y);
-	int GetCustFTile(int x, int y);
-	vec2 GetRandomTile(int Tile);
-	vec2 GetTileAtNum(int Tile, int Num);
-	vec2 GetSurvivalSpawn(int Num);
-	vec2 GetBlockTournamentSpawn(int Num);
-	int CountSurvivalSpawns() { return m_NumSurvivalSpawns; };
-
 	class CTeleTile *TeleLayer() { return m_pTele; }
 	class CSwitchTile *SwitchLayer() { return m_pSwitch; }
 	class CTuneTile *TuneLayer() { return m_pTune; }
@@ -150,6 +142,14 @@ private:
 	int m_NumSurvivalSpawns;
 
 public:
+	int GetCustTile(int x, int y);
+	int GetCustFTile(int x, int y);
+	vec2 GetRandomTile(int Tile);
+	vec2 GetTileAtNum(int Tile, int Num);
+	vec2 GetSurvivalSpawn(int Num);
+	vec2 GetBlockTournamentSpawn(int Num);
+	int CountSurvivalSpawns() const { return m_NumSurvivalSpawns; };
+
 	std::vector<std::vector<vec2>> m_vTiles;
 	// DDNet++ end
 
