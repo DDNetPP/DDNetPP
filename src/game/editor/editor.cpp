@@ -917,7 +917,7 @@ bool CEditor::CallbackSaveSound(const char *pFileName, int StorageType, void *pU
 	return false;
 }
 
-void CEditor::DoAudioPreview(CUIRect View, const void *pPlayPauseButtonId, const void *pStopButtonId, const void *pSeekBarId, const int SampleId)
+void CEditor::DoAudioPreview(CUIRect View, const void *pPlayPauseButtonId, const void *pStopButtonId, const void *pSeekBarId, int SampleId)
 {
 	CUIRect Button, SeekBar;
 	// play/pause button
@@ -5396,7 +5396,7 @@ void CEditor::RenderFileDialog()
 		{
 			char aOpenPath[IO_MAX_PATH_LENGTH];
 			Storage()->GetCompletePath(m_FilesSelectedIndex >= 0 ? m_vpFilteredFileList[m_FilesSelectedIndex]->m_StorageType : IStorage::TYPE_SAVE, m_pFileDialogPath, aOpenPath, sizeof(aOpenPath));
-			if(!open_file(aOpenPath))
+			if(!Client()->ViewFile(aOpenPath))
 			{
 				ShowFileDialogError("Failed to open the directory '%s'.", aOpenPath);
 			}
@@ -7712,7 +7712,7 @@ void CEditor::RenderMenubar(CUIRect MenuBar)
 	if(DoButton_Editor(&s_HelpButton, "?", 0, &Help, 0, "[F1] Open the DDNet Wiki page for the Map Editor in a web browser") || (Input()->KeyPress(KEY_F1) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr))
 	{
 		const char *pLink = Localize("https://wiki.ddnet.org/wiki/Mapping");
-		if(!open_link(pLink))
+		if(!Client()->ViewLink(pLink))
 		{
 			ShowFileDialogError("Failed to open the link '%s' in the default web browser.", pLink);
 		}
