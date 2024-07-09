@@ -4,6 +4,7 @@
 #include "character.h"
 
 #include <game/generated/protocol.h>
+#include <game/generated/server_data.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
 

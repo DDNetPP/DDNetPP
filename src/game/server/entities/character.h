@@ -31,7 +31,6 @@
 #include "dummy/survival.h"
 #include "weapon.h"
 #include <deque>
-#include <game/generated/server_data.h>
 #include <game/server/entities/stable_projectile.h>
 #include <vector>
 

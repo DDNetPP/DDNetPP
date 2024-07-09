@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "pickup.h"
 #include <game/generated/protocol.h>
+#include <game/generated/server_data.h>
 #include <game/server/gamecontext.h>
 
 #include <game/server/teams.h>
