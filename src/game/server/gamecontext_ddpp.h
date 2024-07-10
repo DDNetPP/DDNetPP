@@ -1,5 +1,6 @@
 // This file can be included several times.
 
+#include <mutex>
 #ifndef IN_CLASS_GAMECONTEXT
 #include <deque>
 #include <engine/antibot.h>
@@ -62,6 +63,43 @@ public:
 			default switcher state seems to be bugged
 	*/
 	void LoadMapLive(const char *pMapName);
+
+	class CModifyTile
+	{
+	public:
+		int m_Group;
+		int m_Layer;
+		int m_Index;
+		int m_Flags;
+		int m_X;
+		int m_Y;
+
+		CModifyTile(int Group, int Layer, int Index, int Flags, int X, int Y) :
+			m_Group(Group),
+			m_Layer(Layer),
+			m_Index(Index),
+			m_Flags(Flags),
+			m_X(X),
+			m_Y(Y)
+		{
+		}
+	};
+	std::vector<CModifyTile> m_vPendingModifyTiles;
+	std::mutex m_PendingModifyTilesMutex;
+
+	std::vector<CModifyTile> m_vFinishedModifyTiles;
+	std::mutex m_FinishedModifyTilesMutex;
+
+	// register tile to be set in the current map file
+	// it will be picked up by the worker thread when it is free
+	// the worker thread will then push it to m_FinishedModifyTiles
+	// where the main thread can pick it up and load the newly generated map
+	// and also inform the clients about the newly placed tiles
+	void QueueTileForModify(int Group, int Layer, int Index, int Flags, int X, int Y);
+
+	// should be run in a thread
+	void ModifyTileWorker();
+
 	void SetSpawnweapons(bool Active, int ClientId);
 
 	void ChatCommands();

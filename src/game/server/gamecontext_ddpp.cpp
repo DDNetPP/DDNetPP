@@ -6,10 +6,12 @@
 
 #include <base/ddpp_logs.h>
 #include <base/system_ddpp.h>
+#include <cstdlib>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
+#include "game/generated/protocol.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/instagib.h"
@@ -188,6 +190,31 @@ void CGameContext::LoadMapLive(const char *pMapName)
 	dbg_msg("live-map", "loadmap=%d", LoadMap);
 	m_Layers.Init(Kernel());
 	m_Collision.Init(&m_Layers);
+}
+
+void CGameContext::QueueTileForModify(int Group, int Layer, int Index, int Flags, int X, int Y)
+{
+	m_PendingModifyTilesMutex.lock();
+	m_vPendingModifyTiles.emplace_back(Group, Layer, Index, Flags, X, Y);
+	m_PendingModifyTilesMutex.unlock();
+}
+
+// should be run in a thread
+void CGameContext::ModifyTileWorker()
+{
+	// m_PendingModifyTilesMutex.lock();
+	// // TODO: copy the pending tiles to not hold the lock while processing
+	// m_PendingModifyTilesMutex.unlock();
+
+	// for (auto Tile : m_vPendingModifyTilesCopy)
+	// {
+	// 	std::system("./ddpp_scripts/map_set_tiles.py ....");
+	// 	// m_vFinishedModifyTilesCopy.emplace_back(Tile);
+	// }
+
+	// m_FinishedModifyTilesMutex.lock();
+	// // TODO: copy the finised tiles to not hold the lock while processing
+	// m_FinishedModifyTilesMutex.unlock();
 }
 
 const char *CGameContext::Loc(const char *pStr, int ClientId)
