@@ -1,7 +1,7 @@
 // This file can be included several times.
 
-#include <mutex>
 #ifndef IN_CLASS_GAMECONTEXT
+#include <atomic>
 #include <deque>
 #include <engine/antibot.h>
 #include <game/generated/protocol.h>
@@ -9,6 +9,8 @@
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
+#include <mutex>
+#include <thread>
 
 #include <game/gamecore.h>
 
@@ -98,7 +100,13 @@ public:
 	void QueueTileForModify(int Group, int Layer, int Index, int Flags, int X, int Y);
 
 	// should be run in a thread
-	void ModifyTileWorker();
+	static void ModifyTileWorker(CGameContext *pGameServer);
+	void ModifyTileWorkerResultTick();
+	std::thread m_DDPPWorkerThread;
+	std::atomic_bool m_StopDDPPWorkerThread = false;
+
+	void StartDDPPWorkerThreads();
+	void StopDDPPWorkerThreads();
 
 	void SetSpawnweapons(bool Active, int ClientId);
 

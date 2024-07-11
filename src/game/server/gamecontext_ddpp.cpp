@@ -1,31 +1,36 @@
 // gamecontext scoped ddnet++ methods
 
+#include <base/ddpp_logs.h>
+#include <base/system.h>
+#include <base/system_ddpp.h>
+#include <engine/server/server.h>
+#include <engine/shared/config.h>
+#include <game/generated/protocol.h>
+#include <game/mapitems.h>
+#include <game/server/teams.h>
+
 #include "ddpp/accounts.h"
 #include "ddpp/loc.h"
 #include "ddpp/shop.h"
 
-#include <base/ddpp_logs.h>
-#include <base/system_ddpp.h>
-#include <cstdlib>
-#include <engine/server/server.h>
-#include <engine/shared/config.h>
-#include <game/server/teams.h>
-
-#include "game/generated/protocol.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/instagib.h"
 
+#include "save.h"
+
+#include <chrono>
 #include <cinttypes>
+#include <cstdlib>
 #include <cstring>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
-
-#include "save.h"
-
-#include <game/mapitems.h>
+#include <thread>
+#include <unistd.h>
 
 #include "gamecontext.h"
+
+using namespace std::chrono_literals;
 
 void CGameContext::ConstructDDPP()
 {
@@ -68,6 +73,8 @@ void CGameContext::ConstructDDPP()
 
 void CGameContext::DestructDDPP()
 {
+	StopDDPPWorkerThreads();
+
 	if(m_pShop)
 	{
 		delete m_pShop;
@@ -199,22 +206,98 @@ void CGameContext::QueueTileForModify(int Group, int Layer, int Index, int Flags
 	m_PendingModifyTilesMutex.unlock();
 }
 
-// should be run in a thread
-void CGameContext::ModifyTileWorker()
+void CGameContext::StopDDPPWorkerThreads()
 {
-	// m_PendingModifyTilesMutex.lock();
-	// // TODO: copy the pending tiles to not hold the lock while processing
-	// m_PendingModifyTilesMutex.unlock();
+	if(!m_DDPPWorkerThread.joinable())
+		return;
 
-	// for (auto Tile : m_vPendingModifyTilesCopy)
+	dbg_msg("ddnet++", "join old worker thread ...");
+	m_StopDDPPWorkerThread = true;
+	m_DDPPWorkerThread.join();
+}
+
+void CGameContext::StartDDPPWorkerThreads()
+{
+	StopDDPPWorkerThreads();
+	dbg_msg("ddnet++", "starting worker thread ...");
+	m_DDPPWorkerThread = std::thread(ModifyTileWorker, this);
+}
+
+void CGameContext::ModifyTileWorkerResultTick()
+{
+	// don't block the lock every tick
+	if(Server()->Tick() % 8 != 0)
+		return;
+
+	// copy finished tasks to not hold the lock
+	std::vector<CModifyTile> FinishedModifyTiles;
+
+	m_FinishedModifyTilesMutex.lock();
+	FinishedModifyTiles = m_vFinishedModifyTiles;
+	m_vFinishedModifyTiles.clear();
+	m_FinishedModifyTilesMutex.unlock();
+
+	// for (auto Tile : FinishedModifyTiles)
 	// {
-	// 	std::system("./ddpp_scripts/map_set_tiles.py ....");
-	// 	// m_vFinishedModifyTilesCopy.emplace_back(Tile);
+	// 	// we could send the tile update packet here
+	// 	// but we already sent that when the tile was put into the queue
 	// }
 
-	// m_FinishedModifyTilesMutex.lock();
-	// // TODO: copy the finised tiles to not hold the lock while processing
-	// m_FinishedModifyTilesMutex.unlock();
+	// TODO: get new map sha from thread and load the map with the new sha
+	//       so newly connected clients get the new map
+}
+
+// run in a thread
+void CGameContext::ModifyTileWorker(CGameContext *pGameServer)
+{
+	char aSrcDir[1024];
+	char aMapsOutDir[1024];
+	char aMapName[1024];
+	str_copy(aSrcDir, g_Config.m_SvSourceRootDir);
+	str_copy(aMapsOutDir, g_Config.m_SvMineTeeOutMapsDir);
+
+	// TODO: we need the FULL ABSOLUTE path here
+	//       the storage system abstracts that away we need to know where exactly
+	//       the map file is for the map_set_tiles.py script
+	str_copy(aMapName, pGameServer->Server()->GetMapName());
+
+	while(!pGameServer->m_StopDDPPWorkerThread)
+	{
+		std::this_thread::sleep_for(std::chrono::nanoseconds(1s));
+
+		// copy incoming tasks to not hold the lock
+		pGameServer->m_PendingModifyTilesMutex.lock();
+		std::vector<CModifyTile> PendingTiles = pGameServer->m_vPendingModifyTiles;
+		pGameServer->m_PendingModifyTilesMutex.unlock();
+
+		// copy finished tasks to not hold the lock
+		std::vector<CModifyTile> FinishedModifyTiles;
+
+		for(auto Tile : PendingTiles)
+		{
+			// TODO: batch multiple tiles
+			char aCmd[2048];
+			str_format(
+				aCmd,
+				sizeof(aCmd),
+				"%s/ddpp_scripts/map_set_tiles.py ~/.teeworlds/maps/tmp/%s.map %s %d:%d:%d:%d:%d:%d",
+				aSrcDir, aMapName, aMapsOutDir,
+				Tile.m_Group, Tile.m_Layer, Tile.m_X, Tile.m_Y, Tile.m_Index, Tile.m_Flags);
+			// 	std::system("./ddpp_scripts/map_set_tiles.py ....");
+
+			FinishedModifyTiles.emplace_back(Tile);
+		}
+
+		// copy finished tasks to not hold the lock
+		pGameServer->m_FinishedModifyTilesMutex.lock();
+		pGameServer->m_vFinishedModifyTiles = FinishedModifyTiles;
+		pGameServer->m_FinishedModifyTilesMutex.unlock();
+
+		pGameServer->m_PendingModifyTilesMutex.lock();
+		pGameServer->m_vPendingModifyTiles.clear();
+		pGameServer->m_PendingModifyTilesMutex.unlock();
+	}
+	dbg_msg("ddnet++", "stopped worker thread");
 }
 
 const char *CGameContext::Loc(const char *pStr, int ClientId)
@@ -260,6 +343,8 @@ void CGameContext::OnInitDDPP()
 	//dummy_init
 	if(g_Config.m_SvBasicDummys)
 		CreateBasicDummys();
+
+	StartDDPPWorkerThreads();
 }
 
 void CGameContext::OnClientEnterDDPP(int ClientId)
@@ -1475,6 +1560,8 @@ void CGameContext::DDPP_Tick()
 
 	if(Server()->Tick() % 600 == 0) //slow ddpp sub tick
 		DDPP_SlowTick();
+
+	ModifyTileWorkerResultTick();
 }
 
 void CGameContext::LogoutAllPlayers()

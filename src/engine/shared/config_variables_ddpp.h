@@ -204,6 +204,9 @@ MACRO_CONFIG_INT(SvAdventureBots, sv_adventure_bots, 0, 0, 2, CFGFLAG_SERVER, "n
 
 MACRO_CONFIG_INT(SvMineTeeHammer, sv_mine_tee_hammer, 0, 0, 1, CFGFLAG_SERVER, "break blocks near by with hammer")
 MACRO_CONFIG_INT(SvMineTeeEditor, sv_mine_tee_editor, 0, 0, 1, CFGFLAG_SERVER, "custom clients can place any tile anywhere")
+MACRO_CONFIG_STR(SvMineTeeOutMapsDir, sv_mine_tee_out_maps_dir, 128, "minetee", CFGFLAG_SERVER, "folder in which the minetee maps are written to that are created when the map is edited (require restart)")
+
+MACRO_CONFIG_STR(SvSourceRootDir, sv_source_root_dir, 1024, "/home/chiller/Desktop/git/DDNetPP", CFGFLAG_SERVER, "absolute path to ddnet++ source code to run scripts from (require restart)")
 
 //FNN fake neural network
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")

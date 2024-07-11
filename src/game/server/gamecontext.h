@@ -15,6 +15,10 @@
 #include "minigames/minigame_base.h"
 #include <game/server/ddpp/letters.h>
 
+#include <atomic>
+#include <mutex>
+#include <thread>
+
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/instagib.h"
