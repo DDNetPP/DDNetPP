@@ -1263,7 +1263,6 @@ protected:
 	{
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXTURE_CREATE)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_Texture_Create(static_cast<const CCommandBuffer::SCommand_Texture_Create *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXTURE_DESTROY)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_Texture_Destroy(static_cast<const CCommandBuffer::SCommand_Texture_Destroy *>(pBaseCommand)); }};
-		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXTURE_UPDATE)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_Texture_Update(static_cast<const CCommandBuffer::SCommand_Texture_Update *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXT_TEXTURES_CREATE)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_TextTextures_Create(static_cast<const CCommandBuffer::SCommand_TextTextures_Create *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXT_TEXTURES_DESTROY)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_TextTextures_Destroy(static_cast<const CCommandBuffer::SCommand_TextTextures_Destroy *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TEXT_TEXTURE_UPDATE)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_TextTexture_Update(static_cast<const CCommandBuffer::SCommand_TextTexture_Update *>(pBaseCommand)); }};
@@ -3730,12 +3729,12 @@ public:
 		m_pGpuList->m_vGpus.reserve(vDeviceList.size());
 
 		size_t FoundDeviceIndex = 0;
-		size_t FoundGpuType = STWGraphicGpu::ETWGraphicsGpuType::GRAPHICS_GPU_TYPE_INVALID;
 
 		STWGraphicGpu::ETWGraphicsGpuType AutoGpuType = STWGraphicGpu::ETWGraphicsGpuType::GRAPHICS_GPU_TYPE_INVALID;
 
 		bool IsAutoGpu = str_comp(g_Config.m_GfxGpuName, "auto") == 0;
 
+		bool UserSelectedGpuChosen = false;
 		for(auto &CurDevice : vDeviceList)
 		{
 			vkGetPhysicalDeviceProperties(CurDevice, &(vDevicePropList[Index]));
@@ -3744,36 +3743,47 @@ public:
 
 			STWGraphicGpu::ETWGraphicsGpuType GPUType = VKGPUTypeToGraphicsGpuType(DeviceProp.deviceType);
 
-			STWGraphicGpu::STWGraphicGpuItem NewGpu;
-			str_copy(NewGpu.m_aName, DeviceProp.deviceName);
-			NewGpu.m_GpuType = GPUType;
-			m_pGpuList->m_vGpus.push_back(NewGpu);
-
-			Index++;
-
 			int DevAPIMajor = (int)VK_API_VERSION_MAJOR(DeviceProp.apiVersion);
 			int DevAPIMinor = (int)VK_API_VERSION_MINOR(DeviceProp.apiVersion);
 
-			if(GPUType < AutoGpuType && (DevAPIMajor > gs_BackendVulkanMajor || (DevAPIMajor == gs_BackendVulkanMajor && DevAPIMinor >= gs_BackendVulkanMinor)))
+			if(DevAPIMajor > gs_BackendVulkanMajor || (DevAPIMajor == gs_BackendVulkanMajor && DevAPIMinor >= gs_BackendVulkanMinor))
 			{
-				str_copy(m_pGpuList->m_AutoGpu.m_aName, DeviceProp.deviceName);
-				m_pGpuList->m_AutoGpu.m_GpuType = GPUType;
+				STWGraphicGpu::STWGraphicGpuItem NewGpu;
+				str_copy(NewGpu.m_aName, DeviceProp.deviceName);
+				NewGpu.m_GpuType = GPUType;
+				m_pGpuList->m_vGpus.push_back(NewGpu);
 
-				AutoGpuType = GPUType;
-			}
+				// We always decide what the 'auto' GPU would be, even if user is forcing a GPU by name in config
+				// Reminder: A worse GPU enumeration has a higher value than a better GPU enumeration, thus the '>'
+				if(AutoGpuType > STWGraphicGpu::ETWGraphicsGpuType::GRAPHICS_GPU_TYPE_INTEGRATED)
+				{
+					str_copy(m_pGpuList->m_AutoGpu.m_aName, DeviceProp.deviceName);
+					m_pGpuList->m_AutoGpu.m_GpuType = GPUType;
 
-			if(((IsAutoGpu && (FoundGpuType > STWGraphicGpu::ETWGraphicsGpuType::GRAPHICS_GPU_TYPE_INTEGRATED && GPUType < FoundGpuType)) || str_comp(DeviceProp.deviceName, g_Config.m_GfxGpuName) == 0) && (DevAPIMajor > gs_BackendVulkanMajor || (DevAPIMajor == gs_BackendVulkanMajor && DevAPIMinor >= gs_BackendVulkanMinor)))
-			{
-				FoundDeviceIndex = Index;
-				FoundGpuType = GPUType;
+					AutoGpuType = GPUType;
+
+					if(IsAutoGpu)
+						FoundDeviceIndex = Index;
+				}
+				// We only select the first GPU that matches, because it comes first in the enumeration array, it's preferred by the system
+				// Reminder: We can't break the cycle here if the name matches because we need to choose the best GPU for 'auto' mode
+				if(!IsAutoGpu && !UserSelectedGpuChosen && str_comp(DeviceProp.deviceName, g_Config.m_GfxGpuName) == 0)
+				{
+					FoundDeviceIndex = Index;
+					UserSelectedGpuChosen = true;
+				}
 			}
+			Index++;
 		}
 
-		if(FoundDeviceIndex == 0)
-			FoundDeviceIndex = 1;
+		if(m_pGpuList->m_vGpus.empty())
+		{
+			SetWarning(EGfxWarningType::GFX_WARNING_TYPE_INIT_FAILED_MISSING_INTEGRATED_GPU_DRIVER, "No devices with required vulkan version found.");
+			return false;
+		}
 
 		{
-			auto &DeviceProp = vDevicePropList[FoundDeviceIndex - 1];
+			auto &DeviceProp = vDevicePropList[FoundDeviceIndex];
 
 			int DevAPIMajor = (int)VK_API_VERSION_MAJOR(DeviceProp.apiVersion);
 			int DevAPIMinor = (int)VK_API_VERSION_MINOR(DeviceProp.apiVersion);
@@ -3833,7 +3843,7 @@ public:
 			}
 		}
 
-		VkPhysicalDevice CurDevice = vDeviceList[FoundDeviceIndex - 1];
+		VkPhysicalDevice CurDevice = vDeviceList[FoundDeviceIndex];
 
 		uint32_t FamQueueCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(CurDevice, &FamQueueCount, nullptr);
@@ -6616,19 +6626,6 @@ public:
 		DestroyIndexBuffer(m_RenderIndexBuffer, m_RenderIndexBufferMemory);
 
 		CleanupVulkan<true>(m_SwapChainImageCount);
-
-		return true;
-	}
-
-	[[nodiscard]] bool Cmd_Texture_Update(const CCommandBuffer::SCommand_Texture_Update *pCommand)
-	{
-		size_t IndexTex = pCommand->m_Slot;
-		uint8_t *pData = pCommand->m_pData;
-
-		if(!UpdateTexture(IndexTex, VK_FORMAT_B8G8R8A8_UNORM, pData, pCommand->m_X, pCommand->m_Y, pCommand->m_Width, pCommand->m_Height))
-			return false;
-
-		free(pData);
 
 		return true;
 	}

@@ -60,8 +60,8 @@ private:
 	IEngineGraphics *m_pGraphics;
 	IConsole *m_pConsole;
 
-	IEngineGraphics *Graphics() { return m_pGraphics; }
-	IConsole *Console() { return m_pConsole; }
+	IEngineGraphics *Graphics() const { return m_pGraphics; }
+	IConsole *Console() const { return m_pConsole; }
 
 	// joystick
 	std::vector<CJoystick> m_vJoysticks;
@@ -78,16 +78,14 @@ private:
 
 	bool m_MouseFocus;
 #if defined(CONF_PLATFORM_ANDROID)
-	ivec2 m_LastMousePos = ivec2(0, 0); // No relative mouse on Android
 	int m_NumBackPresses = 0;
 	bool m_BackButtonReleased = true;
 	int64_t m_LastBackPress = -1;
 #endif
 
 	// IME support
-	char m_aComposition[MAX_COMPOSITION_ARRAY_SIZE];
+	std::string m_CompositionString;
 	int m_CompositionCursor;
-	int m_CompositionLength;
 	std::vector<std::string> m_vCandidates;
 	int m_CandidateSelectedIndex;
 
@@ -102,6 +100,7 @@ private:
 	uint32_t m_aInputCount[g_MaxKeys];
 	unsigned char m_aInputState[g_MaxKeys];
 	uint32_t m_InputCounter;
+	std::vector<CTouchFingerState> m_vTouchFingerStates;
 
 	void UpdateMouseState();
 	void UpdateJoystickState();
@@ -110,6 +109,10 @@ private:
 	void HandleJoystickHatMotionEvent(const SDL_JoyHatEvent &Event);
 	void HandleJoystickAddedEvent(const SDL_JoyDeviceEvent &Event);
 	void HandleJoystickRemovedEvent(const SDL_JoyDeviceEvent &Event);
+	void HandleTouchDownEvent(const SDL_TouchFingerEvent &Event);
+	void HandleTouchUpEvent(const SDL_TouchFingerEvent &Event);
+	void HandleTouchMotionEvent(const SDL_TouchFingerEvent &Event);
+	void HandleTextEditingEvent(const char *pText, int Start, int Length);
 
 	char m_aDropFile[IO_MAX_PATH_LENGTH];
 
@@ -133,6 +136,7 @@ public:
 	bool AltIsPressed() const override { return KeyState(KEY_LALT) || KeyState(KEY_RALT); }
 	bool KeyIsPressed(int Key) const override { return KeyState(Key); }
 	bool KeyPress(int Key, bool CheckCounter) const override { return CheckCounter ? (m_aInputCount[Key] == m_InputCounter) : m_aInputCount[Key]; }
+	int FindKeyByName(const char *pKeyName) const override;
 
 	size_t NumJoysticks() const override { return m_vJoysticks.size(); }
 	CJoystick *GetJoystick(size_t Index) override { return &m_vJoysticks[Index]; }
@@ -142,18 +146,20 @@ public:
 	bool MouseRelative(float *pX, float *pY) override;
 	void MouseModeAbsolute() override;
 	void MouseModeRelative() override;
-	void NativeMousePos(int *pX, int *pY) const override;
-	bool NativeMousePressed(int Index) override;
+	vec2 NativeMousePos() const override;
+	bool NativeMousePressed(int Index) const override;
+
+	const std::vector<CTouchFingerState> &TouchFingerStates() const override;
 
 	const char *GetClipboardText() override;
 	void SetClipboardText(const char *pText) override;
 
 	void StartTextInput() override;
 	void StopTextInput() override;
-	const char *GetComposition() const override { return m_aComposition; }
-	bool HasComposition() const override { return m_CompositionLength != COMP_LENGTH_INACTIVE; }
+	const char *GetComposition() const override { return m_CompositionString.c_str(); }
+	bool HasComposition() const override { return !m_CompositionString.empty(); }
 	int GetCompositionCursor() const override { return m_CompositionCursor; }
-	int GetCompositionLength() const override { return m_CompositionLength; }
+	int GetCompositionLength() const override { return m_CompositionString.length(); }
 	const char *GetCandidate(int Index) const override { return m_vCandidates[Index].c_str(); }
 	int GetCandidateCount() const override { return m_vCandidates.size(); }
 	int GetCandidateSelectedIndex() const override { return m_CandidateSelectedIndex; }

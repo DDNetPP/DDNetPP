@@ -17,6 +17,9 @@
 
 #include <game/client/prediction/gameworld.h>
 
+#include <game/generated/protocol7.h>
+#include <game/generated/protocolglue.h>
+
 // components
 #include "components/background.h"
 #include "components/binds.h"
@@ -48,6 +51,7 @@
 #include "components/race_demo.h"
 #include "components/scoreboard.h"
 #include "components/skins.h"
+#include "components/skins7.h"
 #include "components/sounds.h"
 #include "components/spectator.h"
 #include "components/statboard.h"
@@ -104,8 +108,14 @@ class CSnapEntities
 {
 public:
 	IClient::CSnapItem m_Item;
-	const void *m_pData;
 	const CNetObj_EntityEx *m_pDataEx;
+};
+
+enum class EClientIdFormat
+{
+	NO_INDENT,
+	INDENT_AUTO,
+	INDENT_FORCE, // for rendering settings preview
 };
 
 class CGameClient : public IGameClient
@@ -122,6 +132,7 @@ public:
 	CParticles m_Particles;
 	CMenus m_Menus;
 	CSkins m_Skins;
+	CSkins7 m_Skins7;
 	CCountryFlags m_CountryFlags;
 	CFlow m_Flow;
 	CHud m_Hud;
@@ -158,6 +169,7 @@ private:
 	std::vector<class CComponent *> m_vpAll;
 	std::vector<class CComponent *> m_vpInput;
 	CNetObjHandler m_NetObjHandler;
+	protocol7::CNetObjHandler m_NetObjHandler7;
 
 	class IEngine *m_pEngine;
 	class IInput *m_pInput;
@@ -204,6 +216,7 @@ private:
 
 	static void ConTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
+	static void ConReadyChange7(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConchainLanguageUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -309,6 +322,7 @@ public:
 		int m_LocalClientId;
 		int m_NumPlayers;
 		int m_aTeamSize[2];
+		int m_HighestClientId;
 
 		// spectate data
 		struct CSpectateInfo
@@ -421,6 +435,17 @@ public:
 
 		void UpdateRenderInfo(bool IsTeamPlay);
 		void Reset();
+
+		class CSixup
+		{
+		public:
+			char m_aaSkinPartNames[protocol7::NUM_SKINPARTS][protocol7::MAX_SKIN_LENGTH];
+			int m_aUseCustomColors[protocol7::NUM_SKINPARTS];
+			int m_aSkinPartColors[protocol7::NUM_SKINPARTS];
+		};
+
+		// 0.7 Skin
+		CSixup m_Sixup;
 	};
 
 	CClientData m_aClients[MAX_CLIENTS];
@@ -479,6 +504,12 @@ public:
 	void OnInit() override;
 	void OnConsoleInit() override;
 	void OnStateChange(int NewState, int OldState) override;
+	template<typename T>
+	void ApplySkin7InfoFromGameMsg(const T *pMsg, int ClientId);
+	void ApplySkin7InfoFromSnapObj(const protocol7::CNetObj_De_ClientInfo *pObj, int ClientId) override;
+	int OnDemoRecSnap7(class CSnapshot *pFrom, class CSnapshot *pTo, int Conn) override;
+	void *TranslateGameMsg(int *pMsgId, CUnpacker *pUnpacker, int Conn);
+	int TranslateSnap(CSnapshot *pSnapDstSix, CSnapshot *pSnapSrcSeven, int Conn, bool Dummy) override;
 	void OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dummy) override;
 	void InvalidateSnapshot() override;
 	void OnNewSnapshot() override;
@@ -507,15 +538,24 @@ public:
 	const char *GetItemName(int Type) const override;
 	const char *Version() const override;
 	const char *NetVersion() const override;
+	const char *NetVersion7() const override;
 	int DDNetVersion() const override;
 	const char *DDNetVersionStr() const override;
+	virtual int ClientVersion7() const override;
+
+	void DoTeamChangeMessage7(const char *pName, int ClientId, int Team, const char *pPrefix = "");
 
 	// actions
 	// TODO: move these
 	void SendSwitchTeam(int Team);
+	void SendStartInfo7(bool Dummy) const;
+	void SendSkinChange7(bool Dummy);
+	// Returns true if the requested skin change got applied by the server
+	bool GotWantedSkin7(bool Dummy);
 	void SendInfo(bool Start);
 	void SendDummyInfo(bool Start) override;
 	void SendKill(int ClientId) const;
+	void SendReadyChange7();
 
 	int m_NextChangeInfo;
 
@@ -543,6 +583,7 @@ public:
 	bool PredictDummy() { return g_Config.m_ClPredictDummy && Client()->DummyConnected() && m_Snap.m_LocalClientId >= 0 && m_PredictedDummyId >= 0 && !m_aClients[m_PredictedDummyId].m_Paused; }
 	const CTuningParams *GetTuning(int i) { return &m_aTuningList[i]; }
 	ColorRGBA GetDDTeamColor(int DDTeam, float Lightness = 0.5f) const;
+	void FormatClientId(int ClientId, char (&aClientId)[16], EClientIdFormat Format) const;
 
 	CGameWorld m_GameWorld;
 	CGameWorld m_PredictedWorld;
@@ -558,6 +599,7 @@ public:
 	bool IsLocalCharSuper() const;
 	bool CanDisplayWarning() const override;
 	CNetObjHandler *GetNetObjHandler() override;
+	protocol7::CNetObjHandler *GetNetObjHandler7() override;
 
 	void LoadGameSkin(const char *pPath, bool AsDir = false);
 	void LoadEmoticonsSkin(const char *pPath, bool AsDir = false);

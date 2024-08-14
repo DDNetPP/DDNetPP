@@ -18,6 +18,7 @@
 #include <engine/shared/json.h>
 #include <engine/shared/linereader.h>
 #include <engine/shared/memheap.h>
+#include <engine/shared/protocolglue.h>
 #include <engine/storage.h>
 
 #include <game/collision.h>
@@ -271,7 +272,6 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMas
 
 void CGameContext::CreateHammerHit(vec2 Pos, CClientMask Mask)
 {
-	// create the event
 	CNetEvent_HammerHit *pEvent = m_Events.Create<CNetEvent_HammerHit>(Mask);
 	if(pEvent)
 	{
@@ -340,7 +340,6 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 
 void CGameContext::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 {
-	// create the event
 	CNetEvent_Spawn *pEvent = m_Events.Create<CNetEvent_Spawn>(Mask);
 	if(pEvent)
 	{
@@ -351,7 +350,6 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 
 void CGameContext::CreateDeath(vec2 Pos, int ClientId, CClientMask Mask)
 {
-	// create the event
 	CNetEvent_Death *pEvent = m_Events.Create<CNetEvent_Death>(Mask);
 	if(pEvent)
 	{
@@ -361,9 +359,18 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientId, CClientMask Mask)
 	}
 }
 
-void CGameContext::CreateFinishConfetti(vec2 Pos, CClientMask Mask)
+void CGameContext::CreateBirthdayEffect(vec2 Pos, CClientMask Mask)
 {
-	// create the event
+	CNetEvent_Birthday *pEvent = m_Events.Create<CNetEvent_Birthday>(Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+	}
+}
+
+void CGameContext::CreateFinishEffect(vec2 Pos, CClientMask Mask)
+{
 	CNetEvent_Finish *pEvent = m_Events.Create<CNetEvent_Finish>(Mask);
 	if(pEvent)
 	{
@@ -504,13 +511,7 @@ bool CGameContext::SnapPickup(const CSnapContext &Context, int SnapId, const vec
 
 		pPickup->m_X = (int)Pos.x;
 		pPickup->m_Y = (int)Pos.y;
-
-		if(Type == POWERUP_WEAPON)
-			pPickup->m_Type = SubType == WEAPON_SHOTGUN ? protocol7::PICKUP_SHOTGUN : SubType == WEAPON_GRENADE ? protocol7::PICKUP_GRENADE : protocol7::PICKUP_LASER;
-		else if(Type == POWERUP_NINJA)
-			pPickup->m_Type = protocol7::PICKUP_NINJA;
-		else if(Type == POWERUP_ARMOR)
-			pPickup->m_Type = protocol7::PICKUP_ARMOR;
+		pPickup->m_Type = PickupType_SixToSeven(Type, SubType);
 	}
 	else if(Context.GetClientVersion() >= VERSION_DDNET_ENTITY_NETOBJS)
 	{
@@ -769,7 +770,7 @@ void CGameContext::SendSettings(int ClientId) const
 	Msg.m_SpecVote = g_Config.m_SvVoteSpectate;
 	Msg.m_TeamLock = 0;
 	Msg.m_TeamBalance = 0;
-	Msg.m_PlayerSlots = g_Config.m_SvMaxClients - g_Config.m_SvSpectatorSlots;
+	Msg.m_PlayerSlots = Server()->MaxClients() - g_Config.m_SvSpectatorSlots;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 }
 
@@ -1400,18 +1401,6 @@ void CGameContext::OnTick()
 		m_TeeHistorian.BeginInputs();
 	}
 	// Warning: do not put code in this function directly above or below this comment
-}
-
-static int PlayerFlags_SevenToSix(int Flags)
-{
-	int Six = 0;
-	if(Flags & protocol7::PLAYERFLAG_CHATTING)
-		Six |= PLAYERFLAG_CHATTING;
-	if(Flags & protocol7::PLAYERFLAG_SCOREBOARD)
-		Six |= PLAYERFLAG_SCOREBOARD;
-	if(Flags & protocol7::PLAYERFLAG_AIM)
-		Six |= PLAYERFLAG_AIM;
-	return Six;
 }
 
 // Server hooks
@@ -2343,10 +2332,10 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 	{
 		str_copy(aReason, pMsg->m_pReason, sizeof(aReason));
 	}
+	int Authed = Server()->GetAuthedState(ClientId);
 
 	if(str_comp_nocase(pMsg->m_pType, "option") == 0)
 	{
-		int Authed = Server()->GetAuthedState(ClientId);
 		CVoteOptionServer *pOption = m_pVoteOptionFirst;
 		while(pOption)
 		{
@@ -2403,8 +2392,6 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 	}
 	else if(str_comp_nocase(pMsg->m_pType, "kick") == 0)
 	{
-		int Authed = Server()->GetAuthedState(ClientId);
-
 		if(!g_Config.m_SvVoteKick && !Authed) // allow admins to call kick votes even if they are forbidden
 		{
 			SendChatTarget(ClientId, "Server does not allow voting to kick players");
@@ -2528,12 +2515,21 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 
 		if(SpectateId < 0 || SpectateId >= MAX_CLIENTS || !m_apPlayers[SpectateId] || m_apPlayers[SpectateId]->GetTeam() == TEAM_SPECTATORS)
 		{
-			SendChatTarget(ClientId, "Invalid client id to move");
+			SendChatTarget(ClientId, "Invalid client id to move to spectators");
 			return;
 		}
 		if(SpectateId == ClientId)
 		{
-			SendChatTarget(ClientId, "You can't move yourself");
+			SendChatTarget(ClientId, "You can't move yourself to spectators");
+			return;
+		}
+		int SpectateAuthed = Server()->GetAuthedState(SpectateId);
+		if(SpectateAuthed > Authed)
+		{
+			SendChatTarget(ClientId, "You can't move authorized players to spectators");
+			char aBufSpectate[128];
+			str_format(aBufSpectate, sizeof(aBufSpectate), "'%s' called for vote to move you to spectators", Server()->ClientName(ClientId));
+			SendChatTarget(SpectateId, aBufSpectate);
 			return;
 		}
 		if(!Server()->ReverseTranslate(SpectateId, ClientId))
@@ -3722,7 +3718,6 @@ void CGameContext::OnConsoleInit()
 	Console()->Chain("sv_vote_kick_min", ConchainSettingUpdate, this);
 	Console()->Chain("sv_vote_spectate", ConchainSettingUpdate, this);
 	Console()->Chain("sv_spectator_slots", ConchainSettingUpdate, this);
-	Console()->Chain("sv_max_clients", ConchainSettingUpdate, this);
 
 	RegisterDDRaceCommands();
 	RegisterChatCommands();

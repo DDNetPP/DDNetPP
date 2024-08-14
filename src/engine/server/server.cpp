@@ -63,7 +63,7 @@ void CServerBan::InitServerBan(IConsole *pConsole, IStorage *pStorage, CServer *
 }
 
 template<class T>
-int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seconds, const char *pReason)
+int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seconds, const char *pReason, bool DisplayTime)
 {
 	// validate address
 	if(Server()->m_RconClientId >= 0 && Server()->m_RconClientId < MAX_CLIENTS &&
@@ -102,7 +102,7 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 		}
 	}
 
-	int Result = Ban(pBanPool, pData, Seconds, pReason);
+	int Result = Ban(pBanPool, pData, Seconds, pReason, DisplayTime);
 	if(Result != 0)
 		return Result;
 
@@ -125,15 +125,15 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 	return Result;
 }
 
-int CServerBan::BanAddr(const NETADDR *pAddr, int Seconds, const char *pReason)
+int CServerBan::BanAddr(const NETADDR *pAddr, int Seconds, const char *pReason, bool DisplayTime)
 {
-	return BanExt(&m_BanAddrPool, pAddr, Seconds, pReason);
+	return BanExt(&m_BanAddrPool, pAddr, Seconds, pReason, DisplayTime);
 }
 
 int CServerBan::BanRange(const CNetRange *pRange, int Seconds, const char *pReason)
 {
 	if(pRange->IsValid())
-		return BanExt(&m_BanRangePool, pRange, Seconds, pReason);
+		return BanExt(&m_BanRangePool, pRange, Seconds, pReason, true);
 
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "net_ban", "ban failed (invalid range)");
 	return -1;
@@ -153,7 +153,7 @@ void CServerBan::ConBanExt(IConsole::IResult *pResult, void *pUser)
 		if(ClientId < 0 || ClientId >= MAX_CLIENTS || pThis->Server()->m_aClients[ClientId].m_State == CServer::CClient::STATE_EMPTY)
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "net_ban", "ban error (invalid client id)");
 		else
-			pThis->BanAddr(pThis->Server()->m_NetServer.ClientAddr(ClientId), Minutes * 60, pReason);
+			pThis->BanAddr(pThis->Server()->m_NetServer.ClientAddr(ClientId), Minutes * 60, pReason, true);
 	}
 	else
 		ConBan(pResult, pUser);
@@ -478,11 +478,11 @@ void CServer::Kick(int ClientId, const char *pReason)
 	m_NetServer.Drop(ClientId, pReason);
 }
 
-void CServer::Ban(int ClientId, int Seconds, const char *pReason)
+void CServer::Ban(int ClientId, int Seconds, const char *pReason, bool DisplayTime)
 {
 	NETADDR Addr;
 	GetClientAddr(ClientId, &Addr);
-	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason);
+	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason, DisplayTime);
 }
 
 void CServer::RedirectClient(int ClientId, int Port, bool Verbose)
@@ -1477,7 +1477,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 		if(m_aClients[ClientId].m_Traffic > Limit)
 		{
-			m_NetServer.NetBan()->BanAddr(&pPacket->m_Address, 600, "Stressing network");
+			m_NetServer.NetBan()->BanAddr(&pPacket->m_Address, 600, "Stressing network", true);
 			return;
 		}
 		if(Diff > 100)
@@ -1545,7 +1545,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 
 				// reserved slot
-				if(ClientId >= Config()->m_SvMaxClients - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
+				if(ClientId >= MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
 				{
 					m_NetServer.Drop(ClientId, "This server is full");
 					return;
@@ -1867,7 +1867,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					if(!Config()->m_SvRconBantime)
 						m_NetServer.Drop(ClientId, "Too many remote console authentication tries");
 					else
-						m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientId), Config()->m_SvRconBantime * 60, "Too many remote console authentication tries");
+						m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientId), Config()->m_SvRconBantime * 60, "Too many remote console authentication tries", true);
 				}
 			}
 			else
@@ -2327,7 +2327,11 @@ void CServer::FillAntibot(CAntibotRoundData *pData)
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		CAntibotPlayerData *pPlayer = &pData->m_aPlayers[i];
-		net_addr_str(m_NetServer.ClientAddr(i), pPlayer->m_aAddress, sizeof(pPlayer->m_aAddress), true);
+		// No need for expensive str_copy since we don't truncate and the string is
+		// ASCII anyway
+		static_assert(std::size((CAntibotPlayerData{}).m_aAddress) >= NETADDR_MAXSTRSIZE);
+		static_assert(sizeof(*(CNetServer{}).ClientAddrString(i)) == NETADDR_MAXSTRSIZE);
+		mem_copy(pPlayer->m_aAddress, m_NetServer.ClientAddrString(i), NETADDR_MAXSTRSIZE);
 	}
 }
 
@@ -2664,10 +2668,11 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 	if(m_PreviousDebugDummies == g_Config.m_DbgDummies && !ForceDisconnect)
 		return;
 
+	g_Config.m_DbgDummies = clamp(g_Config.m_DbgDummies, 0, MaxClients());
 	for(int DummyIndex = 0; DummyIndex < maximum(m_PreviousDebugDummies, g_Config.m_DbgDummies); ++DummyIndex)
 	{
 		const bool AddDummy = !ForceDisconnect && DummyIndex < g_Config.m_DbgDummies;
-		const int ClientId = MAX_CLIENTS - DummyIndex - 1;
+		const int ClientId = MaxClients() - DummyIndex - 1;
 		if(AddDummy && m_aClients[ClientId].m_State == CClient::STATE_EMPTY)
 		{
 			NewClientCallback(ClientId, this, false);
@@ -2897,49 +2902,6 @@ int CServer::Run()
 				}
 			}
 
-			// handle dnsbl
-			if(Config()->m_SvDnsbl)
-			{
-				for(int ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
-				{
-					if(m_aClients[ClientId].m_State == CClient::STATE_EMPTY)
-						continue;
-
-					if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_NONE)
-					{
-						// initiate dnsbl lookup
-						InitDnsbl(ClientId);
-					}
-					else if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_PENDING &&
-						m_aClients[ClientId].m_pDnsblLookup->State() == IJob::STATE_DONE)
-					{
-						if(m_aClients[ClientId].m_pDnsblLookup->Result() != 0)
-						{
-							// entry not found -> whitelisted
-							m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_WHITELISTED;
-						}
-						else
-						{
-							// entry found -> blacklisted
-							m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_BLACKLISTED;
-
-							// console output
-							char aAddrStr[NETADDR_MAXSTRSIZE];
-							net_addr_str(m_NetServer.ClientAddr(ClientId), aAddrStr, sizeof(aAddrStr), true);
-
-							str_format(aBuf, sizeof(aBuf), "ClientId=%d addr=<{%s}> secure=%s blacklisted", ClientId, aAddrStr, m_NetServer.HasSecurityToken(ClientId) ? "yes" : "no");
-
-							Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "dnsbl", aBuf);
-						}
-					}
-
-					if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED && Config()->m_SvDnsblBan)
-					{
-						m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60 * 10, Config()->m_SvDnsblBanReason);
-					}
-				}
-			}
-
 			while(t > TickStartTime(m_CurrentGameTick + 1))
 			{
 				GameServer()->OnPreTickTeehistorian();
@@ -3003,27 +2965,81 @@ int CServer::Run()
 				UpdateClientRconCommands();
 
 				m_Fifo.Update();
+
+				// master server stuff
+				m_pRegister->Update();
+
+				if(m_ServerInfoNeedsUpdate)
+					UpdateServerInfo();
+
+				Antibot()->OnEngineTick();
+
+				// handle dnsbl
+				if(Config()->m_SvDnsbl)
+				{
+					for(int ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
+					{
+						if(m_aClients[ClientId].m_State == CClient::STATE_EMPTY)
+							continue;
+
+						if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_NONE)
+						{
+							// initiate dnsbl lookup
+							InitDnsbl(ClientId);
+						}
+						else if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_PENDING &&
+							m_aClients[ClientId].m_pDnsblLookup->State() == IJob::STATE_DONE)
+						{
+							if(m_aClients[ClientId].m_pDnsblLookup->Result() != 0)
+							{
+								// entry not found -> whitelisted
+								m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_WHITELISTED;
+
+								char aAddrStr[NETADDR_MAXSTRSIZE];
+								net_addr_str(m_NetServer.ClientAddr(ClientId), aAddrStr, sizeof(aAddrStr), true);
+
+								str_format(aBuf, sizeof(aBuf), "ClientId=%d addr=<{%s}> secure=%s whitelisted", ClientId, aAddrStr, m_NetServer.HasSecurityToken(ClientId) ? "yes" : "no");
+								Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
+							}
+							else
+							{
+								// entry found -> blacklisted
+								m_aClients[ClientId].m_DnsblState = CClient::DNSBL_STATE_BLACKLISTED;
+
+								// console output
+								char aAddrStr[NETADDR_MAXSTRSIZE];
+								net_addr_str(m_NetServer.ClientAddr(ClientId), aAddrStr, sizeof(aAddrStr), true);
+
+								str_format(aBuf, sizeof(aBuf), "ClientId=%d addr=<{%s}> secure=%s blacklisted", ClientId, aAddrStr, m_NetServer.HasSecurityToken(ClientId) ? "yes" : "no");
+								Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnsbl", aBuf);
+
+								if(Config()->m_SvDnsblBan)
+								{
+									m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60, Config()->m_SvDnsblBanReason, false);
+								}
+							}
+						}
+					}
+				}
+				for(int i = 0; i < MAX_CLIENTS; ++i)
+				{
+					if(m_aClients[i].m_State == CClient::STATE_REDIRECTED)
+					{
+						if(time_get() > m_aClients[i].m_RedirectDropTime)
+						{
+							m_NetServer.Drop(i, "redirected");
+						}
+					}
+				}
 			}
-
-			// master server stuff
-			m_pRegister->Update();
-
-			if(m_ServerInfoNeedsUpdate)
-				UpdateServerInfo();
-
-			Antibot()->OnEngineTick();
 
 			if(!NonActive)
 				PumpNetwork(PacketWaiting);
 
 			NonActive = true;
-
-			for(int i = 0; i < MAX_CLIENTS; ++i)
+			for(const auto &Client : m_aClients)
 			{
-				if(m_aClients[i].m_State == CClient::STATE_REDIRECTED)
-					if(time_get() > m_aClients[i].m_RedirectDropTime)
-						m_NetServer.Drop(i, "redirected");
-				if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+				if(Client.m_State != CClient::STATE_EMPTY)
 				{
 					NonActive = false;
 					break;
@@ -3405,7 +3421,20 @@ void CServer::DemoRecorder_HandleAutoStart()
 		str_timestamp(aTimestamp, sizeof(aTimestamp));
 		char aFilename[IO_MAX_PATH_LENGTH];
 		str_format(aFilename, sizeof(aFilename), "demos/auto/server/%s_%s.demo", m_aCurrentMap, aTimestamp);
-		m_aDemoRecorder[RECORDER_AUTO].Start(Storage(), m_pConsole, aFilename, GameServer()->NetVersion(), m_aCurrentMap, m_aCurrentMapSha256[MAP_TYPE_SIX], m_aCurrentMapCrc[MAP_TYPE_SIX], "server", m_aCurrentMapSize[MAP_TYPE_SIX], m_apCurrentMapData[MAP_TYPE_SIX]);
+		m_aDemoRecorder[RECORDER_AUTO].Start(
+			Storage(),
+			m_pConsole,
+			aFilename,
+			GameServer()->NetVersion(),
+			m_aCurrentMap,
+			m_aCurrentMapSha256[MAP_TYPE_SIX],
+			m_aCurrentMapCrc[MAP_TYPE_SIX],
+			"server",
+			m_aCurrentMapSize[MAP_TYPE_SIX],
+			m_apCurrentMapData[MAP_TYPE_SIX],
+			nullptr,
+			nullptr,
+			nullptr);
 
 		if(Config()->m_SvAutoDemoMax)
 		{
@@ -3432,7 +3461,20 @@ void CServer::StartRecord(int ClientId)
 	{
 		char aFilename[IO_MAX_PATH_LENGTH];
 		str_format(aFilename, sizeof(aFilename), "demos/%s_%d_%d_tmp.demo", m_aCurrentMap, m_NetServer.Address().port, ClientId);
-		m_aDemoRecorder[ClientId].Start(Storage(), Console(), aFilename, GameServer()->NetVersion(), m_aCurrentMap, m_aCurrentMapSha256[MAP_TYPE_SIX], m_aCurrentMapCrc[MAP_TYPE_SIX], "server", m_aCurrentMapSize[MAP_TYPE_SIX], m_apCurrentMapData[MAP_TYPE_SIX]);
+		m_aDemoRecorder[ClientId].Start(
+			Storage(),
+			Console(),
+			aFilename,
+			GameServer()->NetVersion(),
+			m_aCurrentMap,
+			m_aCurrentMapSha256[MAP_TYPE_SIX],
+			m_aCurrentMapCrc[MAP_TYPE_SIX],
+			"server",
+			m_aCurrentMapSize[MAP_TYPE_SIX],
+			m_apCurrentMapData[MAP_TYPE_SIX],
+			nullptr,
+			nullptr,
+			nullptr);
 	}
 }
 
@@ -3481,7 +3523,20 @@ void CServer::ConRecord(IConsole::IResult *pResult, void *pUser)
 		str_timestamp(aTimestamp, sizeof(aTimestamp));
 		str_format(aFilename, sizeof(aFilename), "demos/demo_%s.demo", aTimestamp);
 	}
-	pServer->m_aDemoRecorder[RECORDER_MANUAL].Start(pServer->Storage(), pServer->Console(), aFilename, pServer->GameServer()->NetVersion(), pServer->m_aCurrentMap, pServer->m_aCurrentMapSha256[MAP_TYPE_SIX], pServer->m_aCurrentMapCrc[MAP_TYPE_SIX], "server", pServer->m_aCurrentMapSize[MAP_TYPE_SIX], pServer->m_apCurrentMapData[MAP_TYPE_SIX]);
+	pServer->m_aDemoRecorder[RECORDER_MANUAL].Start(
+		pServer->Storage(),
+		pServer->Console(),
+		aFilename,
+		pServer->GameServer()->NetVersion(),
+		pServer->m_aCurrentMap,
+		pServer->m_aCurrentMapSha256[MAP_TYPE_SIX],
+		pServer->m_aCurrentMapCrc[MAP_TYPE_SIX],
+		"server",
+		pServer->m_aCurrentMapSize[MAP_TYPE_SIX],
+		pServer->m_apCurrentMapData[MAP_TYPE_SIX],
+		nullptr,
+		nullptr,
+		nullptr);
 }
 
 void CServer::ConStopRecord(IConsole::IResult *pResult, void *pUser)

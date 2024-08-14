@@ -9,6 +9,7 @@
 #include <engine/textrender.h>
 
 #include <game/generated/protocol.h>
+#include <game/generated/protocol7.h>
 
 #include <game/client/animstate.h>
 #include <game/client/components/scoreboard.h>
@@ -604,6 +605,7 @@ void CChat::StoreSave(const char *pText)
 	}
 	*/
 
+	const bool SavesFileExists = Storage()->FileExists(SAVES_FILE, IStorage::TYPE_SAVE);
 	IOHANDLE File = Storage()->OpenFile(SAVES_FILE, IOFLAG_APPEND, IStorage::TYPE_SAVE);
 	if(!File)
 		return;
@@ -615,7 +617,7 @@ void CChat::StoreSave(const char *pText)
 		aSaveCode,
 	};
 
-	if(io_tell(File) == 0)
+	if(!SavesFileExists)
 	{
 		CsvWrite(File, 4, SAVES_HEADER);
 	}
@@ -660,12 +662,10 @@ void CChat::AddLine(int ClientId, int Team, const char *pLine)
 	if(pEnd != 0)
 		*(const_cast<char *>(pEnd)) = 0;
 
-	bool Highlighted = false;
-	char *p = const_cast<char *>(pLine);
-
-	// Only empty string left
-	if(*p == 0)
+	if(*pLine == 0)
 		return;
+
+	bool Highlighted = false;
 
 	auto &&FChatMsgCheckAndPrint = [this](CLine *pLine_) {
 		if(pLine_->m_ClientId < 0) // server or client message
@@ -699,144 +699,161 @@ void CChat::AddLine(int ClientId, int Team, const char *pLine)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, pLine_->m_Whisper ? "whisper" : (pLine_->m_Team ? "teamchat" : "chat"), aBuf, ChatLogColor);
 	};
 
-	while(*p)
+	CLine *pCurrentLine = &m_aLines[m_CurrentLine];
+
+	// Team Number:
+	// 0 = global; 1 = team; 2 = sending whisper; 3 = receiving whisper
+
+	// If it's a client message, m_aText will have ": " prepended so we have to work around it.
+	if(pCurrentLine->m_TeamNumber == Team && pCurrentLine->m_ClientId == ClientId && str_comp(pCurrentLine->m_aText, pLine) == 0)
 	{
-		Highlighted = false;
-		pLine = p;
-		// find line separator and strip multiline
-		while(*p)
-		{
-			if(*p++ == '\n')
-			{
-				*(p - 1) = 0;
-				break;
-			}
-		}
-
-		CLine *pCurrentLine = &m_aLines[m_CurrentLine];
-
-		// Team Number:
-		// 0 = global; 1 = team; 2 = sending whisper; 3 = receiving whisper
-
-		// If it's a client message, m_aText will have ": " prepended so we have to work around it.
-		if(pCurrentLine->m_TeamNumber == Team && pCurrentLine->m_ClientId == ClientId && str_comp(pCurrentLine->m_aText, pLine) == 0)
-		{
-			pCurrentLine->m_TimesRepeated++;
-			TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
-			Graphics()->DeleteQuadContainer(pCurrentLine->m_QuadContainerIndex);
-			pCurrentLine->m_Time = time();
-			pCurrentLine->m_aYOffset[0] = -1.f;
-			pCurrentLine->m_aYOffset[1] = -1.f;
-
-			FChatMsgCheckAndPrint(pCurrentLine);
-			return;
-		}
-
-		m_CurrentLine = (m_CurrentLine + 1) % MAX_LINES;
-
-		pCurrentLine = &m_aLines[m_CurrentLine];
-		pCurrentLine->m_TimesRepeated = 0;
-		pCurrentLine->m_Time = time();
-		pCurrentLine->m_aYOffset[0] = -1.0f;
-		pCurrentLine->m_aYOffset[1] = -1.0f;
-		pCurrentLine->m_ClientId = ClientId;
-		pCurrentLine->m_TeamNumber = Team;
-		pCurrentLine->m_Team = Team == 1;
-		pCurrentLine->m_Whisper = Team >= 2;
-		pCurrentLine->m_NameColor = -2;
-		pCurrentLine->m_Friend = false;
-		pCurrentLine->m_HasRenderTee = false;
-
+		pCurrentLine->m_TimesRepeated++;
 		TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
 		Graphics()->DeleteQuadContainer(pCurrentLine->m_QuadContainerIndex);
+		pCurrentLine->m_Time = time();
+		pCurrentLine->m_aYOffset[0] = -1.f;
+		pCurrentLine->m_aYOffset[1] = -1.f;
 
-		// check for highlighted name
-		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
+		FChatMsgCheckAndPrint(pCurrentLine);
+		return;
+	}
+
+	m_CurrentLine = (m_CurrentLine + 1) % MAX_LINES;
+
+	pCurrentLine = &m_aLines[m_CurrentLine];
+	pCurrentLine->m_TimesRepeated = 0;
+	pCurrentLine->m_Time = time();
+	pCurrentLine->m_aYOffset[0] = -1.0f;
+	pCurrentLine->m_aYOffset[1] = -1.0f;
+	pCurrentLine->m_ClientId = ClientId;
+	pCurrentLine->m_TeamNumber = Team;
+	pCurrentLine->m_Team = Team == 1;
+	pCurrentLine->m_Whisper = Team >= 2;
+	pCurrentLine->m_NameColor = -2;
+	pCurrentLine->m_Friend = false;
+	pCurrentLine->m_HasRenderTee = false;
+
+	TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
+	Graphics()->DeleteQuadContainer(pCurrentLine->m_QuadContainerIndex);
+
+	// check for highlighted name
+	if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
+	{
+		if(ClientId >= 0 && ClientId != m_pClient->m_aLocalIds[0] && (!m_pClient->Client()->DummyConnected() || ClientId != m_pClient->m_aLocalIds[1]))
 		{
-			if(ClientId >= 0 && ClientId != m_pClient->m_aLocalIds[0] && (!m_pClient->Client()->DummyConnected() || ClientId != m_pClient->m_aLocalIds[1]))
-			{
-				// main character
-				Highlighted |= LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIds[0]].m_aName);
-				// dummy
-				Highlighted |= m_pClient->Client()->DummyConnected() && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIds[1]].m_aName);
-			}
+			// main character
+			Highlighted |= LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIds[0]].m_aName);
+			// dummy
+			Highlighted |= m_pClient->Client()->DummyConnected() && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIds[1]].m_aName);
 		}
-		else
+	}
+	else
+	{
+		// on demo playback use local id from snap directly,
+		// since m_aLocalIds isn't valid there
+		Highlighted |= m_pClient->m_Snap.m_LocalClientId >= 0 && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientId].m_aName);
+	}
+
+	pCurrentLine->m_Highlighted = Highlighted;
+
+	if(pCurrentLine->m_ClientId == SERVER_MSG)
+	{
+		str_copy(pCurrentLine->m_aName, "*** ");
+		str_copy(pCurrentLine->m_aText, pLine);
+	}
+	else if(pCurrentLine->m_ClientId == CLIENT_MSG)
+	{
+		str_copy(pCurrentLine->m_aName, "— ");
+		str_copy(pCurrentLine->m_aText, pLine);
+	}
+	else
+	{
+		auto &LineAuthor = m_pClient->m_aClients[pCurrentLine->m_ClientId];
+
+		if(LineAuthor.m_Team == TEAM_SPECTATORS)
+			pCurrentLine->m_NameColor = TEAM_SPECTATORS;
+
+		if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)
 		{
-			// on demo playback use local id from snap directly,
-			// since m_aLocalIds isn't valid there
-			Highlighted |= m_pClient->m_Snap.m_LocalClientId >= 0 && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientId].m_aName);
-		}
-
-		pCurrentLine->m_Highlighted = Highlighted;
-
-		if(pCurrentLine->m_ClientId == SERVER_MSG)
-		{
-			str_copy(pCurrentLine->m_aName, "*** ");
-			str_copy(pCurrentLine->m_aText, pLine);
-		}
-		else if(pCurrentLine->m_ClientId == CLIENT_MSG)
-		{
-			str_copy(pCurrentLine->m_aName, "— ");
-			str_copy(pCurrentLine->m_aText, pLine);
-		}
-		else
-		{
-			auto &LineAuthor = m_pClient->m_aClients[pCurrentLine->m_ClientId];
-
-			if(LineAuthor.m_Team == TEAM_SPECTATORS)
-				pCurrentLine->m_NameColor = TEAM_SPECTATORS;
-
-			if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)
-			{
-				if(LineAuthor.m_Team == TEAM_RED)
-					pCurrentLine->m_NameColor = TEAM_RED;
-				else if(LineAuthor.m_Team == TEAM_BLUE)
-					pCurrentLine->m_NameColor = TEAM_BLUE;
-			}
-
-			if(Team == TEAM_WHISPER_SEND)
-			{
-				str_format(pCurrentLine->m_aName, sizeof(pCurrentLine->m_aName), "→ %s", LineAuthor.m_aName);
-				pCurrentLine->m_NameColor = TEAM_BLUE;
-				pCurrentLine->m_Highlighted = false;
-				Highlighted = false;
-			}
-			else if(Team == TEAM_WHISPER_RECV)
-			{
-				str_format(pCurrentLine->m_aName, sizeof(pCurrentLine->m_aName), "← %s", LineAuthor.m_aName);
+			if(LineAuthor.m_Team == TEAM_RED)
 				pCurrentLine->m_NameColor = TEAM_RED;
-				pCurrentLine->m_Highlighted = true;
-				Highlighted = true;
-			}
-			else
-				str_copy(pCurrentLine->m_aName, LineAuthor.m_aName);
+			else if(LineAuthor.m_Team == TEAM_BLUE)
+				pCurrentLine->m_NameColor = TEAM_BLUE;
+		}
 
-			str_copy(pCurrentLine->m_aText, pLine);
-			pCurrentLine->m_Friend = LineAuthor.m_Friend;
+		if(Team == TEAM_WHISPER_SEND)
+		{
+			str_format(pCurrentLine->m_aName, sizeof(pCurrentLine->m_aName), "→ %s", LineAuthor.m_aName);
+			pCurrentLine->m_NameColor = TEAM_BLUE;
+			pCurrentLine->m_Highlighted = false;
+			Highlighted = false;
+		}
+		else if(Team == TEAM_WHISPER_RECV)
+		{
+			str_format(pCurrentLine->m_aName, sizeof(pCurrentLine->m_aName), "← %s", LineAuthor.m_aName);
+			pCurrentLine->m_NameColor = TEAM_RED;
+			pCurrentLine->m_Highlighted = true;
+			Highlighted = true;
+		}
+		else
+			str_copy(pCurrentLine->m_aName, LineAuthor.m_aName);
 
-			if(pCurrentLine->m_aName[0] != '\0')
+		str_copy(pCurrentLine->m_aText, pLine);
+		pCurrentLine->m_Friend = LineAuthor.m_Friend;
+
+		if(pCurrentLine->m_aName[0] != '\0')
+		{
+			if(!g_Config.m_ClChatOld)
 			{
-				if(!g_Config.m_ClChatOld)
+				pCurrentLine->m_CustomColoredSkin = LineAuthor.m_RenderInfo.m_CustomColoredSkin;
+				if(pCurrentLine->m_CustomColoredSkin)
+					pCurrentLine->m_RenderSkin = LineAuthor.m_RenderInfo.m_ColorableRenderSkin;
+				else
+					pCurrentLine->m_RenderSkin = LineAuthor.m_RenderInfo.m_OriginalRenderSkin;
+
+				str_copy(pCurrentLine->m_aSkinName, LineAuthor.m_aSkinName);
+				pCurrentLine->m_ColorBody = LineAuthor.m_RenderInfo.m_ColorBody;
+				pCurrentLine->m_ColorFeet = LineAuthor.m_RenderInfo.m_ColorFeet;
+
+				pCurrentLine->m_RenderSkinMetrics = LineAuthor.m_RenderInfo.m_SkinMetrics;
+				pCurrentLine->m_HasRenderTee = true;
+
+				// 0.7
+				if(Client()->IsSixup())
 				{
-					pCurrentLine->m_CustomColoredSkin = LineAuthor.m_RenderInfo.m_CustomColoredSkin;
-					if(pCurrentLine->m_CustomColoredSkin)
-						pCurrentLine->m_RenderSkin = LineAuthor.m_RenderInfo.m_ColorableRenderSkin;
-					else
-						pCurrentLine->m_RenderSkin = LineAuthor.m_RenderInfo.m_OriginalRenderSkin;
+					for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
+					{
+						const char *pPartName = LineAuthor.m_Sixup.m_aaSkinPartNames[Part];
+						int Id = m_pClient->m_Skins7.FindSkinPart(Part, pPartName, false);
+						const CSkins7::CSkinPart *pSkinPart = m_pClient->m_Skins7.GetSkinPart(Part, Id);
+						if(LineAuthor.m_Sixup.m_aUseCustomColors[Part])
+						{
+							pCurrentLine->m_Sixup.m_aTextures[Part] = pSkinPart->m_ColorTexture;
+							pCurrentLine->m_Sixup.m_aColors[Part] = m_pClient->m_Skins7.GetColor(
+								LineAuthor.m_Sixup.m_aSkinPartColors[Part],
+								Part == protocol7::SKINPART_MARKING);
+						}
+						else
+						{
+							pCurrentLine->m_Sixup.m_aTextures[Part] = pSkinPart->m_OrgTexture;
+							pCurrentLine->m_Sixup.m_aColors[Part] = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+						}
 
-					str_copy(pCurrentLine->m_aSkinName, LineAuthor.m_aSkinName);
-					pCurrentLine->m_ColorBody = LineAuthor.m_RenderInfo.m_ColorBody;
-					pCurrentLine->m_ColorFeet = LineAuthor.m_RenderInfo.m_ColorFeet;
-
-					pCurrentLine->m_RenderSkinMetrics = LineAuthor.m_RenderInfo.m_SkinMetrics;
-					pCurrentLine->m_HasRenderTee = true;
+						if(LineAuthor.m_SkinInfo.m_Sixup.m_HatTexture.IsValid())
+						{
+							if(Part == protocol7::SKINPART_BODY && str_comp(pPartName, "standard"))
+								pCurrentLine->m_Sixup.m_HatSpriteIndex = CSkins7::HAT_OFFSET_SIDE + (ClientId % CSkins7::HAT_NUM);
+							if(Part == protocol7::SKINPART_DECORATION && str_comp(pPartName, "twinbopp"))
+								pCurrentLine->m_Sixup.m_HatSpriteIndex = CSkins7::HAT_OFFSET_SIDE + (ClientId % CSkins7::HAT_NUM);
+							pCurrentLine->m_Sixup.m_HatTexture = LineAuthor.m_SkinInfo.m_Sixup.m_HatTexture;
+						}
+					}
 				}
 			}
 		}
-
-		FChatMsgCheckAndPrint(pCurrentLine);
 	}
+
+	FChatMsgCheckAndPrint(pCurrentLine);
 
 	// play sound
 	int64_t Now = time();
@@ -960,17 +977,11 @@ void CChat::OnPrepareLines(float y)
 		TextRender()->DeleteTextContainer(Line.m_TextContainerIndex);
 		Graphics()->DeleteQuadContainer(Line.m_QuadContainerIndex);
 
-		char aName[64 + 12] = "";
-
+		char aClientId[16] = "";
 		if(g_Config.m_ClShowIds && Line.m_ClientId >= 0 && Line.m_aName[0] != '\0')
 		{
-			if(Line.m_ClientId < 10)
-				str_format(aName, sizeof(aName), " %d: ", Line.m_ClientId);
-			else
-				str_format(aName, sizeof(aName), "%d: ", Line.m_ClientId);
+			GameClient()->FormatClientId(Line.m_ClientId, aClientId, EClientIdFormat::INDENT_AUTO);
 		}
-
-		str_append(aName, Line.m_aName);
 
 		char aCount[12];
 		if(Line.m_ClientId < 0)
@@ -1012,7 +1023,8 @@ void CChat::OnPrepareLines(float y)
 				}
 			}
 
-			TextRender()->TextEx(&Cursor, aName);
+			TextRender()->TextEx(&Cursor, aClientId);
+			TextRender()->TextEx(&Cursor, Line.m_aName);
 			if(Line.m_TimesRepeated > 0)
 				TextRender()->TextEx(&Cursor, aCount);
 
@@ -1082,7 +1094,8 @@ void CChat::OnPrepareLines(float y)
 			NameColor = ColorRGBA(0.8f, 0.8f, 0.8f, 1.f);
 
 		TextRender()->TextColor(NameColor);
-		TextRender()->CreateOrAppendTextContainer(Line.m_TextContainerIndex, &Cursor, aName);
+		TextRender()->CreateOrAppendTextContainer(Line.m_TextContainerIndex, &Cursor, aClientId);
+		TextRender()->CreateOrAppendTextContainer(Line.m_TextContainerIndex, &Cursor, Line.m_aName);
 
 		if(Line.m_TimesRepeated > 0)
 		{
@@ -1286,6 +1299,14 @@ void CChat::OnRender()
 				RenderInfo.m_ColorFeet = Line.m_ColorFeet;
 				RenderInfo.m_Size = TeeSize;
 
+				for(int Part = 0; Part < protocol7::NUM_SKINPARTS; Part++)
+				{
+					RenderInfo.m_Sixup.m_aColors[Part] = Line.m_Sixup.m_aColors[Part];
+					RenderInfo.m_Sixup.m_aTextures[Part] = Line.m_Sixup.m_aTextures[Part];
+					RenderInfo.m_Sixup.m_HatSpriteIndex = Line.m_Sixup.m_HatSpriteIndex;
+					RenderInfo.m_Sixup.m_HatTexture = Line.m_Sixup.m_HatTexture;
+				}
+
 				float RowHeight = FontSize() + RealMsgPaddingY;
 				float OffsetTeeY = TeeSize / 2.0f;
 				float FullHeightMinusTee = RowHeight - TeeSize;
@@ -1333,6 +1354,16 @@ void CChat::SendChat(int Team, const char *pLine)
 		return;
 
 	m_LastChatSend = time();
+
+	if(m_pClient->Client()->IsSixup())
+	{
+		protocol7::CNetMsg_Cl_Say Msg7;
+		Msg7.m_Mode = Team == 1 ? protocol7::CHAT_TEAM : protocol7::CHAT_ALL;
+		Msg7.m_Target = -1;
+		Msg7.m_pMessage = pLine;
+		Client()->SendPackMsgActive(&Msg7, MSGFLAG_VITAL, true);
+		return;
+	}
 
 	// send chat message
 	CNetMsg_Cl_Say Msg;

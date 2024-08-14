@@ -72,13 +72,18 @@ void CMenus::RenderGame(CUIRect MainView)
 	ButtonBar.VSplitRight(5.0f, &ButtonBar, 0);
 	ButtonBar.VSplitRight(170.0f, &ButtonBar, &Button);
 
-	bool DummyConnecting = Client()->DummyConnecting();
 	static CButtonContainer s_DummyButton;
 	if(!Client()->DummyAllowed())
 	{
 		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button);
+		GameClient()->m_Tooltips.DoToolTip(&s_DummyButton, &Button, Localize("Dummy is not allowed on this server."));
 	}
-	else if(DummyConnecting)
+	else if(Client()->DummyConnectingDelayed())
+	{
+		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button);
+		GameClient()->m_Tooltips.DoToolTip(&s_DummyButton, &Button, Localize("Please wait…"));
+	}
+	else if(Client()->DummyConnecting())
 	{
 		DoButton_Menu(&s_DummyButton, Localize("Connecting dummy"), 1, &Button);
 	}
@@ -131,7 +136,7 @@ void CMenus::RenderGame(CUIRect MainView)
 		{
 			ButtonBar.VSplitLeft(5.0f, 0, &ButtonBar);
 			ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
-			if(!DummyConnecting && DoButton_Menu(&s_SpectateButton, Localize("Spectate"), 0, &Button))
+			if(!Client()->DummyConnecting() && DoButton_Menu(&s_SpectateButton, Localize("Spectate"), 0, &Button))
 			{
 				if(g_Config.m_ClDummy == 0 || Client()->DummyConnected())
 				{
@@ -148,7 +153,7 @@ void CMenus::RenderGame(CUIRect MainView)
 				ButtonBar.VSplitLeft(5.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
 				static CButtonContainer s_JoinRedButton;
-				if(!DummyConnecting && DoButton_Menu(&s_JoinRedButton, Localize("Join red"), 0, &Button))
+				if(!Client()->DummyConnecting() && DoButton_Menu(&s_JoinRedButton, Localize("Join red"), 0, &Button))
 				{
 					m_pClient->SendSwitchTeam(TEAM_RED);
 					SetActive(false);
@@ -160,7 +165,7 @@ void CMenus::RenderGame(CUIRect MainView)
 				ButtonBar.VSplitLeft(5.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
 				static CButtonContainer s_JoinBlueButton;
-				if(!DummyConnecting && DoButton_Menu(&s_JoinBlueButton, Localize("Join blue"), 0, &Button))
+				if(!Client()->DummyConnecting() && DoButton_Menu(&s_JoinBlueButton, Localize("Join blue"), 0, &Button))
 				{
 					m_pClient->SendSwitchTeam(TEAM_BLUE);
 					SetActive(false);
@@ -173,7 +178,7 @@ void CMenus::RenderGame(CUIRect MainView)
 			{
 				ButtonBar.VSplitLeft(5.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
-				if(!DummyConnecting && DoButton_Menu(&s_SpectateButton, Localize("Join game"), 0, &Button))
+				if(!Client()->DummyConnecting() && DoButton_Menu(&s_SpectateButton, Localize("Join game"), 0, &Button))
 				{
 					m_pClient->SendSwitchTeam(0);
 					SetActive(false);
@@ -181,7 +186,7 @@ void CMenus::RenderGame(CUIRect MainView)
 			}
 		}
 
-		if(m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_SPECTATORS && ShowDDRaceButtons)
+		if(m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_SPECTATORS && (ShowDDRaceButtons || !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)))
 		{
 			ButtonBar.VSplitLeft(5.0f, 0, &ButtonBar);
 			ButtonBar.VSplitLeft(65.0f, &Button, &ButtonBar);
@@ -195,7 +200,7 @@ void CMenus::RenderGame(CUIRect MainView)
 		}
 	}
 
-	if(m_pClient->m_ReceivedDDNetPlayer && m_pClient->m_Snap.m_pLocalInfo && m_pClient->m_Snap.m_pGameInfoObj && ShowDDRaceButtons)
+	if(m_pClient->m_ReceivedDDNetPlayer && m_pClient->m_Snap.m_pLocalInfo && m_pClient->m_Snap.m_pGameInfoObj && (ShowDDRaceButtons || !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)))
 	{
 		if(m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_SPECTATORS || Paused || Spec)
 		{
@@ -225,18 +230,16 @@ void CMenus::PopupConfirmDisconnectDummy()
 
 void CMenus::RenderPlayers(CUIRect MainView)
 {
-	CUIRect Button, Button2, ButtonBar, Options, Player;
+	CUIRect Button, Button2, ButtonBar, PlayerList, Player;
 	MainView.Draw(ms_ColorTabbarActive, IGraphics::CORNER_B, 10.0f);
 
-	// player options
-	MainView.Margin(10.0f, &Options);
-	Options.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), IGraphics::CORNER_ALL, 10.0f);
-	Options.Margin(10.0f, &Options);
-	Options.HSplitTop(50.0f, &Button, &Options);
-	Ui()->DoLabel(&Button, Localize("Player options"), 34.0f, TEXTALIGN_ML);
+	// list background color
+	MainView.Margin(10.0f, &PlayerList);
+	PlayerList.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), IGraphics::CORNER_ALL, 10.0f);
+	PlayerList.Margin(10.0f, &PlayerList);
 
 	// headline
-	Options.HSplitTop(34.0f, &ButtonBar, &Options);
+	PlayerList.HSplitTop(34.0f, &ButtonBar, &PlayerList);
 	ButtonBar.VSplitRight(231.0f, &Player, &ButtonBar);
 	Ui()->DoLabel(&Player, Localize("Player"), 24.0f, TEXTALIGN_ML);
 
@@ -268,10 +271,10 @@ void CMenus::RenderPlayers(CUIRect MainView)
 	}
 
 	static CListBox s_ListBox;
-	s_ListBox.DoStart(24.0f, TotalPlayers, 1, 3, -1, &Options);
+	s_ListBox.DoStart(24.0f, TotalPlayers, 1, 3, -1, &PlayerList);
 
 	// options
-	static char s_aPlayerIds[MAX_CLIENTS][3] = {{0}};
+	static char s_aPlayerIds[MAX_CLIENTS][4] = {{0}};
 
 	for(int i = 0, Count = 0; i < MAX_CLIENTS; ++i)
 	{
@@ -306,8 +309,9 @@ void CMenus::RenderPlayers(CUIRect MainView)
 		vec2 OffsetToMid;
 		CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 		vec2 TeeRenderPos(Button.x + Button.h / 2, Button.y + Button.h / 2 + OffsetToMid.y);
-
 		RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+		Ui()->DoButtonLogic(&s_aPlayerIds[Index][3], 0, &Button);
+		GameClient()->m_Tooltips.DoToolTip(&s_aPlayerIds[Index][3], &Button, CurrentClient.m_aSkinName);
 
 		Player.HSplitTop(1.5f, nullptr, &Player);
 		Player.VSplitMid(&Player, &Button);
