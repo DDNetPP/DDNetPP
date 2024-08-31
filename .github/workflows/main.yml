@@ -16,7 +16,7 @@ jobs:
           package-file: DDNetPP-*-linux_x86_64.tar.xz
           env:
             CFLAGS: -Wdeclaration-after-statement
-        - os: ubuntu-18.04
+        - os: ubuntu-22.04
           cmake-path: /usr/bin/
           cmake-args: -G "Unix Makefiles"
           package-file: DDNetPP-*-linux_x86_64.tar.xz
@@ -79,12 +79,12 @@ jobs:
     - name: Package
       run: |
         cd release
-        ${{ matrix.cmake-path }}cmake --build . --config Release ${{ matrix.build-args }} --target package_default
+        ${{ matrix.cmake-path }}cmake --build . --config Release --target package_default ${{ matrix.build-args }}
         mkdir artifacts
         mv ${{ matrix.package-file }} artifacts
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: DDNetPP-${{ matrix.os }}
         path: release/artifacts
