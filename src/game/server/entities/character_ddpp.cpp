@@ -3429,9 +3429,9 @@ void CCharacter::SendShopMessage(const char *pMsg)
 		return;
 
 	if(Server()->IsSixup(GetPlayer()->GetCid()))
-		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIXUP, m_pPlayer->GetCid());
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::FLAG_SIXUP, m_pPlayer->GetCid());
 	else
-		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIX, m_pPlayer->GetCid());
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::FLAG_SIX, m_pPlayer->GetCid());
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
 }
 
@@ -3491,11 +3491,11 @@ void CCharacter::TakeHammerHit(CCharacter *pFrom)
 	m_Core.m_Vel += Push;
 }
 
-void CCharacter::KillFreeze(bool unfreeze)
+void CCharacter::KillFreeze(bool Unfreeze)
 {
 	if(!g_Config.m_SvFreezeKillDelay)
 		return;
-	if(unfreeze) // stop counting
+	if(Unfreeze) // stop counting
 	{
 		m_FirstFreezeTick = 0;
 		return;

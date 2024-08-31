@@ -184,6 +184,7 @@ public:
 	};
 
 	bool m_DND;
+	bool m_Whispers;
 	int64_t m_FirstVoteTick;
 	char m_aTimeoutCode[64];
 

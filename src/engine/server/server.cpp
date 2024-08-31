@@ -24,6 +24,7 @@
 #include <engine/shared/host_lookup.h>
 #include <engine/shared/http.h>
 #include <engine/shared/json.h>
+#include <engine/shared/jsonwriter.h>
 #include <engine/shared/masterserver.h>
 #include <engine/shared/netban.h>
 #include <engine/shared/network.h>
@@ -63,7 +64,7 @@ void CServerBan::InitServerBan(IConsole *pConsole, IStorage *pStorage, CServer *
 }
 
 template<class T>
-int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seconds, const char *pReason, bool DisplayTime)
+int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seconds, const char *pReason, bool VerbatimReason)
 {
 	// validate address
 	if(Server()->m_RconClientId >= 0 && Server()->m_RconClientId < MAX_CLIENTS &&
@@ -102,7 +103,7 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 		}
 	}
 
-	int Result = Ban(pBanPool, pData, Seconds, pReason, DisplayTime);
+	int Result = Ban(pBanPool, pData, Seconds, pReason, VerbatimReason);
 	if(Result != 0)
 		return Result;
 
@@ -125,9 +126,9 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 	return Result;
 }
 
-int CServerBan::BanAddr(const NETADDR *pAddr, int Seconds, const char *pReason, bool DisplayTime)
+int CServerBan::BanAddr(const NETADDR *pAddr, int Seconds, const char *pReason, bool VerbatimReason)
 {
-	return BanExt(&m_BanAddrPool, pAddr, Seconds, pReason, DisplayTime);
+	return BanExt(&m_BanAddrPool, pAddr, Seconds, pReason, VerbatimReason);
 }
 
 int CServerBan::BanRange(const CNetRange *pRange, int Seconds, const char *pReason)
@@ -153,7 +154,7 @@ void CServerBan::ConBanExt(IConsole::IResult *pResult, void *pUser)
 		if(ClientId < 0 || ClientId >= MAX_CLIENTS || pThis->Server()->m_aClients[ClientId].m_State == CServer::CClient::STATE_EMPTY)
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "net_ban", "ban error (invalid client id)");
 		else
-			pThis->BanAddr(pThis->Server()->m_NetServer.ClientAddr(ClientId), Minutes * 60, pReason, true);
+			pThis->BanAddr(pThis->Server()->m_NetServer.ClientAddr(ClientId), Minutes * 60, pReason, false);
 	}
 	else
 		ConBan(pResult, pUser);
@@ -478,11 +479,11 @@ void CServer::Kick(int ClientId, const char *pReason)
 	m_NetServer.Drop(ClientId, pReason);
 }
 
-void CServer::Ban(int ClientId, int Seconds, const char *pReason, bool DisplayTime)
+void CServer::Ban(int ClientId, int Seconds, const char *pReason, bool VerbatimReason)
 {
 	NETADDR Addr;
 	GetClientAddr(ClientId, &Addr);
-	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason, DisplayTime);
+	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason, VerbatimReason);
 }
 
 void CServer::RedirectClient(int ClientId, int Port, bool Verbose)
@@ -1477,7 +1478,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 		if(m_aClients[ClientId].m_Traffic > Limit)
 		{
-			m_NetServer.NetBan()->BanAddr(&pPacket->m_Address, 600, "Stressing network", true);
+			m_NetServer.NetBan()->BanAddr(&pPacket->m_Address, 600, "Stressing network", false);
 			return;
 		}
 		if(Diff > 100)
@@ -1867,7 +1868,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					if(!Config()->m_SvRconBantime)
 						m_NetServer.Drop(ClientId, "Too many remote console authentication tries");
 					else
-						m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientId), Config()->m_SvRconBantime * 60, "Too many remote console authentication tries", true);
+						m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientId), Config()->m_SvRconBantime * 60, "Too many remote console authentication tries", false);
 				}
 			}
 			else
@@ -2357,77 +2358,81 @@ void CServer::UpdateRegisterServerInfo()
 
 	int MaxPlayers = maximum(m_NetServer.MaxClients() - maximum(g_Config.m_SvSpectatorSlots, g_Config.m_SvReservedSlots), PlayerCount);
 	int MaxClients = maximum(m_NetServer.MaxClients() - g_Config.m_SvReservedSlots, ClientCount);
-	char aName[256];
-	char aGameType[32];
-	char aMapName[64];
-	char aVersion[64];
 	char aMapSha256[SHA256_MAXSTRSIZE];
 
 	sha256_str(m_aCurrentMapSha256[MAP_TYPE_SIX], aMapSha256, sizeof(aMapSha256));
 
-	char aInfo[16384];
-	str_format(aInfo, sizeof(aInfo),
-		"{"
-		"\"max_clients\":%d,"
-		"\"max_players\":%d,"
-		"\"passworded\":%s,"
-		"\"game_type\":\"%s\","
-		"\"name\":\"%s\","
-		"\"map\":{"
-		"\"name\":\"%s\","
-		"\"sha256\":\"%s\","
-		"\"size\":%d"
-		"},"
-		"\"version\":\"%s\","
-		"\"client_score_kind\":\"time\","
-		"\"requires_login\":false,"
-		"\"clients\":[",
-		MaxClients,
-		MaxPlayers,
-		JsonBool(g_Config.m_Password[0]),
-		EscapeJson(aGameType, sizeof(aGameType), GameServer()->GameType()),
-		EscapeJson(aName, sizeof(aName), g_Config.m_SvName),
-		EscapeJson(aMapName, sizeof(aMapName), m_aCurrentMap),
-		aMapSha256,
-		m_aCurrentMapSize[MAP_TYPE_SIX],
-		EscapeJson(aVersion, sizeof(aVersion), GameServer()->Version()));
+	CJsonStringWriter JsonWriter;
 
-	bool FirstPlayer = true;
+	JsonWriter.BeginObject();
+	JsonWriter.WriteAttribute("max_clients");
+	JsonWriter.WriteIntValue(MaxClients);
+
+	JsonWriter.WriteAttribute("max_players");
+	JsonWriter.WriteIntValue(MaxPlayers);
+
+	JsonWriter.WriteAttribute("passworded");
+	JsonWriter.WriteBoolValue(g_Config.m_Password[0]);
+
+	JsonWriter.WriteAttribute("game_type");
+	JsonWriter.WriteStrValue(GameServer()->GameType());
+
+	JsonWriter.WriteAttribute("name");
+	JsonWriter.WriteStrValue(g_Config.m_SvName);
+
+	JsonWriter.WriteAttribute("map");
+	JsonWriter.BeginObject();
+	JsonWriter.WriteAttribute("name");
+	JsonWriter.WriteStrValue(GetMapName());
+	JsonWriter.WriteAttribute("sha256");
+	JsonWriter.WriteStrValue(aMapSha256);
+	JsonWriter.WriteAttribute("size");
+	JsonWriter.WriteIntValue(m_aCurrentMapSize[MAP_TYPE_SIX]);
+	JsonWriter.EndObject();
+
+	JsonWriter.WriteAttribute("version");
+	JsonWriter.WriteStrValue(GameServer()->Version());
+
+	JsonWriter.WriteAttribute("client_score_kind");
+	JsonWriter.WriteStrValue("time"); // "points" or "time"
+
+	JsonWriter.WriteAttribute("requires_login");
+	JsonWriter.WriteBoolValue(false);
+
+	JsonWriter.WriteAttribute("clients");
+	JsonWriter.BeginArray();
+
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(m_aClients[i].IncludedInServerInfo())
 		{
-			char aCName[32];
-			char aCClan[32];
+			JsonWriter.BeginObject();
 
-			char aExtraPlayerInfo[512];
-			GameServer()->OnUpdatePlayerServerInfo(aExtraPlayerInfo, sizeof(aExtraPlayerInfo), i);
+			JsonWriter.WriteAttribute("name");
+			JsonWriter.WriteStrValue(ClientName(i));
 
-			char aClientInfo[1024];
-			str_format(aClientInfo, sizeof(aClientInfo),
-				"%s{"
-				"\"name\":\"%s\","
-				"\"clan\":\"%s\","
-				"\"country\":%d,"
-				"\"score\":%d,"
-				"\"is_player\":%s"
-				"%s"
-				"}",
-				!FirstPlayer ? "," : "",
-				EscapeJson(aCName, sizeof(aCName), ClientName(i)),
-				EscapeJson(aCClan, sizeof(aCClan), ClientClan(i)),
-				m_aClients[i].m_Country,
-				m_aClients[i].m_Score.value_or(-9999),
-				JsonBool(GameServer()->IsClientPlayer(i)),
-				aExtraPlayerInfo);
-			str_append(aInfo, aClientInfo);
-			FirstPlayer = false;
+			JsonWriter.WriteAttribute("clan");
+			JsonWriter.WriteStrValue(ClientClan(i));
+
+			JsonWriter.WriteAttribute("country");
+			JsonWriter.WriteIntValue(m_aClients[i].m_Country);
+
+			JsonWriter.WriteAttribute("score");
+			JsonWriter.WriteIntValue(m_aClients[i].m_Score.value_or(-9999));
+
+			JsonWriter.WriteAttribute("is_player");
+			JsonWriter.WriteBoolValue(GameServer()->IsClientPlayer(i));
+
+			GameServer()->OnUpdatePlayerServerInfo(&JsonWriter, i);
+
+			JsonWriter.EndObject();
 		}
 	}
 
-	str_append(aInfo, "]}");
+	JsonWriter.EndArray();
+	JsonWriter.EndObject();
 
-	m_pRegister->OnNewInfo(aInfo);
+	m_pRegister->OnNewInfo(JsonWriter.GetOutputString().c_str());
 }
 
 void CServer::UpdateServerInfo(bool Resend)
@@ -2588,6 +2593,11 @@ void CServer::ChangeMap(const char *pMap)
 	m_MapReload = str_comp(Config()->m_SvMap, m_aCurrentMap) != 0;
 }
 
+void CServer::ReloadMap()
+{
+	m_MapReload = true;
+}
+
 int CServer::LoadMap(const char *pMapName)
 {
 	m_MapReload = false;
@@ -2635,9 +2645,8 @@ int CServer::LoadMap(const char *pMapName)
 			{
 				m_pRegister->OnConfigChange();
 			}
-			str_format(aBufMsg, sizeof(aBufMsg), "couldn't load map %s", aBuf);
-			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", aBufMsg);
-			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", "disabling 0.7 compatibility");
+			log_error("sixup", "couldn't load map %s", aBuf);
+			log_info("sixup", "disabling 0.7 compatibility");
 		}
 		else
 		{
@@ -3016,7 +3025,7 @@ int CServer::Run()
 
 								if(Config()->m_SvDnsblBan)
 								{
-									m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60, Config()->m_SvDnsblBanReason, false);
+									m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60, Config()->m_SvDnsblBanReason, true);
 								}
 							}
 						}

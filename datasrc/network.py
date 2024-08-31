@@ -374,6 +374,10 @@ Objects = [
 		NetIntAny("m_Layer"),
 		NetIntAny("m_EntityClass"),
 	]),
+
+	NetEventEx("MapSoundWorld:Common", "map-sound-world@netevent.ddnet.org", [
+		NetIntAny("m_SoundId"),
+	]),
 ]
 
 Messages = [
@@ -584,6 +588,10 @@ Messages = [
 
 	NetMessageEx("Sv_ChangeInfoCooldown", "change-info-cooldown@netmsg.ddnet.org", [
 		NetTick("m_WaitUntil")
+	]),
+
+	NetMessageEx("Sv_MapSoundGlobal", "map-sound-global@netmsg.ddnet.org", [
+		NetIntAny("m_SoundId"),
 	]),
 ]
 

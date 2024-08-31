@@ -5,6 +5,7 @@
 #include <limits>
 
 #include <engine/client/checksum.h>
+#include <engine/client/enums.h>
 #include <engine/demo.h>
 #include <engine/editor.h>
 #include <engine/engine.h>
@@ -159,9 +160,9 @@ void CGameClient::OnConsoleInit()
 						  &m_GameConsole,
 						  &m_Chat, // chat has higher prio, due to that you can quit it by pressing esc
 						  &m_Motd, // for pressing esc to remove it
-						  &m_Menus,
 						  &m_Spectator,
 						  &m_Emoticon,
+						  &m_Menus,
 						  &m_Controls,
 						  &m_Binds});
 
@@ -190,6 +191,26 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("player_color_feet", ConchainSpecialInfoupdate, this);
 	Console()->Chain("player_skin", ConchainSpecialInfoupdate, this);
 
+	Console()->Chain("player7_skin", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_body", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_marking", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_decoration", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_hands", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_feet", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_skin_eyes", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_body", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_marking", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_decoration", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_hands", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_feet", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_color_eyes", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_body", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_marking", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_decoration", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_hands", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_feet", ConchainSpecialInfoupdate, this);
+	Console()->Chain("player7_use_custom_color_eyes", ConchainSpecialInfoupdate, this);
+
 	Console()->Chain("dummy_name", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_clan", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_country", ConchainSpecialDummyInfoupdate, this);
@@ -197,6 +218,26 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("dummy_color_body", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_color_feet", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_skin", ConchainSpecialDummyInfoupdate, this);
+
+	Console()->Chain("dummy7_skin", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_body", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_marking", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_decoration", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_hands", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_feet", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_skin_eyes", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_body", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_marking", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_decoration", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_hands", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_feet", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_color_eyes", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_body", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_marking", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_decoration", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_hands", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_feet", ConchainSpecialDummyInfoupdate, this);
+	Console()->Chain("dummy7_use_custom_color_eyes", ConchainSpecialDummyInfoupdate, this);
 
 	Console()->Chain("cl_skin_download_url", ConchainRefreshSkins, this);
 	Console()->Chain("cl_skin_community_download_url", ConchainRefreshSkins, this);
@@ -491,21 +532,7 @@ void CGameClient::OnConnected()
 	m_Layers.Init(Kernel());
 	m_Collision.Init(Layers());
 	m_GameWorld.m_Core.InitSwitchers(m_Collision.m_HighestSwitchNumber);
-
-	CRaceHelper::ms_aFlagIndex[0] = -1;
-	CRaceHelper::ms_aFlagIndex[1] = -1;
-
-	CTile *pGameTiles = static_cast<CTile *>(Layers()->Map()->GetData(Layers()->GameLayer()->m_Data));
-
-	// get flag positions
-	for(int i = 0; i < m_Collision.GetWidth() * m_Collision.GetHeight(); i++)
-	{
-		if(pGameTiles[i].m_Index - ENTITY_OFFSET == ENTITY_FLAGSTAND_RED)
-			CRaceHelper::ms_aFlagIndex[TEAM_RED] = i;
-		else if(pGameTiles[i].m_Index - ENTITY_OFFSET == ENTITY_FLAGSTAND_BLUE)
-			CRaceHelper::ms_aFlagIndex[TEAM_BLUE] = i;
-		i += pGameTiles[i].m_Skip;
-	}
+	m_RaceHelper.Init(this);
 
 	// render loading before going through all components
 	m_Menus.RenderLoading(pConnectCaption, pLoadMapContent, 0, false);
@@ -1067,6 +1094,17 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 		CNetMsg_Sv_ChangeInfoCooldown *pMsg = (CNetMsg_Sv_ChangeInfoCooldown *)pRawMsg;
 		m_NextChangeInfo = pMsg->m_WaitUntil;
 	}
+	else if(MsgId == NETMSGTYPE_SV_MAPSOUNDGLOBAL)
+	{
+		if(m_SuppressEvents)
+			return;
+
+		if(!g_Config.m_SndGame)
+			return;
+
+		CNetMsg_Sv_MapSoundGlobal *pMsg = (CNetMsg_Sv_MapSoundGlobal *)pRawMsg;
+		m_MapSounds.Play(pMsg->m_SoundId);
+	}
 }
 
 void CGameClient::OnStateChange(int NewState, int OldState)
@@ -1239,6 +1277,14 @@ void CGameClient::ProcessEvents()
 				continue;
 
 			m_Sounds.PlayAt(CSounds::CHN_WORLD, pEvent->m_SoundId, 1.0f, vec2(pEvent->m_X, pEvent->m_Y));
+		}
+		else if(Item.m_Type == NETEVENTTYPE_MAPSOUNDWORLD)
+		{
+			CNetEvent_MapSoundWorld *pEvent = (CNetEvent_MapSoundWorld *)Item.m_pData;
+			if(!Config()->m_SndGame)
+				continue;
+
+			m_MapSounds.PlayAt(pEvent->m_SoundId, vec2(pEvent->m_X, pEvent->m_Y));
 		}
 	}
 }
@@ -1521,7 +1567,7 @@ void CGameClient::OnNewSnapshot()
 						pClient->m_SkinInfo.m_ColorFeet = ColorRGBA(1, 1, 1);
 					}
 
-					pClient->UpdateRenderInfo(IsTeamPlay());
+					pClient->UpdateRenderInfo(IsTeamPlay(), g_Config.m_ClDummy);
 				}
 			}
 			else if(Item.m_Type == NETOBJTYPE_PLAYERINFO)
@@ -2318,7 +2364,7 @@ void CGameClient::CClientStats::Reset()
 	m_FlagCaptures = 0;
 }
 
-void CGameClient::CClientData::UpdateRenderInfo(bool IsTeamPlay)
+void CGameClient::CClientData::UpdateRenderInfo(bool IsTeamPlay, int Conn)
 {
 	m_RenderInfo = m_SkinInfo;
 
@@ -2340,18 +2386,18 @@ void CGameClient::CClientData::UpdateRenderInfo(bool IsTeamPlay)
 				const ColorRGBA aMarkingColorsSixup[2] = {
 					ColorRGBA(0.824f, 0.345f, 0.345f, 1.0f),
 					ColorRGBA(0.345f, 0.514f, 0.824f, 1.0f)};
-				float MarkingAlpha = m_RenderInfo.m_Sixup.m_aColors[protocol7::SKINPART_MARKING].a;
-				for(auto &Color : m_RenderInfo.m_Sixup.m_aColors)
+				float MarkingAlpha = m_RenderInfo.m_aSixup[Conn].m_aColors[protocol7::SKINPART_MARKING].a;
+				for(auto &Color : m_RenderInfo.m_aSixup[Conn].m_aColors)
 					Color = aTeamColorsSixup[m_Team];
 				if(MarkingAlpha > 0.1f)
-					m_RenderInfo.m_Sixup.m_aColors[protocol7::SKINPART_MARKING] = aMarkingColorsSixup[m_Team];
+					m_RenderInfo.m_aSixup[Conn].m_aColors[protocol7::SKINPART_MARKING] = aMarkingColorsSixup[m_Team];
 			}
 		}
 		else
 		{
 			m_RenderInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(12829350));
 			m_RenderInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(12829350));
-			for(auto &Color : m_RenderInfo.m_Sixup.m_aColors)
+			for(auto &Color : m_RenderInfo.m_aSixup[Conn].m_aColors)
 				Color = color_cast<ColorRGBA>(ColorHSLA(12829350));
 		}
 	}
@@ -2368,12 +2414,7 @@ void CGameClient::CClientData::Reset()
 	m_Country = -1;
 	m_aSkinName[0] = '\0';
 	m_SkinColor = 0;
-	for(int i = 0; i < protocol7::NUM_SKINPARTS; ++i)
-	{
-		m_Sixup.m_aaSkinPartNames[i][0] = '\0';
-		m_Sixup.m_aUseCustomColors[i] = 0;
-		m_Sixup.m_aSkinPartColors[i] = 0;
-	}
+
 	m_Team = 0;
 	m_Emoticon = 0;
 	m_EmoticonStartFraction = 0;
@@ -2431,6 +2472,19 @@ void CGameClient::CClientData::Reset()
 	std::fill(std::begin(m_aPredTick), std::end(m_aPredTick), 0);
 	m_SpecCharPresent = false;
 	m_SpecChar = vec2(0.0f, 0.0f);
+
+	for(auto &Info : m_aSixup)
+		Info.Reset();
+}
+
+void CGameClient::CClientData::CSixup::Reset()
+{
+	for(int i = 0; i < protocol7::NUM_SKINPARTS; ++i)
+	{
+		m_aaSkinPartNames[i][0] = '\0';
+		m_aUseCustomColors[i] = 0;
+		m_aSkinPartColors[i] = 0;
+	}
 }
 
 void CGameClient::SendSwitchTeam(int Team)
@@ -2498,11 +2552,11 @@ bool CGameClient::GotWantedSkin7(bool Dummy)
 
 	for(int SkinPart = 0; SkinPart < protocol7::NUM_SKINPARTS; SkinPart++)
 	{
-		if(str_comp(m_aClients[m_aLocalIds[(int)Dummy]].m_Sixup.m_aaSkinPartNames[SkinPart], apSkinPartsPtr[SkinPart]))
+		if(str_comp(m_aClients[m_aLocalIds[(int)Dummy]].m_aSixup[g_Config.m_ClDummy].m_aaSkinPartNames[SkinPart], apSkinPartsPtr[SkinPart]))
 			return false;
-		if(m_aClients[m_aLocalIds[(int)Dummy]].m_Sixup.m_aUseCustomColors[SkinPart] != aUCCVars[SkinPart])
+		if(m_aClients[m_aLocalIds[(int)Dummy]].m_aSixup[g_Config.m_ClDummy].m_aUseCustomColors[SkinPart] != aUCCVars[SkinPart])
 			return false;
-		if(m_aClients[m_aLocalIds[(int)Dummy]].m_Sixup.m_aSkinPartColors[SkinPart] != aColorVars[SkinPart])
+		if(m_aClients[m_aLocalIds[(int)Dummy]].m_aSixup[g_Config.m_ClDummy].m_aSkinPartColors[SkinPart] != aColorVars[SkinPart])
 			return false;
 	}
 
@@ -3392,8 +3446,8 @@ void CGameClient::LoadGameSkin(const char *pPath, bool AsDir)
 		}
 
 		m_GameSkinLoaded = true;
-		ImgInfo.Free();
 	}
+	ImgInfo.Free();
 }
 
 void CGameClient::LoadEmoticonsSkin(const char *pPath, bool AsDir)
@@ -3436,8 +3490,8 @@ void CGameClient::LoadEmoticonsSkin(const char *pPath, bool AsDir)
 			m_EmoticonsSkin.m_aSpriteEmoticons[i] = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_OOP + i]);
 
 		m_EmoticonsSkinLoaded = true;
-		ImgInfo.Free();
 	}
+	ImgInfo.Free();
 }
 
 void CGameClient::LoadParticlesSkin(const char *pPath, bool AsDir)
@@ -3507,8 +3561,8 @@ void CGameClient::LoadParticlesSkin(const char *pPath, bool AsDir)
 		m_ParticlesSkin.m_aSpriteParticles[9] = m_ParticlesSkin.m_SpriteParticleHit;
 
 		m_ParticlesSkinLoaded = true;
-		ImgInfo.Free();
 	}
+	ImgInfo.Free();
 }
 
 void CGameClient::LoadHudSkin(const char *pPath, bool AsDir)
@@ -3608,8 +3662,8 @@ void CGameClient::LoadHudSkin(const char *pPath, bool AsDir)
 		m_HudSkin.m_SpriteHudDummyCopy = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_DUMMY_COPY]);
 
 		m_HudSkinLoaded = true;
-		ImgInfo.Free();
 	}
+	ImgInfo.Free();
 }
 
 void CGameClient::LoadExtrasSkin(const char *pPath, bool AsDir)
@@ -3653,8 +3707,8 @@ void CGameClient::LoadExtrasSkin(const char *pPath, bool AsDir)
 		m_ExtrasSkin.m_SpriteParticleSnowflake = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_PART_SNOWFLAKE]);
 		m_ExtrasSkin.m_aSpriteParticles[0] = m_ExtrasSkin.m_SpriteParticleSnowflake;
 		m_ExtrasSkinLoaded = true;
-		ImgInfo.Free();
 	}
+	ImgInfo.Free();
 }
 
 void CGameClient::RefreshSkins()
@@ -3683,7 +3737,8 @@ void CGameClient::RefreshSkins()
 			Client.m_SkinInfo.m_OriginalRenderSkin.Reset();
 			Client.m_SkinInfo.m_ColorableRenderSkin.Reset();
 		}
-		Client.UpdateRenderInfo(IsTeamPlay());
+		for(int Dummy = 0; Dummy < NUM_DUMMIES; Dummy++)
+			Client.UpdateRenderInfo(IsTeamPlay(), Dummy);
 	}
 
 	for(auto &pComponent : m_vpAll)
