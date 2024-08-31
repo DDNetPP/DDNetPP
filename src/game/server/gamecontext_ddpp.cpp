@@ -26,7 +26,10 @@
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
 #include <thread>
+
+#if defined(CONF_FAMILY_UNIX)
 #include <unistd.h>
+#endif
 
 #include "gamecontext.h"
 
