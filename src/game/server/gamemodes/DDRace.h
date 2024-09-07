@@ -10,10 +10,11 @@ public:
 	// ddnet++
 	bool m_IsGrounded;
 	class CFlag *m_apFlags[2];
-	void DropFlag(int id, int dir = 1);
+	void DropFlag(int id, int Dir = 1);
 	void ChangeFlagOwner(int id, int character);
 	int HasFlag(CCharacter *pChr);
 	void FlagTick();
+	void HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
 	void Snap(int SnappingClient) override;
 	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
@@ -24,7 +25,7 @@ public:
 	CScore *Score();
 
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
-	void HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
+	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
 
 	void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;

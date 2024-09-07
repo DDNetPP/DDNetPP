@@ -15,7 +15,7 @@ public:
 	class IConsole *Console() { return GameServer()->Console(); }
 	class IStorage *Storage() { return GameServer()->Storage(); }
 
-	// void SetArmorProgress(CCharacter *pCharacer, int Progress) override{};
+	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
 };
 
 #endif

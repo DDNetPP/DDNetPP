@@ -51,22 +51,22 @@ void CPlayer::ResetDDPP()
 	//ChillerDragon constructor Konstructor init
 	if(g_Config.m_SvTestingCommands)
 	{
-		str_format(m_Account.m_aAsciiFrame[0], sizeof(m_Account.m_aAsciiFrame[0]), "x");
-		str_format(m_Account.m_aAsciiFrame[1], sizeof(m_Account.m_aAsciiFrame[1]), "+");
-		str_format(m_Account.m_aAsciiFrame[2], sizeof(m_Account.m_aAsciiFrame[2]), "++");
-		str_format(m_Account.m_aAsciiFrame[3], sizeof(m_Account.m_aAsciiFrame[3]), "xxx");
-		str_format(m_Account.m_aAsciiFrame[4], sizeof(m_Account.m_aAsciiFrame[4]), "++++");
-		str_format(m_Account.m_aAsciiFrame[5], sizeof(m_Account.m_aAsciiFrame[5]), "xxxxx");
-		str_format(m_Account.m_aAsciiFrame[6], sizeof(m_Account.m_aAsciiFrame[6]), "++++++");
-		str_format(m_Account.m_aAsciiFrame[7], sizeof(m_Account.m_aAsciiFrame[7]), "xxxxxxx");
-		str_format(m_Account.m_aAsciiFrame[8], sizeof(m_Account.m_aAsciiFrame[8]), "++++++++");
-		str_format(m_Account.m_aAsciiFrame[9], sizeof(m_Account.m_aAsciiFrame[9]), "ChillerDragon's sample animation");
-		str_format(m_Account.m_aAsciiFrame[10], sizeof(m_Account.m_aAsciiFrame[10]), "ChillerDragon's sample animation");
-		str_format(m_Account.m_aAsciiFrame[11], sizeof(m_Account.m_aAsciiFrame[11]), "ChillerDragon's sample animation");
-		str_format(m_Account.m_aAsciiFrame[12], sizeof(m_Account.m_aAsciiFrame[12]), "ChillerDragon's sample animation");
-		str_format(m_Account.m_aAsciiFrame[13], sizeof(m_Account.m_aAsciiFrame[13]), ".");
-		str_format(m_Account.m_aAsciiFrame[14], sizeof(m_Account.m_aAsciiFrame[14]), ":");
-		str_format(m_Account.m_aAsciiFrame[15], sizeof(m_Account.m_aAsciiFrame[15]), ".:.");
+		str_copy(m_Account.m_aAsciiFrame[0], "x", sizeof(m_Account.m_aAsciiFrame[0]));
+		str_copy(m_Account.m_aAsciiFrame[1], "+", sizeof(m_Account.m_aAsciiFrame[1]));
+		str_copy(m_Account.m_aAsciiFrame[2], "++", sizeof(m_Account.m_aAsciiFrame[2]));
+		str_copy(m_Account.m_aAsciiFrame[3], "xxx", sizeof(m_Account.m_aAsciiFrame[3]));
+		str_copy(m_Account.m_aAsciiFrame[4], "++++", sizeof(m_Account.m_aAsciiFrame[4]));
+		str_copy(m_Account.m_aAsciiFrame[5], "xxxxx", sizeof(m_Account.m_aAsciiFrame[5]));
+		str_copy(m_Account.m_aAsciiFrame[6], "++++++", sizeof(m_Account.m_aAsciiFrame[6]));
+		str_copy(m_Account.m_aAsciiFrame[7], "xxxxxxx", sizeof(m_Account.m_aAsciiFrame[7]));
+		str_copy(m_Account.m_aAsciiFrame[8], "++++++++", sizeof(m_Account.m_aAsciiFrame[8]));
+		str_copy(m_Account.m_aAsciiFrame[9], "ChillerDragon's sample animation", sizeof(m_Account.m_aAsciiFrame[9]));
+		str_copy(m_Account.m_aAsciiFrame[10], "ChillerDragon's sample animation", sizeof(m_Account.m_aAsciiFrame[10]));
+		str_copy(m_Account.m_aAsciiFrame[11], "ChillerDragon's sample animation", sizeof(m_Account.m_aAsciiFrame[11]));
+		str_copy(m_Account.m_aAsciiFrame[12], "ChillerDragon's sample animation", sizeof(m_Account.m_aAsciiFrame[12]));
+		str_copy(m_Account.m_aAsciiFrame[13], ".", sizeof(m_Account.m_aAsciiFrame[13]));
+		str_copy(m_Account.m_aAsciiFrame[14], ":", sizeof(m_Account.m_aAsciiFrame[14]));
+		str_copy(m_Account.m_aAsciiFrame[15], ".:.", sizeof(m_Account.m_aAsciiFrame[15]));
 	}
 	for(auto &CachedId : m_aCatchedId)
 		CachedId = -1;
@@ -95,7 +95,7 @@ void CPlayer::ResetDDPP()
 	m_JailHammer = true;
 	m_AsciiWatchingId = -1;
 	m_AsciiAnimSpeed = 10;
-	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
+	str_copy(m_HashSkin, "#", sizeof(m_HashSkin));
 	m_ChilliWarnings = 0;
 	m_TROLL166 = false;
 	m_TROLL420 = false;
@@ -1101,7 +1101,7 @@ void CPlayer::chidraqul3_GameTick()
 			}
 			else
 			{
-				str_format(create_world, sizeof(create_world), "_");
+				str_copy(create_world, "_", sizeof(create_world));
 			}
 
 			str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
@@ -1117,11 +1117,11 @@ void CPlayer::chidraqul3_GameTick()
 			}
 			else if(i == m_GoldPos)
 			{
-				str_format(create_world, sizeof(create_world), "$");
+				str_copy(create_world, "$", sizeof(create_world));
 			}
 			else
 			{
-				str_format(create_world, sizeof(create_world), "_");
+				str_copy(create_world, "_", sizeof(create_world));
 			}
 
 			str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);

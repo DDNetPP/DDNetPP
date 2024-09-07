@@ -780,7 +780,7 @@ void CGameContext::LoadFNNvalues()
 {
 	std::ifstream readfile;
 	char aFilePath[512];
-	str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
+	str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
 	readfile.open(aFilePath);
 	if(readfile.is_open())
 	{

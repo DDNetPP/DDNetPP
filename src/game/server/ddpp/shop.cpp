@@ -654,14 +654,15 @@ void CShop::ConfirmPurchase(int ClientId)
 		return;
 
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf),
+	str_copy(aBuf,
 		"***************************\n"
 		"        ~  S H O P  ~      \n"
 		"***************************\n\n"
 		"Are you sure you want to buy this item?\n\n"
 		"f3 - yes\n"
 		"f4 - no\n\n"
-		"***************************\n");
+		"***************************\n",
+		sizeof(aBuf));
 
 	m_pGameContext->AbuseMotd(aBuf, ClientId);
 	m_PurchaseState[ClientId] = 2;
@@ -676,7 +677,7 @@ void CShop::PurchaseEnd(int ClientId, bool IsCancel)
 	if(IsCancel)
 	{
 		char aBuf[256];
-		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
+		str_copy(aResult, "You canceled the purchase.", sizeof(aResult));
 		str_format(aBuf, sizeof(aBuf),
 			"***************************\n"
 			"        ~  S H O P  ~      \n"

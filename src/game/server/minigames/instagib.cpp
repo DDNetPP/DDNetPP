@@ -387,7 +387,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int Id)
 			}
 		}
 
-		str_format(m_aInstaGrenadeScoreboard, sizeof(m_aInstaGrenadeScoreboard), "==== Scoreboard [GRENADE] ====\n");
+		str_copy(m_aInstaGrenadeScoreboard, "==== Scoreboard [GRENADE] ====\n", sizeof(m_aInstaGrenadeScoreboard));
 		int Rank = 1;
 
 		for(auto &aScorePlayer : aaScorePlayers) //print array in scoreboard
@@ -485,7 +485,7 @@ void CGameContext::InstaRifleRoundEndTick(int Id)
 			}
 		}
 
-		str_format(m_aInstaRifleScoreboard, sizeof(m_aInstaRifleScoreboard), "==== Scoreboard [Rifle] ====\n");
+		str_copy(m_aInstaRifleScoreboard, "==== Scoreboard [Rifle] ====\n", sizeof(m_aInstaRifleScoreboard));
 		int Rank = 1;
 
 		for(auto &aScorePlayer : aaScorePlayers) //print array in scoreboard

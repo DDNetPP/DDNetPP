@@ -16,6 +16,7 @@ ModeStructure:
 #include <fstream>
 
 #include "../character.h"
+#include "base/system.h"
 #include <base/math_ddpp.h>
 #include <engine/shared/config.h>
 #include <game/server/ddpp/shop.h>
@@ -447,7 +448,7 @@ void CDummyFNN::OnTick()
 							GameServer()->m_FNN_best_distance = newest_distance;
 							std::ofstream statsfile;
 							char aFilePath[512];
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
+							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
 							statsfile.open(aFilePath);
 							if(statsfile.is_open())
 							{
@@ -468,7 +469,7 @@ void CDummyFNN::OnTick()
 
 							//saving the run
 							std::ofstream savefile;
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.fnn");
+							str_copy(aFilePath, "FNN/move_distance.fnn", sizeof(aFilePath));
 							savefile.open(aFilePath /*, std::ios::app*/); //dont append rewrite
 							if(savefile.is_open())
 							{
@@ -514,7 +515,7 @@ void CDummyFNN::OnTick()
 							GameServer()->m_FNN_best_fitness = newest_fitness;
 							std::ofstream statsfile;
 							char aFilePath[512];
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
+							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
 							statsfile.open(aFilePath);
 							if(statsfile.is_open())
 							{
@@ -535,7 +536,7 @@ void CDummyFNN::OnTick()
 
 							//saving the run
 							std::ofstream savefile;
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_fitness.fnn");
+							str_copy(aFilePath, "FNN/move_fitness.fnn", sizeof(aFilePath));
 							savefile.open(aFilePath);
 							if(savefile.is_open())
 							{
@@ -581,7 +582,7 @@ void CDummyFNN::OnTick()
 							GameServer()->m_FNN_best_distance_finish = newest_distance_finish;
 							std::ofstream statsfile;
 							char aFilePath[512];
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
+							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
 							statsfile.open(aFilePath);
 							if(statsfile.is_open())
 							{
@@ -602,7 +603,7 @@ void CDummyFNN::OnTick()
 
 							//saving the run
 							std::ofstream savefile;
-							str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance_finish.fnn");
+							str_copy(aFilePath, "FNN/move_distance_finish.fnn", sizeof(aFilePath));
 							savefile.open(aFilePath);
 							if(savefile.is_open())
 							{

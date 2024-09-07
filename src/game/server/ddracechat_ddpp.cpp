@@ -4164,11 +4164,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			if(!str_comp_nocase(aConfig, "NoArena"))
 			{
-				str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "NoArena");
+				str_copy(pSelf->m_BombMap, "NoArena", sizeof(pSelf->m_BombMap));
 			}
 			else if(!str_comp_nocase(aConfig, "Default"))
 			{
-				str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "Default");
+				str_copy(pSelf->m_BombMap, "Default", sizeof(pSelf->m_BombMap));
 			}
 			else
 			{
@@ -4182,7 +4182,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else //no config --> Default
 		{
-			str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "Default");
+			str_copy(pSelf->m_BombMap, "Default", sizeof(pSelf->m_BombMap));
 		}
 
 		pSelf->m_apPlayers[pResult->m_ClientId]->m_BombTicksUnready = 0;

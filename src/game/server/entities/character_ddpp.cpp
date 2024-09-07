@@ -281,7 +281,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		{
 			m_Core.m_Pos = m_Pos;
 			m_pPlayer->m_IsNoboSpawn = false;
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Welcome to the real spawn!");
+			str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
 			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		}
 	}

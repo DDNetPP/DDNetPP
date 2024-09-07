@@ -563,7 +563,7 @@ void CCharacter::MoneyTile()
 
 		char FixBroadcast[32];
 		if((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
-			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
+			str_copy(FixBroadcast, "                                       ", sizeof(FixBroadcast));
 		else
 			FixBroadcast[0] = '\0';
 
@@ -683,7 +683,7 @@ void CCharacter::MoneyTilePolice()
 
 		char FixBroadcast[64];
 		if((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
-			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
+			str_copy(FixBroadcast, "                                       ", sizeof(FixBroadcast));
 		else
 			FixBroadcast[0] = '\0';
 
