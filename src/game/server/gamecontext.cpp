@@ -43,6 +43,7 @@
 #include <cstdio>
 #include <engine/server/server.h> // ddpp
 #include <fstream>
+#include <game/server/gamemodes/ddnetpp/ddnetpp.h>
 #include <game/server/teams.h>
 
 // Not thread-safe!
@@ -4119,7 +4120,7 @@ void CGameContext::OnInit(const void *pPersistentData)
 	if(!str_comp(Config()->m_SvGametype, "mod"))
 		m_pController = new CGameControllerMod(this);
 	else
-		m_pController = new CGameControllerDDRace(this);
+		m_pController = new CGameControllerDDNetPP(this);
 
 	const char *pCensorFilename = "censorlist.txt";
 	CLineReader LineReader;
