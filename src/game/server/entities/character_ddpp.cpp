@@ -486,6 +486,8 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 					{
 						if(GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter())
 						{
+							// this 200 * tickspeed / 1000
+							// evalutes to 10 and matches ddnet-insta sv_on_fire_mode
 							GameServer()->m_apPlayers[From]->GetCharacter()->m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
 						}
 					}
