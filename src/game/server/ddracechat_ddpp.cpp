@@ -3469,6 +3469,8 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
+			str_format(aBuf, sizeof(aBuf), "Purchased cucumber for %d money.", pSelf->m_CucumberShareValue);
+			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			pPlayer->m_StockMarket_item_Cucumbers++;
 			pPlayer->MoneyTransaction(-pSelf->m_CucumberShareValue, "bought 'cucumber stock'");
 
@@ -3479,6 +3481,8 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 	{
 		if(pPlayer->m_StockMarket_item_Cucumbers > 0)
 		{
+			str_format(aBuf, sizeof(aBuf), "Sold cucumber for %d money.", pSelf->m_CucumberShareValue);
+			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			pPlayer->m_StockMarket_item_Cucumbers--;
 			pPlayer->MoneyTransaction(+pSelf->m_CucumberShareValue, "sold a 'cucumber stock'");
 
