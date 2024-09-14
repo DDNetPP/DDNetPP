@@ -246,6 +246,7 @@ CServer::CServer()
 	}
 
 	m_MapReload = false;
+	m_SameMapReload = false;
 	m_ReloadedWhenEmpty = false;
 	m_aCurrentMap[0] = '\0';
 
@@ -1285,6 +1286,12 @@ void CServer::SendMapData(int ClientId, int Chunk)
 		str_format(aBuf, sizeof(aBuf), "sending chunk %d with size %d", Chunk, ChunkSize);
 		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
 	}
+}
+
+void CServer::SendMapReload(int ClientId)
+{
+	CMsgPacker Msg(NETMSG_MAP_RELOAD, true);
+	SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientId);
 }
 
 void CServer::SendConnectionReady(int ClientId)
@@ -2595,12 +2602,13 @@ void CServer::ChangeMap(const char *pMap)
 
 void CServer::ReloadMap()
 {
-	m_MapReload = true;
+	m_SameMapReload = true;
 }
 
 int CServer::LoadMap(const char *pMapName)
 {
 	m_MapReload = false;
+	m_SameMapReload = false;
 
 	char aBuf[IO_MAX_PATH_LENGTH];
 	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
@@ -2850,8 +2858,9 @@ int CServer::Run()
 			int NewTicks = 0;
 
 			// load new map
-			if(m_MapReload || m_CurrentGameTick >= MAX_TICK) // force reload to make sure the ticks stay within a valid range
+			if(m_MapReload || m_SameMapReload || m_CurrentGameTick >= MAX_TICK) // force reload to make sure the ticks stay within a valid range
 			{
+				const bool SameMapReload = m_SameMapReload;
 				// load map
 				if(LoadMap(Config()->m_SvMap))
 				{
@@ -2875,6 +2884,9 @@ int CServer::Run()
 					{
 						if(m_aClients[ClientId].m_State <= CClient::STATE_AUTH)
 							continue;
+
+						if(SameMapReload)
+							SendMapReload(ClientId);
 
 						SendMap(ClientId);
 						bool HasPersistentData = m_aClients[ClientId].m_HasPersistentData;
@@ -3556,7 +3568,7 @@ void CServer::ConStopRecord(IConsole::IResult *pResult, void *pUser)
 
 void CServer::ConMapReload(IConsole::IResult *pResult, void *pUser)
 {
-	((CServer *)pUser)->m_MapReload = true;
+	((CServer *)pUser)->ReloadMap();
 }
 
 void CServer::ConLogout(IConsole::IResult *pResult, void *pUser)
