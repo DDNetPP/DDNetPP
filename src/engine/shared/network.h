@@ -53,7 +53,7 @@ enum
 
 enum // todo: move to network_ddpp.h ?
 {
-	NET_CONNSTATE_BOT = 5,
+	NET_CONNSTATE_BOT = 6,
 };
 
 enum
