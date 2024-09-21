@@ -784,22 +784,22 @@ void CCharacter::MoneyTileDouble()
 		return;
 	}
 
-	int XP = 0;
+	int Exp = 0;
 	int Money = 0;
 
 	// flag extra xp
 	if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
-		XP += 2;
+		Exp += 2;
 	}
 
 	// tile gain and survival bonus
 	int Survival = (m_survivexpvalue + 1);
-	XP += 2 * Survival;
+	Exp += 2 * Survival;
 	Money += 4;
 
 	// give money & xp
-	m_pPlayer->GiveXP(XP);
+	m_pPlayer->GiveXP(Exp);
 	m_pPlayer->MoneyTransaction(Money);
 	m_pPlayer->m_MoneyTilesMoney += Money;
 
