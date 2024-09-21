@@ -652,28 +652,28 @@ int CGameContext::CountConnectedPlayers()
 
 int CGameContext::CountConnectedHumans()
 {
-	int cPlayers = 0;
+	int Humans = 0;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && !Player->m_IsDummy)
 		{
-			cPlayers++;
+			Humans++;
 		}
 	}
-	return cPlayers;
+	return Humans;
 }
 
 int CGameContext::CountIngameHumans()
 {
-	int cPlayers = 0;
+	int Humans = 0;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && Player->GetCharacter() && !Player->m_IsDummy)
 		{
-			cPlayers++;
+			Humans++;
 		}
 	}
-	return cPlayers;
+	return Humans;
 }
 
 bool CGameContext::IsAllowedCharSet(const char *pStr)
