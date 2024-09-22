@@ -152,8 +152,8 @@ jobs:
         ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug  ${{ matrix.build-args }}
         cp DDNetPP.exe DDNet-Server.exe || true
         cp data/maps/ddnetpp-test.map data/maps/'Sunny Side Up'.map
-    - name: Rename binarys on nix
-      if: contains(matrix.os, 'ubuntu-latest') || contains(matrix.os, 'macOS')
+    - name: Rename binarys on linux
+      if: contains(matrix.os, 'ubuntu')
       run: |
         cd headless
         cp DDNetPP DDNet-Server || true
