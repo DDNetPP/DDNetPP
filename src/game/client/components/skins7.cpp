@@ -6,6 +6,7 @@
 #include <base/system.h>
 
 #include <engine/external/json-parser/json.h>
+#include <engine/gfx/image_manipulation.h>
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <engine/shared/jsonwriter.h>
@@ -92,14 +93,7 @@ int CSkins7::SkinPartScan(const char *pName, int IsDir, int DirType, void *pUser
 		Part.m_BloodColor = ColorRGBA(normalize(vec3(aColors[0], aColors[1], aColors[2])));
 	}
 
-	// create colorless version
-	for(size_t i = 0; i < Info.m_Width * Info.m_Height; i++)
-	{
-		const int Average = (pData[i * Step] + pData[i * Step + 1] + pData[i * Step + 2]) / 3;
-		pData[i * Step] = Average;
-		pData[i * Step + 1] = Average;
-		pData[i * Step + 2] = Average;
-	}
+	ConvertToGrayscale(Info);
 
 	Part.m_ColorTexture = pSelf->Graphics()->LoadTextureRawMove(Info, 0, aFilename);
 
@@ -483,7 +477,7 @@ void CSkins7::RandomizeSkin(int Dummy)
 
 ColorRGBA CSkins7::GetColor(int Value, bool UseAlpha) const
 {
-	return color_cast<ColorRGBA>(ColorHSLA(Value, UseAlpha).UnclampLighting(DARKEST_COLOR_LGT));
+	return color_cast<ColorRGBA>(ColorHSLA(Value, UseAlpha).UnclampLighting(ColorHSLA::DARKEST_LGT7));
 }
 
 ColorRGBA CSkins7::GetTeamColor(int UseCustomColors, int PartColor, int Team, int Part) const
@@ -507,7 +501,7 @@ ColorRGBA CSkins7::GetTeamColor(int UseCustomColors, int PartColor, int Team, in
 
 	int h = TeamHue;
 	int s = clamp(mix(TeamSat, PartSat, 0.2), MinSat, MaxSat);
-	int l = clamp(mix(TeamLgt, PartLgt, 0.2), (int)DARKEST_COLOR_LGT, 200);
+	int l = clamp(mix(TeamLgt, PartLgt, 0.2), (int)ColorHSLA::DARKEST_LGT7, 200);
 
 	int ColorVal = (h << 16) + (s << 8) + l;
 
