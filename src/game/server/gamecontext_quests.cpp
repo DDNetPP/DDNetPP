@@ -587,7 +587,6 @@ void CGameContext::CheckConnectQuestBot()
 	int NumQuestBots = 0;
 	int NumQuestPlayers = 0;
 	int NumConnectedPlayers = 0;
-	int NumIngamePlayers = 0;
 	int NumIngameHumans = 0;
 	for(auto &Player : m_apPlayers)
 	{
@@ -600,8 +599,6 @@ void CGameContext::CheckConnectQuestBot()
 
 		if(!Player->GetCharacter())
 			continue;
-
-		NumIngamePlayers++;
 
 		if(!Player->m_IsDummy)
 			NumIngameHumans++;
