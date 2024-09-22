@@ -22,13 +22,6 @@ jobs:
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-linux_x86_64.tar.xz"
           fancy: true
-        - os: ubuntu-20.04
-          cmake-path: /usr/bin/
-          cmake-args: -G Ninja -DTEST_MYSQL=ON
-          cmake-init-env: CXXFLAGS=-Werror
-          gtest-env: GTEST_FILTER=-*SQLite*
-          package-file: "*-linux_x86_64.tar.xz"
-          fancy: false
         - os: macOS-latest
           cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
