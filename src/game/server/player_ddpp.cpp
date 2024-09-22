@@ -496,6 +496,9 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo)
 {
+	if(!pSnapping)
+		return;
+
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientId && g_Config.m_SvHideScore)
 	{
@@ -564,6 +567,9 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 
 void CPlayer::DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo)
 {
+	if(!pSnapping)
+		return;
+
 	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, (CNetObj_PlayerInfo *)pPlayerInfo);
 }
 
