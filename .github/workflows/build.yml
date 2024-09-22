@@ -216,6 +216,7 @@ jobs:
         flags: integrationtests
 
     - name: Package
+      if: contains(matrix.os, 'ubuntu-latest') or contains(matrix.os, 'windows')
       run: |
         cd release
         ${{ matrix.cmake-path }}cmake --build . --config Release --target package_default ${{ matrix.build-args }}
@@ -223,6 +224,7 @@ jobs:
         mv ${{ matrix.package-file }} artifacts
 
     - name: Upload Artifacts
+      if: contains(matrix.os, 'ubuntu-latest') or contains(matrix.os, 'windows')
       uses: actions/upload-artifact@v4
       with:
         name: ddnet-${{ matrix.os }}
