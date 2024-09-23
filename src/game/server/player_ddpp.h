@@ -64,7 +64,7 @@ public:
 
 	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
-	bool IsInstagibMinigame();
+	bool IsInstagibMinigame() const;
 	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
 	bool IsLoggedIn() { return GetAccId() != 0; } // -1 filebased acc >0 sql id
 	int GetAccId() { return m_Account.m_Id; }

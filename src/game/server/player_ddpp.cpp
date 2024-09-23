@@ -1,5 +1,6 @@
 /* CPlayer related ddnet++ methods */
 
+#include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
@@ -1048,7 +1049,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction0, sizeof(m_money_transaction0), "%s", aDesc);
 }
 
-bool CPlayer::IsInstagibMinigame()
+bool CPlayer::IsInstagibMinigame() const
 {
 	return m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng;
 }
