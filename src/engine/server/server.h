@@ -204,7 +204,7 @@ public:
 		int64_t m_RedirectDropTime;
 
 		// DDNet++
-		bool m_IsClientDummy; //ddnet++ hide dummy in master
+		bool m_IsClientDummy = false; //ddnet++ hide dummy in master
 
 		// DNSBL
 		int m_DnsblState;
