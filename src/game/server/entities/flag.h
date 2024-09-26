@@ -4,14 +4,14 @@
 #ifndef GAME_SERVER_ENTITIES_FLAG_H
 #define GAME_SERVER_ENTITIES_FLAG_H
 
+#include <engine/shared/protocol.h>
 #include <game/server/entity.h>
 
-// TODO: use -2 and -3 instead and update all checks from upstream to use > -1 instead of != -1
-// m_HookedPlayer != -1
-// m_HookedPlayer > -1
-// m_LastHookedPlayer as well and probably others
-#define FLAG_RED 99
-#define FLAG_BLUE 98
+enum
+{
+	FLAG_RED = MAX_CLIENTS,
+	FLAG_BLUE
+};
 
 class CFlag : public CEntity
 {
@@ -32,9 +32,9 @@ public:
 
 	CFlag(CGameWorld *pGameWorld, int Team);
 
-	virtual void Reset() override;
-	virtual void TickPaused() override;
-	virtual void Snap(int SnappingClient) override;
+	void Reset() override;
+	void TickPaused() override;
+	void Snap(int SnappingClient) override;
 
 	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
 
