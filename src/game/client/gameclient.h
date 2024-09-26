@@ -554,7 +554,7 @@ public:
 
 	// actions
 	// TODO: move these
-	void SendSwitchTeam(int Team);
+	void SendSwitchTeam(int Team) const;
 	void SendStartInfo7(bool Dummy) const;
 	void SendSkinChange7(bool Dummy);
 	// Returns true if the requested skin change got applied by the server
@@ -576,7 +576,7 @@ public:
 
 	class CTeamsCore m_Teams;
 
-	int IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int ownId);
+	int IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int OwnId);
 
 	int GetLastRaceTick() const override;
 

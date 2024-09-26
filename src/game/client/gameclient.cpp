@@ -2513,14 +2513,11 @@ void CGameClient::CClientData::CSixup::Reset()
 	}
 }
 
-void CGameClient::SendSwitchTeam(int Team)
+void CGameClient::SendSwitchTeam(int Team) const
 {
 	CNetMsg_Cl_SetTeam Msg;
 	Msg.m_Team = Team;
 	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
-
-	if(Team != TEAM_SPECTATORS)
-		m_Camera.OnReset();
 }
 
 void CGameClient::SendStartInfo7(bool Dummy) const
@@ -2772,16 +2769,16 @@ IGameClient *CreateGameClient()
 	return new CGameClient();
 }
 
-int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int ownId)
+int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int OwnId)
 {
 	float Distance = 0.0f;
 	int ClosestId = -1;
 
-	const CClientData &OwnClientData = m_aClients[ownId];
+	const CClientData &OwnClientData = m_aClients[OwnId];
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(i == ownId)
+		if(i == OwnId)
 			continue;
 
 		const CClientData &Data = m_aClients[i];
@@ -2797,7 +2794,7 @@ int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, in
 		bool IsOneSuper = Data.m_Super || OwnClientData.m_Super;
 		bool IsOneSolo = Data.m_Solo || OwnClientData.m_Solo;
 
-		if(!IsOneSuper && (!m_Teams.SameTeam(i, ownId) || IsOneSolo || OwnClientData.m_HookHitDisabled))
+		if(!IsOneSuper && (!m_Teams.SameTeam(i, OwnId) || IsOneSolo || OwnClientData.m_HookHitDisabled))
 			continue;
 
 		vec2 ClosestPoint;
@@ -3904,9 +3901,9 @@ void CGameClient::SnapCollectEntities()
 	class CEntComparer
 	{
 	public:
-		bool operator()(const CSnapEntities &lhs, const CSnapEntities &rhs) const
+		bool operator()(const CSnapEntities &Lhs, const CSnapEntities &Rhs) const
 		{
-			return lhs.m_Item.m_Id < rhs.m_Item.m_Id;
+			return Lhs.m_Item.m_Id < Rhs.m_Item.m_Id;
 		}
 	};
 

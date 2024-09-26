@@ -200,7 +200,8 @@ public:
 	void CreateDefault(IGraphics::CTextureHandle EntitiesTexture);
 
 	// io
-	bool Save(const char *pFilename);
+	bool Save(const char *pFilename, const std::function<void(const char *pErrorMessage)> &ErrorHandler);
+	bool PerformPreSaveSanityChecks(const std::function<void(const char *pErrorMessage)> &ErrorHandler);
 	bool Load(const char *pFilename, int StorageType, const std::function<void(const char *pErrorMessage)> &ErrorHandler);
 	void PerformSanityChecks(const std::function<void(const char *pErrorMessage)> &ErrorHandler);
 
@@ -324,13 +325,22 @@ public:
 	const CMapView *MapView() const { return &m_MapView; }
 	CLayerSelector *LayerSelector() { return &m_LayerSelector; }
 
+	void SelectNextLayer();
+	void SelectPreviousLayer();
+
 	void FillGameTiles(EGameTileOp FillTile) const;
 	bool CanFillGameTiles() const;
 	void AddQuadOrSound();
 	void AddGroup();
+	void AddSoundLayer();
 	void AddTileLayer();
-	void AddFrontLayer();
 	void AddQuadsLayer();
+	void AddSwitchLayer();
+	void AddFrontLayer();
+	void AddTuneLayer();
+	void AddSpeedupLayer();
+	void AddTeleLayer();
+	void DeleteSelectedLayer();
 	void LayerSelectImage();
 	bool IsNonGameTileLayerSelected() const;
 	void MapDetails();
@@ -849,9 +859,9 @@ public:
 	void DoMapSettingsEditBox(CMapSettingsBackend::CContext *pContext, const CUIRect *pRect, float FontSize, float DropdownMaxHeight, int Corners = IGraphics::CORNER_ALL, const char *pToolTip = nullptr);
 
 	template<typename T>
-	int DoEditBoxDropdown(SEditBoxDropdownContext *pDropdown, CLineInput *pLineInput, const CUIRect *pEditBoxRect, int x, float MaxHeight, bool AutoWidth, const std::vector<T> &vData, const FDropdownRenderCallback<T> &fnMatchCallback);
+	int DoEditBoxDropdown(SEditBoxDropdownContext *pDropdown, CLineInput *pLineInput, const CUIRect *pEditBoxRect, int x, float MaxHeight, bool AutoWidth, const std::vector<T> &vData, const FDropdownRenderCallback<T> &pfnMatchCallback);
 	template<typename T>
-	int RenderEditBoxDropdown(SEditBoxDropdownContext *pDropdown, CUIRect View, CLineInput *pLineInput, int x, float MaxHeight, bool AutoWidth, const std::vector<T> &vData, const FDropdownRenderCallback<T> &fnMatchCallback);
+	int RenderEditBoxDropdown(SEditBoxDropdownContext *pDropdown, CUIRect View, CLineInput *pLineInput, int x, float MaxHeight, bool AutoWidth, const std::vector<T> &vData, const FDropdownRenderCallback<T> &pfnMatchCallback);
 
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness) const;
 
@@ -1120,8 +1130,8 @@ public:
 	float EnvelopeToScreenX(const CUIRect &View, float x) const;
 	float ScreenToEnvelopeY(const CUIRect &View, float y) const;
 	float EnvelopeToScreenY(const CUIRect &View, float y) const;
-	float ScreenToEnvelopeDX(const CUIRect &View, float dx);
-	float ScreenToEnvelopeDY(const CUIRect &View, float dy);
+	float ScreenToEnvelopeDX(const CUIRect &View, float DeltaX);
+	float ScreenToEnvelopeDY(const CUIRect &View, float DeltaY);
 
 	// DDRace
 

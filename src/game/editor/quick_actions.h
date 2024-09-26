@@ -170,6 +170,38 @@ REGISTER_QUICK_ACTION(
 REGISTER_QUICK_ACTION(
 	AddTileLayer, "Add tile layer", [&]() { AddTileLayer(); }, ALWAYS_FALSE, ALWAYS_FALSE, DEFAULT_BTN, "Creates a new tile layer.")
 REGISTER_QUICK_ACTION(
+	AddSwitchLayer,
+	"Add switch layer",
+	[&]() { AddSwitchLayer(); },
+	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pSwitchLayer; },
+	ALWAYS_FALSE,
+	DEFAULT_BTN,
+	"Creates a new switch layer.")
+REGISTER_QUICK_ACTION(
+	AddTuneLayer,
+	"Add tune layer",
+	[&]() { AddTuneLayer(); },
+	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pTuneLayer; },
+	ALWAYS_FALSE,
+	DEFAULT_BTN,
+	"Creates a new tuning layer.")
+REGISTER_QUICK_ACTION(
+	AddSpeedupLayer,
+	"Add speedup layer",
+	[&]() { AddSpeedupLayer(); },
+	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pSpeedupLayer; },
+	ALWAYS_FALSE,
+	DEFAULT_BTN,
+	"Creates a new speedup layer.")
+REGISTER_QUICK_ACTION(
+	AddTeleLayer,
+	"Add tele layer",
+	[&]() { AddTeleLayer(); },
+	[&]() -> bool { return !GetSelectedGroup()->m_GameGroup || m_Map.m_pTeleLayer; },
+	ALWAYS_FALSE,
+	DEFAULT_BTN,
+	"Creates a new tele layer.")
+REGISTER_QUICK_ACTION(
 	AddFrontLayer,
 	"Add front layer",
 	[&]() { AddFrontLayer(); },
@@ -179,6 +211,8 @@ REGISTER_QUICK_ACTION(
 	"Creates a new item layer.")
 REGISTER_QUICK_ACTION(
 	AddQuadsLayer, "Add quads layer", [&]() { AddQuadsLayer(); }, ALWAYS_FALSE, ALWAYS_FALSE, DEFAULT_BTN, "Creates a new quads layer.")
+REGISTER_QUICK_ACTION(
+	AddSoundLayer, "Add sound layer", [&]() { AddSoundLayer(); }, ALWAYS_FALSE, ALWAYS_FALSE, DEFAULT_BTN, "Creates a new sound layer.")
 REGISTER_QUICK_ACTION(
 	SaveAs,
 	"Save As",
@@ -278,6 +312,19 @@ REGISTER_QUICK_ACTION(
 	[&]() -> bool { return m_ShowTileInfo == SHOW_TILE_HEXADECIMAL; },
 	DEFAULT_BTN,
 	"[Ctrl+Shift+I] Show tile information in hexadecimal.")
+REGISTER_QUICK_ACTION(
+	DeleteLayer,
+	"Delete layer",
+	[&]() { DeleteSelectedLayer(); },
+	[&]() -> bool {
+		std::shared_ptr<CLayer> pCurrentLayer = GetSelectedLayer(0);
+		if(!pCurrentLayer)
+			return true;
+		return m_Map.m_pGameLayer == pCurrentLayer;
+	},
+	ALWAYS_FALSE,
+	DEFAULT_BTN,
+	"Deletes the layer.")
 REGISTER_QUICK_ACTION(
 	Pipette,
 	"Pipette",
