@@ -295,8 +295,7 @@ public:
 	int m_carryFlagChar1;
 	int m_carryFlagChar2;
 
-public:
-	int HookedPlayer() { return m_HookedPlayer; }
+	bool IsValidHookedPlayer() const { return m_HookedPlayer >= 0 && m_HookedPlayer < MAX_CLIENTS; }
 	int m_LastHookedPlayer;
 	int m_LastHookedTick;
 };

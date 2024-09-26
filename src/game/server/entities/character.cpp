@@ -834,7 +834,7 @@ void CCharacter::Tick()
 	if(m_Core.m_TriggeredEvents & COREEVENT_HOOK_ATTACH_PLAYER)
 	{
 		const int HookedPlayer = m_Core.HookedPlayer();
-		if(HookedPlayer != -1 && GameServer()->m_apPlayers[HookedPlayer]->GetTeam() != TEAM_SPECTATORS)
+		if(m_Core.IsValidHookedPlayer() && GameServer()->m_apPlayers[HookedPlayer]->GetTeam() != TEAM_SPECTATORS)
 		{
 			Antibot()->OnHookAttach(m_pPlayer->GetCid(), true);
 		}
@@ -1178,7 +1178,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		pCharacter->m_Tick = Tick;
 		pCharacter->m_Emote = Emote;
 
-		if(pCharacter->m_HookedPlayer != -1)
+		if(pCharacter->m_HookedPlayer != -1 && pCharacter->m_HookedPlayer != FLAG_RED && pCharacter->m_HookedPlayer != FLAG_BLUE)
 		{
 			if(!Server()->Translate(pCharacter->m_HookedPlayer, SnappingClient))
 				pCharacter->m_HookedPlayer = -1;
@@ -2450,7 +2450,7 @@ void CCharacter::Pause(bool Pause)
 		GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCid()] = 0;
 		GameServer()->m_World.RemoveEntity(this);
 
-		if(m_Core.HookedPlayer() != -1) // Keeping hook would allow cheats
+		if(m_Core.IsValidHookedPlayer()) // Keeping hook would allow cheats
 		{
 			ResetHook();
 			GameWorld()->ReleaseHooked(GetPlayer()->GetCid());

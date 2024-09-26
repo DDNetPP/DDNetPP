@@ -363,7 +363,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 				{
 					if(distance(pCharCore->m_Pos, ClosestPoint) < PhysicalSize() + 2.0f)
 					{
-						if(m_HookedPlayer == -1 || distance(m_HookPos, pCharCore->m_Pos) < Distance)
+						if(!IsValidHookedPlayer() || distance(m_HookPos, pCharCore->m_Pos) < Distance)
 						{
 							m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
 							m_HookState = HOOK_GRABBED;
@@ -412,7 +412,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 
 	if(m_HookState == HOOK_GRABBED)
 	{
-		if(!HookFlag() && m_HookedPlayer != -1 && m_pWorld)
+		if(!HookFlag() && IsValidHookedPlayer() && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
 			if(pCharCore && m_Id != -1 && m_pTeams->CanKeepHook(m_Id, pCharCore->m_Id))
@@ -427,7 +427,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 		}
 
 		// don't do this hook routine when we are already hooked to a player
-		if(m_HookedPlayer == -1 && distance(m_HookPos, m_Pos) > 46.0f)
+		if(!IsValidHookedPlayer() && distance(m_HookPos, m_Pos) > 46.0f)
 		{
 			vec2 HookVel = normalize(m_HookPos - m_Pos) * m_Tuning.m_HookDragAccel;
 			// the hook as more power to drag you up then down.
@@ -452,7 +452,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 
 		// release hook (max default hook time is 1.25 s)
 		m_HookTick++;
-		if(!HookFlag() && m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer]) || (m_HookedPlayer < 97 && m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer])))
+		if(!HookFlag() && IsValidHookedPlayer() && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer]) || (m_HookedPlayer < 97 && m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer])))
 		{
 			SetHookedPlayer(-1);
 			m_HookState = HOOK_RETRACTED;
@@ -713,7 +713,7 @@ void CCharacterCore::SetHookedPlayer(int HookedPlayer)
 {
 	if(HookedPlayer != m_HookedPlayer)
 	{
-		if(m_HookedPlayer != -1 && m_Id != -1 && m_pWorld)
+		if(IsValidHookedPlayer() && m_Id != -1 && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
 			if(pCharCore)
@@ -721,7 +721,7 @@ void CCharacterCore::SetHookedPlayer(int HookedPlayer)
 				pCharCore->m_AttachedPlayers.erase(m_Id);
 			}
 		}
-		if(HookedPlayer != -1 && m_Id != -1 && m_pWorld)
+		if(IsValidHookedPlayer() && m_Id != -1 && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[HookedPlayer];
 			if(pCharCore)
