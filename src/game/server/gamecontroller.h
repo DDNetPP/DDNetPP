@@ -161,6 +161,7 @@ public:
 	bool IsTeamplay() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 	virtual void DoWincheck();
+	class CFlag *m_apFlags[2];
 
 private:
 	int m_aTeamscore[2];

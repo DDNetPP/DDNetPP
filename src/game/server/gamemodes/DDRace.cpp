@@ -18,9 +18,6 @@
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer)
 {
-	m_apFlags[0] = 0;
-	m_apFlags[1] = 0;
-
 	m_GameFlags = GAMEFLAG_FLAGS;
 
 	m_pGameType = g_Config.m_SvTestingCommands ? TEST_TYPE_NAME : GAME_TYPE_NAME;

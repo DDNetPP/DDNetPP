@@ -45,6 +45,10 @@ IGameController::IGameController(class CGameContext *pGameServer) :
 	m_ForceBalanced = false;
 
 	m_CurrentRecord = 0;
+
+	// ddnet++
+	m_apFlags[0] = 0;
+	m_apFlags[1] = 0;
 }
 
 IGameController::~IGameController() = default;

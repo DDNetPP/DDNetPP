@@ -9,7 +9,6 @@ class CGameControllerDDRace : public IGameController
 public:
 	// ddnet++
 	bool m_IsGrounded;
-	class CFlag *m_apFlags[2];
 	void DropFlag(int id, int Dir = 1);
 	void ChangeFlagOwner(int id, int character);
 	int HasFlag(CCharacter *pChr);
