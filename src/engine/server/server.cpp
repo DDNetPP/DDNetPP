@@ -2900,7 +2900,9 @@ int CServer::Run()
 					m_CurrentGameTick = MIN_TICK;
 					m_ServerInfoFirstRequest = 0;
 					Kernel()->ReregisterInterface(GameServer());
+					Console()->StoreCommands(true);
 					GameServer()->OnInit(m_pPersistentData);
+					Console()->StoreCommands(false);
 					if(ErrorShutdown())
 					{
 						break;

@@ -376,7 +376,7 @@ public:
 		char m_aName[MAX_NAME_LENGTH];
 		char m_aClan[MAX_CLAN_LENGTH];
 		int m_Country;
-		char m_aSkinName[24];
+		char m_aSkinName[MAX_SKIN_LENGTH];
 		int m_SkinColor;
 		int m_Team;
 		int m_Emoticon;
@@ -394,6 +394,7 @@ public:
 		bool m_ShotgunHitDisabled;
 		bool m_HookHitDisabled;
 		bool m_Super;
+		bool m_Invincible;
 		bool m_HasTelegunGun;
 		bool m_HasTelegunGrenade;
 		bool m_HasTelegunLaser;
@@ -768,7 +769,8 @@ public:
 	struct SClientExtrasSkin
 	{
 		IGraphics::CTextureHandle m_SpriteParticleSnowflake;
-		IGraphics::CTextureHandle m_aSpriteParticles[1];
+		IGraphics::CTextureHandle m_SpriteParticleSparkle;
+		IGraphics::CTextureHandle m_aSpriteParticles[2];
 	};
 
 	SClientExtrasSkin m_ExtrasSkin;

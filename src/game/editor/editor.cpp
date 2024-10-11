@@ -938,6 +938,37 @@ bool CEditor::CallbackSaveSound(const char *pFileName, int StorageType, void *pU
 	return false;
 }
 
+bool CEditor::CallbackCustomEntities(const char *pFileName, int StorageType, void *pUser)
+{
+	CEditor *pEditor = (CEditor *)pUser;
+
+	char aBuf[IO_MAX_PATH_LENGTH];
+	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+
+	if(std::find(pEditor->m_vSelectEntitiesFiles.begin(), pEditor->m_vSelectEntitiesFiles.end(), std::string(aBuf)) != pEditor->m_vSelectEntitiesFiles.end())
+	{
+		pEditor->ShowFileDialogError("Custom entities cannot have the same name as default entities.");
+		return false;
+	}
+
+	CImageInfo ImgInfo;
+	if(!pEditor->Graphics()->LoadPng(ImgInfo, pFileName, StorageType))
+	{
+		pEditor->ShowFileDialogError("Failed to load image from file '%s'.", pFileName);
+		return false;
+	}
+
+	pEditor->m_SelectEntitiesImage = aBuf;
+	pEditor->m_AllowPlaceUnusedTiles = -1;
+	pEditor->m_PreventUnusedTilesWasWarned = false;
+
+	pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
+	pEditor->m_EntitiesTexture = pEditor->Graphics()->LoadTextureRawMove(ImgInfo, pEditor->GetTextureUsageFlag());
+
+	pEditor->m_Dialog = DIALOG_NONE;
+	return true;
+}
+
 void CEditor::DoAudioPreview(CUIRect View, const void *pPlayPauseButtonId, const void *pStopButtonId, const void *pSeekBarId, int SampleId)
 {
 	CUIRect Button, SeekBar;
@@ -1289,6 +1320,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 					const char *pButtonName = nullptr;
 					CUi::FPopupMenuFunction pfnPopupFunc = nullptr;
 					int Rows = 0;
+					int ExtraWidth = 0;
 					if(pS == m_Map.m_pSwitchLayer)
 					{
 						pButtonName = "Switch";
@@ -1311,7 +1343,8 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 					{
 						pButtonName = "Tele";
 						pfnPopupFunc = PopupTele;
-						Rows = 3;
+						Rows = m_TeleNumbers.size() + 1;
+						ExtraWidth = 50;
 					}
 
 					if(pButtonName != nullptr)
@@ -1326,7 +1359,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 							static SPopupMenuId s_PopupModifierId;
 							if(!Ui()->IsPopupOpen(&s_PopupModifierId))
 							{
-								Ui()->DoPopupMenu(&s_PopupModifierId, Button.x, Button.y + Button.h, 120, 10.0f + Rows * 13.0f, this, pfnPopupFunc);
+								Ui()->DoPopupMenu(&s_PopupModifierId, Button.x, Button.y + Button.h, 120 + ExtraWidth, 10.0f + Rows * 13.0f, this, pfnPopupFunc);
 							}
 						}
 						TB_Bottom.VSplitLeft(5.0f, nullptr, &TB_Bottom);
@@ -2264,7 +2297,7 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 
 			s_Operation = OP_SELECT;
 		}
-		else if(Ui()->MouseButton(1))
+		else if(Ui()->MouseButtonClicked(1))
 		{
 			if(Input()->ShiftIsPressed())
 			{
@@ -3133,7 +3166,7 @@ void CEditor::DoMapEditor(CUIRect View)
 		MapView()->MapGrid()->OnRender(View);
 	}
 
-	const bool ShouldPan = (Input()->ModifierIsPressed() && Ui()->MouseButton(0)) || Ui()->MouseButton(2);
+	const bool ShouldPan = Ui()->HotItem() == &m_MapEditorId && ((Input()->ModifierIsPressed() && Ui()->MouseButton(0)) || Ui()->MouseButton(2));
 	if(m_pContainerPanned == &m_MapEditorId)
 	{
 		// do panning
@@ -3143,6 +3176,7 @@ void CEditor::DoMapEditor(CUIRect View)
 				s_Operation = OP_PAN_EDITOR;
 			else
 				s_Operation = OP_PAN_WORLD;
+			Ui()->SetActiveItem(&m_MapEditorId);
 		}
 		else
 			s_Operation = OP_NONE;
@@ -3532,7 +3566,7 @@ void CEditor::DoMapEditor(CUIRect View)
 			}
 		}
 
-		if(Ui()->CheckActiveItem(&m_MapEditorId))
+		if(Ui()->CheckActiveItem(&m_MapEditorId) && m_pContainerPanned == nullptr)
 		{
 			// release mouse
 			if(!Ui()->MouseButton(0))
@@ -3562,7 +3596,7 @@ void CEditor::DoMapEditor(CUIRect View)
 				MapView()->OffsetWorld({0, PanSpeed * m_MouseWorldScale});
 		}
 	}
-	else if(Ui()->CheckActiveItem(&m_MapEditorId))
+	else if(Ui()->CheckActiveItem(&m_MapEditorId) && m_pContainerPanned == nullptr)
 	{
 		// release mouse
 		if(!Ui()->MouseButton(0))
@@ -3863,8 +3897,43 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 		if(s_ScrollRegion.AddRect(Slot))
 		{
 			Slot.VSplitLeft(15.0f, &VisibleToggle, &Slot);
-			if(DoButton_FontIcon(&m_Map.m_vpGroups[g]->m_Visible, m_Map.m_vpGroups[g]->m_Visible ? FONT_ICON_EYE : FONT_ICON_EYE_SLASH, m_Map.m_vpGroups[g]->m_Collapse ? 1 : 0, &VisibleToggle, 0, "Toggle group visibility", IGraphics::CORNER_L, 8.0f))
+
+			const int MouseClick = DoButton_FontIcon(&m_Map.m_vpGroups[g]->m_Visible, m_Map.m_vpGroups[g]->m_Visible ? FONT_ICON_EYE : FONT_ICON_EYE_SLASH, m_Map.m_vpGroups[g]->m_Collapse ? 1 : 0, &VisibleToggle, 0, "Left click to toggle visibility. Right click to show this group only.", IGraphics::CORNER_L, 8.0f);
+			if(MouseClick == 1)
+			{
 				m_Map.m_vpGroups[g]->m_Visible = !m_Map.m_vpGroups[g]->m_Visible;
+			}
+			else if(MouseClick == 2)
+			{
+				if(Input()->ShiftIsPressed())
+				{
+					if(g != m_SelectedGroup)
+						SelectLayer(0, g);
+				}
+
+				int NumActive = 0;
+				for(auto &Group : m_Map.m_vpGroups)
+				{
+					if(Group == m_Map.m_vpGroups[g])
+					{
+						Group->m_Visible = true;
+						continue;
+					}
+
+					if(Group->m_Visible)
+					{
+						Group->m_Visible = false;
+						NumActive++;
+					}
+				}
+				if(NumActive == 0)
+				{
+					for(auto &Group : m_Map.m_vpGroups)
+					{
+						Group->m_Visible = true;
+					}
+				}
+			}
 
 			str_format(aBuf, sizeof(aBuf), "#%d %s", g, m_Map.m_vpGroups[g]->m_aName);
 
@@ -3988,8 +4057,42 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 			Slot.VSplitLeft(12.0f, nullptr, &Slot);
 			Slot.VSplitLeft(15.0f, &VisibleToggle, &Button);
 
-			if(DoButton_FontIcon(&m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible, m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible ? FONT_ICON_EYE : FONT_ICON_EYE_SLASH, 0, &VisibleToggle, 0, "Toggle layer visibility", IGraphics::CORNER_L, 8.0f))
+			const int MouseClick = DoButton_FontIcon(&m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible, m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible ? FONT_ICON_EYE : FONT_ICON_EYE_SLASH, 0, &VisibleToggle, 0, "Left click to toggle visibility. Right click to show only this layer within its group.", IGraphics::CORNER_L, 8.0f);
+			if(MouseClick == 1)
+			{
 				m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible = !m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Visible;
+			}
+			else if(MouseClick == 2)
+			{
+				if(Input()->ShiftIsPressed())
+				{
+					if(!IsLayerSelected)
+						SelectLayer(i, g);
+				}
+
+				int NumActive = 0;
+				for(auto &Layer : m_Map.m_vpGroups[g]->m_vpLayers)
+				{
+					if(Layer == m_Map.m_vpGroups[g]->m_vpLayers[i])
+					{
+						Layer->m_Visible = true;
+						continue;
+					}
+
+					if(Layer->m_Visible)
+					{
+						Layer->m_Visible = false;
+						NumActive++;
+					}
+				}
+				if(NumActive == 0)
+				{
+					for(auto &Layer : m_Map.m_vpGroups[g]->m_vpLayers)
+					{
+						Layer->m_Visible = true;
+					}
+				}
+			}
 
 			if(m_Map.m_vpGroups[g]->m_vpLayers[i]->m_aName[0])
 				str_copy(aBuf, m_Map.m_vpGroups[g]->m_vpLayers[i]->m_aName);
@@ -8012,7 +8115,7 @@ void CEditor::Render()
 				return pLayer->m_Type == LAYERTYPE_TILES && std::static_pointer_cast<CLayerTiles>(pLayer)->m_Tele;
 			});
 			if(HasTeleTiles)
-				str_copy(m_aTooltip, "Use shift+mousewheel up/down to adjust the tele numbers. Use ctrl+f to change all tele numbers to the first unused number.");
+				str_copy(m_aTooltip, "Use shift+mousewheel up/down to adjust the tele number. Use ctrl+f to change current tele number to the first unused number.");
 
 			if(Input()->ShiftIsPressed())
 			{
@@ -8676,6 +8779,9 @@ void CEditor::OnRender()
 		m_ShowMousePointer = true;
 	}
 
+	if(g_Config.m_Debug)
+		Ui()->DebugRender(2.0f, Ui()->Screen()->h - 27.0f);
+
 	Ui()->FinishCheck();
 	Ui()->ClearHotkeys();
 	Input()->Clear();
@@ -8963,9 +9069,6 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 		// Only handle tele, switch and tune layers
 		if(pLayerTiles->m_Tele)
 		{
-			int NextFreeTeleNumber = FindNextFreeTeleNumber();
-			int NextFreeCPNumber = FindNextFreeTeleNumber(true);
-
 			std::shared_ptr<CLayerTele> pTeleLayer = std::static_pointer_cast<CLayerTele>(pLayer);
 			for(int y = 0; y < pTeleLayer->m_Height; y++)
 			{
@@ -8977,13 +9080,19 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 
 					if(UseNextFree)
 					{
-						if(IsTeleTileCheckpoint(pTeleLayer->m_pTiles[i].m_Index))
-							pTeleLayer->m_pTeleTile[i].m_Number = NextFreeCPNumber;
-						else
-							pTeleLayer->m_pTeleTile[i].m_Number = NextFreeTeleNumber;
+						pTeleLayer->m_pTeleTile[i].m_Number = FindNextFreeTeleNumber(pTeleLayer->m_pTiles[i].m_Index);
 					}
 					else
 						AdjustNumber(pTeleLayer->m_pTeleTile[i].m_Number);
+
+					if(IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index) &&
+						m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index] != pTeleLayer->m_pTeleTile[i].m_Number)
+					{
+						if(UseNextFree || Adjust != 0)
+							m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index] = pTeleLayer->m_pTeleTile[i].m_Number;
+						else if(!UseNextFree && Adjust == 0)
+							pTeleLayer->m_pTeleTile[i].m_Number = m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index];
+					}
 				}
 			}
 		}
@@ -9043,12 +9152,12 @@ int CEditor::FindNextFreeSwitchNumber()
 	return Number;
 }
 
-int CEditor::FindNextFreeTeleNumber(bool IsCheckpoint)
+int CEditor::FindNextFreeTeleNumber(int Index)
 {
 	int Number = -1;
 	for(int i = 1; i <= 255; i++)
 	{
-		if(!m_Map.m_pTeleLayer->ContainsElementWithId(i, IsCheckpoint))
+		if(!m_Map.m_pTeleLayer->ContainsElementWithId(i, Index))
 		{
 			Number = i;
 			break;

@@ -230,6 +230,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 		pEditor->m_vSelectEntitiesFiles.clear();
 		pEditor->Storage()->ListDirectory(IStorage::TYPE_ALL, "editor/entities", EntitiesListdirCallback, pEditor);
 		std::sort(pEditor->m_vSelectEntitiesFiles.begin(), pEditor->m_vSelectEntitiesFiles.end());
+		pEditor->m_vSelectEntitiesFiles.emplace_back("Custom…");
 
 		static SPopupMenuId s_PopupEntitiesId;
 		pEditor->Ui()->DoPopupMenu(&s_PopupEntitiesId, Slot.x, Slot.y + Slot.h, 250, pEditor->m_vSelectEntitiesFiles.size() * 14.0f + 10.0f, pEditor, PopupEntities);
@@ -2434,24 +2435,29 @@ int CEditor::PopupSelectConfigAutoMapResult()
 CUi::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, bool Active)
 {
 	CEditor *pEditor = static_cast<CEditor *>(pContext);
+	static const int s_NumTeleTiles = 7;
 
-	static int s_PreviousTeleNumber;
-	static int s_PreviousCheckpointNumber;
+	static int s_aPreviousTeleNumbers[s_NumTeleTiles];
 	static int s_PreviousViewTeleNumber;
 
 	CUIRect NumberPicker;
 	CUIRect FindEmptySlot;
-	CUIRect FindFreeTeleSlot, FindFreeCheckpointSlot, FindFreeViewSlot;
+	CUIRect FindFreeViewSlot;
+	CUIRect aFindFreeTeleSlots[s_NumTeleTiles];
 
 	View.VSplitRight(15.f, &NumberPicker, &FindEmptySlot);
 	NumberPicker.VSplitRight(2.f, &NumberPicker, nullptr);
 
-	FindEmptySlot.HSplitTop(13.0f, &FindFreeTeleSlot, &FindEmptySlot);
-	FindEmptySlot.HSplitTop(13.0f, &FindFreeCheckpointSlot, &FindEmptySlot);
+	for(auto &Slot : aFindFreeTeleSlots)
+	{
+		FindEmptySlot.HSplitTop(13.0f, &Slot, &FindEmptySlot);
+	}
 	FindEmptySlot.HSplitTop(13.0f, &FindFreeViewSlot, &FindEmptySlot);
 
-	FindFreeTeleSlot.HMargin(1.0f, &FindFreeTeleSlot);
-	FindFreeCheckpointSlot.HMargin(1.0f, &FindFreeCheckpointSlot);
+	for(auto &Slot : aFindFreeTeleSlots)
+	{
+		Slot.HMargin(1.0f, &Slot);
+	}
 	FindFreeViewSlot.HMargin(1.0f, &FindFreeViewSlot);
 
 	auto ViewTele = [](CEditor *pEd) -> bool {
@@ -2467,79 +2473,83 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 		return false;
 	};
 
-	static std::vector<ColorRGBA> s_vColors = {
-		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
-		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
-		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
-	};
-	enum
-	{
-		PROP_TELE = 0,
-		PROP_TELE_CP,
-		PROP_TELE_VIEW,
-		NUM_PROPS,
-	};
+	static std::vector<ColorRGBA> s_vColors(s_NumTeleTiles + 1, ColorRGBA(0.5f, 1, 0.5f, 0.5f));
 
 	// find next free numbers buttons
 	{
-		// Pressing ctrl+f will find next free numbers for both tele and checkpoints
-
-		static int s_NextFreeTelePid = 0;
-		if(pEditor->DoButton_Editor(&s_NextFreeTelePid, "F", 0, &FindFreeTeleSlot, 0, "[ctrl+f] Find next free tele number") || (Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
+		static int s_aNextFreeTeleButtonIds[s_NumTeleTiles] = {0};
+		for(int i = 0; i < s_NumTeleTiles; i++)
 		{
-			int TeleNumber = pEditor->FindNextFreeTeleNumber();
+			if(pEditor->DoButton_Editor(&s_aNextFreeTeleButtonIds[i], "F", 0, &aFindFreeTeleSlots[i], 0, "[ctrl+f] Find next free tele number") ||
+				(Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
+			{
+				int Tile = (*std::next(pEditor->m_TeleNumbers.begin(), i)).first;
+				int TeleNumber = pEditor->FindNextFreeTeleNumber(Tile);
 
-			if(TeleNumber != -1)
-				pEditor->m_TeleNumber = TeleNumber;
-		}
-
-		static int s_NextFreeCheckpointPid = 0;
-		if(pEditor->DoButton_Editor(&s_NextFreeCheckpointPid, "F", 0, &FindFreeCheckpointSlot, 0, "[ctrl+f] Find next free checkpoint number") || (Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
-		{
-			int CPNumber = pEditor->FindNextFreeTeleNumber(true);
-
-			if(CPNumber != -1)
-				pEditor->m_TeleCheckpointNumber = CPNumber;
+				if(TeleNumber != -1)
+				{
+					pEditor->m_TeleNumbers[Tile] = TeleNumber;
+					pEditor->AdjustBrushSpecialTiles(false);
+				}
+			}
 		}
 
 		static int s_NextFreeViewPid = 0;
 		int btn = pEditor->DoButton_Editor(&s_NextFreeViewPid, "N", 0, &FindFreeViewSlot, 0, "[n] Show next tele with this number");
 		if(btn || (Active && pEditor->Input()->KeyPress(KEY_N)))
-			s_vColors[PROP_TELE_VIEW] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
+			s_vColors[s_NumTeleTiles] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
 	// number picker
 	{
-		CProperty aProps[] = {
-			{"Number", pEditor->m_TeleNumber, PROPTYPE_INT, 1, 255},
-			{"Checkpoint", pEditor->m_TeleCheckpointNumber, PROPTYPE_INT, 1, 255},
-			{"View", pEditor->m_ViewTeleNumber, PROPTYPE_INT, 1, 255},
-			{nullptr},
+		static const char *s_apTeleLabelText[] = {
+			"Red Tele", // TILE_TELEINEVIL
+			"Weapon Tele", // TILE_TELEINWEAPON
+			"Hook Tele", // TILE_TELEINHOOK
+			"Blue Tele", // TILE_TELEIN
+			"Tele To", // TILE_TELEOUT
+			"CP Tele", // TILE_TELECHECK
+			"CP Tele To", // TILE_TELECHECKOUT
 		};
 
-		static int s_aIds[NUM_PROPS] = {0};
+		std::vector<CProperty> vProps;
+		for(int i = 0; i < s_NumTeleTiles; i++)
+		{
+			unsigned char TeleNumber = (*std::next(pEditor->m_TeleNumbers.begin(), i)).second;
+			vProps.emplace_back(s_apTeleLabelText[i], TeleNumber, PROPTYPE_INT, 1, 255);
+		}
+		vProps.emplace_back("View", pEditor->m_ViewTeleNumber, PROPTYPE_INT, 1, 255);
+		vProps.emplace_back(nullptr);
+
+		static int s_aIds[s_NumTeleTiles + 2] = {0};
 
 		int NewVal = 0;
-		int Prop = pEditor->DoProperties(&NumberPicker, aProps, s_aIds, &NewVal, s_vColors);
-		if(Prop == PROP_TELE)
-			pEditor->m_TeleNumber = (NewVal - 1 + 255) % 255 + 1;
-		else if(Prop == PROP_TELE_CP)
-			pEditor->m_TeleCheckpointNumber = (NewVal - 1 + 255) % 255 + 1;
-		else if(Prop == PROP_TELE_VIEW)
+		int Prop = pEditor->DoProperties(&NumberPicker, vProps.data(), s_aIds, &NewVal, s_vColors);
+
+		if(Prop >= 0 && Prop < s_NumTeleTiles)
+		{
+			auto Tele = (*std::next(pEditor->m_TeleNumbers.begin(), Prop));
+			pEditor->m_TeleNumbers[Tele.first] = (NewVal - 1 + 255) % 255 + 1;
+			pEditor->AdjustBrushSpecialTiles(false);
+		}
+		else if(Prop == s_NumTeleTiles)
 			pEditor->m_ViewTeleNumber = (NewVal - 1 + 255) % 255 + 1;
 
-		if(s_PreviousTeleNumber == 1 || s_PreviousTeleNumber != pEditor->m_TeleNumber)
-			s_vColors[PROP_TELE] = pEditor->m_Map.m_pTeleLayer->ContainsElementWithId(pEditor->m_TeleNumber, false) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
-
-		if(s_PreviousCheckpointNumber == 1 || s_PreviousCheckpointNumber != pEditor->m_TeleCheckpointNumber)
-			s_vColors[PROP_TELE_CP] = pEditor->m_Map.m_pTeleLayer->ContainsElementWithId(pEditor->m_TeleCheckpointNumber, true) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+		for(int i = 0; i < s_NumTeleTiles; i++)
+		{
+			auto Tele = (*std::next(pEditor->m_TeleNumbers.begin(), i));
+			if(s_aPreviousTeleNumbers[i] == 1 || s_aPreviousTeleNumbers[i] != Tele.second)
+				s_vColors[i] = pEditor->m_Map.m_pTeleLayer->ContainsElementWithId(Tele.second, Tele.first) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+		}
 
 		if(s_PreviousViewTeleNumber != pEditor->m_ViewTeleNumber)
-			s_vColors[PROP_TELE_VIEW] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
+			s_vColors[s_NumTeleTiles] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
-	s_PreviousTeleNumber = pEditor->m_TeleNumber;
-	s_PreviousCheckpointNumber = pEditor->m_TeleCheckpointNumber;
+	for(int i = 0; i < s_NumTeleTiles; i++)
+	{
+		s_aPreviousTeleNumbers[i] = (*std::next(pEditor->m_TeleNumbers.begin(), i)).second;
+	}
 	s_PreviousViewTeleNumber = pEditor->m_ViewTeleNumber;
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -2767,12 +2777,17 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEntities(void *pContext, CUIRect Vie
 		{
 			if(pEditor->m_vSelectEntitiesFiles[i] != pEditor->m_SelectEntitiesImage)
 			{
+				if(i == pEditor->m_vSelectEntitiesFiles.size() - 1)
+				{
+					pEditor->InvokeFileDialog(IStorage::TYPE_ALL, FILETYPE_IMG, "Custom Entities", "Load", "assets/entities", false, CallbackCustomEntities, pEditor);
+					return CUi::POPUP_CLOSE_CURRENT;
+				}
+
 				pEditor->m_SelectEntitiesImage = pEditor->m_vSelectEntitiesFiles[i];
 				pEditor->m_AllowPlaceUnusedTiles = pEditor->m_SelectEntitiesImage == "DDNet" ? 0 : -1;
 				pEditor->m_PreventUnusedTilesWasWarned = false;
 
-				if(pEditor->m_EntitiesTexture.IsValid())
-					pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
+				pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
 
 				char aBuf[IO_MAX_PATH_LENGTH];
 				str_format(aBuf, sizeof(aBuf), "editor/entities/%s.png", pName);
