@@ -283,8 +283,7 @@ public:
 	bool HookFlag();
 	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
 
-	vec2 m_FlagPos1;
-	vec2 m_FlagPos2;
+	vec2 m_aFlagPos[2];
 	int m_AtStand1;
 	int m_AtStand2;
 	vec2 m_FlagVel1;

@@ -9,7 +9,6 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 
-
 #include <game/server/entities/flag.h> // ddnet++
 
 #include <limits>
