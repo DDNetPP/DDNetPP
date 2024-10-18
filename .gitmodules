@@ -1,6 +1,7 @@
 [submodule "ddnet-libs"]
 	path = ddnet-libs
 	url = https://github.com/ddnet/ddnet-libs
+	shallow = true
 [submodule "data/maps"]
 	path = data/maps
 	url = git@github.com:DDNetPP/maps.git
