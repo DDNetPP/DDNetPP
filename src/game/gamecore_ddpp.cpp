@@ -9,22 +9,12 @@
 
 #include <game/collision.h>
 
-void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry)
+void CCharacterCore::setFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId)
 {
-	if(id == 0)
-	{
-		m_aFlagPos[0] = Pos;
-		m_AtStand1 = Stand;
-		m_FlagVel1 = Vel;
-		m_carryFlagChar1 = carry;
-	}
-	else if(id == 1)
-	{
-		m_aFlagPos[1] = Pos;
-		m_AtStand2 = Stand;
-		m_FlagVel2 = Vel;
-		m_carryFlagChar2 = carry;
-	}
+	m_aFlags[FlagId].m_Pos = Pos;
+	m_aFlags[FlagId].m_Vel = Vel;
+	m_aFlags[FlagId].m_AtStand = Stand;
+	m_aFlags[FlagId].m_CarrierId = CarrierId;
 }
 
 void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore) const
@@ -50,70 +40,61 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 	// TODO: hooking is a bit borked at the moment
 
 	// vec2 ClosestPoint;
-	// if(closest_point_on_line(m_HookPos, NewPos, m_aFlagPos[0], ClosestPoint))
+	// for(int FlagId = 0; FlagId < 2; FlagId++)
 	// {
-	// 	if(distance(m_aFlagPos[0], ClosestPoint) < CFlag::ms_PhysSize + 2.0f  && m_AtStand1 == 0 && m_carryFlagChar1 == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
-	// 	{
-	// 		if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[0]) < Distance*/)
-	// 		{
-	// 			m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-	// 			m_HookState = HOOK_GRABBED;
-	// 			m_HookedPlayer = FLAG_RED;
-	// 		}
-	// 	}
-	// 	else
-	// 		dbg_msg(
-	// 			"flag",
-	// 			"distance=%s %.2f < %.2f flag=(%.2f/%.2f) pos=(%.2f/%.2f) carry=%d hookedPlayer=%s",
-	// 			(distance(m_aFlagPos[0], ClosestPoint) < CFlag::ms_PhysSize + 2.0f) ? "close_enough" : "toofar",
-	// 			distance(m_aFlagPos[0], ClosestPoint), CFlag::ms_PhysSize + 2.0f,
-	// 			m_aFlagPos[0].x / 32, m_aFlagPos[0].y / 32,
-	// 			ClosestPoint.x / 32, ClosestPoint.y / 32,
-	// 			m_carryFlagChar1,
-	// 			(m_HookedPlayer == FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
-	// }
+	// 	CFlagCore &Flag = m_aFlags[FlagId];
 
-	// if(closest_point_on_line(m_HookPos, NewPos, m_aFlagPos[1], ClosestPoint))
-	// {
-	// 	if(distance(m_aFlagPos[1], ClosestPoint) < CFlag::ms_PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
+	// 	if(closest_point_on_line(m_HookPos, NewPos, Flag.m_Pos, ClosestPoint))
 	// 	{
-	// 		if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[1]) < Distance*/)
+	// 		if(distance(Flag.m_Pos, ClosestPoint) > CFlag::ms_PhysSize + 2.0f)
+	// 			continue;
+	// 		if(Flag.m_AtStand)
+	// 			continue;
+
+	// 		if(Flag.m_CarrierId == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
 	// 		{
-	// 			m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-	// 			m_HookState = HOOK_GRABBED;
-	// 			m_HookedPlayer = FLAG_BLUE;
+	// 			if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[0]) < Distance*/)
+	// 			{
+	// 				m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+	// 				m_HookState = HOOK_GRABBED;
+	// 				m_HookedPlayer = FlagId == TEAM_RED ? FLAG_RED : FLAG_BLUE;
+	// 			}
 	// 		}
+	// 		else
+	// 			dbg_msg(
+	// 				"flag",
+	// 				"distance=%s %.2f < %.2f flag=(%.2f/%.2f) pos=(%.2f/%.2f) carry=%d hookedPlayer=%s",
+	// 				(distance(Flag.m_Pos, ClosestPoint) < CFlag::ms_PhysSize + 2.0f) ? "close_enough" : "toofar",
+	// 				distance(Flag.m_Pos, ClosestPoint), CFlag::ms_PhysSize + 2.0f,
+	// 				Flag.m_Pos.x / 32, Flag.m_Pos.y / 32,
+	// 				ClosestPoint.x / 32, ClosestPoint.y / 32,
+	// 				Flag.m_CarrierId,
+	// 				(m_HookedPlayer == FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
 	// 	}
 	// }
 }
 
 bool CCharacterCore::HookFlag()
 {
+	int FlagId = -1;
 	if(m_HookedPlayer == FLAG_RED)
+		FlagId = TEAM_RED;
+	if(m_HookedPlayer == FLAG_BLUE)
+		FlagId = TEAM_BLUE;
+	if(FlagId == -1)
+		return false;
+
+	if(m_aFlags[FlagId].m_CarrierId == -1)
 	{
-		if(m_carryFlagChar1 == -1)
-			m_HookPos = m_aFlagPos[0];
-		else
-		{
-			m_HookedPlayer = -1;
-			m_HookState = HOOK_RETRACTED;
-			m_HookPos = m_Pos;
-		}
-		return true;
+		m_HookPos = m_aFlags[FlagId].m_Pos;
 	}
-	else if(m_HookedPlayer == FLAG_BLUE)
+	else
 	{
-		if(m_carryFlagChar2 == -1)
-			m_HookPos = m_aFlagPos[1];
-		else
-		{
-			m_HookedPlayer = -1;
-			m_HookState = HOOK_RETRACTED;
-			m_HookPos = m_Pos;
-		}
-		return true;
+		m_HookedPlayer = -1;
+		m_HookState = HOOK_RETRACTED;
+		m_HookPos = m_Pos;
 	}
-	return false;
+	return true;
 }
 
 void CCharacterCore::DDPPTick()
@@ -137,7 +118,7 @@ void CCharacterCore::DDPPTick()
 
 		if(m_HookedPlayer == FLAG_RED)
 		{
-			if(m_AtStand1 == 1)
+			if(m_aFlags[0].m_AtStand)
 			{
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
@@ -146,7 +127,7 @@ void CCharacterCore::DDPPTick()
 		}
 		if(m_HookedPlayer == FLAG_BLUE)
 		{
-			if(m_AtStand2 == 1)
+			if(m_aFlags[1].m_AtStand)
 			{
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
@@ -173,20 +154,20 @@ void CCharacterCore::DDPPTick()
 			if(m_HookedPlayer == FLAG_RED)
 			{
 				m_updateFlagVel = FLAG_RED;
-				Temp = m_FlagVel1;
-				FlagVel = m_FlagVel1;
-				FPos = m_aFlagPos[0];
-				Distance = distance(m_Pos, m_aFlagPos[0]);
-				Dir = normalize(m_Pos - m_aFlagPos[0]);
+				Temp = m_aFlags[0].m_Vel;
+				FlagVel = m_aFlags[0].m_Vel;
+				FPos = m_aFlags[0].m_Pos;
+				Distance = distance(m_Pos, m_aFlags[0].m_Pos);
+				Dir = normalize(m_Pos - m_aFlags[0].m_Pos);
 			}
 			if(m_HookedPlayer == FLAG_BLUE)
 			{
 				m_updateFlagVel = FLAG_BLUE;
-				Temp = m_FlagVel2;
-				FlagVel = m_FlagVel2;
-				FPos = m_aFlagPos[1];
-				Distance = distance(m_Pos, m_aFlagPos[1]);
-				Dir = normalize(m_Pos - m_aFlagPos[1]);
+				Temp = m_aFlags[1].m_Vel;
+				FlagVel = m_aFlags[1].m_Vel;
+				FPos = m_aFlags[1].m_Pos;
+				Distance = distance(m_Pos, m_aFlags[1].m_Pos);
+				Dir = normalize(m_Pos - m_aFlags[1].m_Pos);
 			}
 
 			if(Distance > CFlag::ms_PhysSize * 1.50f) // TODO: fix tweakable variable

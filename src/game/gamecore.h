@@ -281,19 +281,22 @@ public:
 	void DDPPTickHookFlying(vec2 NewPos);
 	void DDPPTick();
 	bool HookFlag();
-	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
+	void setFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId);
 
-	vec2 m_aFlagPos[2];
-	int m_AtStand1;
-	int m_AtStand2;
-	vec2 m_FlagVel1;
-	vec2 m_FlagVel2;
+	class CFlagCore
+	{
+	public:
+		vec2 m_Pos = vec2(0, 0);
+		vec2 m_Vel = vec2(0, 0);
+		bool m_AtStand = true;
+		int m_CarrierId = -1;
+	};
 
+	CFlagCore m_aFlags[2];
+
+	// TODO: wtf is this shit?
 	int m_updateFlagVel;
 	vec2 m_UFlagVel;
-
-	int m_carryFlagChar1;
-	int m_carryFlagChar2;
 
 	bool IsValidHookedPlayer() const { return m_HookedPlayer >= 0 && m_HookedPlayer < MAX_CLIENTS; }
 	int m_LastHookedPlayer;
