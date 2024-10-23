@@ -1,7 +1,6 @@
 // Hardcoded serverside bots madness
 // created by yung ChillerDragon xd
 
-#include "bots/follow.h"
 #include "character.h"
 
 #include <engine/server/server.h>
@@ -11,7 +10,8 @@
 #include <game/server/ddpp/shop.h>
 
 // twbl
-#include <bots/sample.h>
+#include <bots/follow/follow.h>
+#include <bots/sample/sample.h>
 #include <server/set_state.h>
 #include <shared/types.h>
 
