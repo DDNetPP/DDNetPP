@@ -13,10 +13,7 @@
 #include <bots/follow/follow.h>
 #include <bots/sample/sample.h>
 #include <server/set_state.h>
-#include <shared/types.h>
-
-#include <fstream> //ChillerDragon saving bot move records
-#include <string> //ChillerDragon std::getline
+#include <twbl/types.h>
 
 void CCharacter::Fire(bool Fire)
 {

@@ -2899,10 +2899,10 @@ if(SERVER)
   set(TWBL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/external/DDNetPP-bots)
   include_directories(${TWBL_ROOT}/src)
   FILE(GLOB TWBL_SRC
-    ${TWBL_ROOT}/src/shared/base/*.cpp
-    ${TWBL_ROOT}/src/shared/base/*.h
-    ${TWBL_ROOT}/src/shared/*.cpp
-    ${TWBL_ROOT}/src/shared/*.h
+    ${TWBL_ROOT}/src/twbl/*/*.cpp
+    ${TWBL_ROOT}/src/twbl/*/*.h
+    ${TWBL_ROOT}/src/twbl/*.cpp
+    ${TWBL_ROOT}/src/twbl/*.h
     ${TWBL_ROOT}/src/bots/*/*.cpp
     ${TWBL_ROOT}/src/bots/*/*.h
     ${TWBL_ROOT}/src/bots/*.cpp
