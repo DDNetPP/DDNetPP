@@ -38,7 +38,7 @@ void CCharacter::TwblTick()
 	State.m_ppPlayers = GameServer()->m_apPlayers;
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_TWBL_TEST)
-		Twbl_FollowTick(&State, &Bot);
+		Twbl_FollowTick(&State, &Bot, &GetPlayer()->m_TwblPersistentState, sizeof(GetPlayer()->m_TwblPersistentState));
 	else
 		dbg_msg("twbl", "error unknown mode");
 

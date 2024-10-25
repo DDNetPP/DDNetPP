@@ -510,6 +510,8 @@ public:
 	long m_ci_lowest_dest_dist; //max long len 2147483647
 	long m_ci_latest_dest_dist;
 
+	CTwblPersistentState m_TwblPersistentState;
+
 	//########
 	//extras
 	//########

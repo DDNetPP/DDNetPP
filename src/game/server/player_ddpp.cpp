@@ -27,6 +27,7 @@ void CPlayer::ConstructDDPP()
 {
 	m_pCaptcha = new CCaptcha(GameServer(), GetCid());
 	m_pDummyMode = nullptr;
+	mem_zero((void *)&m_TwblPersistentState, sizeof(m_TwblPersistentState));
 }
 
 void CPlayer::DestructDDPP()
@@ -263,6 +264,7 @@ bool CPlayer::SetDummyMode(EDummyMode Mode)
 	if(m_DummyMode > DUMMYMODE_TWBL_START && m_DummyMode < DUMMYMODE_TWBL_END)
 	{
 		dbg_msg("dummy", "set mode %d (twbl) for player %d:'%s'", Mode, GetCid(), Server()->ClientName(GetCid()));
+		mem_zero((void *)&m_TwblPersistentState, sizeof(m_TwblPersistentState));
 		return true;
 	}
 
