@@ -11,6 +11,7 @@
 #include <game/server/save.h>
 #include <game/server/twbl/callback_ctx.h>
 #include <mutex>
+#include <server/ddnet_callback_ctx.h>
 #include <thread>
 
 #include <game/gamecore.h>
@@ -255,7 +256,9 @@ public:
 	float m_FNN_best_distance_finish;
 	void LoadFNNvalues();
 
-	CTwblCallbackCtx m_TwblCallbackCtx;
+	// currently using the default ddnet context shipped by twbl
+	// CTwblCallbackCtx m_TwblCallbackCtx;
+	TWBL::CDDNetCallbackCtx m_TwblCallbackCtx;
 
 	void DDPP_Tick();
 	void DDPP_SlowTick();

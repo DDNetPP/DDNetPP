@@ -5,14 +5,16 @@
 
 class CGameContext;
 
-class CTwblCallbackCtx : public TWBL::CCallbackCtx
-{
-public:
-	CGameContext *m_pGameServer;
-	CGameContext *GameServer() const;
+// currently using the default ddnet context shipped by twbl
 
-	void SendChat(int ClientId, int Team, const char *pText) override;
-	void Die(int ClientId) override;
-};
+// class CTwblCallbackCtx : public TWBL::CCallbackCtx
+// {
+// public:
+// 	CGameContext *m_pGameServer;
+// 	CGameContext *GameServer() const;
+//
+// 	void SendChat(int ClientId, int Team, const char *pText) override;
+// 	void Die(int ClientId) override;
+// };
 
 #endif

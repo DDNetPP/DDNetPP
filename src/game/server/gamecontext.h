@@ -22,6 +22,7 @@
 #include <game/server/ddpp/letters.h>
 #include <game/server/twbl/callback_ctx.h>
 #include <mutex>
+#include <server/ddnet_callback_ctx.h>
 #include <thread>
 
 #include "eventhandler.h"
