@@ -2865,6 +2865,8 @@ if(SERVER)
     teehistorian.h
     teeinfo.cpp
     teeinfo.h
+    twbl/callback_ctx.cpp
+    twbl/callback_ctx.h
   )
   set(GAME_GENERATED_SERVER
     "src/game/generated/server_data.cpp"

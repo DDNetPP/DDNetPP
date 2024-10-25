@@ -72,6 +72,7 @@ void CGameContext::ConstructDDPP()
 	m_LastAccountMode = g_Config.m_SvAccountStuff;
 	m_IsServerEmpty = false;
 	m_IsPoliceFarmActive = true;
+	m_TwblCallbackCtx.m_pGameServer = this;
 }
 
 void CGameContext::DestructDDPP()

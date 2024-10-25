@@ -9,6 +9,7 @@
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
+#include <game/server/twbl/callback_ctx.h>
 #include <mutex>
 #include <thread>
 
@@ -253,6 +254,8 @@ public:
 	float m_FNN_best_fitness;
 	float m_FNN_best_distance_finish;
 	void LoadFNNvalues();
+
+	CTwblCallbackCtx m_TwblCallbackCtx;
 
 	void DDPP_Tick();
 	void DDPP_SlowTick();

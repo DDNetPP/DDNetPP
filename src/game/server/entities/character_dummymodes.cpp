@@ -34,8 +34,10 @@ void CCharacter::TwblTick()
 	CServerBotStateIn State;
 	CServerBotStateOut Bot;
 	TWBL::SetState(this, &State);
+	State.m_GameTick = GameServer()->Server()->Tick();
 	State.m_pCollision = Collision();
 	State.m_ppPlayers = GameServer()->m_apPlayers;
+	State.m_pCallbackCtx = &GameServer()->m_TwblCallbackCtx;
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_TWBL_TEST)
 		Twbl_FollowTick(&State, &Bot, &GetPlayer()->m_TwblPersistentState, sizeof(GetPlayer()->m_TwblPersistentState));
