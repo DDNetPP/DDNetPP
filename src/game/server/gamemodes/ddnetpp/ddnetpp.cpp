@@ -12,6 +12,7 @@
 CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) :
 	CGameControllerDDRace(pGameServer)
 {
+	m_pGameType = g_Config.m_SvTestingCommands ? g_Config.m_SvGameTypeNameTest : g_Config.m_SvGameTypeName;
 	m_GameFlags = GAMEFLAG_FLAGS;
 }
 
