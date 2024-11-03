@@ -142,7 +142,7 @@ void CPlayer::ResetDDPP()
 	m_autospreadgun_offer = false;
 	//Block points
 	m_LastToucherId = -1;
-	m_DisplayScore = SCORE_LEVEL;
+	m_DisplayScore = (EScore)g_Config.m_SvDisplayScore;
 	m_Language = LANG_EN;
 	m_MinigameScore = 0;
 

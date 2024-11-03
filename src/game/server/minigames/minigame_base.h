@@ -18,9 +18,9 @@ class CSaveTeeDDPP;
 
 enum EScore
 {
-	SCORE_TIME,
-	SCORE_LEVEL,
-	SCORE_BLOCK
+	SCORE_TIME = 0,
+	SCORE_LEVEL = 1,
+	SCORE_BLOCK = 2
 };
 
 class CMinigame

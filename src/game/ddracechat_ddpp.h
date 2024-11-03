@@ -40,7 +40,7 @@ CHAT_COMMAND("show", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShow, this, "shows 
 CHAT_COMMAND("hide", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHide, this, "hides info. partner of '/show' command.")
 
 //score display
-CHAT_COMMAND("score", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConScore, this, "changes score of players to race time, level or blockpoints")
+CHAT_COMMAND("score", "?s[time|level|block]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConScore, this, "changes score of players to time (race), level or block (points)")
 
 //spawn weapons
 CHAT_COMMAND("spawnweapons", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawnWeapons, this, "toggles using spawnweapons or not")

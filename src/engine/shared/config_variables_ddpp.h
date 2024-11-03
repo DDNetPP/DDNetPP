@@ -117,6 +117,8 @@ MACRO_CONFIG_INT(SvShowClientDummysInMaster, sv_show_client_dummys_in_master, 1,
 //Server/Config side
 MACRO_CONFIG_INT(SvInstagibMode, sv_insta, 0, 0, 4, CFGFLAG_SERVER, "0=ddrace 1=gdm 2=undefined 3=idm 4=undefined") //undefined were LMSgrenade and LMSrifle but got removed because it was unfinished and only confused the real vanilla survival
 MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count from 0 on reconnect in scoreboard 1=load sql scores in scoreboard")
+MACRO_CONFIG_INT(SvDisplayScore, sv_display_score, 0, 0, 2, CFGFLAG_SERVER, "0=time (default) 1=level 2=block")
+
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 MACRO_CONFIG_INT(SvDDPPscore, sv_ddpp_score, 1, 0, 1, CFGFLAG_SERVER, "rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)")
 /*
