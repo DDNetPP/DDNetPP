@@ -48,7 +48,12 @@ public:
 		unsigned m_NumArgs;
 
 	public:
-		IResult() { m_NumArgs = 0; }
+		IResult(int ClientId) :
+			m_NumArgs(0),
+			m_ClientId(ClientId) {}
+		IResult(const IResult &Other) :
+			m_NumArgs(Other.m_NumArgs),
+			m_ClientId(Other.m_ClientId) {}
 		virtual ~IResult() {}
 
 		virtual int GetInteger(unsigned Index) const = 0;
@@ -85,7 +90,6 @@ public:
 	};
 
 	typedef void (*FTeeHistorianCommandCallback)(int ClientId, int FlagMask, const char *pCmd, IResult *pResult, void *pUser);
-	typedef void (*FPrintCallback)(const char *pStr, void *pUser, ColorRGBA PrintColor);
 	typedef void (*FPossibleCallback)(int Index, const char *pCmd, void *pUser);
 	typedef void (*FCommandCallback)(IResult *pResult, void *pUserData);
 	typedef void (*FChainCommandCallback)(IResult *pResult, void *pUserData, FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -113,7 +117,12 @@ public:
 	virtual void ExecuteLineStroked(int Stroke, const char *pStr, int ClientId = -1, bool InterpretSemicolons = true) = 0;
 	virtual bool ExecuteFile(const char *pFilename, int ClientId = -1, bool LogFailure = false, int StorageType = IStorage::TYPE_ALL) = 0;
 
-	virtual char *Format(char *pBuf, int Size, const char *pFrom, const char *pStr) = 0;
+	/**
+	 * @deprecated Prefer using the `log_*` functions from base/log.h instead of this function for the following reasons:
+	 * - They support `printf`-formatting without a separate buffer.
+	 * - They support all five log levels.
+	 * - They do not require a pointer to `IConsole` to be used.
+	 */
 	virtual void Print(int Level, const char *pFrom, const char *pStr, ColorRGBA PrintColor = gs_ConsoleDefaultColor) const = 0;
 	virtual void SetTeeHistorianCommandCallback(FTeeHistorianCommandCallback pfnCallback, void *pUser) = 0;
 	virtual void SetUnknownCommandCallback(FUnknownCommandCallback pfnCallback, void *pUser) = 0;

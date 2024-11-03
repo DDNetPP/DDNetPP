@@ -1,22 +1,22 @@
 /* (c) Rajh, Redix and Sushi. */
 
+#include "ghost.h"
+
+#include <base/log.h>
+
 #include <engine/ghost.h>
 #include <engine/shared/config.h>
 #include <engine/storage.h>
 
-#include <game/client/race.h>
-
-#include "ghost.h"
-#include "menus.h"
-#include "players.h"
-#include "skins.h"
-
+#include <game/client/components/menus.h>
+#include <game/client/components/players.h>
+#include <game/client/components/skins.h>
 #include <game/client/gameclient.h>
+#include <game/client/race.h>
 
 const char *CGhost::ms_pGhostDir = "ghosts";
 
-CGhost::CGhost() :
-	m_NewRenderTick(-1), m_StartRenderTick(-1), m_LastDeathTick(-1), m_LastRaceTick(-1), m_Recording(false), m_Rendering(false) {}
+static const LOG_COLOR LOG_COLOR_GHOST{165, 153, 153};
 
 void CGhost::GetGhostSkin(CGhostSkin *pSkin, const char *pSkinName, int UseCustomColor, int ColorBody, int ColorFeet)
 {
@@ -187,13 +187,13 @@ void CGhost::CheckStart()
 	int RaceTick = -m_pClient->m_Snap.m_pGameInfoObj->m_WarmupTimer;
 	int RenderTick = m_NewRenderTick;
 
-	if(m_LastRaceTick != RaceTick && Client()->GameTick(g_Config.m_ClDummy) - RaceTick < Client()->GameTickSpeed())
+	if(GameClient()->LastRaceTick() != RaceTick && Client()->GameTick(g_Config.m_ClDummy) - RaceTick < Client()->GameTickSpeed())
 	{
 		if(m_Rendering && m_RenderingStartedByServer) // race restarted: stop rendering
 			StopRender();
-		if(m_Recording && m_LastRaceTick != -1) // race restarted: activate restarting for local start detection so we have a smooth transition
+		if(m_Recording && GameClient()->LastRaceTick() != -1) // race restarted: activate restarting for local start detection so we have a smooth transition
 			m_AllowRestart = true;
-		if(m_LastRaceTick == -1) // no restart: reset rendering preparations
+		if(GameClient()->LastRaceTick() == -1) // no restart: reset rendering preparations
 			m_NewRenderTick = -1;
 		if(GhostRecorder()->IsRecording()) // race restarted: stop recording
 			GhostRecorder()->Stop(0, -1);
@@ -271,28 +271,21 @@ void CGhost::TryRenderStart(int Tick, bool ServerControl)
 
 void CGhost::OnNewSnapshot()
 {
-	if(!GameClient()->m_GameInfo.m_Race || Client()->State() != IClient::STATE_ONLINE)
+	if(!GameClient()->m_GameInfo.m_Race || !g_Config.m_ClRaceGhost || Client()->State() != IClient::STATE_ONLINE)
 		return;
 	if(!m_pClient->m_Snap.m_pGameInfoObj || m_pClient->m_Snap.m_SpecInfo.m_Active || !m_pClient->m_Snap.m_pLocalCharacter || !m_pClient->m_Snap.m_pLocalPrevCharacter)
 		return;
 
-	bool RaceFlag = m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME;
-	bool ServerControl = RaceFlag && g_Config.m_ClRaceGhostServerControl;
+	const bool RaceFlag = m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME;
+	const bool ServerControl = RaceFlag && g_Config.m_ClRaceGhostServerControl;
 
-	if(g_Config.m_ClRaceGhost)
-	{
-		if(!ServerControl)
-			CheckStartLocal(false);
-		else
-			CheckStart();
+	if(!ServerControl)
+		CheckStartLocal(false);
+	else
+		CheckStart();
 
-		if(m_Recording)
-			AddInfos(m_pClient->m_Snap.m_pLocalCharacter, (m_pClient->m_Snap.m_LocalClientId != -1 && m_pClient->m_Snap.m_aCharacters[m_pClient->m_Snap.m_LocalClientId].m_HasExtendedData) ? &m_pClient->m_Snap.m_aCharacters[m_pClient->m_Snap.m_LocalClientId].m_ExtendedData : nullptr);
-	}
-
-	// Record m_LastRaceTick for g_Config.m_ClConfirmDisconnect/QuitTime anyway
-	int RaceTick = -m_pClient->m_Snap.m_pGameInfoObj->m_WarmupTimer;
-	m_LastRaceTick = RaceFlag ? RaceTick : -1;
+	if(m_Recording)
+		AddInfos(m_pClient->m_Snap.m_pLocalCharacter, (m_pClient->m_Snap.m_LocalClientId != -1 && m_pClient->m_Snap.m_aCharacters[m_pClient->m_Snap.m_LocalClientId].m_HasExtendedData) ? &m_pClient->m_Snap.m_aCharacters[m_pClient->m_Snap.m_LocalClientId].m_ExtendedData : nullptr);
 }
 
 void CGhost::OnNewPredictedSnapshot()
@@ -302,8 +295,8 @@ void CGhost::OnNewPredictedSnapshot()
 	if(!m_pClient->m_Snap.m_pGameInfoObj || m_pClient->m_Snap.m_SpecInfo.m_Active || !m_pClient->m_Snap.m_pLocalCharacter || !m_pClient->m_Snap.m_pLocalPrevCharacter)
 		return;
 
-	bool RaceFlag = m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME;
-	bool ServerControl = RaceFlag && g_Config.m_ClRaceGhostServerControl;
+	const bool RaceFlag = m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME;
+	const bool ServerControl = RaceFlag && g_Config.m_ClRaceGhostServerControl;
 
 	if(!ServerControl)
 		CheckStartLocal(true);
@@ -410,11 +403,13 @@ void CGhost::StopRecord(int Time)
 	m_Recording = false;
 	bool RecordingToFile = GhostRecorder()->IsRecording();
 
-	if(RecordingToFile)
-		GhostRecorder()->Stop(m_CurGhost.m_Path.Size(), Time);
-
 	CMenus::CGhostItem *pOwnGhost = m_pClient->m_Menus.GetOwnGhost();
-	if(Time > 0 && (!pOwnGhost || Time < pOwnGhost->m_Time || !g_Config.m_ClRaceGhostSaveBest))
+	const bool StoreGhost = Time > 0 && (!pOwnGhost || Time < pOwnGhost->m_Time || !g_Config.m_ClRaceGhostSaveBest);
+
+	if(RecordingToFile)
+		GhostRecorder()->Stop(m_CurGhost.m_Path.Size(), StoreGhost ? Time : -1);
+
+	if(StoreGhost)
 	{
 		// add to active ghosts
 		int Slot = GetSlot();
@@ -439,11 +434,8 @@ void CGhost::StopRecord(int Time)
 		// add item to menu list
 		m_pClient->m_Menus.UpdateOwnGhost(Item);
 	}
-	else if(RecordingToFile) // no new record
-		Storage()->RemoveFile(m_aTmpFilename, IStorage::TYPE_SAVE);
 
-	m_aTmpFilename[0] = 0;
-
+	m_aTmpFilename[0] = '\0';
 	m_CurGhost.Reset();
 }
 
@@ -467,17 +459,10 @@ int CGhost::Load(const char *pFilename)
 	if(Slot == -1)
 		return -1;
 
-	if(GhostLoader()->Load(pFilename, Client()->GetCurrentMap(), Client()->GetCurrentMapSha256(), Client()->GetCurrentMapCrc()) != 0)
+	if(!GhostLoader()->Load(pFilename, Client()->GetCurrentMap(), Client()->GetCurrentMapSha256(), Client()->GetCurrentMapCrc()))
 		return -1;
 
 	const CGhostInfo *pInfo = GhostLoader()->GetInfo();
-
-	if(pInfo->m_NumTicks <= 0 || pInfo->m_Time <= 0)
-	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ghost", "invalid header info");
-		GhostLoader()->Close();
-		return -1;
-	}
 
 	// select ghost
 	CGhostItem *pGhost = &m_aActiveGhosts[Slot];
@@ -528,7 +513,7 @@ int CGhost::Load(const char *pFilename)
 
 	if(Error || Index != pInfo->m_NumTicks)
 	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ghost", "invalid ghost data");
+		log_error_color(LOG_COLOR_GHOST, "ghost", "Failed to read all ghost data (error='%d', got '%d' ticks, wanted '%d' ticks)", Error, Index, pInfo->m_NumTicks);
 		pGhost->Reset();
 		return -1;
 	}
@@ -647,7 +632,6 @@ void CGhost::OnReset()
 	StopRecord();
 	StopRender();
 	m_LastDeathTick = -1;
-	m_LastRaceTick = -1;
 }
 
 void CGhost::OnShutdown()
@@ -661,11 +645,6 @@ void CGhost::OnMapLoad()
 	UnloadAll();
 	m_pClient->m_Menus.GhostlistPopulate();
 	m_AllowRestart = false;
-}
-
-int CGhost::GetLastRaceTick() const
-{
-	return m_LastRaceTick;
 }
 
 void CGhost::OnRefreshSkins()

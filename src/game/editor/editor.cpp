@@ -6781,21 +6781,29 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 				CurveButton.w = CurveBar.h;
 				CurveButton.x -= CurveButton.w / 2.0f;
 				const void *pId = &pEnvelope->m_vPoints[i].m_Curvetype;
-				const char *apTypeName[] = {"N", "L", "S", "F", "M", "B"};
+				static const char *const TYPE_NAMES[NUM_CURVETYPES] = {"N", "L", "S", "F", "M", "B"};
 				const char *pTypeName = "!?";
-				if(0 <= pEnvelope->m_vPoints[i].m_Curvetype && pEnvelope->m_vPoints[i].m_Curvetype < (int)std::size(apTypeName))
-					pTypeName = apTypeName[pEnvelope->m_vPoints[i].m_Curvetype];
+				if(0 <= pEnvelope->m_vPoints[i].m_Curvetype && pEnvelope->m_vPoints[i].m_Curvetype < (int)std::size(TYPE_NAMES))
+					pTypeName = TYPE_NAMES[pEnvelope->m_vPoints[i].m_Curvetype];
 
 				if(CurveButton.x >= View.x)
 				{
-					if(DoButton_Editor(pId, pTypeName, 0, &CurveButton, 0, "Switch curve type (N = step, L = linear, S = slow, F = fast, M = smooth, B = bezier)"))
+					const int ButtonResult = DoButton_Editor(pId, pTypeName, 0, &CurveButton, BUTTON_CONTEXT, "Switch curve type (N = step, L = linear, S = slow, F = fast, M = smooth, B = bezier).");
+					if(ButtonResult == 1)
 					{
-						int PrevCurve = pEnvelope->m_vPoints[i].m_Curvetype;
-						pEnvelope->m_vPoints[i].m_Curvetype = (pEnvelope->m_vPoints[i].m_Curvetype + 1) % NUM_CURVETYPES;
+						const int PrevCurve = pEnvelope->m_vPoints[i].m_Curvetype;
+						const int Direction = Input()->ShiftIsPressed() ? -1 : 1;
+						pEnvelope->m_vPoints[i].m_Curvetype = (pEnvelope->m_vPoints[i].m_Curvetype + Direction + NUM_CURVETYPES) % NUM_CURVETYPES;
 
 						m_EnvelopeEditorHistory.RecordAction(std::make_shared<CEditorActionEnvelopeEditPoint>(this,
 							m_SelectedEnvelope, i, 0, CEditorActionEnvelopeEditPoint::EEditType::CURVE_TYPE, PrevCurve, pEnvelope->m_vPoints[i].m_Curvetype));
 						m_Map.OnModify();
+					}
+					else if(ButtonResult == 2)
+					{
+						m_PopupEnvelopeSelectedPoint = i;
+						static SPopupMenuId s_PopupCurvetypeId;
+						Ui()->DoPopupMenu(&s_PopupCurvetypeId, Ui()->MouseX(), Ui()->MouseY(), 80, NUM_CURVETYPES * 14.0f + 10.0f, this, PopupEnvelopeCurvetype);
 					}
 				}
 			}
@@ -9088,9 +9096,7 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 					if(IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index) &&
 						m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index] != pTeleLayer->m_pTeleTile[i].m_Number)
 					{
-						if(UseNextFree || Adjust != 0)
-							m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index] = pTeleLayer->m_pTeleTile[i].m_Number;
-						else if(!UseNextFree && Adjust == 0)
+						if(!UseNextFree && Adjust == 0)
 							pTeleLayer->m_pTeleTile[i].m_Number = m_TeleNumbers[pTeleLayer->m_pTiles[i].m_Index];
 					}
 				}

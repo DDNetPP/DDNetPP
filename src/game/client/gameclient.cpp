@@ -328,7 +328,10 @@ void CGameClient::OnInit()
 	for(int i = 0; i < OLD_NUM_NETOBJTYPES; i++)
 		Client()->SnapSetStaticsize7(i, m_NetObjHandler7.GetObjSize(i));
 
-	TextRender()->LoadFonts();
+	if(!TextRender()->LoadFonts())
+	{
+		Client()->AddWarning(SWarning(Localize("Some fonts could not be loaded. Check the local console for details.")));
+	}
 	TextRender()->SetFontLanguageVariant(g_Config.m_ClLanguagefile);
 
 	// update and swap after font loading, they are quite huge
@@ -572,6 +575,7 @@ void CGameClient::OnReset()
 	std::fill(std::begin(m_aLastNewPredictedTick), std::end(m_aLastNewPredictedTick), -1);
 
 	m_LastRoundStartTick = -1;
+	m_LastRaceTick = -1;
 	m_LastFlagCarrierRed = -4;
 	m_LastFlagCarrierBlue = -4;
 
@@ -765,6 +769,8 @@ void CGameClient::OnRender()
 
 	CLineInput::RenderCandidates();
 
+	const bool WasNewTick = m_NewTick;
+
 	// clear new tick flags
 	m_NewTick = false;
 	m_NewPredictedTick = false;
@@ -773,7 +779,7 @@ void CGameClient::OnRender()
 		g_Config.m_ClDummy = 0;
 
 	// resend player and dummy info if it was filtered by server
-	if(Client()->State() == IClient::STATE_ONLINE && !m_Menus.IsActive())
+	if(Client()->State() == IClient::STATE_ONLINE && !m_Menus.IsActive() && WasNewTick)
 	{
 		if(m_aCheckInfo[0] == 0)
 		{
@@ -801,7 +807,9 @@ void CGameClient::OnRender()
 		}
 
 		if(m_aCheckInfo[0] > 0)
-			m_aCheckInfo[0]--;
+		{
+			m_aCheckInfo[0] -= minimum(Client()->GameTick(0) - Client()->PrevGameTick(0), m_aCheckInfo[0]);
+		}
 
 		if(Client()->DummyConnected())
 		{
@@ -831,7 +839,9 @@ void CGameClient::OnRender()
 			}
 
 			if(m_aCheckInfo[1] > 0)
-				m_aCheckInfo[1]--;
+			{
+				m_aCheckInfo[1] -= minimum(Client()->GameTick(1) - Client()->PrevGameTick(1), m_aCheckInfo[1]);
+			}
 		}
 	}
 }
@@ -844,9 +854,18 @@ void CGameClient::OnDummyDisconnect()
 	m_PredictedDummyId = -1;
 }
 
-int CGameClient::GetLastRaceTick() const
+int CGameClient::LastRaceTick() const
 {
-	return m_Ghost.GetLastRaceTick();
+	return m_LastRaceTick;
+}
+
+int CGameClient::CurrentRaceTime() const
+{
+	if(m_LastRaceTick < 0)
+	{
+		return 0;
+	}
+	return (Client()->GameTick(g_Config.m_ClDummy) - m_LastRaceTick) / Client()->GameTickSpeed();
 }
 
 bool CGameClient::Predict() const
@@ -940,6 +959,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 		m_aReceivedTuning[Conn] = true;
 		// apply new tuning
 		m_aTuning[Conn] = NewTuning;
+		TuningList()[0] = NewTuning;
 		return;
 	}
 
@@ -2088,6 +2108,19 @@ void CGameClient::OnNewSnapshot()
 			}
 		}
 	}
+
+	// Record m_LastRaceTick for g_Config.m_ClConfirmDisconnect/QuitTime
+	if(m_GameInfo.m_Race &&
+		Client()->State() == IClient::STATE_ONLINE &&
+		m_Snap.m_pGameInfoObj &&
+		!m_Snap.m_SpecInfo.m_Active &&
+		m_Snap.m_pLocalCharacter &&
+		m_Snap.m_pLocalPrevCharacter)
+	{
+		const bool RaceFlag = m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_RACETIME;
+		m_LastRaceTick = RaceFlag ? -m_Snap.m_pGameInfoObj->m_WarmupTimer : -1;
+	}
+
 	if(m_Snap.m_LocalClientId != m_PrevLocalId)
 		m_PredictedDummyId = m_PrevLocalId;
 	m_PrevLocalId = m_Snap.m_LocalClientId;
@@ -2514,7 +2547,7 @@ void CGameClient::SendSwitchTeam(int Team) const
 	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 }
 
-void CGameClient::SendStartInfo7(bool Dummy) const
+void CGameClient::SendStartInfo7(bool Dummy)
 {
 	protocol7::CNetMsg_Cl_StartInfo Msg;
 	Msg.m_pName = Dummy ? Client()->DummyName() : Client()->PlayerName();
@@ -2530,6 +2563,7 @@ void CGameClient::SendStartInfo7(bool Dummy) const
 	if(Msg.Pack(&Packer))
 		return;
 	Client()->SendMsg((int)Dummy, &Packer, MSGFLAG_VITAL | MSGFLAG_FLUSH);
+	m_aCheckInfo[(int)Dummy] = -1;
 }
 
 void CGameClient::SendSkinChange7(bool Dummy)
@@ -3776,6 +3810,13 @@ void CGameClient::LoadMapSettings()
 	for(int i = 0; i < NUM_TUNEZONES; i++)
 	{
 		TuningList()[i] = TuningParams;
+
+		// only hardcode ddrace tuning for the tune zones
+		// and not the base tuning
+		// that one will be sent by the server if needed
+		if(!i)
+			continue;
+
 		TuningList()[i].Set("gun_curvature", 0);
 		TuningList()[i].Set("gun_speed", 1400);
 		TuningList()[i].Set("shotgun_curvature", 0);
