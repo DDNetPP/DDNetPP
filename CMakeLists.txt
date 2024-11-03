@@ -2909,6 +2909,10 @@ if(SERVER)
     ${TWBL_ROOT}/src/bots/*/*.h
     ${TWBL_ROOT}/src/bots/*.cpp
     ${TWBL_ROOT}/src/bots/*.h
+    ${TWBL_ROOT}/src/engines/*/*.cpp
+    ${TWBL_ROOT}/src/engines/*/*.h
+    ${TWBL_ROOT}/src/engines/*.cpp
+    ${TWBL_ROOT}/src/engines/*.h
     ${TWBL_ROOT}/src/server/*.cpp
     ${TWBL_ROOT}/src/server/*.h
   )
