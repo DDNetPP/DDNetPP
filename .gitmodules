@@ -4,8 +4,8 @@
 	shallow = true
 [submodule "data/maps"]
 	path = data/maps
-	url = git@github.com:DDNetPP/maps.git
+	url = https://github.com/DDNetPP/maps.git
 	shallow = true
 [submodule "src/external/DDNetPP-bots"]
 	path = src/external/DDNetPP-bots
-	url = git@github.com:DDNetPP/DDNetPP-bots.git
+	url = https://github.com/DDNetPP/DDNetPP-bots.git
