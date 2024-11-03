@@ -45,6 +45,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "nУровень";
 		if(!str_comp("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", pStr))
 			return "Tебе нужно войти в аккаунт. \nИспользуй '/register' или '/login'";
+		if(!str_comp("You need to be logged in to play. \nGet an account with '/register <name> <pw> <pw>'", pStr))
+			return "Чтобы играть, вам нужно войти в систему. \nИспользуй '/register' или '/login'";
 	}
 	return pStr;
 }
