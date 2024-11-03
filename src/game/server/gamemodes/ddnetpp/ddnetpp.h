@@ -16,6 +16,8 @@ public:
 	class IStorage *Storage() { return GameServer()->Storage(); }
 
 	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
+
+	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
 };
 
 #endif

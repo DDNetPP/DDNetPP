@@ -22,3 +22,22 @@ void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacer, int Progres
 	if(!pCharacer->GetPlayer()->m_IsVanillaDmg)
 		CGameControllerDDRace::SetArmorProgress(pCharacer, Progress);
 }
+
+bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisId];
+	if(!pPlayer)
+		return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
+
+	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
+	{
+		if(!pPlayer->IsLoggedIn())
+		{
+			const char *pReason = GameServer()->Loc("You need to be logged in to play. \nGet an account with '/register <name> <pw> <pw>'", pPlayer->GetCid());
+			str_copy(pErrorReason, pReason, ErrorReasonSize);
+			return false;
+		}
+	}
+
+	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
+}
