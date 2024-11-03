@@ -144,6 +144,8 @@ void CPlayer::ResetDDPP()
 	m_LastToucherId = -1;
 	m_DisplayScore = (EScore)g_Config.m_SvDisplayScore;
 	m_Language = LANG_EN;
+	if(!str_comp_nocase("ru", g_Config.m_SvLanguage))
+		m_Language = LANG_RU;
 	m_MinigameScore = 0;
 
 	for(auto &WeaponLimit : m_aWeaponLimit)
