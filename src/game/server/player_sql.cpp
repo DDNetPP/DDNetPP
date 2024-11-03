@@ -1,5 +1,6 @@
 /* CPlayer related sql ddnet++ methods */
 
+#include "game/generated/protocol.h"
 #include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
 
@@ -31,6 +32,13 @@ void CPlayer::OnLogin()
 	//==========================
 
 	GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login successful.");
+
+
+	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
+	{
+		if(GetTeam() == TEAM_SPECTATORS)
+			SetTeam(TEAM_RED);
+	}
 
 	// load scoreboard scores
 	if(g_Config.m_SvInstaScore)

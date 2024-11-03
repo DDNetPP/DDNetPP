@@ -42,3 +42,17 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
+
+
+void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer, bool Silent)
+{
+	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
+	{
+		if(!pPlayer->IsLoggedIn())
+		{
+			const char *pReason = GameServer()->Loc("You need to be logged in to play. \nGet an account with '/register <name> <pw> <pw>'", pPlayer->GetCid());
+			GameServer()->SendBroadcast(pReason, pPlayer->GetCid());
+			GameServer()->SendChatTarget(pPlayer->GetCid(), pReason);
+		}
+	}
+}

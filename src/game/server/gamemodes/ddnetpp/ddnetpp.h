@@ -18,6 +18,7 @@ public:
 	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
 
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
+	void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false) override;
 };
 
 #endif
