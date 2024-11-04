@@ -701,7 +701,6 @@ private:
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
 	int64_t NameChangeMuteTime(int ClientId);
 
-	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 
@@ -727,21 +726,6 @@ private:
 
 	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConCC(IConsole::IResult *pResult, void *pUserData);
-	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
-	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
-	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
-	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
-	static void Conheal(IConsole::IResult *pResult, void *pUserData);
-	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
-	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
-	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
-	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 
@@ -766,38 +750,9 @@ private:
 
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
 
-	//SQL
-	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
-
-	//rcon api
-	static void ConRconApiSayId(IConsole::IResult *pResult, void *pUserData);
-	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
-
-	//account stuff
-	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
-	static void ConAccLogout(IConsole::IResult *pResult, void *pUserData);
-	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
-	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
-	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
-	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
-	static void ConACC2(IConsole::IResult *pResult, void *pUserData);
-	static void ConSql(IConsole::IResult *pResult, void *pUserData);
-	static void ConSqlName(IConsole::IResult *pResult, void *pUserData);
-	static void ConSqlLogout(IConsole::IResult *pResult, void *pUserData);
-	static void ConSqlLogoutAll(IConsole::IResult *pResult, void *pUserData);
-	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
-	static void ConStats(IConsole::IResult *pResult, void *pUserData);
-	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
-	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
-
-	static void ConActivateShopItem(IConsole::IResult *pResult, void *pUserData);
-	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
-
 	//minigame (chidraqul)
 	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);
-
 	static void ConMinigames(IConsole::IResult *pResult, void *pUserData);
-
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
 	//display score
@@ -873,9 +828,26 @@ private:
 	static void ConBounty(IConsole::IResult *pResult, void *pUserData);
 	static void ConFng(IConsole::IResult *pResult, void *pUserData);
 
-	//admin
+	// admin rcon
+	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHidePlayer(IConsole::IResult *pResult, void *pUserData);
+	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
+	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
+	static void Conheal(IConsole::IResult *pResult, void *pUserData);
+	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
+	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
+	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
+
+	// admin chat
+	static void ConCC(IConsole::IResult *pResult, void *pUserData);
 	static void ConDcDummy(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
@@ -887,6 +859,34 @@ private:
 	static void ConLive(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
 	static void ConMapsave(IConsole::IResult *pResult, void *pUserData);
+	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
+
+	//SQL
+	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	//rcon api
+	static void ConRconApiSayId(IConsole::IResult *pResult, void *pUserData);
+	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
+
+	//account stuff
+	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
+	static void ConAccLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
+	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
+	static void ConACC2(IConsole::IResult *pResult, void *pUserData);
+	static void ConSql(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlName(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlLogoutAll(IConsole::IResult *pResult, void *pUserData);
+	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
+	static void ConStats(IConsole::IResult *pResult, void *pUserData);
+	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
+	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConActivateShopItem(IConsole::IResult *pResult, void *pUserData);
+	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
 
 	bool DDPPCredits();
 	bool DDPPInfo();
