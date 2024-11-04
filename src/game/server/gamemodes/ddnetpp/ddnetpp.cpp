@@ -43,7 +43,6 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
-
 void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer, bool Silent)
 {
 	CGameControllerDDRace::OnPlayerConnect(pPlayer, Silent);

@@ -33,7 +33,6 @@ void CPlayer::OnLogin()
 
 	GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login successful.");
 
-
 	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
 	{
 		if(GetTeam() == TEAM_SPECTATORS)

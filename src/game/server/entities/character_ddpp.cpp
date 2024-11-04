@@ -829,10 +829,7 @@ void CCharacter::PvPArenaTick()
 			m_IsPVParena = false;
 			m_isDmg = false;
 
-			if(g_Config.m_SvPvpArenaState == 3) //tilebased and not hardcodet
-			{
-				m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
-			}
+			m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
 
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Successfully teleported out of arena.");
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] You got your ticket back because you have survived.");
@@ -1239,98 +1236,6 @@ void CCharacter::DDPP_Tick()
 			GameServer()->AddEscapeReason(GetPlayer()->GetCid(), "unknown");
 			m_isDmg = false;
 			m_Health = 10;
-		}
-	}
-
-	if(g_Config.m_SvPvpArenaState == 1 || g_Config.m_SvPvpArenaState == 2) //the two old hardcodet maps ChillBlock5 and BlmapChill (new system uses tiles)
-	{
-		if(g_Config.m_SvPvpArenaState == 1) // ChillBlock5 pvp
-		{
-			if(m_IsPVParena)
-			{
-				if(m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
-				{
-				}
-				else //not in arena
-				{
-					m_pPlayer->m_PVP_return_posX = m_Core.m_Pos.x;
-					m_pPlayer->m_PVP_return_posY = m_Core.m_Pos.y;
-
-					//if not in arena tele to random arena spawn:
-
-					int r = rand() % 3; // 0 1 2
-					if(r == 0)
-					{
-						m_Core.m_Pos.x = 420 * 32;
-						m_Core.m_Pos.y = 166 * 32 - 5;
-					}
-					else if(r == 1)
-					{
-						m_Core.m_Pos.x = 430 * 32;
-						m_Core.m_Pos.y = 170 * 32;
-					}
-					else if(r == 2)
-					{
-						m_Core.m_Pos.x = 440 * 32;
-						m_Core.m_Pos.y = 166 * 32 - 5;
-					}
-				}
-			}
-			else //not in pvp mode
-			{
-				if(m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
-				{
-					m_Core.m_Pos.x = m_pPlayer->m_PVP_return_posX;
-					m_Core.m_Pos.y = m_pPlayer->m_PVP_return_posY;
-				}
-				else //not in arena
-				{
-				}
-			}
-		}
-		else if(g_Config.m_SvPvpArenaState == 2) // BlmapChill pvp
-		{
-			if(m_IsPVParena)
-			{
-				if(m_Core.m_Pos.x > 357 * 32 && m_Core.m_Pos.x < 369 * 32 && m_Core.m_Pos.y < 380 * 32 && m_Core.m_Pos.y > 364 * 32) //in arena
-				{
-				}
-				else //not in arena
-				{
-					m_pPlayer->m_PVP_return_posX = m_Core.m_Pos.x;
-					m_pPlayer->m_PVP_return_posY = m_Core.m_Pos.y;
-
-					//if not in arena tele to random arena spawn:
-
-					int r = rand() % 3; // 0 1 2
-					if(r == 0)
-					{
-						m_Core.m_Pos.x = 360 * 32 + 44;
-						m_Core.m_Pos.y = 379 * 32;
-					}
-					else if(r == 1)
-					{
-						m_Core.m_Pos.x = 366 * 32 + 53;
-						m_Core.m_Pos.y = 379 * 32;
-					}
-					else if(r == 2)
-					{
-						m_Core.m_Pos.x = 363 * 32 + 53;
-						m_Core.m_Pos.y = 373 * 32;
-					}
-				}
-			}
-			else //not in pvp mode
-			{
-				if(m_Core.m_Pos.x > 357 * 32 && m_Core.m_Pos.x < 369 * 32 && m_Core.m_Pos.y < 380 * 32 && m_Core.m_Pos.y > 364 * 32) //in arena
-				{
-					m_Core.m_Pos.x = m_pPlayer->m_PVP_return_posX;
-					m_Core.m_Pos.y = m_pPlayer->m_PVP_return_posY;
-				}
-				else //not in arena
-				{
-				}
-			}
 		}
 	}
 

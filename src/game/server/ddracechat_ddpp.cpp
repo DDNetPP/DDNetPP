@@ -2512,11 +2512,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] You can't join becasue your are in another mingame or jail (check '/minigames status')");
 			return;
 		}
-		if(!g_Config.m_SvPvpArenaState)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] No pvp-arena found.");
-			return;
-		}
 		if(pPlayer->m_Account.m_PvpArenaTickets < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
@@ -2532,19 +2527,16 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 		//pPlayer->m_PVP_return_posY = pChr->GetPosition().y;
 		pPlayer->m_PVP_return_pos = pChr->GetPosition();
 
-		if(g_Config.m_SvPvpArenaState == 3) //tilebased tele to spawns
-		{
-			vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
+		vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
 
-			if(PvPArenaSpawnTile != vec2(-1, -1))
-			{
-				pSelf->m_apPlayers[pResult->m_ClientId]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] error, this map has no arena!");
-				return;
-			}
+		if(PvPArenaSpawnTile != vec2(-1, -1))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientId]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] error, this map has no arena!");
+			return;
 		}
 
 		pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] Teleport request sent. Don't move for 4 seconds.");
