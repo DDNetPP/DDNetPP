@@ -216,7 +216,7 @@ public:
 		{
 			if(m_State == STATE_BOT) // ddnet++
 				return false;
-			if(m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster) // ddnet++
+			if(m_IsClientDummy && !g_Config.m_SvShowClientDummysInMaster) // ddnet++
 				return false;
 			return m_State != STATE_EMPTY && !m_DebugDummy;
 		}
