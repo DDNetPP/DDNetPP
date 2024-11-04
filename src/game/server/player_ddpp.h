@@ -106,6 +106,8 @@ public:
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetetive;
+	// admin cheat to be invisble
+	bool m_IsHiddenTee = false;
 	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	bool m_MapSaveLoaded;
 	CTeeInfo m_LastToucherTeeInfos;

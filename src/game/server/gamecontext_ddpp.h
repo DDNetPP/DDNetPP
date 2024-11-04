@@ -869,13 +869,14 @@ private:
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConSpawn(IConsole::IResult *pResult, void *pUserData);
-	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHook(IConsole::IResult *pResult, void *pUserData);
 	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
 	static void ConBounty(IConsole::IResult *pResult, void *pUserData);
 	static void ConFng(IConsole::IResult *pResult, void *pUserData);
 
 	//admin
+	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
+	static void ConHidePlayer(IConsole::IResult *pResult, void *pUserData);
 	static void ConDcDummy(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);

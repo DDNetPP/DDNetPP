@@ -341,6 +341,8 @@ void CPlayer::Snap(int SnappingClient)
 			m_ShowName = true;
 		}
 	}
+	if(m_IsHiddenTee)
+		return;
 
 	if(g_Config.m_SvNameplates)
 	{

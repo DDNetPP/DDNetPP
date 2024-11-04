@@ -308,6 +308,27 @@ void CGameContext::ConGodmode(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConHidePlayer(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	int ClientId = pResult->GetVictim();
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
+	if(!pPlayer)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "hide", "player not found");
+		return;
+	}
+
+	pPlayer->m_IsHiddenTee ^= true;
+
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "player '%s' is now %s", pSelf->Server()->ClientName(ClientId), pPlayer->m_IsHiddenTee ? "hidden" : "visible");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "hide", aBuf);
+}
+
 // cosmetics
 
 void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
