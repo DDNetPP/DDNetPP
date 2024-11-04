@@ -836,15 +836,26 @@ void CCharacter::PvPArenaTick()
 		}
 		else // join request
 		{
+			vec2 PvPArenaSpawnTile = Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
+
+			if(PvPArenaSpawnTile == vec2(-1, -1))
+			{
+				GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] error, this map has no arena!");
+				return;
+			}
+
+			SetPosition(PvPArenaSpawnTile);
+
 			m_pPlayer->m_Account.m_PvpArenaTickets--;
 			m_pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			m_IsPVParena = true;
 			m_isDmg = true;
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
+			return;
 		}
 	}
 
-	if(m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
+	if(m_Core.m_Vel.x < -0.06f || m_Core.m_Vel.x > 0.06f || m_Core.m_Vel.y > 0.6f || m_Core.m_Vel.y < -0.6f)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleport failed because you have moved.");
 		m_pvp_arena_tele_request_time = -1;

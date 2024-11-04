@@ -2529,11 +2529,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 		vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
 
-		if(PvPArenaSpawnTile != vec2(-1, -1))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientId]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
-		}
-		else
+		if(PvPArenaSpawnTile == vec2(-1, -1))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] error, this map has no arena!");
 			return;
