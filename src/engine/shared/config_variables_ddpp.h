@@ -24,9 +24,6 @@ MACRO_CONFIG_INT(SvTimelimit, sv_timelimit, 0, 0, 1000, CFGFLAG_SERVER, "Time li
 MACRO_CONFIG_INT(SvVoteDelayAll, sv_vote_delay_all, 600, 0, 9999, CFGFLAG_SERVER, "The time in seconds between any vote (ddpp total afecting all players)")
 MACRO_CONFIG_STR(SvClientSuggestionSupported, sv_client_suggestion_supported, 128, "Update to 11.4.3 or higher for full support on DDNet++ servers", CFGFLAG_SERVER, "Broadcast to display to players that their client isnt fully supported")
 
-MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 2, CFGFLAG_SERVER, "use 1 to actiavte jail")
-MACRO_CONFIG_INT(SvBankState, sv_bankstate, 0, 0, 1, CFGFLAG_SERVER, "use 1 to actiavte bank")
-
 MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "allow users to play minigames")
 MACRO_CONFIG_STR(SvMinigameDefaultSkin, sv_minigame_default_skin, 12, "#", CFGFLAG_SERVER, "Change default skin in minigames")
 
