@@ -56,7 +56,6 @@ CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this
 
 CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "");
 
-CONSOLE_COMMAND("destroylaser", "v", CFGFLAG_SERVER, ConDestroyLaser, this, "Gives a player Destroy Laser")
 CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
 
 //SarKro

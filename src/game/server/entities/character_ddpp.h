@@ -199,7 +199,6 @@ public:
 	bool m_isHeal;
 	bool m_freezeShotgun;
 	bool m_FreezeLaser;
-	bool m_DestroyLaser;
 	bool m_isDmg;
 	int64_t m_FirstFreezeTick;
 	bool m_fake_super;

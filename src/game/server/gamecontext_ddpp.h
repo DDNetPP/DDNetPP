@@ -702,7 +702,6 @@ private:
 	int64_t NameChangeMuteTime(int ClientId);
 
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
-	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 
