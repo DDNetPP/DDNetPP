@@ -1,5 +1,6 @@
 // gamecontext scoped chat ddnet++ methods
 
+#include <base/system.h>
 #include <engine/server/server.h> // ddpp imported for dummys
 #include <engine/shared/config.h>
 #include <game/server/player.h>
@@ -10,6 +11,18 @@
 #include <fstream>
 
 #include "gamecontext.h"
+
+void CGameContext::OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage)
+{
+	char aBuf[2048];
+
+	if(g_Config.m_SvChatDiscordWebhook[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "%s: %s", Server()->ClientName(ClientId), pMesage);
+		// dbg_msg("discord-chat", "sending to %s: %s", g_Config.m_SvChatDiscordWebhook, aBuf);
+		SendDiscordWebhook(g_Config.m_SvChatDiscordWebhook, aBuf);
+	}
+}
 
 void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 {
@@ -236,7 +249,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 	return true;
 }
 
-bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage)
+bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
 {
 	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
@@ -244,7 +257,7 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
 		SendChatTarget(ClientId, aBuf);
 	}
-	else if(m_apPlayers[ClientId] && !Server()->GetAuthedState(ClientId) && AdminChatPing(pMesage))
+	else if(m_apPlayers[ClientId] && !Server()->GetAuthedState(ClientId) && AdminChatPing(pMessage))
 	{
 		if(g_Config.m_SvMinAdminPing > 256)
 			SendChatTarget(ClientId, "you are not allowed to ping admins in chat.");
@@ -255,12 +268,16 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 	{
 		if(!pPlayer->m_ShowName)
 		{
-			str_copy(pPlayer->m_ChatText, pMesage, sizeof(pPlayer->m_ChatText));
+			str_copy(pPlayer->m_ChatText, pMessage, sizeof(pPlayer->m_ChatText));
 			pPlayer->m_ChatTeam = Team;
 			pPlayer->FixForNoName(1);
 		}
 		else
+		{
+			OnChatMessage(ClientId, pPlayer, Team, pMessage);
 			return false;
+		}
 	}
+
 	return true;
 }

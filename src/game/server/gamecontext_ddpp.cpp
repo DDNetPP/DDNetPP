@@ -313,6 +313,8 @@ const char *CGameContext::Loc(const char *pStr, int ClientId)
 
 void CGameContext::OnInitDDPP()
 {
+	m_pDdppHttp = Kernel()->RequestInterface<IHttp>();
+
 	if(!m_pAccounts)
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
@@ -334,7 +336,6 @@ void CGameContext::OnInitDDPP()
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();
-
 	LoadFNNvalues();
 	m_pAccounts->CreateDatabase();
 	char aBuf[512];

@@ -4,6 +4,7 @@
 #include <atomic>
 #include <deque>
 #include <engine/antibot.h>
+#include <engine/http.h>
 #include <game/generated/protocol.h>
 #include <game/generated/server_data.h>
 #include <game/server/entities/stable_projectile.h>
@@ -143,6 +144,13 @@ public:
 	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool IsRecord = false);
 	void LogoutAllPlayersMessage();
+	// wrapper around ddnets always changing http api
+	void HttpGetStable(const char *pUrl, const char *pContent);
+	// wrapper around ddnets always changing http api
+	void HttpPostStable(const char *pUrl, const char *pContent);
+	void SendDiscordWebhook(const char *pWebhookUrl, const char *pContent);
+
+	IHttp *m_pDdppHttp;
 
 	bool ShowJoinMessage(int ClientId);
 	bool ShowLeaveMessage(int ClientId);
@@ -462,6 +470,7 @@ public:
 
 	bool CheckAccounts(int AccountId);
 
+	void OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage);
 	void GlobalChat(int ClientId, const char *pMsg);
 	bool IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand);
 	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage);
