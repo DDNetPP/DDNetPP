@@ -50,13 +50,15 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 		if(pStr[0] == '[')
 		{
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
-				return "[Аккаунт] Пожалуйста, используйте '/register <имя> <пароль> <пароль>'";
+				return "[АККАУНТ] Пожалуйста, используйте '/register <имя> <пароль> <пароль>'";
 			if(!str_comp("[ACCOUNT] Use '/login <name> <password>'", pStr))
-				return "[Аккаунт] Используйте '/login <имя> <пароль>'";
+				return "[АККАУНТ] Используйте '/login <имя> <пароль>'";
 			if(!str_comp("[ACCOUNT] Use '/accountinfo' for help", pStr))
-				return "[Аккаунт] Используйте '/accountinfo'";
+				return "[АККАУНТ] Используйте '/accountinfo'";
 			if(!str_comp("[ACCOUNT] You are already logged in", pStr))
 				return "[АККАУНТ] Вы уже вошли в систему";
+			if(!str_comp("[ACCOUNT] Logged out", pStr))
+				return "[АККАУНТ] Вы вышли из системы";
 		}
 		if(pStr[0] == 'P')
 		{

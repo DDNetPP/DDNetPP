@@ -1537,7 +1537,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	pPlayer->Logout();
-	pSelf->SendChatTarget(ClientId, "[ACCOUNT] Logged out.");
+	pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] Logged out", ClientId));
 }
 
 void CGameContext::ConChidraqul(IConsole::IResult *pResult, void *pUserData)

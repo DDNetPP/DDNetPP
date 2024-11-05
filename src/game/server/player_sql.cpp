@@ -1,5 +1,6 @@
 /* CPlayer related sql ddnet++ methods */
 
+#include "base/system.h"
 #include "game/generated/protocol.h"
 #include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
@@ -208,7 +209,8 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 					GameServer()->m_apPlayers[i]->m_Account.m_IsAccFrozen = Result.m_State;
 					// always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
 					GameServer()->m_apPlayers[i]->Logout();
-					GameServer()->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
+					str_format(aBuf, sizeof(aBuf), "%s. (Reason: Account frozen)", GameServer()->Loc("[ACCOUNT] Logged out", i));
+					GameServer()->SendChatTarget(i, aBuf);
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (logged out %d:'%s')", Result.m_State, i, Server()->ClientName(i));
 					break;
 				}
