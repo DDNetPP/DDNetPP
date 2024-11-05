@@ -55,6 +55,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "[Аккаунт] Используйте '/login <имя> <пароль>'";
 			if(!str_comp("[ACCOUNT] Use '/accountinfo' for help", pStr))
 				return "[Аккаунт] Используйте '/accountinfo'";
+			if(!str_comp("[ACCOUNT] You are already logged in", pStr))
+				return "[АККАУНТ] Вы уже вошли в систему";
 		}
 		if(pStr[0] == 'P')
 		{

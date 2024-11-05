@@ -708,7 +708,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You are already logged in.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] You are already logged in", ClientId));
 		return;
 	}
 
@@ -1377,7 +1377,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You are already logged in.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] You are already logged in", ClientId));
 		return;
 	}
 
@@ -8055,7 +8055,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You are already logged in.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] You are already logged in", ClientId));
 		return;
 	}
 
@@ -8215,7 +8215,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You are already logged in.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] You are already logged in", ClientId));
 		return;
 	}
 
