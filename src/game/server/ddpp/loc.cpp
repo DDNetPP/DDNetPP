@@ -63,6 +63,14 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "[АККАУНТ] Аккаунт зарегистрирован";
 			if(!str_comp("[ACCOUNT] Login with: /login <name> <pass>", pStr))
 				return "[АККАУНТ] Войдите с помощью: /login <имя> <пароль>";
+			if(!str_comp("[JOIN] Block tournaments are deactivated by an admin", pStr))
+				return "[JOIN] Турниры блоков отключены администратором";
+			if(!str_comp("[JOIN] No block tournament running", pStr))
+				return "[JOIN] Турнир блоков не проводится";
+			if(!str_comp("[JOIN] You joined a block tournament", pStr))
+				return "[JOIN] Вы присоединились к турниру блоков";
+			if(!str_comp("[JOIN] You already joined the block tournament", pStr))
+				return "[JOIN] Вы уже присоединились к турниру блоков";
 		}
 		if(pStr[0] == 'P')
 		{

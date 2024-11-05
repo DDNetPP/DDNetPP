@@ -2407,12 +2407,12 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 
 	if(!g_Config.m_SvAllowBlockTourna)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] Block tournaments are deactivated by an admin.");
+		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] Block tournaments are deactivated by an admin", pResult->m_ClientId));
 		return;
 	}
 	else if(pPlayer->m_IsBlockTourning)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] You already joined the block tournament.");
+		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] You already joined the block tournament", pResult->m_ClientId));
 		return;
 	}
 	else if(pSelf->IsMinigame(pResult->m_ClientId))
@@ -2432,7 +2432,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	}
 	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_OFF)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] No block tournament running.");
+		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] No block tournament running", pResult->m_ClientId));
 		return;
 
 		//pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] you started a block tournament.");
@@ -2443,7 +2443,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	}
 	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_LOBBY)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] You joined a block tournament.");
+		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] You joined a block tournament", pResult->m_ClientId));
 		pSelf->m_pBlockTournament->Join(pPlayer);
 		return;
 	}
