@@ -35,14 +35,18 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "предмет";
 		if(!str_comp("Item", pStr))
 			return "Предмет";
-		if(!str_comp("Price", pStr))
-			return "Цена";
 		if(!str_comp("Level", pStr))
 			return "Уровень";
 		if(!str_comp("Kills", pStr))
 			return "убийств";
+		if(!str_comp("Deaths", pStr))
+			return "Смертей";
+		if(!str_comp("BLOCK", pStr))
+			return "БЛОК";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
+		if(!str_comp("stats", pStr))
+			return "статистика";
 		if(pStr[0] == '[')
 		{
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
@@ -51,6 +55,15 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "[Аккаунт] Используйте '/login <имя> <пароль>'";
 			if(!str_comp("[ACCOUNT] Use '/accountinfo' for help", pStr))
 				return "[Аккаунт] Используйте '/accountinfo'";
+		}
+		if(pStr[0] == 'P')
+		{
+			if(!str_comp("Price", pStr))
+				return "Цена";
+			if(!str_comp("Points", pStr))
+				return "Поинтов";
+			if(!str_comp("PvP-Arena Tickets", pStr))
+				return "Билеты на ПВП Арену";
 		}
 		if(pStr[0] == 'Y')
 		{

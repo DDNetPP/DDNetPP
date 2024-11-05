@@ -1207,8 +1207,12 @@ void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 	const char *pLevel = Loc("Level", RequestingId);
 	const char *pMoney = Loc("Money", RequestingId);
 	const char *pKills = Loc("Kills", RequestingId);
+	const char *pPoints = Loc("Points", RequestingId);
+	const char *pDeaths = Loc("Deaths", RequestingId);
+	const char *pPvpArenaTickets = Loc("PvP-Arena Tickets", RequestingId);
+	const char *pStats = Loc("stats", RequestingId);
 
-	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(RequestedId));
+	str_format(aBuf, sizeof(aBuf), "--- %s's %s ---", Server()->ClientName(RequestedId), pStats);
 	SendChatTarget(RequestingId, aBuf);
 	if(pPlayer->GetLevel() == ACC_MAX_LEVEL)
 		str_format(aBuf, sizeof(aBuf), "%s[%d] ( MAX LEVEL ! )", pLevel, pPlayer->GetLevel());
@@ -1222,41 +1226,42 @@ void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "%s[%" PRId64 "]", pMoney, pPlayer->GetMoney());
 	SendChatTarget(RequestingId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
+	str_format(aBuf, sizeof(aBuf), "%s[%d]", pPvpArenaTickets, pPlayer->m_Account.m_PvpArenaTickets);
 	SendChatTarget(RequestingId, aBuf);
-	SendChatTarget(RequestingId, "---- BLOCK ----");
-	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_Account.m_BlockPoints);
+	str_format(aBuf, sizeof(aBuf), "---- %s ----", Loc("BLOCK", RequestingId));
+	SendChatTarget(RequestingId, aBuf);
+	str_format(aBuf, sizeof(aBuf), "%s: %d", pPoints, pPlayer->m_Account.m_BlockPoints);
 	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "%s: %d", pKills, pPlayer->m_Account.m_BlockPoints_Kills);
 	SendChatTarget(RequestingId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_BlockPoints_Deaths);
+	str_format(aBuf, sizeof(aBuf), "%s: %d", pDeaths, pPlayer->m_Account.m_BlockPoints_Deaths);
 	SendChatTarget(RequestingId, aBuf);
 
 	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsId));
 	// SendChatTarget(RequestingId, aBuf);
 }
 
-bool CGameContext::ChillWriteToLine(char const *filename, unsigned lineNo, char const *data)
+bool CGameContext::ChillWriteToLine(char const *pFilename, unsigned LineNo, char const *pData)
 {
-	std::fstream file(filename);
-	if(!file)
+	std::fstream File(pFilename);
+	if(!File)
 		return false;
 
-	unsigned currentLine = 0;
-	while(currentLine < lineNo)
+	unsigned CurrentLine = 0;
+	while(CurrentLine < LineNo)
 	{
 		// We don't actually care about the lines we're reading,
 		// so just discard them.
-		file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		++currentLine;
+		File.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		++CurrentLine;
 	}
 
 	// Position the put pointer -- switching from reading to writing.
-	file.seekp(file.tellg());
+	File.seekp(File.tellg());
 
-	dbg_msg("acc2", "writing [%s] to line [%d]", data, currentLine);
+	dbg_msg("acc2", "writing [%s] to line [%d]", pData, CurrentLine);
 
-	//return file << data; //doesnt compile with MinGW
+	//return file << pData; //doesnt compile with MinGW
 	return false;
 }
 
