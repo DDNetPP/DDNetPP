@@ -39,6 +39,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Цена";
 		if(!str_comp("Level", pStr))
 			return "Уровень";
+		if(!str_comp("Kills", pStr))
+			return "убийств";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
 		if(pStr[0] == 'Y')

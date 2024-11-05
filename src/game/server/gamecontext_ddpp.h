@@ -52,8 +52,8 @@ public:
 	const char *Loc(const char *pStr, int ClientId);
 
 	void ShowProfile(int ViewerId, int ViewedId);
-	void ShowAdminWelcome(int Id);
-	int PrintSpecialCharUsers(int Id);
+	void ShowAdminWelcome(int ClientId);
+	int PrintSpecialCharUsers(int ClientId);
 	int TestSurvivalSpawns();
 
 	/*
@@ -202,36 +202,36 @@ public:
 	//                                                                                                    \\ Escaping the escape seceqnze
 	//char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)
 	char m_aAllowedCharSet[128]; //assignment moved to constructor
-	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
+	void SendBroadcastAll(const char *pText, int Importance = 1, bool Supermod = false);
 	void KillAll();
-	bool IsPosition(int playerId, int pos);
-	void StartAsciiAnimation(int viewerId, int creatorId, int medium); //0='/ascii view' 1='/profile view'
-	bool IsHooked(int hookedId, int power);
-	bool IsSameIp(int Id_1, int Id_2);
-	void ShowInstaStats(int requestId, int requestedId);
-	void ShowSurvivalStats(int requestId, int requestedId);
-	void ShowDDPPStats(int requestId, int requestedId);
+	bool IsPosition(int PlayerId, int Pos);
+	void StartAsciiAnimation(int ViewerId, int CreatorId, int Medium); //0='/ascii view' 1='/profile view'
+	bool IsHooked(int HookedId, int Power);
+	bool IsSameIp(int ClientId1, int ClientId2);
+	void ShowInstaStats(int RequestingId, int RequestedId);
+	void ShowSurvivalStats(int RequestingId, int RequestedId);
+	void ShowDDPPStats(int RequestingId, int RequestedId);
 	void LeaveInstagib(int Id);
 	void SendChatInsta(const char *pMsg, int Weapon);
-	void DoInstaScore(int score, int id);
-	void CheckInstaWin(int Id);
-	void InstaGrenadeRoundEndTick(int Id);
+	void DoInstaScore(int score, int ClientId);
+	void CheckInstaWin(int ClientId);
+	void InstaGrenadeRoundEndTick(int ClientId);
 	int m_InstaGrenadeRoundEndTickTicker;
 	int m_InstaGrenadeRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaGrenadeWinnerId;
 	char m_aInstaGrenadeScoreboard[1024];
-	void InstaRifleRoundEndTick(int Id);
+	void InstaRifleRoundEndTick(int ClientId);
 	int m_InstaRifleRoundEndTickTicker;
 	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaRifleWinnerId;
 	char m_aInstaRifleScoreboard[1024];
-	bool ChillWriteToLine(char const *filename, unsigned lineNo, char const *data);
-	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingId);
+	bool ChillWriteToLine(char const *pFilename, unsigned LineNo, char const *pData);
+	int ChillUpdateFileAcc(const char *pAccount, unsigned int Line, const char *pValue, int RequestingId);
 	int m_LastVoteCallAll;
-	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
-	void SaveCosmetics(int id);
-	void LoadCosmetics(int id);
-	void DeleteCosmetics(int id);
+	void ConnectFngBots(int Amount, int Mode); //mode=0 rifle mode=1 grenade
+	void SaveCosmetics(int ClientId);
+	void LoadCosmetics(int ClientId);
+	void DeleteCosmetics(int ClientId);
 	void CheckDDPPshutdown();
 	// if it returns false the message should be dropped
 	bool DDPPOnMessage(int MsgId, void *pRawMsg, CUnpacker *pUnpacker, int ClientId);
@@ -239,20 +239,20 @@ public:
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
 	int C3_GetOnlinePlayers();
-	void C3_MultiPlayer_GameTick(int id);
+	void C3_MultiPlayer_GameTick(int ClientId);
 	void C3_RenderFrame();
 
 	//ShowHide load/save configs
 	char BoolToChar(bool b);
 	bool CharToBool(char c);
-	void ShowHideConfigBoolToChar(int id); // full side effect function which stores all showhide bools into the char array
-	void ShowHideConfigCharToBool(int id); // full side effect function which loads all the showhide bools from the char array
+	void ShowHideConfigBoolToChar(int ClientId); // full side effect function which stores all showhide bools into the char array
+	void ShowHideConfigCharToBool(int ClientId); // full side effect function which loads all the showhide bools from the char array
 
 	//FNN
-	void FNN_LoadRun(const char *path, int botId);
+	void FNN_LoadRun(const char *pPath, int BotId);
 	vec2 m_FinishTilePos;
 	vec2 GetFinishTile();
-	void TestPrintTiles(int botId);
+	void TestPrintTiles(int BotId);
 	bool m_IsDebug;
 
 	// double moneytile announcement
@@ -336,7 +336,7 @@ public:
 		2	SURVIVAL_INGAME
 		3	SURVIVAL_DIE
 	*/
-	void SetPlayerSurvival(int id, int mode);
+	void SetPlayerSurvival(int ClientId, int Mode);
 	int CountSurvivalPlayers(bool Alive = false);
 	/*
 		SurvivalSetGameState()
@@ -346,7 +346,7 @@ public:
 		SURVIVAL_DM_COUNTDOWN
 		SURVIVAL_DM
 	*/
-	void SurvivalSetGameState(int state);
+	void SurvivalSetGameState(int State);
 	void SurvivalCheckWinnerAndDeathMatch();
 	bool SurvivalPickWinner();
 	int SurvivalGetRandomAliveId(int NotThis = -1);
@@ -379,9 +379,9 @@ public:
 		SURVIVAL_DIE = 3 // playerstate
 	};
 
-	const char *GetBlockSkillGroup(int id);
-	int GetBlockSkillGroupInt(int id);
-	void UpdateBlockSkill(int value, int id);
+	const char *GetBlockSkillGroup(int ClientId);
+	int GetBlockSkillGroupInt(int ClientId);
+	void UpdateBlockSkill(int Value, int ClientId);
 
 	//blockwave
 
@@ -400,27 +400,27 @@ public:
 
 	//QUESTS
 
-	void QuestReset(int playerId);
-	void QuestFailed(int playerId);
-	void QuestFailed2(int playerId); //sets fail bool and doest restart
-	bool QuestAddProgress(int playerId, int globalMAX, int localMAX = -1);
-	void QuestCompleted(int playerId);
-	int QuestReward(int playerId);
+	void QuestReset(int ClientId);
+	void QuestFailed(int ClientId);
+	void QuestFailed2(int ClientId); //sets fail bool and doest restart
+	bool QuestAddProgress(int ClientId, int GlobalMax, int LocalMax = -1);
+	void QuestCompleted(int ClientId);
+	int QuestReward(int ClientId);
 	//void PickNextQuest(int playerId); //includeded in QuestComplete
-	void StartQuest(int playerId);
-	int PickQuestPlayer(int playerId);
+	void StartQuest(int ClientId);
+	int PickQuestPlayer(int ClientId);
 	void CheckConnectQuestBot();
 
 	//police
 	void SendAllPolice(const char *pMessage);
-	void AddEscapeReason(int Id, const char *pReason);
+	void AddEscapeReason(int ClientId, const char *pReason);
 
 	//bank
 	bool m_IsBankOpen;
 
 	//balance battels
 	void StopBalanceBattle();
-	void StartBalanceBattle(int Id1, int Id2);
+	void StartBalanceBattle(int ClientId1, int ClientId2);
 	void BalanceBattleTick();
 	int m_BalanceBattleCountdown;
 	int m_BalanceBattleState; // 0=offline 1=preparing 2=ingame

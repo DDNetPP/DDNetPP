@@ -1175,61 +1175,65 @@ void CGameContext::ShowInstaStats(int requestId, int requestedId)
 	SendChatTarget(requestId, aBuf);
 }
 
-void CGameContext::ShowSurvivalStats(int requestId, int requestedId)
+void CGameContext::ShowSurvivalStats(int RequestingId, int RequestedId)
 {
-	if(!m_apPlayers[requestId])
+	if(!m_apPlayers[RequestingId])
 		return;
-	CPlayer *pPlayer = m_apPlayers[requestedId];
+	CPlayer *pPlayer = m_apPlayers[RequestedId];
 	if(!pPlayer)
 		return;
 
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's survival stats ~~~", Server()->ClientName(pPlayer->GetCid()));
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_SurvivalKills);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_SurvivalDeaths);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Wins: %d", pPlayer->m_Account.m_SurvivalWins);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 }
 
-void CGameContext::ShowDDPPStats(int requestId, int requestedId)
+void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 {
-	if(!m_apPlayers[requestId])
+	if(!m_apPlayers[RequestingId])
 		return;
-	CPlayer *pPlayer = m_apPlayers[requestedId];
+	CPlayer *pPlayer = m_apPlayers[RequestedId];
 	if(!pPlayer)
 		return;
 
 	char aBuf[128];
 
-	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(requestedId));
-	SendChatTarget(requestId, aBuf);
+	const char *pLevel = Loc("Level", RequestingId);
+	const char *pMoney = Loc("Money", RequestingId);
+	const char *pKills = Loc("Kills", RequestingId);
+
+	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(RequestedId));
+	SendChatTarget(RequestingId, aBuf);
 	if(pPlayer->GetLevel() == ACC_MAX_LEVEL)
-		str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pPlayer->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "%s[%d] ( MAX LEVEL ! )", pLevel, pPlayer->GetLevel());
 	else
-		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
-	SendChatTarget(requestId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s[%d]", pLevel, pPlayer->GetLevel());
+	SendChatTarget(RequestingId, aBuf);
 	if(!pPlayer->IsLoggedIn())
 		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (not logged in)", pPlayer->GetXP());
 	else
 		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "/%" PRId64 "]", pPlayer->GetXP(), pPlayer->GetNeededXP());
-	SendChatTarget(requestId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Money[%" PRId64 "]", pPlayer->GetMoney());
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
+	str_format(aBuf, sizeof(aBuf), "%s[%" PRId64 "]", pMoney, pPlayer->GetMoney());
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
-	SendChatTarget(requestId, aBuf);
-	SendChatTarget(requestId, "---- BLOCK ----");
+	SendChatTarget(RequestingId, aBuf);
+	SendChatTarget(RequestingId, "---- BLOCK ----");
 	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_Account.m_BlockPoints);
-	SendChatTarget(requestId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_BlockPoints_Kills);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
+	str_format(aBuf, sizeof(aBuf), "%s: %d", pKills, pPlayer->m_Account.m_BlockPoints_Kills);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_BlockPoints_Deaths);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 
 	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsId));
-	// SendChatTarget(requestId, aBuf);
+	// SendChatTarget(RequestingId, aBuf);
 }
 
 bool CGameContext::ChillWriteToLine(char const *filename, unsigned lineNo, char const *data)
