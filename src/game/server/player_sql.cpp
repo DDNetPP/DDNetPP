@@ -199,22 +199,18 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 		{
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in on this server)", Result.m_State);
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(!GameServer()->m_apPlayers[i])
-					continue;
+			CPlayer *pTarget = GameServer()->GetPlayerByAccountId(Result.m_TargetAccountId);
 
-				if(GameServer()->m_apPlayers[i]->GetAccId() == Result.m_TargetAccountId)
-				{
-					GameServer()->m_apPlayers[i]->m_Account.m_IsAccFrozen = Result.m_State;
-					// always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
-					GameServer()->m_apPlayers[i]->Logout();
-					str_format(aBuf, sizeof(aBuf), "%s. (Reason: Account frozen)", GameServer()->Loc("[ACCOUNT] Logged out", i));
-					GameServer()->SendChatTarget(i, aBuf);
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (logged out %d:'%s')", Result.m_State, i, Server()->ClientName(i));
-					break;
-				}
+			if(pTarget)
+			{
+				pTarget->m_Account.m_IsAccFrozen = Result.m_State;
+				// always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
+				pTarget->Logout();
+				str_format(aBuf, sizeof(aBuf), "%s. (Reason: Account frozen)", GameServer()->Loc("[ACCOUNT] Logged out", pTarget->GetCid()));
+				GameServer()->SendChatTarget(pTarget->GetCid(), aBuf);
+				str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (logged out %d:'%s')", Result.m_State, pTarget->GetCid(), Server()->ClientName(pTarget->GetCid()));
 			}
+
 			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;
 		}

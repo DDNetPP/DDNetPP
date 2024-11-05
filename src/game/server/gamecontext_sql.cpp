@@ -6,6 +6,19 @@
 
 #include "gamecontext.h"
 
+CPlayer *CGameContext::GetPlayerByAccountId(int AccountId)
+{
+	for(auto &pPlayer : m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		if(pPlayer->GetAccId() == AccountId)
+			return pPlayer;
+	}
+	return nullptr;
+}
+
 void CGameContext::SQLcleanZombieAccounts(int ClientId)
 {
 	/*

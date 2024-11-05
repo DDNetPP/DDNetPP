@@ -128,6 +128,7 @@ public:
 	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0);
 
 	//usefull everywhere
+	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
 	int IsMinigame(int playerId);
 	EScore MinigameScoreType(int ClientId);
