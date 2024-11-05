@@ -702,7 +702,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Please use '/register <name> <password> <password>'.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] Please use '/register <name> <password> <password>'.", ClientId));
 		return;
 	}
 
@@ -1310,7 +1310,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientId, "Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
 	if(g_Config.m_SvAccountStuff == 2) //filebased
@@ -1321,14 +1321,14 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->m_Account.m_JailTime)
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] you can't login in jail.");
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You can't login in jail.");
 		return;
 	}
 
 	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvLoginHumanLevel)
 	{
 		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] your '/human_level' is too low %d/%d to use this command.", pPlayer->m_PlayerHumanLevel, g_Config.m_SvLoginHumanLevel);
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] Your '/human_level' is too low %d/%d to use this command.", pPlayer->m_PlayerHumanLevel, g_Config.m_SvLoginHumanLevel);
 		pSelf->SendChatTarget(ClientId, aBuf);
 		return;
 	}
@@ -1347,7 +1347,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	if(Banned > 0)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof aBuf, "[ACCOUNT] you have to wait %d seconds before you can login again.", Banned);
+		str_format(aBuf, sizeof aBuf, "[ACCOUNT] You have to wait %d seconds before you can login again.", Banned);
 		pSelf->SendChatTarget(ClientId, aBuf);
 		return;
 	}
@@ -1370,26 +1370,26 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(ClientId, "Use '/login <name> <password>'.");
-		pSelf->SendChatTarget(ClientId, "Use '/accountinfo' for help.");
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] Use '/login <name> <password>'", ClientId));
+		pSelf->SendChatTarget(ClientId, pSelf->Loc("[ACCOUNT] Use '/accountinfo' for help", ClientId));
 		return;
 	}
 
 	if(pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(ClientId, "You are already logged in.");
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You are already logged in.");
 		return;
 	}
 
 	if(str_length(aUsername) > MAX_PW_LEN || str_length(aUsername) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientId, "Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
 	if(str_length(aPassword) > MAX_PW_LEN || str_length(aPassword) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientId, "Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 

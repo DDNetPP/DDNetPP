@@ -43,6 +43,15 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "убийств";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
+		if(pStr[0] == '[')
+		{
+			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
+				return "[Аккаунт] Пожалуйста, используйте '/register <имя> <пароль> <пароль>'";
+			if(!str_comp("[ACCOUNT] Use '/login <name> <password>'", pStr))
+				return "[Аккаунт] Используйте '/login <имя> <пароль>'";
+			if(!str_comp("[ACCOUNT] Use '/accountinfo' for help", pStr))
+				return "[Аккаунт] Используйте '/accountinfo'";
+		}
 		if(pStr[0] == 'Y')
 		{
 			if(!str_comp("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", pStr))
