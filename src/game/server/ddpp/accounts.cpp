@@ -860,7 +860,7 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 		else
 		{
 			str_copy(pResult->m_aaMessages[0],
-				"[ACCOUNT] Account has been registered.",
+				"[ACCOUNT] Account has been registered",
 				sizeof(pResult->m_aaMessages[0]));
 			str_copy(pResult->m_aaMessages[1],
 				"[ACCOUNT] Login with: /login <name> <pass>",

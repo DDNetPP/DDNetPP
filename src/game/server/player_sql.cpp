@@ -173,7 +173,9 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			{
 				if(aMessage[0] == 0)
 					continue;
-				GameServer()->SendChatTarget(m_ClientId, aMessage);
+
+				// localizing here is a bit cursed but it works lol
+				GameServer()->SendChatTarget(m_ClientId, GameServer()->Loc(aMessage, m_ClientId));
 			}
 			GameServer()->RegisterBanCheck(m_ClientId);
 			break;

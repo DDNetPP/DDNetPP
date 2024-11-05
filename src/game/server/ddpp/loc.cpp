@@ -59,6 +59,10 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "[АККАУНТ] Вы уже вошли в систему";
 			if(!str_comp("[ACCOUNT] Logged out", pStr))
 				return "[АККАУНТ] Вы вышли из системы";
+			if(!str_comp("[ACCOUNT] Account has been registered", pStr))
+				return "[АККАУНТ] Аккаунт зарегистрирован";
+			if(!str_comp("[ACCOUNT] Login with: /login <name> <pass>", pStr))
+				return "[АККАУНТ] Войдите с помощью: /login <имя> <пароль>";
 		}
 		if(pStr[0] == 'P')
 		{
