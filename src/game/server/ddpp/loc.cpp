@@ -71,6 +71,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "[JOIN] Вы присоединились к турниру блоков";
 			if(!str_comp("[JOIN] You already joined the block tournament", pStr))
 				return "[JOIN] Вы уже присоединились к турниру блоков";
+			if(!str_comp("[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", pStr))
+				return "[ИВЕНТ] БЛОК ТУРНИР ЧЕРЕЗ %d\n[%d/%d] Зашли. Используйте /join"; // TODO: this is not smooth
 		}
 		if(pStr[0] == 'P')
 		{

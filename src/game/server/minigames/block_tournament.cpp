@@ -1,10 +1,10 @@
 // gamecontext scoped balance ddnet++ methods
 
 #include <engine/shared/config.h>
+#include <engine/shared/protocol.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/teams.h>
 
-#include <cinttypes>
 #include <cstring>
 
 #include "../gamecontext.h"
@@ -224,19 +224,29 @@ void CBlockTournament::Tick()
 		m_LobbyTick--;
 		if(m_LobbyTick % Server()->TickSpeed() == 0)
 		{
-			int blockers = CountAlive();
-			if(blockers < 0)
+			int Blockers = CountAlive();
+			if(Blockers < 0)
 			{
-				blockers = 1;
+				Blockers = 1;
 			}
-			str_format(aBuf,
-				sizeof(aBuf),
-				"[EVENT] BLOCK IN %d SECONDS\n"
-				"[%d/%d] '/join'ed already",
-				m_LobbyTick / Server()->TickSpeed(),
-				blockers,
-				g_Config.m_SvBlockTournaPlayers);
-			GameServer()->SendBroadcastAll(aBuf, 2);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(!GameServer()->m_apPlayers[i])
+					continue;
+
+				const char *pFormat = GameServer()->Loc(
+					"[EVENT] BLOCK IN %d SECONDS\n"
+					"[%d/%d] '/join'ed already",
+					i);
+
+				str_format(aBuf,
+					sizeof(aBuf),
+					pFormat,
+					m_LobbyTick / Server()->TickSpeed(),
+					Blockers,
+					g_Config.m_SvBlockTournaPlayers);
+				GameServer()->SendBroadcast(aBuf, i, 2);
+			}
 		}
 
 		if(m_LobbyTick < 0)
@@ -333,7 +343,7 @@ int CBlockTournament::CountAlive()
 		}
 	}
 
-	if(c == 1) //one alive? --> return his id negative
+	if(c == 1) // one alive? --> return his id negative
 	{
 		if(id == 0)
 		{
