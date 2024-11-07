@@ -1,4 +1,5 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+#include "game/server/minigames/minigame_base.h"
 #include "gamecontext.h"
 
 #include <base/system_ddpp.h>
@@ -592,12 +593,17 @@ void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
 	else if(!str_comp_nocase(pResult->GetString(0), "block"))
 	{
 		pPlayer->m_DisplayScore = SCORE_BLOCK;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'blockpoints'.");
+		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'block' (block points).");
+	}
+	else if(!str_comp_nocase(pResult->GetString(0), "current_spree"))
+	{
+		pPlayer->m_DisplayScore = SCORE_CURRENT_SPREE;
+		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'current_spree'.");
 	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] You can choose what the player score will display:");
-		pSelf->SendChatTarget(pResult->m_ClientId, "time, level, block");
+		pSelf->SendChatTarget(pResult->m_ClientId, "time, level, block, current_spree");
 	}
 }
 

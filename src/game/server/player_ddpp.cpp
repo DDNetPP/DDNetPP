@@ -567,6 +567,13 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 			else
 				pPlayerInfo->m_Score = 0;
 		}
+		else if(pSnapping->m_DisplayScore == SCORE_CURRENT_SPREE)
+		{
+			if(pSnapping->m_ScoreFixForDDNet)
+				pPlayerInfo->m_Score = m_KillStreak * 60;
+			else
+				pPlayerInfo->m_Score = m_KillStreak;
+		}
 	}
 }
 

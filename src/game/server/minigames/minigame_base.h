@@ -20,7 +20,8 @@ enum EScore
 {
 	SCORE_TIME = 0,
 	SCORE_LEVEL = 1,
-	SCORE_BLOCK = 2
+	SCORE_BLOCK = 2,
+	SCORE_CURRENT_SPREE = 3,
 };
 
 class CMinigame
@@ -37,7 +38,7 @@ protected:
 
 public:
 	CMinigame(CGameContext *pGameContext);
-	virtual ~CMinigame(){};
+	virtual ~CMinigame() = default;
 
 	void CleanupMinigame();
 
