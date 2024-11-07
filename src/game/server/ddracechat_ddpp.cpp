@@ -1,5 +1,4 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
-#include "game/server/minigames/minigame_base.h"
 #include "gamecontext.h"
 
 #include <base/system_ddpp.h>
@@ -9,6 +8,7 @@
 #include <engine/shared/protocol.h>
 #include <game/server/captcha.h>
 #include <game/server/gamemodes/DDRace.h>
+#include <game/server/minigames/minigame_base.h>
 #include <game/server/teams.h>
 #include <game/version.h>
 
