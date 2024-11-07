@@ -197,6 +197,7 @@ MACRO_CONFIG_INT(SvAllowBlockTourna, sv_allow_block_tourna, 0, 0, 1, CFGFLAG_SER
 MACRO_CONFIG_INT(SvBlockTournaPlayers, sv_block_tourna_players, 5, 0, 64, CFGFLAG_SERVER, "players needed to start an block tournament")
 MACRO_CONFIG_INT(SvBlockTournaDelay, sv_block_tourna_delay, 60, 5, 360, CFGFLAG_SERVER, "how long players can '/join' block tournaments (lobby time)")
 MACRO_CONFIG_INT(SvBlockTournaGameTime, sv_block_tourna_game_time, 10, 1, 5000, CFGFLAG_SERVER, "how long block tournas can take in minutes (if after this time nobody won its draw)")
+MACRO_CONFIG_INT(SvBlockTournaMaxPerIp, sv_block_tourna_max_per_ip, 4, 1, 64, CFGFLAG_SERVER, "How many players per ip can join the block tournament")
 
 //block deathmatch
 MACRO_CONFIG_INT(SvBlockDMarena, sv_block_dm_arena, 1, 1, 2, CFGFLAG_SERVER, "1=arena1 2=arena2")

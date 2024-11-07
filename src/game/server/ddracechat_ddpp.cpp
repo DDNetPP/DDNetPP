@@ -1,7 +1,9 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 
+#include <base/system.h>
 #include <base/system_ddpp.h>
+#include <base/types.h>
 #include <engine/external/sqlite3/sqlite3.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
@@ -2416,12 +2418,40 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] Block tournaments are deactivated by an admin", pResult->m_ClientId));
 		return;
 	}
-	else if(pPlayer->m_IsBlockTourning)
+	if(pPlayer->m_IsBlockTourning)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, pSelf->Loc("[JOIN] You already joined the block tournament", pResult->m_ClientId));
 		return;
 	}
-	else if(pSelf->IsMinigame(pResult->m_ClientId))
+
+	NETADDR OwnAddr;
+	pSelf->Server()->GetClientAddr(pResult->m_ClientId, &OwnAddr);
+	int NumJoins = 1;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(!pSelf->m_apPlayers[i])
+			continue;
+		if(i == pResult->m_ClientId)
+			continue;
+		if(!pSelf->m_apPlayers[i]->m_IsBlockTourning)
+			continue;
+
+		NETADDR Addr;
+		pSelf->Server()->GetClientAddr(i, &Addr);
+		if(!net_addr_comp_noport(&Addr, &OwnAddr))
+		{
+			NumJoins++;
+		}
+	}
+	if(NumJoins >= g_Config.m_SvBlockTournaMaxPerIp)
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "[JOIN] Only %d players per ip are allowed to join", g_Config.m_SvBlockTournaMaxPerIp);
+		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+		return;
+	}
+
+	if(pSelf->IsMinigame(pResult->m_ClientId))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] This command is not allowed in jail or minigames. try '/leave' first.");
 		return;
