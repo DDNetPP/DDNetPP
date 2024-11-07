@@ -2426,7 +2426,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 
 	NETADDR OwnAddr;
 	pSelf->Server()->GetClientAddr(pResult->m_ClientId, &OwnAddr);
-	int NumJoins = 1;
+	int NumJoins = 0;
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(!pSelf->m_apPlayers[i])
