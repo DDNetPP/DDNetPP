@@ -75,6 +75,7 @@ MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLA
 
 MACRO_CONFIG_STR(SvDatabasePath, sv_database_path, 512, "accounts.db", CFGFLAG_SERVER, "path/to/sqlite3_database.db used to save DDNet++ data like accounts")
 MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=sqlite 2=filebased (changes logout all)" /*"0=off 1=blockcity 2=instagib(coming soon)"*/)
+MACRO_CONFIG_INT(SvUseMysqlForAccounts, sv_use_mysql_for_accounts, 0, 0, 1, CFGFLAG_SERVER, "Enables MySQL backend instead of SQLite backend (needs sv_account_stuff 1)")
 MACRO_CONFIG_INT(SvRequireLogin, sv_require_login, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=require account to play (see also sv_account_stuff)")
 MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 393, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x coord for the supermod spawn")
 MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 212, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y coord for the supermod spawn")

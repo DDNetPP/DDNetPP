@@ -75,6 +75,7 @@ public:
 	int LoadMapLive(const char *pMapName) override;
 
 	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
+	static void ConAddAccountsSqlServer(IConsole::IResult *pResult, void *pUser);
 	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
 
 	class CDbConnectionPool *m_pDDPPConnectionPool;

@@ -309,6 +309,58 @@ void CServer::ConStartBlockTourna(IConsole::IResult *pResult, void *pUser)
 	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
 }
 
+void CServer::ConAddAccountsSqlServer(IConsole::IResult *pResult, void *pUserData)
+{
+	CServer *pSelf = (CServer *)pUserData;
+
+	if(!MysqlAvailable())
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", "can't add MySQL server: compiled without MySQL support");
+		return;
+	}
+
+	if(!pSelf->Config()->m_SvUseMysqlForAccounts)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", "ignoring MySQL server because sv_accounts_mysql is 0");
+		return;
+	}
+
+	if(pResult->NumArguments() != 7 && pResult->NumArguments() != 8)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", "7 or 8 arguments are required");
+		return;
+	}
+
+	CMysqlConfig Config;
+	bool Write;
+	if(str_comp_nocase(pResult->GetString(0), "w") == 0)
+		Write = false;
+	else if(str_comp_nocase(pResult->GetString(0), "r") == 0)
+		Write = true;
+	else
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", "choose either 'r' for SqlReadServer or 'w' for SqlWriteServer");
+		return;
+	}
+
+	str_copy(Config.m_aDatabase, pResult->GetString(1), sizeof(Config.m_aDatabase));
+	str_copy(Config.m_aPrefix, pResult->GetString(2), sizeof(Config.m_aPrefix));
+	str_copy(Config.m_aUser, pResult->GetString(3), sizeof(Config.m_aUser));
+	str_copy(Config.m_aPass, pResult->GetString(4), sizeof(Config.m_aPass));
+	str_copy(Config.m_aIp, pResult->GetString(5), sizeof(Config.m_aIp));
+	Config.m_aBindaddr[0] = '\0';
+	Config.m_Port = pResult->GetInteger(6);
+	Config.m_Setup = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf),
+		"Adding new Sql%sServer: DB: '%s' Prefix: '%s' User: '%s' IP: <{%s}> Port: %d",
+		Write ? "Write" : "Read",
+		Config.m_aDatabase, Config.m_aPrefix, Config.m_aUser, Config.m_aIp, Config.m_Port);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", aBuf);
+	pSelf->DDPPDbPool()->RegisterMysqlDatabase(Write ? CDbConnectionPool::WRITE : CDbConnectionPool::READ, &Config);
+}
+
 int CServer::LoadMapLive(const char *pMapName)
 {
 	char aBuf[IO_MAX_PATH_LENGTH];
