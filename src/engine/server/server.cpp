@@ -3126,6 +3126,7 @@ int CServer::Run()
 	GameServer()->OnShutdown(nullptr);
 	m_pMap->Unload();
 	DbPool()->OnShutdown();
+	DDPPDbPool()->OnShutdown(); // ddnet++
 
 #if defined(CONF_UPNP)
 	m_UPnP.Shutdown();
