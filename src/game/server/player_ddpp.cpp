@@ -208,7 +208,6 @@ void CPlayer::DDPPTick()
 		if(IsLoggedIn())
 			Save(1); //SetLoggedIn true
 
-	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
 
 	if((m_ChangeTeamOnFlag || (Server()->Tick() % 600 == 0)) && m_Team != TEAM_SPECTATORS && m_IsDummy)
