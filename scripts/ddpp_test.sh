@@ -84,6 +84,31 @@ function kill_all() {
 	kill -9 "$client2_pid" &> /dev/null
 }
 
+function fifo() {
+	local cmd="$1"
+	local fifo_file="$2"
+	if [ -f fail_fifo_timeout.txt ]; then
+		echo "[fifo] skipping because of timeout cmd: $cmd"
+		return
+	fi
+	if [ "$arg_verbose" == "1" ]; then
+		echo "[fifo] $cmd >> $fifo_file"
+	fi
+	if printf '%s' "$cmd" | grep -q '[`'"'"']'; then
+		echo "[-] fifo commands can not contain backticks or single quotes"
+		echo "[-] invalid fifo command: $cmd"
+		exit 1
+	fi
+	if ! timeout 3 sh -c "printf '%s\n' '$cmd' >> \"$fifo_file\""; then
+		fifo_error="[-] fifo command timeout: $cmd >> $fifo_file"
+		printf '%s\n' "$fifo_error"
+		printf '%s\n' "$fifo_error" >> fail_fifo_timeout.txt
+		kill_all
+		echo 'FIFO ERROR!!!'
+		exit 1
+	fi
+}
+
 got_cleanup=0
 
 function cleanup() {
@@ -212,13 +237,13 @@ done
 
 
 sleep 5
-echo "rcon_auth rcon" > client1.fifo
+fifo "rcon_auth rcon" client1.fifo
 
 test_account
 test_tournament
 
 sleep 1
-echo "rcon shutdown" > client1.fifo
+fifo "rcon shutdown" client1.fifo
 
 kill_all
 wait
