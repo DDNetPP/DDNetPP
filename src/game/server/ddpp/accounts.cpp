@@ -742,21 +742,18 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	}
 	pSqlServer->BindInt(1, pData->m_Port);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_msg("ddnet++", "zombie account query: %s", pData->m_aQuery);
-		dbg_assert(false, "CleanZombieAccountsThread did not step");
+		dbg_assert(false, "CleanZombieAccountsThread failed to execute");
 		return true;
 	}
-	return !End;
-
-
-
-	int NumUpdated;
-	pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize);
 	if(NumUpdated)
-		dbg_msg("ddnet++", "unlocked %d zombie accounts", NumUpdated);
+	{
+		dbg_msg("ddnet++", "fixed %d zombie accounts", NumUpdated);
+		dbg_msg("ddnet++", "query: %s port=%d", pData->m_aQuery, pData->m_Port);
+	}
+	return false;
 }
 
 void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
@@ -898,7 +895,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		return true;
 	}
 	// CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
-	
+
 	// mysql and sqlite3 compat
 	const char *pAutoincrement = "AUTOINCREMENT";
 	if(g_Config.m_SvUseMysqlForAccounts && w == Write::NORMAL)
