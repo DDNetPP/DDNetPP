@@ -3,6 +3,8 @@
 #include <engine/server/databases/connection.h>
 
 #include "../gamecontext.h"
+#include "engine/server/databases/connection_pool.h"
+#include "engine/shared/config.h"
 
 #include "accounts.h"
 
@@ -735,6 +737,7 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 
 	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
 	{
+		dbg_assert(false, "CleanZombieAccountsThread failed to prepare statement");
 		return true;
 	}
 	pSqlServer->BindInt(1, pData->m_Port);
@@ -742,10 +745,18 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
 	{
+		dbg_msg("ddnet++", "zombie account query: %s", pData->m_aQuery);
 		dbg_assert(false, "CleanZombieAccountsThread did not step");
 		return true;
 	}
 	return !End;
+
+
+
+	int NumUpdated;
+	pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize);
+	if(NumUpdated)
+		dbg_msg("ddnet++", "unlocked %d zombie accounts", NumUpdated);
 }
 
 void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
@@ -887,11 +898,17 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		return true;
 	}
 	// CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
+	
+	// mysql and sqlite3 compat
+	const char *pAutoincrement = "AUTOINCREMENT";
+	if(g_Config.m_SvUseMysqlForAccounts && w == Write::NORMAL)
+		pAutoincrement = "AUTO_INCREMENT";
 
 	char aBuf[4096];
-	str_copy(aBuf,
+	str_format(aBuf,
+		sizeof(aBuf),
 		"CREATE TABLE IF NOT EXISTS Accounts ("
-		"  Id					INTEGER			PRIMARY KEY		AUTOINCREMENT,"
+		"  Id					INTEGER			PRIMARY KEY		%s,"
 		"  Username				VARCHAR(32)		NOT NULL,"
 		"  Password				VARCHAR(128)	NOT NULL,"
 		"  RegisterDate			VARCHAR(32)		DEFAULT '',"
@@ -983,7 +1000,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  AsciiFrame13			VARCHAR(64)		DEFAULT '',"
 		"  AsciiFrame14			VARCHAR(64)		DEFAULT '',"
 		"  AsciiFrame15			VARCHAR(64)		DEFAULT '');",
-		sizeof(aBuf));
+		pAutoincrement);
 
 	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
