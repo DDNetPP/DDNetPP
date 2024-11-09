@@ -450,7 +450,7 @@ class CAccounts
 
 public:
 	CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool);
-	~CAccounts() {}
+	~CAccounts() = default;
 
 	/*
 		Function:
