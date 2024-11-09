@@ -23,7 +23,7 @@ jobs:
           package-file: "*-linux_x86_64.tar.xz"
           fancy: true
         - os: macOS-latest
-          cmake-args: -G Ninja
+          cmake-args: -G Ninja -DCLIENT=ON
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-macos.dmg"
           fancy: false
