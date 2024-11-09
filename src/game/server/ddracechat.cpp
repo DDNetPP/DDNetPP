@@ -1255,6 +1255,13 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
+	// ddnet++
+	if(pSelf->IsMinigame(pPlayer->GetCid()))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while being in a minigame do '/leave' first.");
+		return;
+	}
+
 	if(pResult->NumArguments() > 0)
 	{
 		pSelf->AttemptJoinTeam(pResult->m_ClientId, pResult->GetInteger(0));

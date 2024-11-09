@@ -2457,6 +2457,12 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		return;
 	}
 
+	if(pSelf->GetDDRaceTeam(pResult->m_ClientId) != 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] You can not join while being in a ddrace team. Do '/team 0' first.");
+		return;
+	}
+
 	if(pSelf->IsMinigame(pResult->m_ClientId))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[JOIN] This command is not allowed in jail or minigames. try '/leave' first.");
