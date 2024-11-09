@@ -23,7 +23,7 @@ jobs:
           package-file: "*-linux_x86_64.tar.xz"
           fancy: true
         - os: macOS-latest
-          cmake-args: -G Ninja -DCLIENT=ON
+          cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-macos.dmg"
           fancy: false
@@ -114,7 +114,7 @@ jobs:
       run: |
         mkdir release
         cd release
-        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCLIENT=ON -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
         ${{ matrix.cmake-path }}cmake --build . --config Release --target everything ${{ matrix.build-args }}
 
     - name: Test release
@@ -224,7 +224,7 @@ jobs:
         mv ${{ matrix.package-file }} artifacts
 
     - name: Upload Artifacts
-      if: contains(matrix.os, 'ubuntu-latest') || contains(matrix.os, 'windows')
+      if: contains(matrix.os, 'ubuntu-latest') || contains(matrix.os, 'windows') || contains(matrix.os, 'macOS')
       uses: actions/upload-artifact@v4
       with:
         name: ddnet-${{ matrix.os }}
