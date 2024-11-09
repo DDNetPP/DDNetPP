@@ -653,11 +653,8 @@ void CAccounts::ExecuteSql(const char *pQuery)
 
 bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
-	{
-		dbg_assert(false, "ExecuteSqlThread failed to write");
-		return true;
-	}
+	if(w != Write::NORMAL)
+		return false;
 
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
@@ -671,13 +668,14 @@ bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGam
 		return true;
 	}
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "ExecuteSqlThread did not step");
+		dbg_assert(false, "ExecuteSqlThread failed to execute");
 		return true;
 	}
-	return !End;
+	dbg_msg("ddnet++", "execute sql thread affected %d rows", NumUpdated);
+	return false;
 }
 
 void CAccounts::LogoutUsername(const char *pUsername)
