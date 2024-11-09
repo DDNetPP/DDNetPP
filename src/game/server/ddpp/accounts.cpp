@@ -493,6 +493,9 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	const CSqlAdminCommandRequest *pData = dynamic_cast<const CSqlAdminCommandRequest *>(pGameData);
 	CAdminCommandResult *pResult = dynamic_cast<CAdminCommandResult *>(pGameData->m_pResult.get());
 	pResult->SetVariant(pData->m_Type, pData);
+	str_copy(pResult->m_aaMessages[0],
+		"[ACCOUNT] Update state failed.",
+		sizeof(pResult->m_aaMessages[0]));
 
 	// char aBuf[2048];
 	// str_copy(aBuf,
@@ -508,23 +511,18 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	pSqlServer->BindInt(1, pData->m_State);
 	pSqlServer->BindInt(2, pData->m_TargetAccountId);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
+		dbg_assert(false, "UpdateAccountStateThread failed to execute");
 		return true;
 	}
-	if(!End)
-	{
-		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Update state failed.",
-			sizeof(pResult->m_aaMessages[0]));
-	}
-	else
-	{
-		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Successfully updated account state.",
-			sizeof(pResult->m_aaMessages[0]));
-	}
+
+	str_format(pResult->m_aaMessages[0],
+		sizeof(pResult->m_aaMessages[0]),
+		"[ACCOUNT] Successfully updated account state (affected %d row%s)",
+		NumUpdated,
+		NumUpdated == 0 ? "" : "s");
 	return false;
 }
 
