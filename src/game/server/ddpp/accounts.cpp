@@ -522,7 +522,7 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 		sizeof(pResult->m_aaMessages[0]),
 		"[ACCOUNT] Successfully updated account state (affected %d row%s)",
 		NumUpdated,
-		NumUpdated == 0 ? "" : "s");
+		NumUpdated == 1 ? "" : "s");
 	return false;
 }
 
@@ -536,6 +536,9 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
 	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
 	pResult->SetVariant(CAccountResult::DIRECT);
+	str_copy(pResult->m_aaMessages[0],
+		"[SQL] Password set failed.",
+		sizeof(pResult->m_aaMessages[0]));
 
 	char aBuf[2048];
 	str_copy(aBuf,
@@ -556,39 +559,39 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 		str_copy(pResult->m_aaMessages[0],
 			"[SQL] Username not found.",
 			sizeof(pResult->m_aaMessages[0]));
+		return false;
 	}
-	else
+
+	str_copy(aBuf,
+		"UPDATE Accounts SET "
+		"	Password = ?"
+		"	WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		str_copy(aBuf,
-			"UPDATE Accounts SET "
-			"	Password = ?"
-			"	WHERE Username = ?;",
-			sizeof(aBuf));
-
-		if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
-		{
-			return true;
-		}
-		pSqlServer->BindString(1, pData->m_aPassword);
-		pSqlServer->BindString(2, pData->m_aUsername);
-
-		if(pSqlServer->Step(&End, pError, ErrorSize))
-		{
-			return true;
-		}
-		if(!End)
-		{
-			str_copy(pResult->m_aaMessages[0],
-				"[SQL] Password set failed.",
-				sizeof(pResult->m_aaMessages[0]));
-		}
-		else
-		{
-			str_copy(pResult->m_aaMessages[0],
-				"[SQL] Successfully updated password.",
-				sizeof(pResult->m_aaMessages[0]));
-		}
+		return true;
 	}
+	pSqlServer->BindString(1, pData->m_aPassword);
+	pSqlServer->BindString(2, pData->m_aUsername);
+
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	{
+		dbg_assert(false, "AdminSetPasswordThread failed to execute");
+		return true;
+	}
+	if(NumUpdated != 1)
+	{
+		dbg_msg("ddnet++", "WARNING: set password affected %d rows", NumUpdated);
+	}
+
+	str_format(pResult->m_aaMessages[0],
+		sizeof(pResult->m_aaMessages[0]),
+		"[SQL] Successfully updated password (affected %d row%s).",
+		NumUpdated,
+		NumUpdated == 1 ? "" : "s");
+
 	return false;
 }
 

@@ -820,6 +820,12 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 
 	if(!str_comp_nocase(pResult->GetString(0), "set_passwd"))
 	{
+		if(pResult->NumArguments() != 3)
+		{
+			pSelf->SendChatTarget(ClientId, "usage: /sql_name set_passwd <acc_name> <passwd>");
+			return;
+		}
+
 		if((str_length(pResult->GetString(2)) > MAX_PW_LEN || str_length(pResult->GetString(2)) < MIN_PW_LEN) || (str_length(pResult->GetString(2)) > MAX_PW_LEN || str_length(pResult->GetString(2)) < MIN_PW_LEN))
 		{
 			pSelf->SendChatTarget(ClientId, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
