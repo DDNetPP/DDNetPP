@@ -171,6 +171,11 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
 	pResult->SetVariant(CAccountResult::LOG_ONLY);
 
+	str_format(pResult->m_aaMessages[0],
+		sizeof(pResult->m_aaMessages[0]),
+		"save Id=%d finished with status=fail",
+		pData->m_AccountData.m_Id);
+
 	char aBuf[2048];
 	str_copy(aBuf,
 		"UPDATE Accounts SET "
@@ -289,19 +294,18 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		pSqlServer->BindString(Index++, AsciiFrame);
 	pSqlServer->BindInt(Index++, pAcc->m_Id);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
+		dbg_assert(false, "SaveThread failed to execute");
 		return true;
 	}
-	if(!End)
+	if(NumUpdated != 1)
 	{
-		str_format(pResult->m_aaMessages[0],
-			sizeof(pResult->m_aaMessages[0]),
-			"save Id=%d finished with status=fail",
-			pData->m_AccountData.m_Id);
-		return true;
+		dbg_msg("ddnet++", "ERROR: save affected %d rows saveId=%d", NumUpdated, pData->m_AccountData.m_Id);
+		dbg_assert(false, "SaveThread wrong number of rows affected");
 	}
+
 	str_format(pResult->m_aaMessages[0],
 		sizeof(pResult->m_aaMessages[0]),
 		"save Id=%d finished with status=success",
@@ -682,7 +686,9 @@ void CAccounts::LogoutUsername(const char *pUsername)
 
 bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	if(w == Write::BACKUP_FIRST)
+		return false;
+	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "LogoutUsernameThread failed to write");
 		return true;
@@ -700,13 +706,18 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 	}
 	pSqlServer->BindString(1, pData->m_aString);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "LogoutUsernameThread did not step");
+		dbg_assert(false, "LogoutUsernameThread failed to execute");
 		return true;
 	}
-	return !End;
+	if(NumUpdated != 1)
+	{
+		dbg_msg("ddnet++", "ERROR: logout affected %d rows", NumUpdated);
+		dbg_assert(false, "LogoutUsernameThread wrong number of rows affected");
+	}
+	return false;
 }
 
 void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
