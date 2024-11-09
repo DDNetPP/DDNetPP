@@ -51,8 +51,15 @@ void CServer::DDPPRegisterDatabases()
 {
 	if(g_Config.m_SvDatabasePath[0] != '\0')
 	{
-		DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::READ, g_Config.m_SvDatabasePath);
-		DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::WRITE, g_Config.m_SvDatabasePath);
+		if(Config()->m_SvUseMysqlForAccounts)
+		{
+			DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::WRITE_BACKUP, g_Config.m_SvDatabasePath);
+		}
+		else
+		{
+			DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::READ, g_Config.m_SvDatabasePath);
+			DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::WRITE, g_Config.m_SvDatabasePath);
+		}
 	}
 }
 
