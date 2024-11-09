@@ -605,6 +605,9 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
 	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
 	pResult->SetVariant(CAccountResult::DIRECT);
+	str_copy(pResult->m_aaMessages[0],
+		"[ACCOUNT] Password change failed.",
+		sizeof(pResult->m_aaMessages[0]));
 
 	char aBuf[2048];
 	str_copy(aBuf,
@@ -615,28 +618,28 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 
 	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
+		dbg_msg("ddnet++", "ERROR: change password failed to prepare!");
 		return true;
 	}
 	pSqlServer->BindString(1, pData->m_aNewPassword);
 	pSqlServer->BindString(2, pData->m_aUsername);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
+		dbg_assert(false, "AdminSetPasswordThread failed to execute");
 		return true;
 	}
-	if(!End)
+	if(NumUpdated != 1)
 	{
-		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Password change failed.",
-			sizeof(pResult->m_aaMessages[0]));
+		dbg_msg("ddnet++", "ERROR: set password affected %d rows", NumUpdated);
+		dbg_assert(false, "AdminSetPasswordThread unexpected amount of rows affected");
+		return true;
 	}
-	else
-	{
-		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Successfully changed your password.",
-			sizeof(pResult->m_aaMessages[0]));
-	}
+
+	str_copy(pResult->m_aaMessages[0],
+		"[ACCOUNT] Successfully changed your password.",
+		sizeof(pResult->m_aaMessages[0]));
 	return false;
 }
 
