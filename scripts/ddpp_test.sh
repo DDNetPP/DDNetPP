@@ -270,7 +270,7 @@ function check_account() {
 			exit 1
 		fi
 	fi
-	got="$(sqlite3 "$database" < <(echo "select $column from Accounts;"))"
+	got="$(sqlite3 -init /dev/null "$database" < <(echo "select $column from Accounts;"))"
 	if [ "$from" != "" ] && [ "$to" != "" ]
 	then
 		if [ "$got" -gt "$to" ] || [ "$got" -lt "$from" ]
@@ -310,7 +310,7 @@ then
 	echo "[-] Error: expected an account from client1 instead got:"
 	echo "  $accs"
 else
-	user="$(sqlite3 accounts.db < <(echo "
+	user="$(sqlite3 -init /dev/null accounts.db < <(echo "
 		select * from Accounts
 		where LastLogoutIGN1 = 'client1_alt'
 		and Username = 'foo';
