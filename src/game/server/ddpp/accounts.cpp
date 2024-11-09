@@ -300,7 +300,9 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		dbg_assert(false, "SaveThread failed to execute");
 		return true;
 	}
-	if(NumUpdated != 1)
+	// we expect 1 row if new data was inserted
+	// or we expect 0 rows if nothing changed (can happen on periodic save)
+	if(NumUpdated > 1)
 	{
 		dbg_msg("ddnet++", "ERROR: save affected %d rows saveId=%d", NumUpdated, pData->m_AccountData.m_Id);
 		dbg_assert(false, "SaveThread wrong number of rows affected");
