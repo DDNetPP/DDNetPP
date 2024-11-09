@@ -216,7 +216,7 @@ jobs:
         flags: integrationtests
 
     - name: Package
-      if: contains(matrix.os, 'ubuntu-latest') || contains(matrix.os, 'windows')
+      if: contains(matrix.os, 'ubuntu-latest') || contains(matrix.os, 'windows') || contains(matrix.os, 'macOS')
       run: |
         cd release
         ${{ matrix.cmake-path }}cmake --build . --config Release --target package_default ${{ matrix.build-args }}
