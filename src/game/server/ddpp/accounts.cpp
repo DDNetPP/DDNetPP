@@ -859,11 +859,17 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 		pSqlServer->BindString(2, pData->m_aPassword);
 		pSqlServer->BindString(3, aDate);
 
-		if(pSqlServer->Step(&End, pError, ErrorSize))
-			return true;
-
-		if(!End)
+		int NumInserted;
+		if(pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize))
 		{
+			dbg_assert(false, "register did not execute");
+			return true;
+		}
+
+		if(NumInserted != 1)
+		{
+			dbg_msg("ddnet++", "ERROR: register inserted %d rows", NumInserted);
+
 			str_copy(pResult->m_aaMessages[0],
 				"[ACCOUNT] Something went wrong.",
 				sizeof(pResult->m_aaMessages[0]));
