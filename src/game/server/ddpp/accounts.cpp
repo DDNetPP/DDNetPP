@@ -1,4 +1,5 @@
 // ddnet++ accounts
+#include <base/system.h>
 #include <engine/server/databases/connection.h>
 
 #include "../gamecontext.h"
@@ -718,7 +719,9 @@ void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
 
 bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	if(w == Write::BACKUP_FIRST)
+		return false;
+	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CleanZombieAccountsThread failed to write");
 		return true;
@@ -878,7 +881,7 @@ void CAccounts::CreateDatabase()
 
 bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CreateTableThread failed to write");
 		return true;
@@ -986,21 +989,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	{
 		return true;
 	}
-
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
-	{
-		return true;
-	}
-	if(!End)
-	{
-		// str_copy(pResult->m_aaMessages[0],
-		// 	"create table finished with status=fail",
-		// 	sizeof(pResult->m_aaMessages[0]));
-		return true;
-	}
-	// str_copy(pResult->m_aaMessages[0],
-	// 	"create table finished with status=success",
-	// 	sizeof(pResult->m_aaMessages[0]));
-	return false;
+	pSqlServer->Print();
+	int NumInserted;
+	return pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize);
 }
