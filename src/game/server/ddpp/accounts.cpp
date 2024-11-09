@@ -1003,7 +1003,6 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	{
 		return true;
 	}
-	pSqlServer->Print();
 	int NumInserted;
 	return pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize);
 }
