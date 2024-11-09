@@ -768,7 +768,9 @@ void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
 
 bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	if(w == Write::BACKUP_FIRST)
+		return false;
+	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "SetLoggedInThread failed to write");
 		return true;
@@ -788,13 +790,21 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	pSqlServer->BindInt(2, pData->m_Port);
 	pSqlServer->BindInt(3, pData->m_AccountId);
 
-	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	int NumUpdated;
+	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "SetLoggedInThread did not step");
+		dbg_assert(false, "SetLoggedInThread failed to execute");
 		return true;
 	}
-	return !End;
+
+	if(NumUpdated != 1)
+	{
+		dbg_msg("ddnet++", "set logged in affected %d rows", NumUpdated);
+		dbg_assert(false, "SetLoggedInThread failed to execute");
+		return true;
+	}
+
+	return false;
 }
 
 void CAccounts::Register(int ClientId, const char *pUsername, const char *pPassword)
