@@ -295,7 +295,7 @@ function check_account() {
 	fi
 }
 
-accs="$(sqlite3 accounts.db < <(echo "select * from Accounts;"))"
+accs="$(sqlite3 -init /dev/null accounts.db < <(echo "select * from Accounts;"))"
 if [ "$accs" == "" ]
 then
 	touch fail_accs.txt
