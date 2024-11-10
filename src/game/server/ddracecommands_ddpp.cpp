@@ -992,6 +992,23 @@ void CGameContext::ConDeactivateShopItem(IConsole::IResult *pResult, void *pUser
 		aBuf);
 }
 
+void CGameContext::ConDeactivateAllShopItems(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	for(auto &Item : pSelf->Shop()->m_vItems)
+		Item->Deactivate();
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "deactivated all %d shop items", pSelf->Shop()->m_vItems.size());
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
+}
+
 void CGameContext::ConHammer(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
