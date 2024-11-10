@@ -246,11 +246,32 @@ void CShop::OnInit()
 		"projectiles. For more information please visit '/spookyghostinfo'.",
 		"forever",
 		m_pGameContext));
+	m_vItems.push_back(new CShopItemShotgun(
+		"shotgun",
+		"1 000",
+		5,
+		"Gives you a regular shotgun weapon.\n",
+		"dead",
+		m_pGameContext));
 	m_vItems.push_back(new CShopItemGrenade(
 		"grenade",
 		"1 000",
 		5,
 		"Gives you a regular grenade launcher.\n",
+		"dead",
+		m_pGameContext));
+	m_vItems.push_back(new CShopItemLaser(
+		"laser",
+		"1 000",
+		5,
+		"Gives you a regular laser rifle weapon.\n",
+		"dead",
+		m_pGameContext));
+	m_vItems.push_back(new CShopItemNinja(
+		"ninja",
+		"1 000",
+		5,
+		"Gives you a ninja weapon.\n",
 		"dead",
 		m_pGameContext));
 }
@@ -543,7 +564,7 @@ bool CShopItemSpookyGhost::Buy(int ClientId)
 	return true;
 }
 
-bool CShopItemGrenade::Buy(int ClientId)
+bool CShopItemWeapon::Buy(int ClientId)
 {
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
@@ -556,7 +577,7 @@ bool CShopItemGrenade::Buy(int ClientId)
 	}
 	if(!CShopItem::Buy(ClientId))
 		return false;
-	pChr->GiveWeapon(WEAPON_GRENADE);
+	pChr->GiveWeapon(Weapon());
 	return true;
 }
 

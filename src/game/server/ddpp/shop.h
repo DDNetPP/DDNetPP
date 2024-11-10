@@ -5,6 +5,7 @@
 
 #include <engine/server.h>
 #include <engine/shared/config.h>
+#include <game/generated/protocol.h>
 
 #include <vector>
 
@@ -227,12 +228,46 @@ public:
 	bool Buy(int ClientId) override;
 };
 
-class CShopItemGrenade : public CShopItem
+class CShopItemWeapon : public CShopItem
 {
 public:
 	using CShopItem::CShopItem;
 
 	bool Buy(int ClientId) override;
+
+	virtual int Weapon() { return WEAPON_GUN; }
+};
+
+class CShopItemShotgun : public CShopItemWeapon
+{
+public:
+	using CShopItemWeapon::CShopItemWeapon;
+
+	int Weapon() override { return WEAPON_SHOTGUN; }
+};
+
+class CShopItemGrenade : public CShopItemWeapon
+{
+public:
+	using CShopItemWeapon::CShopItemWeapon;
+
+	int Weapon() override { return WEAPON_GRENADE; }
+};
+
+class CShopItemLaser : public CShopItemWeapon
+{
+public:
+	using CShopItemWeapon::CShopItemWeapon;
+
+	int Weapon() override { return WEAPON_LASER; }
+};
+
+class CShopItemNinja : public CShopItemWeapon
+{
+public:
+	using CShopItemWeapon::CShopItemWeapon;
+
+	int Weapon() override { return WEAPON_NINJA; }
 };
 
 class CShop
