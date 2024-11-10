@@ -1,6 +1,7 @@
 /* DDNet++ shop */
 
 #include "../gamecontext.h"
+#include "game/generated/protocol.h"
 
 #include "shop.h"
 
@@ -244,6 +245,13 @@ void CShop::OnInit()
 		"If your ghost is activated you will be able to shoot plasma\n"
 		"projectiles. For more information please visit '/spookyghostinfo'.",
 		"forever",
+		m_pGameContext));
+	m_vItems.push_back(new CShopItemGrenade(
+		"grenade",
+		"1 000",
+		5,
+		"Gives you a regular grenade launcher.\n",
+		"dead",
 		m_pGameContext));
 }
 
@@ -532,6 +540,23 @@ bool CShopItemSpookyGhost::Buy(int ClientId)
 	if(!CShopItem::Buy(ClientId))
 		return false;
 	pPlayer->m_Account.m_SpookyGhost++;
+	return true;
+}
+
+bool CShopItemGrenade::Buy(int ClientId)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return false;
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+	{
+		GameServer()->SendChatTarget(ClientId, "You have to be alive to buy this item.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientId))
+		return false;
+	pChr->GiveWeapon(WEAPON_GRENADE);
 	return true;
 }
 

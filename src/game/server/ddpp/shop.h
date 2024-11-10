@@ -89,7 +89,7 @@ public:
 		const char *pDescription,
 		const char *pOwnedUntil,
 		CGameContext *pGameContext);
-	virtual ~CShopItem(){};
+	virtual ~CShopItem() = default;
 	CGameContext *GameServer();
 
 	/*
@@ -108,7 +108,7 @@ public:
 	const char *OwnUntil() { return m_aOwnUntil; }
 	const char *OwnUntilLong();
 
-	bool IsActive() { return m_Active; }
+	bool IsActive() const { return m_Active; }
 	void Deactivate() { m_Active = false; }
 	void Activate() { m_Active = true; }
 	virtual bool CanBuy(int ClientId);
@@ -120,7 +120,7 @@ class CShopItemRainbow : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemBloody : public CShopItem
@@ -128,7 +128,7 @@ class CShopItemBloody : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemChidraqul : public CShopItem
@@ -136,7 +136,7 @@ class CShopItemChidraqul : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemShit : public CShopItem
@@ -144,7 +144,7 @@ class CShopItemShit : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemRoomKey : public CShopItem
@@ -152,8 +152,8 @@ class CShopItemRoomKey : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
-	virtual const char *PriceStr(int ClientId = -1) override;
+	bool Buy(int ClientId) override;
+	const char *PriceStr(int ClientId = -1) override;
 };
 
 class CShopItemPolice : public CShopItem
@@ -161,8 +161,8 @@ class CShopItemPolice : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
-	virtual int NeededLevel(int ClientId) override;
+	bool Buy(int ClientId) override;
+	int NeededLevel(int ClientId) override;
 };
 
 class CShopItemTaser : public CShopItem
@@ -172,9 +172,9 @@ class CShopItemTaser : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
-	virtual const char *NeededLevelStr(int ClientId) override;
-	virtual const char *PriceStr(int ClientId = -1) override;
+	bool Buy(int ClientId) override;
+	const char *NeededLevelStr(int ClientId) override;
+	const char *PriceStr(int ClientId = -1) override;
 	int NeededPoliceRank(int ClientId);
 };
 
@@ -183,7 +183,7 @@ class CShopItemPvpArenaTicket : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemNinjaJetpack : public CShopItem
@@ -191,7 +191,7 @@ class CShopItemNinjaJetpack : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemSpawnShotgun : public CShopItem
@@ -199,7 +199,7 @@ class CShopItemSpawnShotgun : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemSpawnGrenade : public CShopItem
@@ -207,7 +207,7 @@ class CShopItemSpawnGrenade : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemSpawnRifle : public CShopItem
@@ -215,7 +215,7 @@ class CShopItemSpawnRifle : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
 };
 
 class CShopItemSpookyGhost : public CShopItem
@@ -223,7 +223,15 @@ class CShopItemSpookyGhost : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	virtual bool Buy(int ClientId) override;
+	bool Buy(int ClientId) override;
+};
+
+class CShopItemGrenade : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	bool Buy(int ClientId) override;
 };
 
 class CShop
