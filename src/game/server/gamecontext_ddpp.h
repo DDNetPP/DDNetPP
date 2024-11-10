@@ -887,6 +887,8 @@ private:
 	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConSetShopItemPrice(IConsole::IResult *pResult, void *pUserData);
+	static void ConSetShopItemDescription(IConsole::IResult *pResult, void *pUserData);
+	static void ConSetShopItemLevel(IConsole::IResult *pResult, void *pUserData);
 	static void ConActivateShopItem(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeactivateAllShopItems(IConsole::IResult *pResult, void *pUserData);

@@ -73,6 +73,8 @@ CONSOLE_COMMAND("logs", "?s[type]", CFGFLAG_SERVER, ConDDPPLogs, this, "shows dd
 CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSql_ADD, this, "adds an new column to the table")
 
 CONSOLE_COMMAND("set_shop_item_price", "s[item] s[price]", CFGFLAG_SERVER, ConSetShopItemPrice, this, "sets the price of a shop item")
+CONSOLE_COMMAND("set_shop_item_description", "s[item] s[description]", CFGFLAG_SERVER, ConSetShopItemDescription, this, "sets the description of a shop item")
+CONSOLE_COMMAND("set_shop_item_level", "s[item] i[level]", CFGFLAG_SERVER, ConSetShopItemLevel, this, "sets the needed level of a shop item")
 CONSOLE_COMMAND("activate_shop_item", "?s[item]", CFGFLAG_SERVER, ConActivateShopItem, this, "activate shop item")
 CONSOLE_COMMAND("deactivate_shop_item", "?s[item]", CFGFLAG_SERVER, ConDeactivateShopItem, this, "deactivate shop item")
 CONSOLE_COMMAND("deactivate_all_shop_items", "", CFGFLAG_SERVER, ConDeactivateAllShopItems, this, "deactivates all shop items")

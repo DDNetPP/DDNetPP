@@ -971,6 +971,52 @@ void CGameContext::ConSetShopItemPrice(IConsole::IResult *pResult, void *pUserDa
 		aBuf);
 }
 
+void CGameContext::ConSetShopItemDescription(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "item '%s' not found in shop items.", pResult->GetString(0));
+	for(auto &Item : pSelf->Shop()->m_vItems)
+	{
+		if(str_comp(pResult->GetString(0), Item->Name()))
+			continue;
+
+		str_format(aBuf, sizeof(aBuf), "updated item '%s' description from '%s' to '%s'", Item->Name(), Item->Description(), pResult->GetString(1));
+		Item->SetDescription(pResult->GetString(1));
+		break;
+	}
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
+}
+
+void CGameContext::ConSetShopItemLevel(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "item '%s' not found in shop items.", pResult->GetString(0));
+	for(auto &Item : pSelf->Shop()->m_vItems)
+	{
+		if(str_comp(pResult->GetString(0), Item->Name()))
+			continue;
+
+		str_format(aBuf, sizeof(aBuf), "updated item '%s' level to '%d'", Item->Name(), pResult->GetInteger(1));
+		Item->SetNeededLevel(pResult->GetInteger(1));
+		break;
+	}
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
+}
+
 void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
