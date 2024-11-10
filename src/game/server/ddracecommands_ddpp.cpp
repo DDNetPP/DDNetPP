@@ -948,6 +948,29 @@ void CGameContext::ConSql_ADD(IConsole::IResult *pResult, void *pUserData)
 	//char aBuf[128];
 }
 
+void CGameContext::ConSetShopItemPrice(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "item '%s' not found in shop items.", pResult->GetString(0));
+	for(auto &Item : pSelf->Shop()->m_vItems)
+	{
+		if(str_comp(pResult->GetString(0), Item->Name()))
+			continue;
+
+		str_format(aBuf, sizeof(aBuf), "updated item '%s' price from '%s' to '%s'", Item->Name(), Item->PriceStr(), pResult->GetString(1));
+		Item->SetPrice(pResult->GetString(1));
+		break;
+	}
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
+}
+
 void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -963,6 +986,7 @@ void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserDa
 
 		str_copy(aBuf, !Item->IsActive() ? "activated item" : "item already activated", sizeof(aBuf));
 		Item->Activate();
+		break;
 	}
 	pSelf->Console()->Print(
 		IConsole::OUTPUT_LEVEL_STANDARD,
@@ -985,6 +1009,7 @@ void CGameContext::ConDeactivateShopItem(IConsole::IResult *pResult, void *pUser
 
 		str_copy(aBuf, Item->IsActive() ? "deactivated item" : "item already deactivated", sizeof(aBuf));
 		Item->Deactivate();
+		break;
 	}
 	pSelf->Console()->Print(
 		IConsole::OUTPUT_LEVEL_STANDARD,

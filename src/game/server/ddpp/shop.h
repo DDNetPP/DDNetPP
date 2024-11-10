@@ -100,6 +100,7 @@ public:
 	*/
 	virtual int Price(int ClientId = -1);
 	virtual const char *PriceStr(int ClientId = -1) { return m_aPriceStr; };
+	void SetPrice(const char *pPrice) { str_copy(m_aPriceStr, pPrice, sizeof(m_aPriceStr)); }
 	virtual int NeededLevel(int ClientId) { return m_NeededLevel; }
 	virtual const char *NeededLevelStr(int ClientId);
 	const char *Name() { return m_aName; }
