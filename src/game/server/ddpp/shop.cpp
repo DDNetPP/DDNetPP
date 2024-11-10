@@ -36,7 +36,7 @@ int CShopItem::Price(int ClientId)
 	for(int k = 0; k < str_length(PriceStr(ClientId)); k++)
 	{
 		char c = PriceStr(ClientId)[k];
-		if(c == ' ')
+		if(c < '0' || c > '9')
 			continue;
 		aPrice[i++] = c;
 		++c;
