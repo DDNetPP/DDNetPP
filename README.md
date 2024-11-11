@@ -95,7 +95,7 @@ We added all the features missing in ddnet. For example:
 - block system (count kills and stats)
 - minigames (bomb/fng/blockwave/survival)
 - quests
-- shop
+- [shop](./docs/shop.md)
 - police
 - jail
 - drop weapons and flags
