@@ -78,6 +78,7 @@ CONSOLE_COMMAND("set_shop_item_level", "s[item] i[level]", CFGFLAG_SERVER, ConSe
 CONSOLE_COMMAND("activate_shop_item", "?s[item]", CFGFLAG_SERVER, ConActivateShopItem, this, "activate shop item")
 CONSOLE_COMMAND("deactivate_shop_item", "?s[item]", CFGFLAG_SERVER, ConDeactivateShopItem, this, "deactivate shop item")
 CONSOLE_COMMAND("deactivate_all_shop_items", "", CFGFLAG_SERVER, ConDeactivateAllShopItems, this, "deactivates all shop items")
+CONSOLE_COMMAND("activate_all_shop_items", "", CFGFLAG_SERVER, ConActivateAllShopItems, this, "activates all shop items")
 
 //rcon api commands
 CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayId, this, "RCON API command dont use it") //sends a servermessage to player v

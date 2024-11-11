@@ -892,6 +892,7 @@ private:
 	static void ConActivateShopItem(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeactivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
+	static void ConActivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
 
 	bool DDPPCredits();
 	bool DDPPInfo();
