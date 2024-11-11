@@ -236,7 +236,8 @@ void CBlockTournament::Tick()
 
 				const char *pFormat = GameServer()->Loc(
 					"[EVENT] BLOCK IN %d SECONDS\n"
-					"[%d/%d] '/join'ed already",
+					"%d joined (min %d)\n"
+					"/join to participate",
 					i);
 
 				str_format(aBuf,
