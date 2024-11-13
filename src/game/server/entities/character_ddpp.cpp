@@ -2460,7 +2460,10 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 		if((m_pPlayer->m_IsDummy && g_Config.m_SvSpreeCountBots) || //only count bots if configurated
 			(!m_pPlayer->m_IsDummy)) //count all humans in killingsprees
 		{
-			GameServer()->m_apPlayers[Killer]->m_KillStreak++;
+			if(!GameServer()->GetDDRaceTeam(Killer)) // only allow increasing spree from team 0
+			{
+				GameServer()->m_apPlayers[Killer]->m_KillStreak++;
+			}
 		}
 		// only count killing sprees if enough players are online and ingame (alive)
 		if(GameServer()->CountIngameHumans() < g_Config.m_SvSpreePlayers)
