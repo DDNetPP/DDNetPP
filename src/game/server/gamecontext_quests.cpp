@@ -41,72 +41,72 @@ void CGameContext::QuestFailed(int playerId)
 	StartQuest(playerId);
 }
 
-void CGameContext::QuestFailed2(int playerId)
+void CGameContext::QuestFailed2(int ClientId)
 {
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[ClientId])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", ClientId, Server()->ClientName(ClientId));
 		return;
 	}
-	if(!m_apPlayers[playerId]->IsQuesting())
+	if(!m_apPlayers[ClientId]->IsQuesting())
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", ClientId, Server()->ClientName(ClientId));
 		return;
 	}
-	if(m_apPlayers[playerId]->m_QuestFailed)
+	if(m_apPlayers[ClientId]->m_QuestFailed)
 	{
 		return;
 	}
-	m_apPlayers[playerId]->m_QuestFailed = true;
-	//str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
-	QuestReset(playerId);
-	if(!m_apPlayers[playerId]->m_HideQuestWarning)
+	m_apPlayers[ClientId]->m_QuestFailed = true;
+	//str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
+	QuestReset(ClientId);
+	if(!m_apPlayers[ClientId]->m_HideQuestWarning)
 	{
-		SendChatTarget(playerId, "[QUEST] You failed the quest.");
+		SendChatTarget(ClientId, "[QUEST] You failed the quest.");
 	}
 }
 
-bool CGameContext::QuestAddProgress(int playerId, int globalMAX, int localMAX)
+bool CGameContext::QuestAddProgress(int ClientId, int globalMAX, int localMAX)
 {
 	char aBuf[256];
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[ClientId])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player added progress.", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player added progress.", ClientId, Server()->ClientName(ClientId));
 		return false;
 	}
 	if(localMAX == -1)
 	{
 		localMAX = globalMAX;
 	}
-	if(m_apPlayers[playerId]->m_QuestProgressValue >= localMAX)
+	if(m_apPlayers[ClientId]->m_QuestProgressValue >= localMAX)
 	{
 		return false;
 	}
 
-	m_apPlayers[playerId]->m_QuestProgressValue++;
-	m_apPlayers[playerId]->m_aQuestProgress[0] = m_apPlayers[playerId]->m_QuestProgressValue;
-	m_apPlayers[playerId]->m_aQuestProgress[1] = globalMAX;
+	m_apPlayers[ClientId]->m_QuestProgressValue++;
+	m_apPlayers[ClientId]->m_aQuestProgress[0] = m_apPlayers[ClientId]->m_QuestProgressValue;
+	m_apPlayers[ClientId]->m_aQuestProgress[1] = globalMAX;
 
-	//dbg_msg("QUEST", "Progress updated: %d/%d", m_apPlayers[playerId]->m_aQuestProgress[0], m_apPlayers[playerId]->m_aQuestProgress[1]);
-	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d", m_apPlayers[playerId]->m_QuestProgressValue, globalMAX);
+	//dbg_msg("QUEST", "Progress updated: %d/%d", m_apPlayers[ClientId]->m_aQuestProgress[0], m_apPlayers[ClientId]->m_aQuestProgress[1]);
+	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d", m_apPlayers[ClientId]->m_QuestProgressValue, globalMAX);
 
-	if(!m_apPlayers[playerId]->m_HideQuestProgress)
-		SendChatTarget(playerId, aBuf);
+	if(!m_apPlayers[ClientId]->m_HideQuestProgress)
+		SendChatTarget(ClientId, aBuf);
 
-	if(m_apPlayers[playerId]->m_QuestProgressValue >= globalMAX)
+	if(m_apPlayers[ClientId]->m_QuestProgressValue >= globalMAX)
 	{
-		QuestCompleted(playerId);
+		QuestCompleted(ClientId);
 	}
 
 	return true;
 }
 
-void CGameContext::QuestCompleted(int playerId)
+void CGameContext::QuestCompleted(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[playerId];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", ClientId, Server()->ClientName(ClientId));
 		return;
 	}
 	if(!pPlayer->IsQuesting())
@@ -118,17 +118,17 @@ void CGameContext::QuestCompleted(int playerId)
 	// reward
 	char aBuf[256];
 	int RewardMoney = pPlayer->m_QuestStateLevel ? 100 : 50;
-	int RewardXP = QuestReward(playerId);
+	int RewardXP = QuestReward(ClientId);
 	if(pPlayer->IsMaxLevel())
 		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardMoney);
 	else // xp msg only if not max lvl
 		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
-	SendChatTarget(playerId, aBuf);
+	SendChatTarget(ClientId, aBuf);
 	pPlayer->MoneyTransaction(+100, "quest reward");
 	pPlayer->GiveXP(RewardXP);
 
 	// next quest
-	QuestReset(playerId);
+	QuestReset(ClientId);
 	pPlayer->m_QuestState++;
 	pPlayer->m_QuestUnlocked = pPlayer->m_QuestState; //save highscore
 	if(pPlayer->m_QuestState > CPlayer::QUEST_NUM)
@@ -140,103 +140,103 @@ void CGameContext::QuestCompleted(int playerId)
 		{
 			pPlayer->m_QuestState = CPlayer::QUEST_OFF;
 			pPlayer->m_QuestStateLevel = 0;
-			SendChatTarget(playerId, "[QUEST] Hurray you finished all Quests !!!");
+			SendChatTarget(ClientId, "[QUEST] Hurray you finished all Quests !!!");
 			return;
 		}
 		pPlayer->m_QuestLevelUnlocked = pPlayer->m_QuestStateLevel; // save highscore
-		SendChatTarget(playerId, aBuf);
+		SendChatTarget(ClientId, aBuf);
 	}
-	StartQuest(playerId);
+	StartQuest(ClientId);
 }
 
-int CGameContext::QuestReward(int playerId)
+int CGameContext::QuestReward(int ClientId)
 {
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[ClientId])
 	{
 		return 0;
 	}
 
-	if(!m_apPlayers[playerId]->m_QuestStateLevel)
+	if(!m_apPlayers[ClientId]->m_QuestStateLevel)
 	{
 		return 10;
 	}
 	else
 	{
-		return m_apPlayers[playerId]->m_QuestStateLevel * 100;
+		return m_apPlayers[ClientId]->m_QuestStateLevel * 100;
 	}
 }
 
-//void CGameContext::PickNextQuest(int playerId)
+//void CGameContext::PickNextQuest(int ClientId)
 //{
 //#if defined(CONF_DEBUG)
 //#endif
-//	m_apPlayers[playerId]->m_QuestState++;
-//	StartQuest(playerId);
+//	m_apPlayers[ClientId]->m_QuestState++;
+//	StartQuest(ClientId);
 //}
 
-void CGameContext::StartQuest(int playerId)
+void CGameContext::StartQuest(int ClientId)
 {
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[ClientId])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player has started the quest.", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player has started the quest.", ClientId, Server()->ClientName(ClientId));
 		return;
 	}
 
 	char aBuf[256];
-	QuestReset(playerId); //not needed but save clearup (should already be cleared up on every quest exit but save is save)
-	int level = m_apPlayers[playerId]->m_QuestStateLevel;
-	int quest = m_apPlayers[playerId]->m_QuestState; //old and bad because with many quests this can take forever and easts ressources of server or players have to do quests over and over agian rand() % 4 + 1; //valid quests + 1
+	QuestReset(ClientId); //not needed but save clearup (should already be cleared up on every quest exit but save is save)
+	int level = m_apPlayers[ClientId]->m_QuestStateLevel;
+	int quest = m_apPlayers[ClientId]->m_QuestState; //old and bad because with many quests this can take forever and easts ressources of server or players have to do quests over and over agian rand() % 4 + 1; //valid quests + 1
 	str_copy(
-		m_apPlayers[playerId]->m_aQuestString,
+		m_apPlayers[ClientId]->m_aQuestString,
 		"ERROR invalid quest loaded",
-		sizeof(m_apPlayers[playerId]->m_aQuestString));
+		sizeof(m_apPlayers[ClientId]->m_aQuestString));
 
 	if(quest == 0)
 	{
-		dbg_msg("debug", "WARNING: QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]", m_apPlayers[playerId]->GetCid(), Server()->ClientName(m_apPlayers[playerId]->GetCid()), quest, level);
+		dbg_msg("debug", "WARNING: QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]", m_apPlayers[ClientId]->GetCid(), Server()->ClientName(m_apPlayers[ClientId]->GetCid()), quest, level);
 		return;
 	}
 	else if(quest == 1)
 	{
 		if(level == 0)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 1 tee.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 1 tee.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 1)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 2 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 2 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 2)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 3 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 3 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 3)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 5 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 5 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 4)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 10 freezed tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 10 freezed tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 5)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Hammer '%s' 20 times.", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Hammer '%s' 20 times.", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 6)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Hammer freezed '%s' 3 times.", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Hammer freezed '%s' 3 times.", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 7)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Hammer '%s' 10 times and then block him.", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Hammer '%s' 10 times and then block him.", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 8)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 2 tees with one hit.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 2 tees with one hit.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 9)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Hammer 10 freezed tees while holding the flag.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Hammer 10 freezed tees while holding the flag.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else
 		{
@@ -248,43 +248,43 @@ void CGameContext::StartQuest(int playerId)
 	{
 		if(level == 0)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 1 tee.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 1 tee.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 1)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 2 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 2 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 2)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 3 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 3 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 3)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 5 tees.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 5 tees.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 4)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 10 tees without using any weapons.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 10 tees without using any weapons.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 5)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Block 5 tees and then block '%s'.", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Block 5 tees and then block '%s'.", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 6)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block a tee which is on a 5 blockingspree.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block a tee which is on a 5 blockingspree.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 7)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 11 tees without getting blocked.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 11 tees without getting blocked.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 8)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 3 tees without using hook.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 3 tees without using hook.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 9)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Block 11 tees while holding the flag without dying.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Block 11 tees while holding the flag without dying.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else
 		{
@@ -296,65 +296,65 @@ void CGameContext::StartQuest(int playerId)
 	{
 		if(level == 0)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Finish the race.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Finish the race.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 1)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime1);
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime1);
 		}
 		else if(level == 2)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime2);
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime2);
 		}
 		else if(level == 3)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race backwards.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race backwards.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 4)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime3);
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime3);
 		}
 		else if(level == 5)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race with the flag.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race with the flag.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 6)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the special race.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the special race.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 7)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the special race in under %d seconds.", g_Config.m_SvQuestSpecialRaceTime);
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the special race in under %d seconds.", g_Config.m_SvQuestSpecialRaceTime);
 		}
 		else if(level == 8)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the special race backwards.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the special race backwards.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 9)
 		{
 			if(g_Config.m_SvQuestRaceCondition == 0)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using hammer.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using hammer.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else if(g_Config.m_SvQuestRaceCondition == 1)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using gun.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using gun.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else if(g_Config.m_SvQuestRaceCondition == 2)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using shotgun.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using shotgun.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else if(g_Config.m_SvQuestRaceCondition == 3)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using grenade.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using grenade.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else if(g_Config.m_SvQuestRaceCondition == 4)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using rifle.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using rifle.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else if(g_Config.m_SvQuestRaceCondition == 5)
 			{
-				str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Finish the race without using ninja.", sizeof(m_apPlayers[playerId]->m_aQuestString));
+				str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Finish the race without using ninja.", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 			}
 			else
 			{
@@ -372,43 +372,43 @@ void CGameContext::StartQuest(int playerId)
 	{
 		if(level == 0)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle 1 tee", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle 1 tee", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 1)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Rifle '%s' 5 times", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Rifle '%s' 5 times", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 2)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Rifle freezed '%s' 5 times", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Rifle freezed '%s' 5 times", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 3)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Rifle '%s' and 10 others", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Rifle '%s' and 10 others", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 4)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle 10 freezed tees", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle 10 freezed tees", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 5)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle yourself while being freezed", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle yourself while being freezed", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 6)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle yourself while being freezed 10 times", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle yourself while being freezed 10 times", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 7)
 		{
-			str_format(m_apPlayers[playerId]->m_aQuestString, sizeof(m_apPlayers[playerId]->m_aQuestString), "Rifle '%s' and then block him", Server()->ClientName(PickQuestPlayer(playerId)));
+			str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Rifle '%s' and then block him", Server()->ClientName(PickQuestPlayer(ClientId)));
 		}
 		else if(level == 8)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle 5 tees before blocking them", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle 5 tees before blocking them", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 9)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Rifle 20 freezed tees while having the flag", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Rifle 20 freezed tees while having the flag", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else
 		{
@@ -420,43 +420,43 @@ void CGameContext::StartQuest(int playerId)
 	{
 		if(level == 0)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 10 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 10 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 1)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 20 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 20 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 2)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 30 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 30 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 3)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 40 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 40 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 4)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 50 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 50 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 5)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 60 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 60 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 6)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 70 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 70 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 7)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 100 money on a police moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 100 money on a police moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 8)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 100 money on a moneytile", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 100 money on a moneytile", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else if(level == 9)
 		{
-			str_copy(m_apPlayers[playerId]->m_aQuestString, "Farm 200 xp with the flag", sizeof(m_apPlayers[playerId]->m_aQuestString));
+			str_copy(m_apPlayers[ClientId]->m_aQuestString, "Farm 200 xp with the flag", sizeof(m_apPlayers[ClientId]->m_aQuestString));
 		}
 		else
 		{
@@ -470,27 +470,27 @@ void CGameContext::StartQuest(int playerId)
 		quest = 0;
 	}
 
-	if(m_apPlayers[playerId]->IsQuesting() && quest)
+	if(m_apPlayers[ClientId]->IsQuesting() && quest)
 	{
-		str_format(aBuf, sizeof(aBuf), "[QUEST] %s", m_apPlayers[playerId]->m_aQuestString);
-		SendBroadcast(aBuf, m_apPlayers[playerId]->GetCid());
-		str_format(aBuf, sizeof(aBuf), "[QUEST] New Quest: %s", m_apPlayers[playerId]->m_aQuestString);
-		SendChatTarget(m_apPlayers[playerId]->GetCid(), aBuf);
+		str_format(aBuf, sizeof(aBuf), "[QUEST] %s", m_apPlayers[ClientId]->m_aQuestString);
+		SendBroadcast(aBuf, m_apPlayers[ClientId]->GetCid());
+		str_format(aBuf, sizeof(aBuf), "[QUEST] New Quest: %s", m_apPlayers[ClientId]->m_aQuestString);
+		SendChatTarget(m_apPlayers[ClientId]->GetCid(), aBuf);
 		return;
 	}
 
 	//quest stopped during the next quest election
-	SendBroadcast("[QUEST] stopped", m_apPlayers[playerId]->GetCid());
-	m_apPlayers[playerId]->m_QuestState = CPlayer::QUEST_OFF;
+	SendBroadcast("[QUEST] stopped", m_apPlayers[ClientId]->GetCid());
+	m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
 }
 
-int CGameContext::PickQuestPlayer(int playerId)
+int CGameContext::PickQuestPlayer(int ClientId)
 {
 #if defined(CONF_DEBUG)
 #endif
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[ClientId])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player picked a quest", playerId, Server()->ClientName(playerId));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player picked a quest", ClientId, Server()->ClientName(ClientId));
 		return -1;
 	}
 
@@ -512,7 +512,7 @@ int CGameContext::PickQuestPlayer(int playerId)
 			dbg_msg("QUEST", "<PickPlayer> warning spec player found");
 			continue;
 		}
-		if(IsSameIp(Player->GetCid(), playerId))
+		if(IsSameIp(Player->GetCid(), ClientId))
 		{
 			//dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
 			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(Player->GetCid())); //this will be triggerd for all serverside dummys if ur playing local -.-
@@ -546,8 +546,8 @@ int CGameContext::PickQuestPlayer(int playerId)
 	{
 		if(Index + IndexDead < g_Config.m_SvQuestNeededPlayers) //not enough dead or alive valid tees --> stop quest
 		{
-			m_apPlayers[playerId]->m_QuestState = CPlayer::QUEST_OFF;
-			SendChatTarget(playerId, "[QUEST] Quest stopped because there are not enough tees on the server.");
+			m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
+			SendChatTarget(ClientId, "[QUEST] Quest stopped because there are not enough tees on the server.");
 			//dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
 			return -1;
 		}
@@ -556,14 +556,14 @@ int CGameContext::PickQuestPlayer(int playerId)
 			Id = FoundDeadTees[rand() % IndexDead]; //choose random one of the valid tees
 			if(!Id)
 			{
-				dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerId, Server()->ClientName(playerId), Id, Server()->ClientName(Id));
-				m_apPlayers[playerId]->m_QuestState = CPlayer::QUEST_OFF;
-				SendChatTarget(playerId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-				SendChatTarget(playerId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+				dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
+				m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
+				SendChatTarget(ClientId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
+				SendChatTarget(ClientId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 				return -1;
 			}
 
-			m_apPlayers[playerId]->m_QuestPlayerId = Id - 1;
+			m_apPlayers[ClientId]->m_QuestPlayerId = Id - 1;
 			return Id - 1; //before we stored id + 1 to have an better handling with false values
 		}
 	}
@@ -571,14 +571,14 @@ int CGameContext::PickQuestPlayer(int playerId)
 	Id = FoundTees[rand() % Index]; //choose random one of the valid alive tees
 	if(!Id)
 	{
-		dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerId, Server()->ClientName(playerId), Id, Server()->ClientName(Id));
-		m_apPlayers[playerId]->m_QuestState = CPlayer::QUEST_OFF;
-		SendChatTarget(playerId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-		SendChatTarget(playerId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+		dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
+		m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
+		SendChatTarget(ClientId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
+		SendChatTarget(ClientId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 		return -1;
 	}
 
-	m_apPlayers[playerId]->m_QuestPlayerId = Id - 1;
+	m_apPlayers[ClientId]->m_QuestPlayerId = Id - 1;
 	return Id - 1; //before we stored id + 1 to have an better handling with false values
 }
 
