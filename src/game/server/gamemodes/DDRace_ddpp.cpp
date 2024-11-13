@@ -98,7 +98,7 @@ void CGameControllerDDRace::FlagTick()
 				}
 
 				// only allow flag grabs in team 0
-				if(GameServer()->GetDDRaceTeam(apCloseCCharacters[i]->GetPlayer()->GetCid()))
+				if(apCloseCCharacters[i]->IsInDDraceTeam())
 					continue;
 
 				// take the flag

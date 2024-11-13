@@ -3377,7 +3377,13 @@ bool CCharacter::InputActive()
 	return false;
 }
 
-int CCharacter::GetAimDir()
+bool CCharacter::IsInDDraceTeam()
+{
+	int DDraceTeam = GameServer()->GetDDRaceTeam(GetPlayer()->GetCid());
+	return DDraceTeam != 0;
+}
+
+int CCharacter::GetAimDir() const
 {
 	if(m_Input.m_TargetX < 0)
 		return -1;

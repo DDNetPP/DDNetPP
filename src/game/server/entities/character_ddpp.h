@@ -116,7 +116,7 @@ public:
 	void DummyTick();
 	void PvPArenaTick();
 
-	//usefull everywhere
+	// useful everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
 	void MoveTee(int x, int y);
 	void ChillTelePort(float X, float Y);
@@ -124,9 +124,11 @@ public:
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);
 	void KillSpeed();
-	int GetAimDir();
+	int GetAimDir() const;
 	bool InputActive();
 	void UnDeep() { m_Core.m_DeepFrozen = false; }
+	// returns false if in team 0 and true otherwise
+	bool IsInDDraceTeam();
 
 	//Chillintelligenz
 	void CITick();
