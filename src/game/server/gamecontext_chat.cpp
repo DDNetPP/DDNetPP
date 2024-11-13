@@ -91,7 +91,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 
 					if(confirms < g_Config.m_SvGlobalChatServers)
 					{
-						SendChatTarget(ClientId, "[CHAT] Global chat is currently printing messages. Try agian later.");
+						SendChatTarget(ClientId, "[CHAT] Global chat is currently printing messages. Try again later.");
 						ChatReadFile.close();
 						return; //idk if this is too good ._. better check if it skips any spam protections
 					}

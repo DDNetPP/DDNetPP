@@ -151,13 +151,13 @@ int CGameContext::GetBlockSkillGroupInt(int id)
 	}
 }
 
-void CGameContext::UpdateBlockSkill(int value, int id)
+void CGameContext::UpdateBlockSkill(int value, int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 
-	int oldrank = GetBlockSkillGroupInt(id);
+	int OldRank = GetBlockSkillGroupInt(ClientId);
 	pPlayer->m_Account.m_BlockSkill += value; //update skill
 	if(pPlayer->m_Account.m_BlockSkill < 0)
 	{
@@ -167,21 +167,21 @@ void CGameContext::UpdateBlockSkill(int value, int id)
 	{
 		pPlayer->m_Account.m_BlockSkill = 25000; //max skill lvl
 	}
-	int newrank = GetBlockSkillGroupInt(id);
-	if(newrank != oldrank)
+	int NewRank = GetBlockSkillGroupInt(ClientId);
+	if(NewRank != OldRank)
 	{
 		char aBuf[128];
-		if(newrank < oldrank) //downrank
+		if(NewRank < OldRank) //downrank
 		{
-			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (downrank)", GetBlockSkillGroup(id));
-			SendChatTarget(id, aBuf);
-			UpdateBlockSkill(-590, id); //lower skill agian to not get an uprank too fast agian
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (downrank)", GetBlockSkillGroup(ClientId));
+			SendChatTarget(ClientId, aBuf);
+			UpdateBlockSkill(-590, ClientId); //lower skill again to not get an uprank too fast again
 		}
 		else //uprank
 		{
-			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (uprank)", GetBlockSkillGroup(id));
-			SendChatTarget(id, aBuf);
-			UpdateBlockSkill(+590, id); //push skill agian to not get an downrank too fast agian
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (uprank)", GetBlockSkillGroup(ClientId));
+			SendChatTarget(ClientId, aBuf);
+			UpdateBlockSkill(+590, ClientId); //push skill again to not get an downrank too fast again
 		}
 	}
 }

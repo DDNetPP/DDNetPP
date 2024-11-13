@@ -556,7 +556,7 @@ public:
 
 	//BLOCK POINTS
 
-	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
+	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed again and suicide you wont block die
 	int m_SpawnBlocks;
 	int m_BlockSpreeHighscore;
 

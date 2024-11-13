@@ -53,7 +53,7 @@ void CDummyChillBlock5Race::OnTick()
 	Jump(0);
 	StopMoving();
 	Fire(0);
-	// m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug agian xd
+	// m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug again xd
 
 	/*
 	Dummy23modes:
@@ -1282,7 +1282,7 @@ void CDummyChillBlock5Race::OnTick()
 					{
 						//The bot coudl fall of the plattform and hurt but this var helps to activate and accident
 						//sometimes the special stage causes a jump on purpose and the var gets true so no emergency can be called
-						//to make this possible agian reset this var every tick here
+						//to make this possible again reset this var every tick here
 						//m_Dummy_help_no_emergency is used to allow the emergency help
 						m_Dummy_help_no_emergency = false;
 

@@ -314,7 +314,7 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
 
-		if(GameServer()->m_apPlayers[character] && GameServer()->m_apPlayers[character]->GetCharacter()) //ChillerDragon's crashbug protection //didnt understand the bug didnt test the portection better comment it out //uncommented agian yolo
+		if(GameServer()->m_apPlayers[character] && GameServer()->m_apPlayers[character]->GetCharacter()) //ChillerDragon's crashbug protection //didnt understand the bug didnt test the portection better comment it out // uncommented again yolo
 		{
 			F->m_pCarryingCharacter = GameServer()->m_apPlayers[character]->GetCharacter();
 			/*

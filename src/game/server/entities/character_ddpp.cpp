@@ -497,7 +497,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 					//GameServer()->SendChat(-1, TEAM_ALL, "returned cuz freeze time");
 					//return false; //dont count freezed tee shots (no score or sound or happy emote)
 					//dont return because we loose hammer vel then
-					return; //we can return agian because the instagib stuff has his own func and got moved out of TakeDamage();
+					return; //we can return again because the instagib stuff has his own func and got moved out of TakeDamage();
 				}
 			}
 			else
@@ -1071,12 +1071,12 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_SpawnBlocks--;
 	}
 
-	//Block points (clear touchid on freeze and unfreeze agian)
+	//Block points (clear touchid on freeze and unfreeze again)
 	//if (m_pPlayer->m_LastToucherId != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
 	//{
 	//	m_pPlayer->m_BlockWasTouchedAndFreezed = true;
 	//}
-	//if (m_pPlayer->m_BlockWasTouchedAndFreezed && m_FreezeTime == 0) //player got touched and freezed and unfreezed agian --> reset toucher because it isnt his kill anymore
+	//if (m_pPlayer->m_BlockWasTouchedAndFreezed && m_FreezeTime == 0) //player got touched and freezed and unfreezed again --> reset toucher because it isnt his kill anymore
 	//{
 	//	m_pPlayer->UpdateLastToucher(-1);
 	//}
@@ -2421,9 +2421,9 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	char aBuf[128];
 	// Somehow inspiration by //toast killingspree
 	// system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon)
-	// stolen from DDnet++ instagib and edited agian by ChillerDragon
+	// stolen from DDnet++ instagib and edited again by ChillerDragon
 	// rewritten by ChillerDragon cuz tw bug
-	// upgraded to handle instagib agian
+	// upgraded to handle instagib again
 	// rewritten by ChillerDragon in 2019 cuz old system was fucked in the head
 
 	CPlayer *pKiller = GameServer()->m_apPlayers[Killer]; //removed pointer alien code and used the long way to have less bugsis with left players
@@ -2664,7 +2664,7 @@ bool CCharacter::IsHammerBlocked()
 	if(m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "You have to wait %" PRId64 " minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+		str_format(aBuf, sizeof(aBuf), "You have to wait %" PRId64 " minutes to use your super jail hammer again.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
 		GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		return true;
 	}
@@ -2871,7 +2871,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		}
 
 		//----- ChillerDragon tried to create 2nd projectile -----
-		//Just copy and pasted the whole code agian
+		// Just copy and pasted the whole code again 
 		float a = angle(Direction);
 		a += (0.070f) * 2;
 

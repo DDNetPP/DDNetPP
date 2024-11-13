@@ -1820,7 +1820,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									Hook();
 								}
 
-								//Hook the tee agian and go to the left -> drag him under block area
+								//Hook the tee again and go to the left -> drag him under block area
 								//-->Trick 5
 								if(pChrRuler->Core()->m_Vel.y > 8.1f && pChrRuler->m_Pos.x > 429 * 32 + 1 && pChrRuler->m_Pos.y > 209 * 32)
 								{

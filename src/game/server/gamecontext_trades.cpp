@@ -199,7 +199,7 @@ int CGameContext::TradePrepareBuy(int BuyerId, const char *pSellerName, int Item
 	}
 	else
 	{
-		SendChatTarget(BuyerId, "[TRADE] the seller doesn't own the item right now. try agian later.");
+		SendChatTarget(BuyerId, "[TRADE] the seller doesn't own the item right now. try again later.");
 		return -1;
 	}
 

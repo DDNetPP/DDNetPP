@@ -58,7 +58,7 @@ void CGameContext::QuestFailed2(int ClientId)
 		return;
 	}
 	m_apPlayers[ClientId]->m_QuestFailed = true;
-	//str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
+	//str_format(m_apPlayers[ClientId]->m_aQuestString, sizeof(m_apPlayers[ClientId]->m_aQuestString), "Quest failed."); // dont overwrite info what to do and how to start again. I added a questfailed info in ddracechat.cpp
 	QuestReset(ClientId);
 	if(!m_apPlayers[ClientId]->m_HideQuestWarning)
 	{
@@ -559,7 +559,7 @@ int CGameContext::PickQuestPlayer(int ClientId)
 				dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
 				m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
 				SendChatTarget(ClientId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-				SendChatTarget(ClientId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+				SendChatTarget(ClientId, "[QUEST] Try '/quest start' again to load and start your quest again");
 				return -1;
 			}
 
@@ -574,7 +574,7 @@ int CGameContext::PickQuestPlayer(int ClientId)
 		dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
 		m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
 		SendChatTarget(ClientId, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-		SendChatTarget(ClientId, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+		SendChatTarget(ClientId, "[QUEST] Try '/quest start' again to load and start your quest again");
 		return -1;
 	}
 

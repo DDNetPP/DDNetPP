@@ -17,7 +17,7 @@ bool CGameContext::AbortTeamChange(int ClientId, CPlayer *pPlayer)
 
 	if(m_apPlayers[ClientId]->m_SpawnBlocks > 3)
 	{
-		SendChatTarget(ClientId, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try agian later.");
+		SendChatTarget(ClientId, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try again later.");
 		return true;
 	}
 
@@ -61,7 +61,7 @@ bool CGameContext::AbortKill(int ClientId, CPlayer *pPlayer, CCharacter *pChr)
 	}
 	if(m_apPlayers[ClientId]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection == 2)
 	{
-		SendChatTarget(ClientId, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");
+		SendChatTarget(ClientId, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try again later.");
 		return true;
 	}
 	if(!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientId) && GetPlayerChar(ClientId)->m_IsBombing)

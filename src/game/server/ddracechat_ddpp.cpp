@@ -5016,11 +5016,11 @@ void CGameContext::ConSurvival(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientId, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			return;
 		}
-		int spawns = pSelf->Collision()->CountSurvivalSpawns();
-		int survivalplayers = pSelf->CountSurvivalPlayers();
-		if(survivalplayers >= spawns)
+		int Spawns = pSelf->Collision()->CountSurvivalSpawns();
+		int SurvivalPlayers = pSelf->CountSurvivalPlayers();
+		if(SurvivalPlayers >= Spawns)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "[SURVIVAL] The survival lobby is full try agian later.");
+			pSelf->SendChatTarget(pResult->m_ClientId, "[SURVIVAL] The survival lobby is full try again later.");
 			return;
 		}
 
@@ -5199,7 +5199,7 @@ void CGameContext::ConRoom(IConsole::IResult *pResult, void *pUserData)
 		}
 		if(!pSelf->GetPlayerChar(InviteId))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "This player is not alive... try agian later.");
+			pSelf->SendChatTarget(pResult->m_ClientId, "This player is not alive... try again later.");
 			return;
 		}
 
