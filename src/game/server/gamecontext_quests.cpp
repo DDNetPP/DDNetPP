@@ -500,60 +500,65 @@ int CGameContext::PickQuestPlayer(int ClientId)
 	int FoundDeadTees[MAX_CLIENTS];
 	int IndexDead = 0;
 
-	for(auto &Player : m_apPlayers)
+	for(CPlayer *pPlayer : m_apPlayers)
 	{
-		if(!Player)
+		if(!pPlayer)
 		{
-			//dbg_msg("QUEST", "<PickPlayer> warning not exsisting player found");
+			// dbg_msg("QUEST", "<PickPlayer> warning not exsisting player found");
 			continue;
 		}
-		if(Player->GetTeam() == TEAM_SPECTATORS)
+		if(pPlayer->GetTeam() == TEAM_SPECTATORS)
 		{
 			dbg_msg("QUEST", "<PickPlayer> warning spec player found");
 			continue;
 		}
-		if(IsSameIp(Player->GetCid(), ClientId))
+		if(IsSameIp(pPlayer->GetCid(), ClientId))
 		{
-			//dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
-			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(Player->GetCid())); //this will be triggerd for all serverside dummys if ur playing local -.-
+			// dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
+			// this will be triggerd for all serverside dummys if ur playing local -.-
+			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(pPlayer->GetCid()));
 			continue;
 		}
-		if(Player->m_IsDummy && !g_Config.m_SvQuestCountBots)
+		if(pPlayer->m_IsDummy && !g_Config.m_SvQuestCountBots)
 		{
 			//server side bot found
-			dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]", Server()->ClientName(Player->GetCid()));
+			dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]", Server()->ClientName(pPlayer->GetCid()));
+			continue;
+		}
+		if(GetDDRaceTeam(pPlayer->GetCid()))
+		{
 			continue;
 		}
 
 		//found valid non dummy or serverside bot
-		if(!GetPlayerChar(Player->GetCid())) //spec/dead players always second choice
+		if(!GetPlayerChar(pPlayer->GetCid())) //spec/dead players always second choice
 		{
 			// ---> store id + 1 in array so no 0 is in array and we can check if a tee is existing and stuff
-			FoundDeadTees[Index] = Player->GetCid() + 1;
+			FoundDeadTees[Index] = pPlayer->GetCid() + 1;
 			IndexDead++;
 			//dbg_msg("QUEST", "+1 dead player");
 		}
 		else //alive players primary choice
 		{
 			// ---> store id + 1 in array so no 0 is in array and we can check if a tee is existing and stuff
-			FoundTees[Index] = Player->GetCid() + 1;
+			FoundTees[Index] = pPlayer->GetCid() + 1;
 			Index++;
-			//dbg_msg("QUEST", "+1 alive player");
+			// dbg_msg("QUEST", "+1 alive player");
 		}
 	}
 
-	if(Index < g_Config.m_SvQuestNeededPlayers) //not enough alive tees ---> check spectators
+	if(Index < g_Config.m_SvQuestNeededPlayers) // not enough alive tees ---> check spectators
 	{
-		if(Index + IndexDead < g_Config.m_SvQuestNeededPlayers) //not enough dead or alive valid tees --> stop quest
+		if(Index + IndexDead < g_Config.m_SvQuestNeededPlayers) // not enough dead or alive valid tees --> stop quest
 		{
 			m_apPlayers[ClientId]->m_QuestState = CPlayer::QUEST_OFF;
 			SendChatTarget(ClientId, "[QUEST] Quest stopped because there are not enough tees on the server.");
-			//dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
+			// dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
 			return -1;
 		}
 		else
 		{
-			Id = FoundDeadTees[rand() % IndexDead]; //choose random one of the valid tees
+			Id = FoundDeadTees[rand() % IndexDead];
 			if(!Id)
 			{
 				dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
@@ -564,11 +569,11 @@ int CGameContext::PickQuestPlayer(int ClientId)
 			}
 
 			m_apPlayers[ClientId]->m_QuestPlayerId = Id - 1;
-			return Id - 1; //before we stored id + 1 to have an better handling with false values
+			return Id - 1; // before we stored id + 1 to have an better handling with false values
 		}
 	}
 
-	Id = FoundTees[rand() % Index]; //choose random one of the valid alive tees
+	Id = FoundTees[rand() % Index];
 	if(!Id)
 	{
 		dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", ClientId, Server()->ClientName(ClientId), Id, Server()->ClientName(Id));
@@ -579,7 +584,7 @@ int CGameContext::PickQuestPlayer(int ClientId)
 	}
 
 	m_apPlayers[ClientId]->m_QuestPlayerId = Id - 1;
-	return Id - 1; //before we stored id + 1 to have an better handling with false values
+	return Id - 1; // before we stored id + 1 to have an better handling with false values
 }
 
 void CGameContext::CheckConnectQuestBot()

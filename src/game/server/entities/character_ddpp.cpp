@@ -2871,7 +2871,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		}
 
 		//----- ChillerDragon tried to create 2nd projectile -----
-		// Just copy and pasted the whole code again 
+		// Just copy and pasted the whole code again
 		float a = angle(Direction);
 		a += (0.070f) * 2;
 
