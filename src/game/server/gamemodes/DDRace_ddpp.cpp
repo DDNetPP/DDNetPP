@@ -97,6 +97,10 @@ void CGameControllerDDRace::FlagTick()
 					}
 				}
 
+				// only allow flag grabs in team 0
+				if(GameServer()->GetDDRaceTeam(apCloseCCharacters[i]->GetPlayer()->GetCid()))
+					continue;
+
 				// take the flag
 				if(F->m_AtStand)
 				{
