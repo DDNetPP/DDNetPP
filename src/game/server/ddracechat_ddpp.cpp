@@ -47,7 +47,7 @@ bool CGameContext::DDPPCredits()
 bool CGameContext::DDPPInfo()
 {
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"ChillerDragon's block mod DDNet++ " DDNETPP_VERSIONSTR " (more info '/changelog')");
+		"ChillerDragon's DDNet++ " DDNETPP_VERSIONSTR " (more info '/changelog')");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDNet Version: " GAME_VERSION);
 	if(GIT_SHORTREV_HASH)
