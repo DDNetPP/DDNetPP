@@ -396,13 +396,10 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	// 9.4.2017   RELEASED v.0.0.1
 
 	int Page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
-	if(!Page)
-	{
-		Page = 1;
-	}
 	int Pages = 9;
+	Page = clamp(Page, 1, Pages);
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", Page, Pages);
+	str_format(aBuf, sizeof(aBuf), "page %d/%d '/changelog <page>'", Page, Pages);
 
 	if(Page == 1)
 	{
@@ -471,10 +468,6 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"+ added spooky_ghost to shop");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added nobo spawn");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else if(Page == 5)
 	{
@@ -488,10 +481,6 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"* fixed the chidraqul minigame");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added dummymodes for BlmapChill and blmapV5");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else if(Page == 6)
 	{
@@ -511,10 +500,6 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"+ added '/viewers' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/blockwave' minigame");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else if(Page == 7)
 	{
@@ -530,10 +515,6 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"+ added new '/bounty' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added new '/trade' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else if(Page == 8)
 	{
@@ -553,10 +534,6 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"+ added '/insta gdm' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved the racer bot");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else if(Page == 9)
 	{
@@ -586,16 +563,17 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 			"* dummys now join automatically on server start");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved the blocker bot");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			aBuf);
 	}
 	else
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"unknow page.");
+		return;
 	}
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+		"------------------------");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+		aBuf);
 }
 
 void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
