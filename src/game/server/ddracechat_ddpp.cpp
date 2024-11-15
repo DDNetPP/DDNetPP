@@ -22,7 +22,6 @@
 #include <cstdlib> //acc2 to_str()
 #include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
-#include <limits> //ChillerDragon acc sys2 get specific line
 
 #include <game/server/entities/laser_text.h>
 
@@ -33,7 +32,7 @@ bool CheckClientId(int ClientId); //TODO: whats this ? xd
 bool CGameContext::DDPPCredits()
 {
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"ChillerDragon's Block Mod (" DDNETPP_VERSIONSTR ").");
+		"ChillerDragon's block mod DDNet++ " DDNETPP_VERSIONSTR);
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
@@ -48,7 +47,7 @@ bool CGameContext::DDPPCredits()
 bool CGameContext::DDPPInfo()
 {
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"ChillerDragon's Block mod. " DDNETPP_VERSIONSTR " (more info '/changelog')");
+		"ChillerDragon's block mod DDNet++ " DDNETPP_VERSIONSTR " (more info '/changelog')");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDNet Version: " GAME_VERSION);
 	if(GIT_SHORTREV_HASH)
@@ -387,23 +386,45 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	//RELEASE NOTES:
-	//20.9.2019 RELEASED v.0.0.7
-	//7.9.2018 RELEASED v.0.0.6
-	//7.10.2017 RELEASED v.0.0.3
-	//25.5.2017 RELEASED v.0.0.2
-	//9.4.2017 RELEASED v.0.0.1
+	// RELEASE NOTES:
+	// 25.9.2024  RELEASED v.0.1.1
+	// 31.10.2023 RELEASED v.0.1.0
+	// 20.9.2019  RELEASED v.0.0.7
+	// 7.9.2018   RELEASED v.0.0.6
+	// 7.10.2017  RELEASED v.0.0.3
+	// 25.5.2017  RELEASED v.0.0.2
+	// 9.4.2017   RELEASED v.0.0.1
 
-	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
-	if(!page)
+	int Page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
+	if(!Page)
 	{
-		page = 1;
+		Page = 1;
 	}
-	int pages = 7;
+	int Pages = 9;
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", page, pages);
+	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", Page, Pages);
 
-	if(page == 1)
+	if(Page == 1)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"=== Changelog (DDNet++ v.0.1.1) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"* update to ddnet 18.5.1");
+	}
+	if(Page == 2)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"=== Changelog (DDNet++ v.0.1.0) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"* update to ddnet 17.2.1");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"+ add '/lasertext' command for VIP+");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"+ add '/lang' command for translations");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"+ add xp rewards for kills/blocks");
+	}
+	if(Page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.7) ===");
@@ -428,7 +449,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/mapsave' staff command");
 	}
-	else if(page == 2)
+	else if(Page == 4)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.6) ===");
@@ -455,7 +476,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 3)
+	else if(Page == 5)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.5) ===");
@@ -472,7 +493,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 4)
+	else if(Page == 6)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
@@ -495,7 +516,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 5)
+	else if(Page == 7)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
@@ -514,7 +535,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 6)
+	else if(Page == 8)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
@@ -537,7 +558,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 7)
+	else if(Page == 9)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
@@ -3540,7 +3561,7 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "Invalid. Type '/StockMarket <buy/sell/info>'.");
+		pSelf->SendChatTarget(pResult->m_ClientId, "Invalid. Type '/market <buy/sell/info>'.");
 	}
 }
 
