@@ -2,6 +2,7 @@
 /* Based on Race mod stuff and tweaked by GreYFoX@GTi and others to fit our DDRace needs. */
 #include "DDRace.h"
 
+#include <base/system.h>
 #include <engine/server.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
@@ -156,7 +157,11 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		else
 		{
 			char aWelcome[128];
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSIONSTR);
+			char aSubGameType[128];
+			aSubGameType[0] = '\0';
+			if(g_Config.m_SvDDPPgametype[0])
+				str_format(aSubGameType, sizeof(aSubGameType), "(%s) ", g_Config.m_SvDDPPgametype);
+			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s%s based on DDNet " GAME_RELEASE_VERSION, aSubGameType, DDNETPP_VERSIONSTR);
 			GameServer()->SendChatTarget(ClientId, aWelcome);
 		}
 	}
