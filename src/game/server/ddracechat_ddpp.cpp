@@ -411,7 +411,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* update to ddnet 18.5.1");
 	}
-	if(Page == 2)
+	else if(Page == 2)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.1.0) ===");
@@ -424,7 +424,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add xp rewards for kills/blocks");
 	}
-	if(Page == 3)
+	else if(Page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.7) ===");
