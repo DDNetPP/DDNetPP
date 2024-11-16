@@ -118,8 +118,8 @@ MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count
 MACRO_CONFIG_INT(SvDisplayScore, sv_display_score, 0, 0, 3, CFGFLAG_SERVER, "0=time (default) 1=level 2=block 3=current spree")
 MACRO_CONFIG_STR(SvLanguage, sv_language, 16, "en", CFGFLAG_SERVER, "en, ru")
 // TODO: add chain here that blocks standard gametypes like CTF,DM,LTS and so on
-MACRO_CONFIG_STR(SvGameTypeName, sv_game_type_name, 16, "DDraceNetwork", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 0")
-MACRO_CONFIG_STR(SvGameTypeNameTest, sv_game_type_name_test, 24, "TestDDraceNetwork", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 1")
+MACRO_CONFIG_STR(SvGameTypeName, sv_game_type_name, 16, "DDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 0")
+MACRO_CONFIG_STR(SvGameTypeNameTest, sv_game_type_name_test, 24, "TestDDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 1")
 
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 MACRO_CONFIG_INT(SvDDPPscore, sv_ddpp_score, 1, 0, 1, CFGFLAG_SERVER, "rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)")
