@@ -2836,6 +2836,10 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 
 void CGameContext::SendEndSpreeMessage(int SpreeHolderId, int KillerId)
 {
+	// TODO: the killer might not exist because he left
+
+	// TODO: the translation has to use the spree type
+
 	char aBuf[512];
 	for(CPlayer *pPlayer : m_apPlayers)
 	{
