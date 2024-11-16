@@ -274,6 +274,14 @@ public:
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
 
+	// returns true if a net message was sent to ClientId
+	// returns false if there are no more ddnet++ vote menu entries to send
+	bool SendExtraVoteMenuEntry(int ClientId);
+
+	// call this when data changed that is displayed in the
+	// ddnet++ extra vote menu
+	void RefreshExtraVoteMenu(int ClientId);
+
 	// missions (singleplayer)
 	int m_MissionUnlockedLevel;
 	int m_MissionCurrentLevel;

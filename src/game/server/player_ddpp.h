@@ -124,6 +124,11 @@ public:
 	int m_AsciiViewsDefault; //direct with ascii view command
 	int m_AsciiViewsProfile;
 
+	// DDNet++ specific vote extensions
+	// works similar to CPlayer::m_SendVoteIndex
+	// but is not for regular votes but for custom vote menus
+	int m_SendExtraVoteMenuIndex;
+
 	//zCatch ChillerDragon
 	int m_aCatchedId[64];
 

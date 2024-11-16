@@ -115,6 +115,7 @@ void CPlayer::ResetDDPP()
 	m_TradeItem = -1;
 	m_TradeMoney = -1;
 	m_TradeId = -1;
+	m_SendExtraVoteMenuIndex = -1;
 
 	//dbg_msg("debug", "init player showhide='%s'", m_Account.m_aShowHideConfig);
 	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here

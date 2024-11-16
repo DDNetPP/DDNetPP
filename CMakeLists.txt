@@ -2813,6 +2813,7 @@ if(SERVER)
     gamecontext_chat.cpp
     gamecontext_ddpp.cpp
     gamecontext_ddpp.h
+    gamecontext_extra_vote_menu.cpp
     gamecontext_minigames.cpp
     gamecontext_onmessage.cpp
     gamecontext_quests.cpp

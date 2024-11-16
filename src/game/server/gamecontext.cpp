@@ -1508,6 +1508,9 @@ const CVoteOptionServer *CGameContext::GetVoteOption(int Index) const
 
 void CGameContext::ProgressVoteOptions(int ClientId)
 {
+	if(SendExtraVoteMenuEntry(ClientId)) // ddnet++
+		return;
+
 	CPlayer *pPl = m_apPlayers[ClientId];
 
 	if(pPl->m_SendVoteIndex == -1)

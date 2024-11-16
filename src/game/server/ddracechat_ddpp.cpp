@@ -3568,6 +3568,7 @@ void CGameContext::ConLang(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 	pPlayer->SetLanguage(pResult->GetString(0));
+	pSelf->RefreshExtraVoteMenu(pPlayer->GetCid());
 }
 
 void CGameContext::ConHumanLevel(IConsole::IResult *pResult, void *pUserData)
