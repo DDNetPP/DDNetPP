@@ -2821,7 +2821,7 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 	}
 	else if(pPlayer->m_IsVanillaDmg)
 	{
-		str_copy(pBuf, "killing", BufSize);
+		str_copy(pBuf, "killing", BufSize); // LOCALIZED BY CALLER
 	}
 	else //no insta at all
 	{
@@ -2830,7 +2830,7 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
 			SendChatTarget(pPlayer->GetCid(), "New Blockspree record!");
 		}
-		str_copy(pBuf, "blocking", BufSize);
+		str_copy(pBuf, "blocking", BufSize); // LOCALIZED BY CALLER
 	}
 }
 
@@ -2863,16 +2863,32 @@ void CGameContext::SendSpreeMessage(int SpreeingId, int Spree)
 			sizeof(aBuf),
 			Loc("'%s' is on a %s spree with %d kills!", pPlayer->GetCid()),
 			Server()->ClientName(SpreeingId),
-			aSpreeType,
+			Loc(aSpreeType, pPlayer->GetCid()),
 			Spree);
 		SendChatTarget(pPlayer->GetCid(), aBuf);
 	}
 }
 
-void CGameContext::SendEndSpreeMessage(int SpreeingId, int KillerId)
+void CGameContext::SendEndSpreeMessage(int SpreeingId, int Spree, const char *aKiller)
 {
 	if(SpreeingId < 0 || SpreeingId >= MAX_CLIENTS)
 		return;
+
+	char aBuf[512];
+	for(CPlayer *pPlayer : m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			Loc("'%s's killing spree was ended by '%s' (%d kills)", pPlayer->GetCid()),
+			Server()->ClientName(SpreeingId),
+			aKiller,
+			Spree);
+		SendChatTarget(pPlayer->GetCid(), aBuf);
+	}
 }
 
 void CGameContext::CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc)

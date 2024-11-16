@@ -144,8 +144,6 @@ public:
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool IsRecord = false);
-	void SendSpreeMessage(int SpreeingId, int Spree);
-	void SendEndSpreeMessage(int SpreeingId, int KillerId);
 	void LogoutAllPlayersMessage();
 	// wrapper around ddnets always changing http api
 	void HttpGetStable(const char *pUrl, const char *pContent);
@@ -154,6 +152,13 @@ public:
 	void SendDiscordWebhook(const char *pWebhookUrl, const char *pContent);
 
 	IHttp *m_pDdppHttp;
+
+	// sends translated chat message to all players
+	// announcing a spree milestone
+	void SendSpreeMessage(int SpreeingId, int Spree);
+
+	// sends translated chat message to all players announcing a spree was ended
+	void SendEndSpreeMessage(int SpreeingId, int Spree, const char *aKiller);
 
 	bool ShowJoinMessage(int ClientId);
 	bool ShowLeaveMessage(int ClientId);

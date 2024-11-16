@@ -2191,19 +2191,15 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	}
 
 	char aKillerName[32];
-	char aSpreeType[16];
-
 	if(GameServer()->m_apPlayers[Killer])
-		str_format(aKillerName, sizeof(aKillerName), "'%s'", Server()->ClientName(Killer));
+		str_format(aKillerName, sizeof(aKillerName), "%s", Server()->ClientName(Killer));
 	else
-		str_format(aKillerName, sizeof(aKillerName), "'%s'", m_pPlayer->m_aLastToucherName);
+		str_format(aKillerName, sizeof(aKillerName), "%s", m_pPlayer->m_aLastToucherName);
 	// str_copy(aKillerName, "a player who left the game", sizeof(aKillerName));
 
 	if(m_pPlayer->m_KillStreak >= 5)
 	{
-		GameServer()->GetSpreeType(m_pPlayer->GetCid(), aSpreeType, sizeof(aSpreeType), true);
-		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
-		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+		GameServer()->SendEndSpreeMessage(m_pPlayer->GetCid(), m_pPlayer->m_KillStreak, aKillerName);
 		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 	}
 

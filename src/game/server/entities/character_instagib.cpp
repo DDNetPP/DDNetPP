@@ -250,9 +250,11 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 						//dbg_msg("insta", aBuf);
 					}
 
-					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pVictim->GetPlayer()->GetCid()), pVictim->GetPlayer()->m_KillStreak);
+					GameServer()->SendEndSpreeMessage(
+						pVictim->GetPlayer()->GetCid(),
+						pVictim->GetPlayer()->m_KillStreak,
+						Server()->ClientName(pVictim->GetPlayer()->GetCid()));
 					pVictim->GetPlayer()->m_KillStreak = 0;
-					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 				}
 			}
@@ -283,9 +285,11 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 					//dbg_msg("insta", aBuf);
 				}
 
-				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pKiller->GetCid()), pVictim->GetPlayer()->m_KillStreak);
+				GameServer()->SendEndSpreeMessage(
+					pVictim->GetPlayer()->GetCid(),
+					pVictim->GetPlayer()->m_KillStreak,
+					Server()->ClientName(pKiller->GetCid())); // FIXME: what happens if the killer left?
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			}
 
