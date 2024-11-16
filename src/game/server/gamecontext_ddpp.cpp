@@ -2821,7 +2821,7 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 	}
 	else if(pPlayer->m_IsVanillaDmg)
 	{
-		str_copy(pBuf, "killing", BufSize);
+		str_copy(pBuf, "killing", BufSize); // THIS IS LOCALIZED
 	}
 	else //no insta at all
 	{
@@ -2830,7 +2830,27 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
 			SendChatTarget(pPlayer->GetCid(), "New Blockspree record!");
 		}
-		str_copy(pBuf, "blocking", BufSize);
+		str_copy(pBuf, "blocking", BufSize); // THIS IS LOCALIZED
+	}
+}
+
+void CGameContext::SendEndSpreeMessage(int SpreeHolderId, int KillerId)
+{
+	char aBuf[512];
+	for(CPlayer *pPlayer : m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			Loc("'%s's killing spree was ended by '%s' (%d kills)", pPlayer->GetCid()),
+			Server()->ClientName(SpreeHolderId),
+			Loc(aSpreeType, pPlayer->GetCid()),
+			aKillerName,
+			m_pPlayer->m_KillStreak);
+		SendChatTarget(pPlayer->GetCid(), aBuf);
 	}
 }
 

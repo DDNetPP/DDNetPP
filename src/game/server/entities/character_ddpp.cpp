@@ -1978,9 +1978,21 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 						//dbg_msg("insta", aBuf);
 					}
 
-					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pVictim->GetPlayer()->GetCid()), pVictim->GetPlayer()->m_KillStreak);
+					for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+					{
+						if(!pPlayer)
+							continue;
+
+						str_format(
+							aBuf,
+							sizeof(aBuf),
+							GameServer()->Loc("'%s's killing spree was ended by '%s' (%d kills)", pPlayer->GetCid()),
+							Server()->ClientName(pVictim->GetPlayer()->GetCid()),
+							Server()->ClientName(pVictim->GetPlayer()->GetCid()),
+							pVictim->GetPlayer()->m_KillStreak);
+						GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+					}
 					pVictim->GetPlayer()->m_KillStreak = 0;
-					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 				}
 			}
@@ -2011,9 +2023,21 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 					//dbg_msg("insta", aBuf);
 				}
 
-				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pKiller->GetCid()), pVictim->GetPlayer()->m_KillStreak);
+				for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+				{
+					if(!pPlayer)
+						continue;
+
+					str_format(
+						aBuf,
+						sizeof(aBuf),
+						"'%s's killing spree was ended by '%s' (%d kills)",
+						Server()->ClientName(pVictim->GetPlayer()->GetCid()),
+						Server()->ClientName(pKiller->GetCid()),
+						pVictim->GetPlayer()->m_KillStreak);
+					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+				}
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			}
 
@@ -2052,7 +2076,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 			pVictim->GetPlayer()->m_KillStreak = 0;
 			if(pKiller->m_KillStreak == 5)
 			{
-				str_format(aBuf, sizeof(aBuf), "[SPREE] %d players needed to start a spree.", g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), GameServer()->Loc("%d players needed to start a spree.", pKiller->GetCid()), g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(pKiller->GetCid(), aBuf);
 				pKiller->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
@@ -2062,13 +2086,13 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
 }
 
-int CCharacter::BlockPointsMain(int Killer, bool fngscore)
+int CCharacter::BlockPointsMain(int Killer, bool FngScore)
 {
 	if(m_FreezeTime <= 0)
 		return Killer;
 	if(m_pPlayer->m_LastToucherId == -1)
 		return Killer;
-	if(m_pPlayer->m_IsInstaMode_fng && !fngscore)
+	if(m_pPlayer->m_IsInstaMode_fng && !FngScore)
 		return Killer; // Killer = KilledId --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
 	if(m_pPlayer->m_LastToucherId == m_pPlayer->GetCid())
@@ -2446,9 +2470,35 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 
 	if(m_pPlayer->m_KillStreak >= 5)
 	{
-		GameServer()->GetSpreeType(m_pPlayer->GetCid(), aSpreeType, sizeof(aSpreeType), true);
-		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
+		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", 
 		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+		GameServer()->SendEndSpreeMessage(m_pPlayer->GetCid(), 
+
+
+		void SendEndSpreeMessage(int SpreeHolderId, int KillerId);
+
+
+		for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+		{
+			if(!pPlayer)
+				continue;
+
+			str_format(
+				aBuf,
+				sizeof(aBuf),
+				GameServer()->Loc("'%s's killing spree was ended by '%s' (%d kills)", pPlayer->GetCid()),
+				Server()->ClientName(m_pPlayer->GetCid()),
+				GameServer()->Loc(aSpreeType, pPlayer->GetCid()),
+				aKillerName,
+				m_pPlayer->m_KillStreak);
+			GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+		}
+
+
+
+
+
+
 		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 	}
 
@@ -2471,7 +2521,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 			//dbg_msg("spree", "not enough tees %d/%d spree (%d)", GameServer()->CountConnectedPlayers(), g_Config.m_SvSpreePlayers, GameServer()->m_apPlayers[Killer]->m_KillStreak);
 			if(GameServer()->m_apPlayers[Killer]->m_KillStreak == 5) // TODO: what if one has 6 kills and then all players leave then he can farm dummys?
 			{
-				str_format(aBuf, sizeof(aBuf), "[SPREE] %d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), GameServer()->Loc("%d players needed to start a spree.", Killer), g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(Killer, aBuf);
 				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; // reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
@@ -2481,12 +2531,25 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 			if(GameServer()->m_apPlayers[Killer]->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[Killer]->m_KillStreak >= 5)
 			{
 				GameServer()->GetSpreeType(Killer, aSpreeType, sizeof(aSpreeType), false);
-				str_format(aBuf, sizeof(aBuf), "%s is on a %s spree with %d kills!", aKillerName, aSpreeType, pKiller->m_KillStreak);
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+				for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+				{
+					if(!pPlayer)
+						continue;
+
+					str_format(
+						aBuf,
+						sizeof(aBuf),
+						GameServer()->Loc("%s is on a %s spree with %d kills!",
+							pPlayer->GetCid()),
+						aKillerName,
+						GameServer()->Loc(aSpreeType, pPlayer->GetCid()),
+						pKiller->m_KillStreak);
+					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+				}
 			}
 		}
 	}
-	m_pPlayer->m_KillStreak = 0; //Important always clear killingspree of ded dude
+	m_pPlayer->m_KillStreak = 0; // important always clear killingspree of dead players
 }
 
 void CCharacter::CITick()
