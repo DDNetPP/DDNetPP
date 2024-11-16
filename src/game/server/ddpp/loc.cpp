@@ -47,6 +47,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
+		if(!str_comp("'%s' is on a %s spree with %d kills!", pStr))
+			return "'%s' в %s ерии с %d убийствами!";
 		if(pStr[0] == '%')
 		{
 			if(!str_comp("%d players needed to start a spree.", pStr))

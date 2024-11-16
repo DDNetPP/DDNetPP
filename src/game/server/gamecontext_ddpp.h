@@ -144,6 +144,8 @@ public:
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool IsRecord = false);
+	void SendSpreeMessage(int SpreeingId, int Spree);
+	void SendEndSpreeMessage(int SpreeingId, int KillerId);
 	void LogoutAllPlayersMessage();
 	// wrapper around ddnets always changing http api
 	void HttpGetStable(const char *pUrl, const char *pContent);

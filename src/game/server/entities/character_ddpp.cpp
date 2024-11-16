@@ -2235,9 +2235,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 		{
 			if(GameServer()->m_apPlayers[Killer]->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[Killer]->m_KillStreak >= 5)
 			{
-				GameServer()->GetSpreeType(Killer, aSpreeType, sizeof(aSpreeType), false);
-				str_format(aBuf, sizeof(aBuf), "%s is on a %s spree with %d kills!", aKillerName, aSpreeType, pKiller->m_KillStreak);
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+				GameServer()->SendSpreeMessage(Killer, pKiller->m_KillStreak);
 			}
 		}
 	}

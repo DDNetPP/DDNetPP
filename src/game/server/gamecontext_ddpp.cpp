@@ -2834,6 +2834,47 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 	}
 }
 
+void CGameContext::SendSpreeMessage(int SpreeingId, int Spree)
+{
+	// never display spree messages of killers that left
+	// this can happen with destroy projectiles after death false
+	// and especially with block kills
+	// but we intentionally do not show a message in that case
+	if(SpreeingId < 0 || SpreeingId >= MAX_CLIENTS)
+		return;
+	if(!m_apPlayers[SpreeingId])
+		return;
+
+	char aBuf[512];
+	char aSpreeType[512];
+	for(CPlayer *pPlayer : m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		// TODO: remove GetSpreeType and integrate it here directly
+		//       or at least remove its side effects of sending chat messages
+		//       remove its string copy and return static strings instead
+		//       also return an enum instead and have a enum to str method
+		//       so the killing system type can be checked easily
+		GetSpreeType(SpreeingId, aSpreeType, sizeof(aSpreeType), false);
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			Loc("'%s' is on a %s spree with %d kills!", pPlayer->GetCid()),
+			Server()->ClientName(SpreeingId),
+			aSpreeType,
+			Spree);
+		SendChatTarget(pPlayer->GetCid(), aBuf);
+	}
+}
+
+void CGameContext::SendEndSpreeMessage(int SpreeingId, int KillerId)
+{
+	if(SpreeingId < 0 || SpreeingId >= MAX_CLIENTS)
+		return;
+}
+
 void CGameContext::CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc)
 {
 	// check if a vote is already running

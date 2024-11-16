@@ -296,10 +296,8 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 					pKiller->m_KillStreak++;
 				}
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCid()), pKiller->m_KillStreak);
-
 				if(pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
-					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+					GameServer()->SendSpreeMessage(pKiller->GetCid(), pKiller->m_KillStreak);
 
 				//Finish time if cfg val reached
 				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
