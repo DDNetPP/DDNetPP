@@ -2723,6 +2723,7 @@ if(SERVER)
     entities/character_ddpp.cpp
     entities/character_ddpp.h
     entities/character_dummymodes.cpp
+    entities/character_instagib.cpp
     entities/character_quests.cpp
     entities/character_tiles.cpp
     entities/door.cpp
