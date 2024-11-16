@@ -39,22 +39,18 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Уровень";
 		if(!str_comp("Kills", pStr))
 			return "убийств";
-		if(!str_comp("killing", pStr)) // killing spree, not sure if the russian grammer is as reusable as the english "killing"
-			return "убийственной";
 		if(!str_comp("Deaths", pStr))
 			return "Смертей";
 		if(!str_comp("BLOCK", pStr))
 			return "БЛОК";
-		if(!str_comp("blocking", pStr)) // blocking spree
-			return "блокирующем";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
 		if(pStr[0] == '\'')
 		{
-			if(!str_comp("'%s' is on a %s spree with %d kills!", pStr)) // killing spree, blocking spree, grenade spree
-				return "'%s' в %s ерии с %d убийствами!";
+			if(!str_comp("'%s' is on a killing spree with %d kills!", pStr))
+				return "'%s' в убийственной ерии с %d убийствами!";
 			if(!str_comp("'%s's killing spree was ended by '%s' (%d kills)", pStr))
 				return "Убийственная серия '%s' была прервана '%s' (%d убийств).";
 		}

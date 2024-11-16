@@ -2788,6 +2788,8 @@ bool CGameContext::ShowTeamSwitchMessage(int ClientId)
 	return true;
 }
 
+// FIXME: this method is only kept for its side effects
+//        the strings are not used anymore
 void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool IsRecord)
 {
 	CPlayer *pPlayer = m_apPlayers[ClientId];
@@ -2857,13 +2859,15 @@ void CGameContext::SendSpreeMessage(int SpreeingId, int Spree)
 		//       remove its string copy and return static strings instead
 		//       also return an enum instead and have a enum to str method
 		//       so the killing system type can be checked easily
+		//
+		//       The spree type string is now not even used anymore
+		//       because it was too complicated too translate individual words
 		GetSpreeType(SpreeingId, aSpreeType, sizeof(aSpreeType), false);
 		str_format(
 			aBuf,
 			sizeof(aBuf),
-			Loc("'%s' is on a %s spree with %d kills!", pPlayer->GetCid()),
+			Loc("'%s' is on a killing spree with %d kills!", pPlayer->GetCid()),
 			Server()->ClientName(SpreeingId),
-			Loc(aSpreeType, pPlayer->GetCid()),
 			Spree);
 		SendChatTarget(pPlayer->GetCid(), aBuf);
 	}
