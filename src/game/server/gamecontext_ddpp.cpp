@@ -2836,9 +2836,17 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 
 void CGameContext::SendEndSpreeMessage(int SpreeHolderId, int KillerId)
 {
+	// TODO: new commit keep track if the last toucher left the game
+	//       checking if the id is valid player is the wrong approach
+	//       otherwise it might use a name of a newly joined player as killer
+	//       in the spree message
+
 	// TODO: the killer might not exist because he left
 
 	// TODO: the translation has to use the spree type
+
+
+	CPlayer *pSpreeHolder = m_apPlayers[SpreeHolderId];
 
 	char aBuf[512];
 	for(CPlayer *pPlayer : m_apPlayers)
