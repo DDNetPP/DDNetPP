@@ -50,9 +50,9 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 		if(pStr[0] == '\'')
 		{
 			if(!str_comp("'%s' is on a killing spree with %d kills!", pStr))
-				return "'%s' в убийственной ерии с %d убийствами!";
+				return "'%s' совершил серию из %d убийств!";
 			if(!str_comp("'%s's killing spree was ended by '%s' (%d kills)", pStr))
-				return "Убийственная серия '%s' была прервана '%s' (%d убийств).";
+				return "Серия убийств игрока '%s' была завершена игроком '%s' (%d убийств)";
 		}
 		if(pStr[0] == '%')
 		{
