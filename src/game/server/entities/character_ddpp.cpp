@@ -2052,7 +2052,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 			pVictim->GetPlayer()->m_KillStreak = 0;
 			if(pKiller->m_KillStreak == 5)
 			{
-				str_format(aBuf, sizeof(aBuf), "[SPREE] %d players needed to start a spree.", g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), GameServer()->Loc("%d players needed to start a spree.", pKiller->GetCid()), g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(pKiller->GetCid(), aBuf);
 				pKiller->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
@@ -2062,13 +2062,13 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
 }
 
-int CCharacter::BlockPointsMain(int Killer, bool fngscore)
+int CCharacter::BlockPointsMain(int Killer, bool FngScore)
 {
 	if(m_FreezeTime <= 0)
 		return Killer;
 	if(m_pPlayer->m_LastToucherId == -1)
 		return Killer;
-	if(m_pPlayer->m_IsInstaMode_fng && !fngscore)
+	if(m_pPlayer->m_IsInstaMode_fng && !FngScore)
 		return Killer; // Killer = KilledId --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
 	if(m_pPlayer->m_LastToucherId == m_pPlayer->GetCid())
@@ -2471,7 +2471,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 			//dbg_msg("spree", "not enough tees %d/%d spree (%d)", GameServer()->CountConnectedPlayers(), g_Config.m_SvSpreePlayers, GameServer()->m_apPlayers[Killer]->m_KillStreak);
 			if(GameServer()->m_apPlayers[Killer]->m_KillStreak == 5) // TODO: what if one has 6 kills and then all players leave then he can farm dummys?
 			{
-				str_format(aBuf, sizeof(aBuf), "[SPREE] %d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), GameServer()->Loc("%d players needed to start a spree.", Killer), g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(Killer, aBuf);
 				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; // reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}

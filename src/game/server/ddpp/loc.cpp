@@ -47,6 +47,11 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
+		if(pStr[0] == '%')
+		{
+			if(!str_comp("%d players needed to start a spree.", pStr))
+				return "Для начала серии нужно %d игроков.";
+		}
 		if(pStr[0] == '[')
 		{
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
