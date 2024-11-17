@@ -1028,6 +1028,21 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 	if(!pPlayer)
 		return;
 
+	// ddnet++
+	if(IsMinigame(pPlayer->GetCid()))
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while being in a minigame do '/leave' first.");
+		return;
+	}
+	if(pPlayer->GetCharacter())
+	{
+		if(((CGameControllerDDRace *)m_pController)->HasFlag(pPlayer->GetCharacter()) != -1)
+		{
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while holding the flag.");
+			return;
+		}
+	}
+
 	if(m_VoteCloseTime && m_VoteCreator == ClientId && (IsKickVote() || IsSpecVote()))
 	{
 		Console()->Print(
@@ -1254,13 +1269,6 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
-
-	// ddnet++
-	if(pSelf->IsMinigame(pPlayer->GetCid()))
-	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while being in a minigame do '/leave' first.");
-		return;
-	}
 
 	if(pResult->NumArguments() > 0)
 	{
