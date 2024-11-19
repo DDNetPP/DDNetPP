@@ -295,9 +295,9 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 	return HadFlag;
 }
 
-void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
+void CGameControllerDDRace::ChangeFlagOwner(int FlagId, int character)
 {
-	CFlag *F = m_apFlags[id];
+	CFlag *F = m_apFlags[FlagId];
 	if((m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)) || (m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)))
 	{
 	}
@@ -333,34 +333,34 @@ int CGameControllerDDRace::HasFlag(CCharacter *pChr)
 	if(!pChr)
 		return -1;
 
-	for(auto &Flag : m_apFlags)
-		if(Flag && Flag->m_pCarryingCharacter == pChr)
+	for(CFlag *pFlag : m_apFlags)
+		if(pFlag && pFlag->m_pCarryingCharacter == pChr)
 			return pChr->GetPlayer()->GetCid();
 	return -1;
 }
 
-void CGameControllerDDRace::DropFlag(int id, int dir)
+void CGameControllerDDRace::DropFlag(int FlagId, int Dir)
 {
-	CFlag *F = m_apFlags[id]; //red=0 blue=1
-	if(!F)
+	CFlag *pFlag = m_apFlags[FlagId]; //red=0 blue=1
+	if(!pFlag)
 		return;
 
 	if(g_Config.m_SvFlagSounds)
 	{
 		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
-	if(F->m_pCarryingCharacter && F->m_pCarryingCharacter->GetPlayer())
+	if(pFlag->m_pCarryingCharacter && pFlag->m_pCarryingCharacter->GetPlayer())
 	{
 		/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-		F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
-		F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+		pFlag->m_pLastCarryingCharacter = pFlag->m_pCarryingCharacter;
 	}
-	F->m_DropTick = Server()->Tick();
-	F->m_DropFreezeTick = Server()->Tick();
-	F->m_pCarryingCharacter = 0;
-	F->m_Vel = vec2(5 * dir, -5);
+	pFlag->m_DropTick = Server()->Tick();
+	pFlag->m_DropFreezeTick = Server()->Tick();
+	pFlag->m_pCarryingCharacter = 0;
+	pFlag->m_Vel = vec2(5 * Dir, -5);
 }
 
 void CGameControllerDDRace::Snap(int SnappingClient)
