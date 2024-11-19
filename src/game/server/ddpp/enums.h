@@ -1,0 +1,12 @@
+#ifndef GAME_SERVER_DDPP_ENUMS_H
+#define GAME_SERVER_DDPP_ENUMS_H
+
+enum EScore
+{
+	SCORE_TIME = 0,
+	SCORE_LEVEL = 1,
+	SCORE_BLOCK = 2,
+	SCORE_CURRENT_SPREE = 3,
+};
+
+#endif

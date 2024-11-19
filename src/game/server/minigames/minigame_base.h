@@ -7,6 +7,8 @@
 #include <engine/shared/network.h>
 #include <game/server/save.h>
 
+#include <game/server/ddpp/enums.h>
+
 class CCharacter;
 class CPlayer;
 class CGameContext;
@@ -15,14 +17,6 @@ class IServer;
 class CSpawnEval;
 class CSaveTee;
 class CSaveTeeDDPP;
-
-enum EScore
-{
-	SCORE_TIME = 0,
-	SCORE_LEVEL = 1,
-	SCORE_BLOCK = 2,
-	SCORE_CURRENT_SPREE = 3,
-};
 
 class CMinigame
 {
