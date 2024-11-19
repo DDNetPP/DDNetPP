@@ -8,15 +8,15 @@ class CCaptcha
 private:
 	bool CheckGenerate();
 	void Generate();
-	void GenBigText(int type);
-	void GenQuestion(int type);
+	void GenBigText(int Type);
+	void GenQuestion(int Type);
 	void ShowQuestion();
 	void SendChat(const char *pMsg);
 	bool Score(int value);
 
-	int RandNum() { return rand() % 9 + 48; }
-	int RandAlpha() { return rand() % 23 + 65; }
-	int RandAlphaNum() { return (rand() % 2) ? RandNum() : RandAlpha(); }
+	int RandNum();
+	int RandAlpha();
+	int RandAlphaNum();
 
 	int m_ClientId;
 	int m_Score;
@@ -46,8 +46,8 @@ public:
 
 	bool Prompt(const char *pAnswer);
 
-	int GetScore() { return m_Score; }
-	bool IsHuman() { return m_IsHuman; }
+	int GetScore() const { return m_Score; }
+	bool IsHuman() const { return m_IsHuman; }
 };
 
 #endif

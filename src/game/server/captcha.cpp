@@ -15,6 +15,10 @@ CCaptcha::CCaptcha(CGameContext *pGameServer, int ClientId)
 	m_IsHuman = false;
 }
 
+int CCaptcha::RandNum() { return (rand() % 9) + 48; }
+int CCaptcha::RandAlpha() { return (rand() % 23) + 65; }
+int CCaptcha::RandAlphaNum() { return (rand() % 2) ? RandNum() : RandAlpha(); }
+
 bool CCaptcha::CheckGenerate()
 {
 	if(m_aQuestion[0])
@@ -25,25 +29,25 @@ bool CCaptcha::CheckGenerate()
 	return true;
 }
 
-void CCaptcha::GenQuestion(int type)
+void CCaptcha::GenQuestion(int Type)
 {
-	int num1 = rand() % 10;
-	int num2 = rand() % 10;
-	str_format(m_aQuestion, sizeof(m_aQuestion), "what is %d + %d? '/captcha <number>'", num1, num2);
-	str_format(m_aAnswer, sizeof(m_aAnswer), "%d", num1 + num2);
+	int Num1 = rand() % 10;
+	int Num2 = rand() % 10;
+	str_format(m_aQuestion, sizeof(m_aQuestion), "what is %d + %d? '/captcha <number>'", Num1, Num2);
+	str_format(m_aAnswer, sizeof(m_aAnswer), "%d", Num1 + Num2);
 }
 
-void CCaptcha::GenBigText(int type)
+void CCaptcha::GenBigText(int Type)
 {
 	int i = 0;
 	while(i < 6)
 	{
 		int c = RandAlphaNum();
-		if(type == NUM)
+		if(Type == NUM)
 		{
 			c = RandNum();
 		}
-		if(type == ALPHA)
+		if(Type == ALPHA)
 		{
 			c = RandAlpha();
 		}
@@ -79,18 +83,18 @@ bool CCaptcha::Score(int value)
 
 bool CCaptcha::Prompt(const char *pAnswer)
 {
-	bool correct = false;
+	bool Correct = false;
 	if(m_Score >= g_Config.m_SvCaptchaScore)
 		return true;
 	if(CheckGenerate())
 	{
 		ShowQuestion();
-		return correct;
+		return Correct;
 	}
 	if(!pAnswer || !str_comp("", pAnswer))
 	{
 		ShowQuestion();
-		return correct;
+		return Correct;
 	}
 
 	if(!str_comp_nocase(pAnswer, m_aAnswer))
@@ -99,7 +103,7 @@ bool CCaptcha::Prompt(const char *pAnswer)
 		SendChat("CORRECT ANSWER!");
 		if(Score(1))
 			return true;
-		correct = true;
+		Correct = true;
 	}
 	else
 	{
@@ -111,7 +115,7 @@ bool CCaptcha::Prompt(const char *pAnswer)
 	Generate();
 
 	ShowQuestion();
-	return correct;
+	return Correct;
 }
 
 void CCaptcha::ShowQuestion()
