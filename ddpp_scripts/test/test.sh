@@ -45,8 +45,8 @@ function assert_equals() {
 
 function run_test() {
     name=$1
-    cd $test_dir
-    cd $name
+    cd "$test_dir" || exit 1
+    cd "$name" || exit 1
     # echo "running test $name ..."
     assert_equals "$run records1.txt records2.txt" "cat result.txt"
     if [ "$fail" == "1" ]
@@ -56,10 +56,12 @@ function run_test() {
 }
 
 function run_all() {
-    for t in `ls -d */`
-    do
-        run_test "$t"
-    done
+	for t in ./*/
+	do
+		[[ -d "$t" ]] || continue
+
+		run_test "$t"
+	done
 }
 
 run_all
