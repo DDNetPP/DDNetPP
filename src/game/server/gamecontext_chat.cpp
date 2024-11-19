@@ -36,15 +36,15 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 		{
 			char aBuf[1024];
 			char aBuf2[1024];
-			std::string msg_format = pMsg;
+			std::string MsgFormat = pMsg;
 
-			if(msg_format.length() > 6) //ignore too short messages
+			if(MsgFormat.length() > 6) //ignore too short messages
 			{
-				msg_format.erase(0, 4);
+				MsgFormat.erase(0, 4);
 
 				//dont send messages twice
 				str_format(aBuf, sizeof(aBuf), "%s", m_aLastPrintedGlobalChatMessage);
-				str_format(aBuf2, sizeof(aBuf2), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), msg_format.c_str());
+				str_format(aBuf2, sizeof(aBuf2), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), MsgFormat.c_str());
 				aBuf[0] = ' '; //ignore confirms on double check
 				aBuf2[0] = ' '; //ignore confirms on double check
 				if(!str_comp(aBuf, aBuf2))
@@ -67,29 +67,29 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 						return;
 					}
 
-					std::string data;
-					getline(ChatReadFile, data);
-					int confirms = 0;
-					if(data[0] == '1')
-						confirms = 1;
-					else if(data[0] == '2')
-						confirms = 2;
-					else if(data[0] == '3')
-						confirms = 3;
-					else if(data[0] == '4')
-						confirms = 4;
-					else if(data[0] == '5')
-						confirms = 5;
-					else if(data[0] == '6')
-						confirms = 6;
-					else if(data[0] == '7')
-						confirms = 7;
-					else if(data[0] == '8')
-						confirms = 8;
-					else if(data[0] == '9')
-						confirms = 9;
+					std::string Data;
+					getline(ChatReadFile, Data);
+					int Confirms = 0;
+					if(Data[0] == '1')
+						Confirms = 1;
+					else if(Data[0] == '2')
+						Confirms = 2;
+					else if(Data[0] == '3')
+						Confirms = 3;
+					else if(Data[0] == '4')
+						Confirms = 4;
+					else if(Data[0] == '5')
+						Confirms = 5;
+					else if(Data[0] == '6')
+						Confirms = 6;
+					else if(Data[0] == '7')
+						Confirms = 7;
+					else if(Data[0] == '8')
+						Confirms = 8;
+					else if(Data[0] == '9')
+						Confirms = 9;
 
-					if(confirms < g_Config.m_SvGlobalChatServers)
+					if(Confirms < g_Config.m_SvGlobalChatServers)
 					{
 						SendChatTarget(ClientId, "[CHAT] Global chat is currently printing messages. Try again later.");
 						ChatReadFile.close();
@@ -111,7 +111,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 					{
 						//SendChat(-1, TEAM_ALL, "global chat");
 
-						str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), msg_format.c_str());
+						str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), MsgFormat.c_str());
 						dbg_msg("global_chat", "msg [ %s ]", aBuf);
 						ChatFile << aBuf << "\n";
 					}

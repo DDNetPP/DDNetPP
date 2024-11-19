@@ -372,36 +372,36 @@ int CGameContext::TradeHasItem(int ItemId, int Id)
 	if(!pChr)
 		return -1;
 
-	int item = -1;
+	int Item = -1;
 
 	if(ItemId == 2) // shotgun
 	{
 		if(pChr->HasWeapon(2))
 		{
-			item = 2;
+			Item = 2;
 		}
 	}
 	else if(ItemId == 3) // grenade
 	{
 		if(pChr->HasWeapon(3))
 		{
-			item = 3;
+			Item = 3;
 		}
 	}
 	else if(ItemId == 4) // rifle
 	{
 		if(pChr->HasWeapon(4))
 		{
-			item = 4;
+			Item = 4;
 		}
 	}
 	else if(ItemId == 5) // all_weapons
 	{
 		if(pChr->HasWeapon(4) && pChr->HasWeapon(3) && pChr->HasWeapon(2))
 		{
-			item = 5;
+			Item = 5;
 		}
 	}
 
-	return item;
+	return Item;
 }

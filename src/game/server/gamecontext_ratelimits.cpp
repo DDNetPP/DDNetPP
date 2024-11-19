@@ -16,14 +16,14 @@ void CGameContext::RegisterBanCheck(int ClientId)
 	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
-	int regs = 0;
+	int Regs = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumRegisterBans; i++)
 	{
 		if(net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
 		{
 			m_aRegisterBans[i].m_LastAttempt = time_get();
-			regs = ++m_aRegisterBans[i].m_NumAttempts;
+			Regs = ++m_aRegisterBans[i].m_NumAttempts;
 			Found = 1;
 			break;
 		}
@@ -35,19 +35,19 @@ void CGameContext::RegisterBanCheck(int ClientId)
 		{
 			m_aRegisterBans[m_NumRegisterBans].m_LastAttempt = time_get();
 			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
-			regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
+			Regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
 			m_NumRegisterBans++;
 			Found = 1;
 		}
 	}
 
-	if(regs >= g_Config.m_SvMaxRegisterPerIp)
+	if(Regs >= g_Config.m_SvMaxRegisterPerIp)
 	{
 		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientId=%d has registered %d/%d accounts.", ClientId, regs, g_Config.m_SvMaxRegisterPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has registered %d/%d accounts.", ClientId, Regs, g_Config.m_SvMaxRegisterPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 	else // no free slot found
@@ -292,13 +292,13 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 
 int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 {
-	int64_t muteTime = NameChangeMuteTime(ClientId);
+	int64_t MuteTime = NameChangeMuteTime(ClientId);
 	NETADDR Addr;
 	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
-	int changes = 0;
+	int Changes = 0;
 	static const int NAME_CHANGE_DELAY = 60 * 60; // reset name changes counter every hour
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
@@ -310,7 +310,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 				// dbg_msg("mutes", "name changes mute counter reset for player=%d:'%s'", ClientId, Server()->ClientName(ClientId));
 				m_aNameChangeMutes[i].m_NumAttempts = 0;
 			}
-			changes = ++m_aNameChangeMutes[i].m_NumAttempts;
+			Changes = ++m_aNameChangeMutes[i].m_NumAttempts;
 			m_aNameChangeMutes[i].m_LastAttempt = time_get();
 			Found = 1;
 			break;
@@ -322,7 +322,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 		if(m_NumNameChangeMutes < MAX_REGISTER_BANS)
 		{
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = Addr;
-			changes = m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 1;
+			Changes = m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 1;
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_LastAttempt = time_get();
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = 0;
 			m_NumNameChangeMutes++;
@@ -330,21 +330,21 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 		}
 	}
 
-	if(changes >= g_Config.m_SvMaxNameChangesPerIp)
+	if(Changes >= g_Config.m_SvMaxNameChangesPerIp)
 	{
-		if(!muteTime)
+		if(!MuteTime)
 			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientId=%d has changed name %d/%d times.", ClientId, changes, g_Config.m_SvMaxNameChangesPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has changed name %d/%d times.", ClientId, Changes, g_Config.m_SvMaxNameChangesPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", aBuf);
 	}
 	else // no free slot found
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "warning name change mute array is full!");
 	}
-	return muteTime;
+	return MuteTime;
 }
 
 int64_t CGameContext::NameChangeMuteTime(int ClientId)

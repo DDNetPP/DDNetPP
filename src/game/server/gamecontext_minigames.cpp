@@ -115,9 +115,9 @@ const char *CGameContext::GetBlockSkillGroup(int id)
 	}
 }
 
-int CGameContext::GetBlockSkillGroupInt(int id)
+int CGameContext::GetBlockSkillGroupInt(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return -1;
 
