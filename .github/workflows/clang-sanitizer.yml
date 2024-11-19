@@ -32,7 +32,7 @@ jobs:
         export CXX=clang++
         export CXXFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
         export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
-        cmake -DCMAKE_BUILD_TYPE=Debug -DHEADLESS_CLIENT=ON -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        cmake -DCLIENT=ON -DCMAKE_BUILD_TYPE=Debug -DHEADLESS_CLIENT=ON -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
         make -j"$(nproc)"
         mv DDNetPP DDNet-Server
     - name: Run server and headless client with ASan and UBSan
