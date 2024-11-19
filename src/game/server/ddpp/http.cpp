@@ -10,7 +10,7 @@ void CGameContext::HttpGetStable(const char *pUrl, const char *pContent)
 {
 }
 
-void CGameContext::HttpPostStable(const char *pUrl, const char *pContent)
+void CGameContext::HttpPostStable(const char *pUrl, const char *pContent) const
 {
 	const int ContentSize = str_length(pContent);
 	// TODO: use HttpPostJson()

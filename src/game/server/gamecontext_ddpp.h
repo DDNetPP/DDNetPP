@@ -148,7 +148,7 @@ public:
 	// wrapper around ddnets always changing http api
 	void HttpGetStable(const char *pUrl, const char *pContent);
 	// wrapper around ddnets always changing http api
-	void HttpPostStable(const char *pUrl, const char *pContent);
+	void HttpPostStable(const char *pUrl, const char *pContent) const;
 	void SendDiscordWebhook(const char *pWebhookUrl, const char *pContent);
 
 	IHttp *m_pDdppHttp;
