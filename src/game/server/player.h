@@ -16,12 +16,14 @@
 #include "captcha.h"
 #include "ddpp/accounts.h"
 #include "entities/character.h"
+#include <game/generated/protocol7.h>
+#include <game/server/ddpp/dummymode.h>
+#include <game/server/ddpp/enums.h>
 #include <game/version.h>
 #include <memory>
 #include <twbl/state.h>
 #include <vector>
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-#include "gamecontext.h"
 // ddnet++ includes end
 #include <memory>
 #include <optional>
