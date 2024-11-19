@@ -100,6 +100,8 @@ void CGameControllerDDRace::FlagTick()
 				// only allow flag grabs in team 0
 				if(apCloseCCharacters[i]->IsInDDraceTeam())
 					continue;
+				if(apCloseCCharacters[i]->Core()->m_Solo)
+					continue;
 
 				// take the flag
 				if(F->m_AtStand)
