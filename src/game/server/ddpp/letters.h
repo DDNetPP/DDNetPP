@@ -2,7 +2,6 @@
 #define GAME_SERVER_DDPP_LETTERS_H
 
 #include "../ddpp/ascii_table.h"
-#include "../gamecontext.h"
 
 class CGameContext;
 
@@ -12,7 +11,7 @@ public:
 	CLetters(CGameContext *pGameServer);
 
 	void ToUpper(char *pStr);
-	void UpdateBuffers(int Ascii, int offset = 0);
+	void UpdateBuffers(int Ascii, int Offset = 0);
 	void SendChat(int ClientId, int Ascii);
 	void SendChat(int ClientId, const char *pStr);
 	void DebugPrint(int Ascii);
