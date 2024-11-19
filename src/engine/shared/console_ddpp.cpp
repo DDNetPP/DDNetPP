@@ -21,4 +21,3 @@ void CConsole::PrintDDPPLogs(int Type)
 		Print(OUTPUT_LEVEL_STANDARD, "ddpp_logs", aDDPPLogs[Type][i]);
 	}
 }
-
