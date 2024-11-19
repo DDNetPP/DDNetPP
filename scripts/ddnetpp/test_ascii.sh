@@ -5,8 +5,7 @@
 
 function check_ascii_frame() {
 	local frame="$1"
-	if ! grep broadcast client2.log | grep -qF "$frame"
-	then
+	if ! grep broadcast client2.log | grep -qF "$frame"; then
 		err "Did not find frame '$frame' in '/profile view'"
 		touch fail_ascii.txt
 	fi
@@ -15,12 +14,12 @@ function check_ascii_frame() {
 function test_ascii() {
 	sleep 8
 	tr -d '\n' > client1.fifo <<- EOF
-	say "/mc
-	;ascii frame -1 invalid
-	;ascii frame 0 foo
-	;ascii frame 1 bar
-	;ascii frame 2 baz
-	;ascii profile 1"
+		say "/mc
+		;ascii frame -1 invalid
+		;ascii frame 0 foo
+		;ascii frame 1 bar
+		;ascii frame 2 baz
+		;ascii profile 1"
 	EOF
 
 	sleep 1
@@ -31,4 +30,3 @@ function test_ascii() {
 	check_ascii_frame bar
 	check_ascii_frame baz
 }
-

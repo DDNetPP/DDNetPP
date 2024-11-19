@@ -1,7 +1,6 @@
 #!/bin/bash
 
-if [ ! -f ./scripts/ddpp_test.sh ] || [ ! -f CMakeLists.txt ]
-then
+if [ ! -f ./scripts/ddpp_test.sh ] || [ ! -f CMakeLists.txt ]; then
 	echo "Error: make sure your are in the root of the repo"
 	exit 1
 fi
@@ -15,12 +14,9 @@ arg_build_dir="build"
 arg_end_args=0
 arg_verbose=0
 
-for arg in "$@"
-do
-	if [[ "${arg::1}" == "-" ]] && [[ "$arg_end_args" == "0" ]] 
-	then
-		if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]
-		then
+for arg in "$@"; do
+	if [[ "${arg::1}" == "-" ]] && [[ "$arg_end_args" == "0" ]]; then
+		if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
 			echo "usage: $(basename "$0") [OPTION..] [build dir]"
 			echo "description:"
 			echo "  Runs a simple integration test of the client and server"
@@ -28,11 +24,9 @@ do
 			echo "options:"
 			echo "  --help|-h     show this help"
 			echo "	--verbose|-v  verbose output"
-		elif [ "$arg" == "-v" ] || [ "$arg" == "--verbose" ]
-		then
+		elif [ "$arg" == "-v" ] || [ "$arg" == "--verbose" ]; then
 			arg_verbose=1
-		elif [ "$arg" == "--" ]
-		then
+		elif [ "$arg" == "--" ]; then
 			arg_end_args=1
 		else
 			echo "Error: unknown arg '$arg'"
@@ -42,18 +36,15 @@ do
 	fi
 done
 
-if [ ! -d "$arg_build_dir" ]
-then
+if [ ! -d "$arg_build_dir" ]; then
 	echo "Error: build directory '$arg_build_dir' not found"
 	exit 1
 fi
-if [ ! -f "$arg_build_dir"/DDNet ]
-then
+if [ ! -f "$arg_build_dir"/DDNet ]; then
 	echo "Error: client binary not found '$arg_build_dir/DDNet' not found"
 	exit 1
 fi
-if [ ! -f "$arg_build_dir"/DDNetPP ]
-then
+if [ ! -f "$arg_build_dir"/DDNetPP ]; then
 	echo "Error: server binary not found '$arg_build_dir/DDNetPP' not found"
 	exit 1
 fi
@@ -64,8 +55,7 @@ cp "$arg_build_dir"/DDNet* integration_test
 cd integration_test || exit 1
 
 function kill_all() {
-	if [ "$arg_verbose" == "1" ]
-	then
+	if [ "$arg_verbose" == "1" ]; then
 		echo "[*] shutting down test clients and server ..."
 	fi
 	local srv_pid
@@ -113,8 +103,7 @@ got_cleanup=0
 
 function cleanup() {
 	# needed to fix hang fifo with additional ctrl+c
-	if [ "$got_cleanup" == "1" ]
-	then
+	if [ "$got_cleanup" == "1" ]; then
 		exit
 	fi
 	got_cleanup=1
@@ -130,14 +119,12 @@ trap cleanup EXIT
 	echo $'add_path ../data'
 } > storage.cfg
 
-function fail()
-{
+function fail() {
 	local parent_pid="$1"
 	local type="$2"
 	local exit_code="$3"
 	sleep 1
-	if [ "$type" == "server" ]
-	then
+	if [ "$type" == "server" ]; then
 		tail server.log
 	fi
 	tail -n2 "$type".log > fail_"$type".txt
@@ -148,24 +135,19 @@ function fail()
 	exit 1
 }
 
-if test -n "$(find . -maxdepth 1 -name '*.fifo' -print -quit)"
-then
+if test -n "$(find . -maxdepth 1 -name '*.fifo' -print -quit)"; then
 	rm ./*.fifo
 fi
-if test -n "$(find . -maxdepth 1 -name 'SAN.*' -print -quit)"
-then
+if test -n "$(find . -maxdepth 1 -name 'SAN.*' -print -quit)"; then
 	rm SAN.*
 fi
-if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"
-then
+if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"; then
 	rm ./fail_*
 fi
-if [ -f ddnet-server.sqlite ]
-then
+if [ -f ddnet-server.sqlite ]; then
 	rm ddnet-server.sqlite
 fi
-if [ -f accounts.db ]
-then
+if [ -f accounts.db ]; then
 	rm accounts.db
 fi
 
@@ -178,8 +160,7 @@ export UBSAN_OPTIONS=suppressions=./ubsan.supp:log_path=./SAN:print_stacktrace=1
 export ASAN_OPTIONS=log_path=./SAN:print_stacktrace=1:check_initialization_order=1:detect_leaks=1:halt_on_errors=0
 
 function print_san() {
-	if test -n "$(find . -maxdepth 1 -name 'SAN.*' -print -quit)"
-	then
+	if test -n "$(find . -maxdepth 1 -name 'SAN.*' -print -quit)"; then
 		cat ./SAN.*
 		return 1
 	fi
@@ -187,7 +168,6 @@ function print_san() {
 }
 
 log "connecting clients to server at port $port"
-
 
 ./DDNetPP \
 	"sv_input_fifo server.fifo;
@@ -219,22 +199,18 @@ fails=0
 # give the client time to launch and create the fifo file
 # but assume after 3 secs that the client crashed before
 # being able to create the file
-while [[ ! -p client1.fifo ]]
-do
-	fails="$((fails+1))"
-	if [ "$arg_verbose" == "1" ]
-	then
+while [[ ! -p client1.fifo ]]; do
+	fails="$((fails + 1))"
+	if [ "$arg_verbose" == "1" ]; then
 		echo "[!] client fifo not found (attempts $fails/3)"
 	fi
-	if [ "$fails" -gt "2" ]
-	then
+	if [ "$fails" -gt "2" ]; then
 		print_san
 		echo "[-] Error: client possibly crashed on launch"
 		exit 1
 	fi
 	sleep 1
 done
-
 
 sleep 5
 fifo "rcon_auth rcon" client1.fifo
@@ -260,35 +236,28 @@ function check_account() {
 	local database="${3:-accounts.db}"
 	local from=''
 	local to=''
-	if [[ "$expected" =~ '-' ]]
-	then
+	if [[ "$expected" =~ '-' ]]; then
 		from="$(echo "$expected" | cut -d'-' -f1)"
 		to="$(echo "$expected" | cut -d'-' -f2)"
-		if [ "$from" -gt "$to" ]
-		then
+		if [ "$from" -gt "$to" ]; then
 			echo "[-] Error: from has to be smaller than to."
 			exit 1
 		fi
 	fi
 	got="$(sqlite3 -init /dev/null "$database" < <(echo "select $column from Accounts;"))"
-	if [ "$from" != "" ] && [ "$to" != "" ]
-	then
-		if [ "$got" -gt "$to" ] || [ "$got" -lt "$from" ]
-		then
+	if [ "$from" != "" ] && [ "$to" != "" ]; then
+		if [ "$got" -gt "$to" ] || [ "$got" -lt "$from" ]; then
 			touch fail_accs.txt
 			local db_note=''
-			if [ "$database" != "accounts.db" ]
-			then
+			if [ "$database" != "accounts.db" ]; then
 				db_note=" ($database)"
 			fi
 			echo "[-] Error: Expected $column to be in range '$expected' but got '$got'$db_note"
 		fi
-	elif [ "$got" != "$expected" ]
-	then
+	elif [ "$got" != "$expected" ]; then
 		touch fail_accs.txt
 		local db_note=''
-		if [ "$database" != "accounts.db" ]
-		then
+		if [ "$database" != "accounts.db" ]; then
 			db_note=" ($database)"
 		fi
 		echo "[-] Error: Expected $column to be '$expected' but got '$got'$db_note"
@@ -296,16 +265,13 @@ function check_account() {
 }
 
 accs="$(sqlite3 -init /dev/null accounts.db < <(echo "select * from Accounts;"))"
-if [ "$accs" == "" ]
-then
+if [ "$accs" == "" ]; then
 	touch fail_accs.txt
 	echo "[-] Error: no accounts found in database"
-elif [ "$(echo "$accs" | wc -l)" != "1" ]
-then
+elif [ "$(echo "$accs" | wc -l)" != "1" ]; then
 	touch fail_accs.txt
 	echo "[-] Error: expected 1 account got $(echo "$accs" | wc -l)"
-elif ! echo "$accs" | grep -q client1
-then
+elif ! echo "$accs" | grep -q client1; then
 	touch fail_accs.txt
 	echo "[-] Error: expected an account from client1 instead got:"
 	echo "  $accs"
@@ -315,8 +281,7 @@ else
 		where LastLogoutIGN1 = 'client1_alt'
 		and Username = 'foo';
 	"))"
-	if [ "$user" == "" ]
-	then
+	if [ "$user" == "" ]; then
 		touch fail_accs.txt
 		echo "[-] Error: user client1 with account foo not found"
 	fi
@@ -345,12 +310,9 @@ else
 	check_account AsciiFrame2 baz
 fi
 
-if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"
-then
-	if [ "$arg_verbose" == "1" ]
-	then
-		for fail in ./fail_*
-		do
+if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"; then
+	if [ "$arg_verbose" == "1" ]; then
+		for fail in ./fail_*; do
 			cat "$fail"
 		done
 	fi

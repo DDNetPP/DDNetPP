@@ -12,4 +12,3 @@ function succ() {
 function err() {
 	printf '[-] %s\n' "$1"
 }
-

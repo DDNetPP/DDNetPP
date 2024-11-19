@@ -17,19 +17,19 @@ function test_account() {
 
 	sleep 0.5
 	tr -d '\n' > client1.fifo <<- EOF
-	say "/mc
-	;profile twitter @chillerdragon
-	;profile youtube chillerdragon
-	;profile skype \"discord:chillerdragon@xxxx\"
-	;profile skype \"invalid @[²¹[»ĸæ→@<script>\"
-	;profile homepage zillyhuhn.com"
+		say "/mc
+		;profile twitter @chillerdragon
+		;profile youtube chillerdragon
+		;profile skype \"discord:chillerdragon@xxxx\"
+		;profile skype \"invalid @[²¹[»ĸæ→@<script>\"
+		;profile homepage zillyhuhn.com"
 	EOF
 
 	sleep 0.5
 	fifo 'say "/mc;hide block_xp;hide xp;fng autojoin 1"' client1.fifo
 
 	cp accounts.db before_logout.db
-	[[ -f accounts.db-wal ]] &&  cp accounts.db-wal before_logout.db-wal
+	[[ -f accounts.db-wal ]] && cp accounts.db-wal before_logout.db-wal
 	[[ -f accounts.db-shm ]] && cp accounts.db-shm before_logout.db-shm
 
 	sleep 0.5
@@ -47,4 +47,3 @@ function test_account() {
 	# wait 2 secs to respawn after /insta leave
 	sleep 2
 }
-

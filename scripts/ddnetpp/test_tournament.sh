@@ -23,4 +23,3 @@ function test_tournament() {
 	sleep 1
 	fifo "kill" client1.fifo
 }
-
