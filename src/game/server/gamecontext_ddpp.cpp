@@ -1220,7 +1220,7 @@ void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 		str_format(aBuf, sizeof(aBuf), "%s[%d]", pLevel, pPlayer->GetLevel());
 	SendChatTarget(RequestingId, aBuf);
 	if(!pPlayer->IsLoggedIn())
-		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (not logged in)", pPlayer->GetXP());
+		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (%s)", pPlayer->GetXP(), Loc("not logged in", RequestingId));
 	else
 		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "/%" PRId64 "]", pPlayer->GetXP(), pPlayer->GetNeededXP());
 	SendChatTarget(RequestingId, aBuf);

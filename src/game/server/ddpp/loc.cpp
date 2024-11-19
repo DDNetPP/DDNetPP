@@ -47,6 +47,9 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
+		// TODO: this is only used in /stats for now but this could be used in a lot of places
+		if(!str_comp("not logged in", pStr))
+			return "Игрок не авторизован"; // player is not authorized
 		if(pStr[0] == '\'')
 		{
 			if(!str_comp("'%s' is on a killing spree with %d kills!", pStr))
