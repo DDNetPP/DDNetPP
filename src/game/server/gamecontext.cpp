@@ -4671,19 +4671,11 @@ void CGameContext::OnSetAuthed(int ClientId, int Level)
 			m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO_ADMIN;
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "CGameContext", "Vote aborted by authorized login.");
 		}
-		time_t rawtime;
-		struct tm *timeinfo;
-		char timestr[80];
-
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-
-		strftime(timestr, sizeof(timestr), "%F %H:%M:%S", timeinfo);
 		char aAccId[32];
 		aAccId[0] = '\0';
 		if(m_apPlayers[ClientId]->IsLoggedIn())
 			str_format(aAccId, sizeof(aAccId), "accId=%d ", m_apPlayers[ClientId]->GetAccId());
-		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccId, aIp, Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "auth_level=%d %sip=%s name=%s", Level, aAccId, aIp, Server()->ClientName(ClientId));
 		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientId);

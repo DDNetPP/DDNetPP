@@ -21,12 +21,18 @@ extern char aDDPPLogs[DDPP_NUM_LOGS][DDPP_LOG_SIZE][128];
 /*
     ddpp_log_print(type)
     print all log lines of a given type to stdout
+
+    THIS FUNCTION IS UNUSED
+    logs are printed in void CConsole::PrintDDPPLogs(int Type)
 */
 void ddpp_log_print(int type);
 
 /*
     ddpp_log_print_all()
     print all log lines of all types
+
+    THIS FUNCTION IS UNUSED
+    logs are printed in void CConsole::PrintDDPPLogs(int Type)
 */
 void ddpp_log_print_all();
 

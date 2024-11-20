@@ -43,7 +43,13 @@ void ddpp_log(int type, const char *pMsg)
 		printf("[ddpp_logs] Error: invalid log type=%d (max %d)\n", type, DDPP_NUM_LOGS);
 		dbg_break();
 	}
-	ddpp_log_append(type, pMsg);
+
+	char aMsg[512];
+	char aTimestamp[64];
+	str_timestamp_format(aTimestamp, sizeof(aTimestamp), FORMAT_SPACE);
+	str_format(aMsg, sizeof(aMsg), "[%s] %s", aTimestamp, pMsg);
+
+	ddpp_log_append(type, aMsg);
 }
 
 void ddpp_log_append(int type, const char *pMsg)
