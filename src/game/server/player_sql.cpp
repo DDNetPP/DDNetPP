@@ -156,13 +156,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			break;
 		case CAccountResult::LOGIN_WRONG_PASS:
 			GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login failed. Wrong password or username.");
-			char aBuf[1024];
-			str_format(
-				aBuf,
-				sizeof(aBuf),
-				"[%s] '%s' '%s'",
-				GameServer()->Server()->ClientName(m_ClientId), Result.m_Account.m_aUsername, Result.m_Account.m_aPassword);
-			GameServer()->SaveWrongLogin(aBuf);
+			GameServer()->WriteWrongLoginJson(m_ClientId, Result.m_Account.m_aUsername, Result.m_Account.m_aPassword);
 			GameServer()->LoginBanCheck(m_ClientId);
 			break;
 		case CAccountResult::LOGIN_INFO:

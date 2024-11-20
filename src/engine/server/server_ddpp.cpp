@@ -68,6 +68,51 @@ IEngineMap *CServer::Map()
 	return m_pMap;
 }
 
+void CServer::OnFailedRconLoginAttempt(int ClientId, const char *pName, const char *pPassword)
+{
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "wrong rcon attempt by ClientId=%d", ClientId);
+	ddpp_log(DDPP_LOG_WRONG_RCON, aBuf);
+	WriteWrongRconJson(ClientId, pName, pPassword);
+}
+
+void CServer::WriteWrongRconJson(int ClientId, const char *pName, const char *pPassword)
+{
+	if(!g_Config.m_SvSaveWrongRcon)
+	{
+		return;
+	}
+
+	CJsonStringWriter JsonWriter;
+
+	JsonWriter.BeginObject();
+	JsonWriter.WriteAttribute("name");
+	JsonWriter.WriteStrValue(ClientName(ClientId));
+
+	JsonWriter.WriteAttribute("username");
+	JsonWriter.WriteStrValue(pName);
+
+	JsonWriter.WriteAttribute("password");
+	JsonWriter.WriteStrValue(pName);
+
+	JsonWriter.EndObject();
+
+	const char *pJson = JsonWriter.GetOutputString().c_str();
+
+	IOHANDLE pFile = Storage()->OpenFile(g_Config.m_SvWrongRconFile, IOFLAG_APPEND, IStorage::TYPE_SAVE);
+	if(!pFile)
+	{
+		dbg_msg("ddnet++", "failed to open %s", g_Config.m_SvWrongRconFile);
+		return;
+	}
+
+	// without newline
+	io_write(pFile, pJson, str_length(pJson) - 1);
+	io_write(pFile, ",", 1);
+	io_write_newline(pFile);
+	io_close(pFile);
+}
+
 void CServer::BotJoin(int BotId)
 {
 	const char *pNames[] = {//Array für die Namen

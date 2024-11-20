@@ -1866,6 +1866,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			}
 			else if(Config()->m_SvRconMaxTries)
 			{
+				OnFailedRconLoginAttempt(ClientId, pName, pPw); // ddnet++
 				m_aClients[ClientId].m_AuthTries++;
 				char aBuf[128];
 				str_format(aBuf, sizeof(aBuf), "Wrong password %d/%d.", m_aClients[ClientId].m_AuthTries, Config()->m_SvRconMaxTries);
@@ -1881,6 +1882,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			else
 			{
 				SendRconLine(ClientId, "Wrong password.");
+				OnFailedRconLoginAttempt(ClientId, pName, pPw); // ddnet++
 			}
 		}
 		else if(Msg == NETMSG_PING)

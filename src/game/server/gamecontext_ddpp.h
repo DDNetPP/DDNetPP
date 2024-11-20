@@ -115,7 +115,7 @@ public:
 
 	void ChatCommands();
 	void DummyChat();
-	void SaveWrongLogin(const char *pLogin);
+	void WriteWrongLoginJson(int ClientId, const char *pName, const char *pPassword);
 	//Instagib Survival
 	void WinInsta1on1(int WinnerId, int LooserId);
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);

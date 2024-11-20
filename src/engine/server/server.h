@@ -67,6 +67,9 @@ class CServer : public IServer
 {
 	// DDNet++ START
 
+	void OnFailedRconLoginAttempt(int ClientId, const char *pName, const char *pPassword);
+	void WriteWrongRconJson(int ClientId, const char *pName, const char *pPassword);
+
 public:
 	IEngineMap *Map() override;
 	void BotJoin(int BotId) override;

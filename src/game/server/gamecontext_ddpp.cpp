@@ -2701,32 +2701,39 @@ void CGameContext::SetIpJailed(int ClientId)
 	}
 }
 
-void CGameContext::SaveWrongLogin(const char *pLogin)
+void CGameContext::WriteWrongLoginJson(int ClientId, const char *pName, const char *pPassword)
 {
 	if(!g_Config.m_SvSaveWrongLogin)
 		return;
 
-	std::ofstream LoginFile(g_Config.m_SvWrongLoginFile, std::ios::app);
-	if(!LoginFile)
+	CJsonStringWriter JsonWriter;
+
+	JsonWriter.BeginObject();
+	JsonWriter.WriteAttribute("name");
+	JsonWriter.WriteStrValue(Server()->ClientName(ClientId));
+
+	JsonWriter.WriteAttribute("username");
+	JsonWriter.WriteStrValue(pName);
+
+	JsonWriter.WriteAttribute("password");
+	JsonWriter.WriteStrValue(pName);
+
+	JsonWriter.EndObject();
+
+	const char *pJson = JsonWriter.GetOutputString().c_str();
+
+	IOHANDLE pFile = Storage()->OpenFile(g_Config.m_SvWrongLoginFile, IOFLAG_APPEND, IStorage::TYPE_SAVE);
+	if(!pFile)
 	{
-		dbg_msg("login_sniff", "ERROR1 writing file '%s'", g_Config.m_SvWrongLoginFile);
-		g_Config.m_SvSaveWrongLogin = 0;
-		LoginFile.close();
+		dbg_msg("ddnet++", "failed to open %s", g_Config.m_SvWrongLoginFile);
 		return;
 	}
 
-	if(LoginFile.is_open())
-	{
-		//dbg_msg("login_sniff", "sniffed msg [ %s ]", pLogin);
-		LoginFile << pLogin << "\n";
-	}
-	else
-	{
-		dbg_msg("login_sniff", "ERROR2 writing file '%s'", g_Config.m_SvWrongLoginFile);
-		g_Config.m_SvSaveWrongLogin = 0;
-	}
-
-	LoginFile.close();
+	// without newline
+	io_write(pFile, pJson, str_length(pJson) - 1);
+	io_write(pFile, ",", 1);
+	io_write_newline(pFile);
+	io_close(pFile);
 }
 
 bool CGameContext::AdminChatPing(const char *pMsg)
