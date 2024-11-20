@@ -108,7 +108,7 @@ void CServer::WriteWrongRconJson(int ClientId, const char *pName, const char *pP
 	{
 		dbg_msg("ddnet++", "failed to open %s", g_Config.m_SvWrongRconFile);
 #ifdef CONF_PLATFORM_LINUX
-		dbg_msg("ddnet++", "  errno=%d", errno);
+		dbg_msg("ddnet++", "  errno=%d (%s)", errno, strerror(errno));
 #endif
 		return;
 	}
