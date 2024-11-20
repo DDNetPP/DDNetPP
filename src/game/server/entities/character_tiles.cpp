@@ -734,6 +734,8 @@ void CCharacter::MoneyTileDouble()
 	m_OnMoneytile = MONEYTILE_DOUBLE;
 	if(Server()->Tick() % 50)
 		return;
+	if(!m_pPlayer) // seems useless but pleases clang
+		return;
 	if(IsInDDraceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
