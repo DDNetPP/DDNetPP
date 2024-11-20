@@ -258,6 +258,8 @@ IOHANDLE io_open(const char *filename, int flags)
 		dbg_assert(false, "logic error");
 		return nullptr;
 	}
+	puts("fopen:");
+	puts(filename);
 	return fopen(filename, open_mode);
 #endif
 }
