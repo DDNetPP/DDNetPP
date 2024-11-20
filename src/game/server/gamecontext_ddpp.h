@@ -216,7 +216,7 @@ public:
 	void StartAsciiAnimation(int ViewerId, int CreatorId, int Medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int HookedId, int Power);
 	bool IsSameIp(int ClientId1, int ClientId2) const;
-	void ShowInstaStats(int RequestingId, int RequestedId);
+	void ShowInstaStats(int RequestingId, int RequestedId) const;
 	void ShowSurvivalStats(int RequestingId, int RequestedId);
 	void ShowDDPPStats(int RequestingId, int RequestedId);
 	void LeaveInstagib(int Id);
@@ -234,7 +234,7 @@ public:
 	int m_InstaRifleWinnerId;
 	char m_aInstaRifleScoreboard[1024];
 	bool ChillWriteToLine(char const *pFilename, unsigned LineNo, char const *pData);
-	int ChillUpdateFileAcc(const char *pAccount, unsigned int Line, const char *pValue, int RequestingId);
+	int ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *pValue, int RequestingId) const;
 	int m_LastVoteCallAll;
 	void ConnectFngBots(int Amount, int Mode); //mode=0 rifle mode=1 grenade
 	void SaveCosmetics(int ClientId);

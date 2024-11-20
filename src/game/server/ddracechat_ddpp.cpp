@@ -228,8 +228,8 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int helperId = pSelf->GetCidByName(pResult->GetString(1));
-	if(helperId == -1)
+	int HelperId = pSelf->GetCidByName(pResult->GetString(1));
+	if(HelperId == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[POLICE] Player '%s' is not online.", pResult->GetString(1));
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -240,37 +240,37 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 	str_format(aPara, sizeof(aPara), "%s", pResult->GetString(0));
 	if(!str_comp_nocase(aPara, "add"))
 	{
-		if(pSelf->m_apPlayers[helperId])
+		if(pSelf->m_apPlayers[HelperId])
 		{
-			if(pSelf->m_apPlayers[helperId]->m_PoliceHelper)
+			if(pSelf->m_apPlayers[HelperId]->m_PoliceHelper)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[POLICE] This player is already a policehelper.");
 				return;
 			}
 
-			pSelf->m_apPlayers[helperId]->m_PoliceHelper = true;
+			pSelf->m_apPlayers[HelperId]->m_PoliceHelper = true;
 			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' promoted you to policehelper.", pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(helperId, aBuf);
+			pSelf->SendChatTarget(HelperId, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is now a policehelper.", pSelf->Server()->ClientName(helperId));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is now a policehelper.", pSelf->Server()->ClientName(HelperId));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 	}
 	else if(!str_comp_nocase(aPara, "remove"))
 	{
-		if(pSelf->m_apPlayers[helperId])
+		if(pSelf->m_apPlayers[HelperId])
 		{
-			if(!pSelf->m_apPlayers[helperId]->m_PoliceHelper)
+			if(!pSelf->m_apPlayers[HelperId]->m_PoliceHelper)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[POLICE] This player is not a policehelper.");
 				return;
 			}
 
-			pSelf->m_apPlayers[helperId]->m_PoliceHelper = false;
+			pSelf->m_apPlayers[HelperId]->m_PoliceHelper = false;
 			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' removed your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(helperId, aBuf);
+			pSelf->SendChatTarget(HelperId, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is no longer a policehelper.", pSelf->Server()->ClientName(helperId));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is no longer a policehelper.", pSelf->Server()->ClientName(HelperId));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 	}
@@ -1850,14 +1850,14 @@ void CGameContext::ConBalance(IConsole::IResult *pResult, void *pUserData)
 	{
 		vec2 BalanceBattleSpawn1 = pSelf->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_1);
 		vec2 BalanceBattleSpawn2 = pSelf->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_2);
-		int mateId = pSelf->GetCidByName(pResult->GetString(1));
-		if(mateId == -1)
+		int MateId = pSelf->GetCidByName(pResult->GetString(1));
+		if(MateId == -1)
 		{
 			str_format(aBuf, sizeof(aBuf), "[BALANCE] Can't find the user '%s'", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			return;
 		}
-		else if(mateId == pResult->m_ClientId)
+		else if(MateId == pResult->m_ClientId)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[BALANCE] You can't invite your self.");
 			return;
@@ -1883,26 +1883,26 @@ void CGameContext::ConBalance(IConsole::IResult *pResult, void *pUserData)
 		//}
 		else
 		{
-			pPlayer->m_BalanceBattle_id = mateId;
+			pPlayer->m_BalanceBattle_id = MateId;
 			str_format(aBuf, sizeof(aBuf), "[BALANCE] Invited '%s' to a battle", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 
 			str_format(aBuf, sizeof(aBuf), "[BALANCE] '%s' invited you to a battle.", pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(mateId, aBuf);
+			pSelf->SendChatTarget(MateId, aBuf);
 			str_format(aBuf, sizeof(aBuf), "('/balance accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(mateId, aBuf);
+			pSelf->SendChatTarget(MateId, aBuf);
 		}
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "accept"))
 	{
-		int mateId = pSelf->GetCidByName(pResult->GetString(1));
-		if(mateId == -1)
+		int MateId = pSelf->GetCidByName(pResult->GetString(1));
+		if(MateId == -1)
 		{
 			str_format(aBuf, sizeof(aBuf), "[BALANCE] Can't find the user '%s'", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			return;
 		}
-		else if(pSelf->m_apPlayers[mateId]->m_BalanceBattle_id != pResult->m_ClientId)
+		else if(pSelf->m_apPlayers[MateId]->m_BalanceBattle_id != pResult->m_ClientId)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[BALANCE] This player didn't invite you.");
 			return;
@@ -1913,7 +1913,7 @@ void CGameContext::ConBalance(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->StartBalanceBattle(mateId, pResult->m_ClientId);
+			pSelf->StartBalanceBattle(MateId, pResult->m_ClientId);
 		}
 	}
 	else
@@ -2115,8 +2115,8 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if(!str_comp_nocase(pResult->GetString(1), "gdm"))
 		{
-			int mateId = pSelf->GetCidByName(pResult->GetString(2));
-			if(mateId == -1)
+			int MateId = pSelf->GetCidByName(pResult->GetString(2));
+			if(MateId == -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -2126,12 +2126,12 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
-			else if(mateId == pResult->m_ClientId)
+			else if(MateId == pResult->m_ClientId)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if(!pSelf->m_apPlayers[mateId]->IsLoggedIn())
+			else if(!pSelf->m_apPlayers[MateId]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] This player is not logged in.");
 				return;
@@ -2147,13 +2147,13 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			pPlayer->m_Insta1on1_id = mateId; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_id = MateId; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 0; //gdm
 			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a gdm 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 
 			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a gdm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(mateId, aBuf);
+			pSelf->SendChatTarget(MateId, aBuf);
 		}
 		else if(!str_comp_nocase(pResult->GetString(1), "idm"))
 		{
@@ -2199,8 +2199,8 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if(!str_comp_nocase(pResult->GetString(1), "boomfng"))
 		{
-			int mateId = pSelf->GetCidByName(pResult->GetString(2));
-			if(mateId == -1)
+			int MateId = pSelf->GetCidByName(pResult->GetString(2));
+			if(MateId == -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -2210,12 +2210,12 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
-			else if(mateId == pResult->m_ClientId)
+			else if(MateId == pResult->m_ClientId)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if(!pSelf->m_apPlayers[mateId]->IsLoggedIn())
+			else if(!pSelf->m_apPlayers[MateId]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] This player is not logged in.");
 				return;
@@ -2231,18 +2231,18 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			pPlayer->m_Insta1on1_id = mateId; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_id = MateId; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 2; //boomfng
 			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 
 			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a boomfng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(mateId, aBuf);
+			pSelf->SendChatTarget(MateId, aBuf);
 		}
 		else if(!str_comp_nocase(pResult->GetString(1), "fng"))
 		{
-			int mateId = pSelf->GetCidByName(pResult->GetString(2));
-			if(mateId == -1)
+			int MateId = pSelf->GetCidByName(pResult->GetString(2));
+			if(MateId == -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -2252,12 +2252,12 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
-			else if(mateId == pResult->m_ClientId)
+			else if(MateId == pResult->m_ClientId)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if(!pSelf->m_apPlayers[mateId]->IsLoggedIn())
+			else if(!pSelf->m_apPlayers[MateId]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] This player is not logged in.");
 				return;
@@ -2273,13 +2273,13 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			pPlayer->m_Insta1on1_id = mateId; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_id = MateId; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 3; //fng
 			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a fng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 
 			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a fng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
-			pSelf->SendChatTarget(mateId, aBuf);
+			pSelf->SendChatTarget(MateId, aBuf);
 		}
 		else if(!str_comp_nocase(pResult->GetString(1), "accept"))
 		{

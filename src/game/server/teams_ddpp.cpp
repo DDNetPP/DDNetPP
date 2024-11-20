@@ -9,11 +9,11 @@
 
 void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, float Time)
 {
-	int mins = (int)Time / 60;
+	int Mins = (int)Time / 60;
 	// float secs = Time - mins * 60;
 
 	OnQuestFinish(pPlayer);
-	if(mins > 0) // only give xp if race was at least 1 minute
+	if(Mins > 0) // only give xp if race was at least 1 minute
 	{
 		if(!pPlayer->IsMaxLevel())
 		{
@@ -31,8 +31,8 @@ void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, float Time)
 void CGameTeams::OnQuestFinish(CPlayer *Player)
 {
 	//char aBuf[256];
-	float time = (float)(Server()->Tick() - GetStartTime(Player)) / ((float)Server()->TickSpeed());
-	if(time < 0.000001f)
+	float Time = (float)(Server()->Tick() - GetStartTime(Player)) / ((float)Server()->TickSpeed());
+	if(Time < 0.000001f)
 		return;
 	//str_format(aBuf, sizeof(aBuf),
 	//	"'%s' [%d:%5.2f] total (int)[%d] (int) / 60[%d]",
@@ -50,7 +50,7 @@ void CGameTeams::OnQuestFinish(CPlayer *Player)
 		}
 		else if(Player->m_QuestStateLevel == 1)
 		{
-			if((int)time <= g_Config.m_SvQuestRaceTime1)
+			if((int)Time <= g_Config.m_SvQuestRaceTime1)
 			{
 				GameServer()->QuestCompleted(Player->GetCid());
 			}
@@ -61,7 +61,7 @@ void CGameTeams::OnQuestFinish(CPlayer *Player)
 		}
 		else if(Player->m_QuestStateLevel == 2)
 		{
-			if((int)time <= g_Config.m_SvQuestRaceTime2)
+			if((int)Time <= g_Config.m_SvQuestRaceTime2)
 			{
 				GameServer()->QuestCompleted(Player->GetCid());
 			}
@@ -76,7 +76,7 @@ void CGameTeams::OnQuestFinish(CPlayer *Player)
 		}
 		else if(Player->m_QuestStateLevel == 4)
 		{
-			if((int)time <= g_Config.m_SvQuestRaceTime3)
+			if((int)Time <= g_Config.m_SvQuestRaceTime3)
 			{
 				GameServer()->QuestCompleted(Player->GetCid());
 			}

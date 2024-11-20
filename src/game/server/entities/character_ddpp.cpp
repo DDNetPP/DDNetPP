@@ -559,8 +559,8 @@ void CCharacter::DropLoot()
 		if(m_Core.m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			SpecialGun = 1;
 		// block drop 0-2 weapons
-		DropWeapon(rand() % (NUM_WEAPONS - (3 + SpecialGun)) + (2 - SpecialGun)); // no hammer or ninja and gun only if special gun
-		DropWeapon(rand() % (NUM_WEAPONS - (3 + SpecialGun)) + (2 - SpecialGun));
+		DropWeapon((rand() % (NUM_WEAPONS - (3 + SpecialGun))) + (2 - SpecialGun)); // no hammer or ninja and gun only if special gun
+		DropWeapon((rand() % (NUM_WEAPONS - (3 + SpecialGun))) + (2 - SpecialGun));
 	}
 }
 
@@ -582,7 +582,7 @@ void CCharacter::DropHealth(int amount)
 			POWERUP_HEALTH,
 			300, // lifetime
 			m_pPlayer->GetCid(),
-			rand() % 3 - 1, // direction
+			(rand() % 3) - 1, // direction
 			(float)(amount / 5), // force
 			Team());
 		GameServer()->m_vDropLimit[POWERUP_HEALTH].push_back(p);
@@ -607,7 +607,7 @@ void CCharacter::DropArmor(int amount)
 			POWERUP_ARMOR,
 			300, // lifetime
 			m_pPlayer->GetCid(),
-			rand() % 3 - 1, // direction
+			(rand() % 3) - 1, // direction
 			(float)(amount / 5), // force
 			Team());
 		GameServer()->m_vDropLimit[POWERUP_ARMOR].push_back(p);
@@ -772,15 +772,15 @@ void CCharacter::CosmeticTick()
 			for(int i = 0; i < NUM_TRAILS; i++)
 				m_TrailProjs.push_back(new CStableProjectile(GameWorld(), WEAPON_SHOTGUN));
 			m_TrailHistory.clear();
-			m_TrailHistory.push_front(HistoryPoint(m_Pos, 0.0f));
-			m_TrailHistory.push_front(HistoryPoint(m_Pos, NUM_TRAILS * TRAIL_DIST));
+			m_TrailHistory.emplace_front(m_Pos, 0.0f);
+			m_TrailHistory.emplace_front(m_Pos, NUM_TRAILS * TRAIL_DIST);
 			m_TrailHistoryLength = NUM_TRAILS * TRAIL_DIST;
 		}
 		vec2 FrontPos = m_TrailHistory.front().m_Pos;
 		if(FrontPos != m_Pos)
 		{
 			float FrontLength = distance(m_Pos, FrontPos);
-			m_TrailHistory.push_front(HistoryPoint(m_Pos, FrontLength));
+			m_TrailHistory.emplace_front(m_Pos, FrontLength);
 			m_TrailHistoryLength += FrontLength;
 		}
 
@@ -1354,7 +1354,7 @@ void CCharacter::DDPP_FlagTick()
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
-						m_pPlayer->GiveXP(1); //flag
+						m_pPlayer->GiveXP(1); // flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
 					}
 				}
@@ -1398,7 +1398,7 @@ bool CCharacter::DDPP_Respawn()
 	return true;
 }
 
-int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
+int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 {
 #if defined(CONF_DEBUG)
 	dbg_msg("debug", "character die Id: %d Name: %s", m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()));
@@ -1439,7 +1439,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		m_TrailProjs.clear();
 	}
 
-	Killer = BlockPointsMain(Killer, fngscore);
+	Killer = BlockPointsMain(Killer, FngScore);
 	XpOnKill(Killer);
 	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
@@ -1799,16 +1799,16 @@ void CCharacter::ChillTelePortTile(int X, int Y)
 	m_Core.m_Pos.y = Y * 32;
 }
 
-void CCharacter::FreezeAll(int seconds)
+void CCharacter::FreezeAll(int Seconds)
 {
 	for(auto &Player : GameServer()->m_apPlayers)
 		if(Player && Player->GetCharacter())
-			Player->GetCharacter()->Freeze(seconds);
+			Player->GetCharacter()->Freeze(Seconds);
 }
 
-bool CCharacter::HasWeapon(int weapon)
+bool CCharacter::HasWeapon(int Weapon)
 {
-	return m_Core.m_aWeapons[weapon].m_Got;
+	return m_Core.m_aWeapons[Weapon].m_Got;
 }
 
 void CCharacter::KillSpeed()
@@ -2301,9 +2301,9 @@ int CCharacter::CIGetDestDist()
 	return c;
 }
 
-void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
+void CCharacter::SurvivalSubDieFunc(int Killer, int Weapon)
 {
-	bool selfkill = Killer == m_pPlayer->GetCid();
+	bool Selfkill = Killer == m_pPlayer->GetCid();
 	if(m_pPlayer->m_IsSurvivalAlive && GameServer()->m_apPlayers[Killer]->m_IsSurvivalAlive) //ignore lobby and stuff
 	{
 		//=== DEATHS and WINCHECK ===
@@ -2311,7 +2311,7 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		{
 			if(GameServer()->m_survivalgamestate > 1) //if game running
 			{
-				GameServer()->SetPlayerSurvival(m_pPlayer->GetCid(), GameServer()->SURVIVAL_DIE);
+				GameServer()->SetPlayerSurvival(m_pPlayer->GetCid(), CGameContext::SURVIVAL_DIE);
 				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[SURVIVAL] you lost the round.");
 				GameServer()->SurvivalCheckWinnerAndDeathMatch();
 				GameServer()->SurvivalGetNextSpectator(m_pPlayer->GetCid(), Killer);
@@ -2320,7 +2320,7 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		}
 
 		//=== KILLS ===
-		if(!selfkill)
+		if(!Selfkill)
 		{
 			if(GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
 			{
@@ -3017,8 +3017,8 @@ void CCharacter::PostFireWeapon()
 
 void CCharacter::SendShopMessage(const char *pMsg)
 {
-	int recv = m_pPlayer->m_ShopBotMesssagesRecieved / 2; // 2 messages = enter + leave
-	if(g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= recv)
+	int Recv = m_pPlayer->m_ShopBotMesssagesRecieved / 2; // 2 messages = enter + leave
+	if(g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= Recv)
 		return;
 
 	if(Server()->IsSixup(GetPlayer()->GetCid()))

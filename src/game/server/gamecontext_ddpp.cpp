@@ -1131,16 +1131,16 @@ vec2 CGameContext::GetFinishTile()
 			dbg_msg("tile-finder", "x: %d", i % Width);
 			dbg_msg("tile-finder", "y: %d", int(i / Width));
 			*/
-			return vec2(i % Width, int(i / Width));
+			return vec2(i % Width, (i / Width));
 		}
 	}
 
 	return vec2(0, 0);
 }
 
-void CGameContext::ShowInstaStats(int RequestId, int RequestedId)
+void CGameContext::ShowInstaStats(int RequestingId, int RequestedId) const
 {
-	if(!m_apPlayers[RequestId])
+	if(!m_apPlayers[RequestingId])
 		return;
 	CPlayer *pPlayer = m_apPlayers[RequestedId];
 	if(!pPlayer)
@@ -1148,31 +1148,31 @@ void CGameContext::ShowInstaStats(int RequestId, int RequestedId)
 
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Grenade instagib ~~~", Server()->ClientName(pPlayer->GetCid()));
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_GrenadeKills);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_GrenadeDeaths);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_GrenadeSpree);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_GrenadeShots);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_Account.m_GrenadeShotsNoRJ);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_Account.m_GrenadeShots - pPlayer->m_Account.m_GrenadeShotsNoRJ);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_Account.m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
 	//SendChatTarget(requestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Rifle instagib ~~~", Server()->ClientName(pPlayer->GetCid()));
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_RifleKills);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_RifleDeaths);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_RifleSpree);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_RifleShots);
-	SendChatTarget(RequestId, aBuf);
+	SendChatTarget(RequestingId, aBuf);
 }
 
 void CGameContext::ShowSurvivalStats(int RequestingId, int RequestedId)
@@ -1265,7 +1265,7 @@ bool CGameContext::ChillWriteToLine(char const *pFilename, unsigned LineNo, char
 	return false;
 }
 
-int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *value, int RequestingId)
+int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *value, int RequestingId) const
 {
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, pUsername);
@@ -2425,12 +2425,12 @@ void CGameContext::ShowAdminWelcome(int Id)
 		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_AUTH_RCON][1]);
 		// Server()->SendRconLine(Id, aBuf); // TODO: uncomment
 	}
-	int surv_error = TestSurvivalSpawns();
-	if(surv_error == -1)
+	int SurvError = TestSurvivalSpawns();
+	if(SurvError == -1)
 	{
 		SendChatTarget(Id, "[ADMIN:Test] WARNING: less survival spawns on map than slots possible in ddnet++ (no problem as long as slots stay how they are)");
 	}
-	else if(surv_error == -2)
+	else if(SurvError == -2)
 	{
 		SendChatTarget(Id, "[ADMIN:Test] WARNING: not enough survival spawns (less survival spawns than slots)");
 	}
@@ -2473,14 +2473,14 @@ void CGameContext::ShowAdminWelcome(int Id)
 int CGameContext::PrintSpecialCharUsers(int Id)
 {
 	char aUsers[2048]; //wont show all users if too many special char users are there but this shouldnt be the case
-	int users = 0;
+	int Users = 0;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && Player->IsLoggedIn())
 		{
 			if(!IsAllowedCharSet(Player->m_Account.m_aUsername))
 			{
-				if(!users)
+				if(!Users)
 				{
 					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", Player->GetCid(), Player->m_Account.m_aUsername);
 				}
@@ -2488,19 +2488,19 @@ int CGameContext::PrintSpecialCharUsers(int Id)
 				{
 					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, Player->GetCid(), Player->m_Account.m_aUsername);
 				}
-				users++;
+				Users++;
 			}
 		}
 	}
 
-	if(users)
+	if(Users)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[#########] %d special char user online [#########]", users);
+		str_format(aBuf, sizeof(aBuf), "[#########] %d special char user online [#########]", Users);
 		SendChatTarget(Id, aBuf);
 		SendChatTarget(Id, aUsers);
 	}
-	return users;
+	return Users;
 }
 
 int CGameContext::TestSurvivalSpawns()
@@ -2741,9 +2741,9 @@ bool CGameContext::AdminChatPing(const char *pMsg)
 			return false;
 		if(str_find_nocase(pMsg, Server()->ClientName(pPlayer->GetCid())))
 		{
-			int len_name = str_length(Server()->ClientName(pPlayer->GetCid()));
-			int len_msg = str_length(pMsg);
-			if(len_msg - len_name - 2 < g_Config.m_SvMinAdminPing)
+			int LenName = str_length(Server()->ClientName(pPlayer->GetCid()));
+			int LenMsg = str_length(pMsg);
+			if(LenMsg - LenName - 2 < g_Config.m_SvMinAdminPing)
 				return true;
 		}
 		return false;

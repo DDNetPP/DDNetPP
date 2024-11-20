@@ -41,8 +41,6 @@
 #include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
 #include <base/ddpp_logs.h>
 #include <cstdio>
-#include <engine/server/server.h> // ddpp
-#include <fstream>
 #include <game/server/gamemodes/ddnetpp/ddnetpp.h>
 #include <game/server/teams.h>
 
@@ -4247,11 +4245,11 @@ void CGameContext::CreateAllEntities(bool Initial)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
-			const int Index = y * pTileMap->m_Width + x;
+			const int Index = (y * pTileMap->m_Width) + x;
 			// Game layer
 			{
 				const int GameIndex = pTiles[Index].m_Index;
-				Collision()->m_vTiles[GameIndex].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
+				Collision()->m_vTiles[GameIndex].emplace_back((x * 32.0f) + 16.0f, (y * 32.0f) + 16.0f);
 				if(GameIndex == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
@@ -4297,7 +4295,7 @@ void CGameContext::CreateAllEntities(bool Initial)
 			if(pFront)
 			{
 				const int FrontIndex = pFront[Index].m_Index;
-				Collision()->m_vTiles[FrontIndex].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
+				Collision()->m_vTiles[FrontIndex].emplace_back((x * 32.0f) + 16.0f, (y * 32.0f) + 16.0f);
 				if(FrontIndex == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;

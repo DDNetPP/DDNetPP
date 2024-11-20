@@ -31,7 +31,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 	Fire(0);
 	Hook(0);
 	StopMoving();
-	int offset_x = g_Config.m_SvDummyMapOffsetX * 32;
+	int OffsetX = g_Config.m_SvDummyMapOffsetX * 32;
 	//dbg_msg("debug","cfg=%d cfg*32=%d offset=%d mcore=%d offset+mcore=%d", g_Config.m_SvDummyMapOffsetX, g_Config.m_SvDummyMapOffsetX * 32, offset_x, GetPos().x, offset_x + GetPos().x);
 
 	if(Server()->Tick() % 5000 == 0 && IsFrozen())
@@ -41,22 +41,22 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 
 	if(GetPos().y < 38 * 32) //spawn
 	{
-		if(GetPos().x + offset_x < 13 * 32 + 10)
+		if(GetPos().x + OffsetX < 13 * 32 + 10)
 		{
 			Right();
 		}
-		else if(GetPos().x + offset_x > 14 * 32 + 16)
+		else if(GetPos().x + OffsetX > 14 * 32 + 16)
 		{
 			Left();
 			//dbg_msg("debug", "walking lefte because %d > %d", offset_x + GetPos().x, 14 * 32 + 16);
 		}
 		else
 		{
-			if(GetPos().x + offset_x > 1.2f)
+			if(GetPos().x + OffsetX > 1.2f)
 			{
 				Left();
 			}
-			else if(GetPos().x + offset_x < -1.2f)
+			else if(GetPos().x + OffsetX < -1.2f)
 			{
 				Right();
 			}
@@ -64,11 +64,11 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 	}
 	else if(GetPos().y < 46 * 32) //block area 1
 	{
-		if(IsGrounded() || GetPos().x + offset_x > 14 * 32 + 10)
+		if(IsGrounded() || GetPos().x + OffsetX > 14 * 32 + 10)
 		{
 			Left();
 		}
-		if(GetPos().x + offset_x < 14 * 32 + 5 && GetPos().y < 40 * 32 + 30)
+		if(GetPos().x + OffsetX < 14 * 32 + 5 && GetPos().y < 40 * 32 + 30)
 		{
 			Right();
 		}
@@ -96,7 +96,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 	}
 	else if(GetPos().y < 74 * 32) //block area 3
 	{
-		if(GetPos().x + offset_x > 16 * 32)
+		if(GetPos().x + OffsetX > 16 * 32)
 		{
 			Left();
 			AimX(100);
@@ -117,7 +117,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 		AimX(-200);
 		AimY(90);
 
-		if(IsGrounded() && GetPos().x + offset_x > 23 * 32)
+		if(IsGrounded() && GetPos().x + OffsetX > 23 * 32)
 		{
 			Jump();
 		}
@@ -126,7 +126,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 			Fire();
 		}
 
-		if(GetPos().x + offset_x > 22 * 32 && GetVel().x < 7.1f)
+		if(GetPos().x + OffsetX > 22 * 32 && GetVel().x < 7.1f)
 		{
 			m_rj_failed = true;
 		}
@@ -134,7 +134,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 		if(m_rj_failed)
 		{
 			Left();
-			if(GetPos().x + offset_x < 18 * 32)
+			if(GetPos().x + OffsetX < 18 * 32)
 			{
 				m_rj_failed = false;
 			}
@@ -142,10 +142,10 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 	}
 	else //block area 5
 	{
-		if(GetPos().x + offset_x > 15 * 32 && GetPos().x + offset_x < 22 * 32) //never stay still over the middle freeze
+		if(GetPos().x + OffsetX > 15 * 32 && GetPos().x + OffsetX < 22 * 32) //never stay still over the middle freeze
 		{
 			m_panic_hook = true;
-			if(GetPos().x + offset_x > 19 * 32)
+			if(GetPos().x + OffsetX > 19 * 32)
 			{
 				Right();
 			}
@@ -179,11 +179,11 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 
 			if(m_angry)
 			{
-				if(pChr->GetPos().x + offset_x - 60 > GetPos().x + offset_x)
+				if(pChr->GetPos().x + OffsetX - 60 > GetPos().x + OffsetX)
 				{
 					Right();
 				}
-				else if(pChr->GetPos().x + offset_x - 40 < GetPos().x + offset_x)
+				else if(pChr->GetPos().x + OffsetX - 40 < GetPos().x + OffsetX)
 				{
 					Left();
 					//dbg_msg("dummy", "walk left to get better enemy positioning enemypos=%f", pChr->GetPos().x + offset_x);
@@ -244,7 +244,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 			}
 		}
 
-		if(GetPos().x + offset_x < 5 * 32) //lower left freeze
+		if(GetPos().x + OffsetX < 5 * 32) //lower left freeze
 		{
 			Right();
 		}
@@ -269,7 +269,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 		}
 
 		//dont enter the freeze exit on the right side
-		if(GetPos().x + offset_x > 34 * 32 && GetPos().y < 91 * 32 && GetVel().x > 0.0f)
+		if(GetPos().x + OffsetX > 34 * 32 && GetPos().y < 91 * 32 && GetVel().x > 0.0f)
 		{
 			Left();
 		}

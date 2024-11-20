@@ -283,23 +283,23 @@ int CGameContext::CountSurvivalPlayers(bool Alive)
 	return x;
 }
 
-void CGameContext::SurvivalSetGameState(int state)
+void CGameContext::SurvivalSetGameState(int State)
 {
-	m_survivalgamestate = state;
-	if(state == SURVIVAL_OFF)
+	m_survivalgamestate = State;
+	if(State == SURVIVAL_OFF)
 	{
 		for(auto &Player : m_apPlayers)
 			if(Player)
 				SetPlayerSurvival(Player->GetCid(), SURVIVAL_OFF);
 	}
-	else if(state == SURVIVAL_LOBBY)
+	else if(State == SURVIVAL_LOBBY)
 	{
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 		for(auto &Player : m_apPlayers)
 			if(Player && Player->m_IsSurvivaling)
 				Player->Pause(CPlayer::PAUSE_NONE, true);
 	}
-	else if(state == SURVIVAL_INGAME)
+	else if(State == SURVIVAL_INGAME)
 	{
 		m_survival_spawn_counter = 0;
 		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
@@ -318,11 +318,11 @@ void CGameContext::SurvivalSetGameState(int state)
 		}
 		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
 	}
-	else if(state == SURVIVAL_DM_COUNTDOWN)
+	else if(State == SURVIVAL_DM_COUNTDOWN)
 	{
 		m_survival_dm_countdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
 	}
-	else if(state == SURVIVAL_DM)
+	else if(State == SURVIVAL_DM)
 	{
 		SendChatSurvival("[SURVIVAL] teleporting survivors to deathmatch arena.");
 
@@ -348,39 +348,39 @@ void CGameContext::SurvivalSetGameState(int state)
 
 bool CGameContext::SurvivalPickWinner()
 {
-	int winnerId = -1;
+	int WinnerId = -1;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 		{
-			winnerId = Player->GetCid();
+			WinnerId = Player->GetCid();
 			break;
 		}
 	}
-	if(winnerId == -1)
+	if(WinnerId == -1)
 	{
 		return false;
 	}
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(winnerId));
+	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(WinnerId));
 	SendChatSurvival(aBuf);
 	SendBroadcastSurvival(aBuf);
-	m_apPlayers[winnerId]->m_IsSurvivalWinner = true;
+	m_apPlayers[WinnerId]->m_IsSurvivalWinner = true;
 
-	if(m_apPlayers[winnerId]->IsLoggedIn())
+	if(m_apPlayers[WinnerId]->IsLoggedIn())
 	{
-		SendChatTarget(winnerId, "[SURVIVAL] you won! [+50xp] [+50money]");
-		m_apPlayers[winnerId]->MoneyTransaction(+50, "survival win");
-		m_apPlayers[winnerId]->GiveXP(50);
+		SendChatTarget(WinnerId, "[SURVIVAL] you won! [+50xp] [+50money]");
+		m_apPlayers[WinnerId]->MoneyTransaction(+50, "survival win");
+		m_apPlayers[WinnerId]->GiveXP(50);
 	}
 	else
 	{
-		SendChatTarget(winnerId, "[SURVIVAL] you won!");
+		SendChatTarget(WinnerId, "[SURVIVAL] you won!");
 	}
 
-	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerId), sizeof(m_aLastSurvivalWinnerName));
-	m_apPlayers[winnerId]->m_Account.m_SurvivalWins++;
-	m_apPlayers[winnerId]->m_Account.m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
-	SetPlayerSurvival(winnerId, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
+	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(WinnerId), sizeof(m_aLastSurvivalWinnerName));
+	m_apPlayers[WinnerId]->m_Account.m_SurvivalWins++;
+	m_apPlayers[WinnerId]->m_Account.m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
+	SetPlayerSurvival(WinnerId, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }
