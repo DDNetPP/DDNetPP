@@ -215,7 +215,7 @@ public:
 	bool IsPosition(int PlayerId, int Pos);
 	void StartAsciiAnimation(int ViewerId, int CreatorId, int Medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int HookedId, int Power);
-	bool IsSameIp(int ClientId1, int ClientId2);
+	bool IsSameIp(int ClientId1, int ClientId2) const;
 	void ShowInstaStats(int RequestingId, int RequestedId);
 	void ShowSurvivalStats(int RequestingId, int RequestedId);
 	void ShowDDPPStats(int RequestingId, int RequestedId);
@@ -293,7 +293,7 @@ public:
 	int m_MissionUnlockedLevel;
 	int m_MissionCurrentLevel;
 	void LoadSinglePlayer();
-	void SaveSinglePlayer();
+	void SaveSinglePlayer() const;
 
 	struct CBinaryStorage
 	{

@@ -731,15 +731,15 @@ int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
 
 int CGameContext::CountConnectedBots()
 {
-	int lum_tt_zv_1_zz_04032018_lt3 = 0;
+	int Count = 0;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && Player->m_IsDummy)
 		{
-			lum_tt_zv_1_zz_04032018_lt3++;
+			Count++;
 		}
 	}
-	return lum_tt_zv_1_zz_04032018_lt3;
+	return Count;
 }
 
 int CGameContext::CountTimeoutCodePlayers()
@@ -756,13 +756,13 @@ int CGameContext::CountTimeoutCodePlayers()
 	return p;
 }
 
-void CGameContext::SendBroadcastAll(const char *pText, int importance, bool supermod)
+void CGameContext::SendBroadcastAll(const char *pText, int Importance, bool Supermod)
 {
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player)
 		{
-			SendBroadcast(pText, Player->GetCid(), importance, supermod);
+			SendBroadcast(pText, Player->GetCid(), Importance, Supermod);
 		}
 	}
 }
@@ -780,22 +780,22 @@ void CGameContext::KillAll()
 
 void CGameContext::LoadFNNvalues()
 {
-	std::ifstream readfile;
+	std::ifstream ReadFile;
 	char aFilePath[512];
 	str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
-	readfile.open(aFilePath);
-	if(readfile.is_open())
+	ReadFile.open(aFilePath);
+	if(ReadFile.is_open())
 	{
-		std::string line;
+		std::string Line;
 
-		std::getline(readfile, line); //distance
-		m_FNN_best_distance = atoi(line.c_str());
+		std::getline(ReadFile, Line); //distance
+		m_FNN_best_distance = atoi(Line.c_str());
 
-		std::getline(readfile, line); //fitness
-		m_FNN_best_fitness = atoi(line.c_str());
+		std::getline(ReadFile, Line); //fitness
+		m_FNN_best_fitness = atoi(Line.c_str());
 
-		std::getline(readfile, line); //distance_finish
-		m_FNN_best_distance_finish = atoi(line.c_str());
+		std::getline(ReadFile, Line); //distance_finish
+		m_FNN_best_distance_finish = atoi(Line.c_str());
 	}
 	else
 	{
@@ -855,11 +855,11 @@ bool CGameContext::IsPosition(int playerId, int pos)
 	return false;
 }
 
-void CGameContext::StartAsciiAnimation(int viewerId, int creatorId, int medium)
+void CGameContext::StartAsciiAnimation(int viewerId, int CreatorId, int Medium)
 {
 	if(!m_apPlayers[viewerId])
 		return;
-	if(!m_apPlayers[creatorId])
+	if(!m_apPlayers[CreatorId])
 	{
 		SendChatTarget(viewerId, "player not found.");
 		return;
@@ -870,40 +870,40 @@ void CGameContext::StartAsciiAnimation(int viewerId, int creatorId, int medium)
 		return;
 	}
 
-	if(medium == 0) // '/ascii view <cid>'
+	if(Medium == 0) // '/ascii view <cid>'
 	{
-		if(m_apPlayers[creatorId]->m_Account.m_aAsciiPublishState[0] == '0')
+		if(m_apPlayers[CreatorId]->m_Account.m_aAsciiPublishState[0] == '0')
 		{
 			SendChatTarget(viewerId, "ascii art not public.");
 			return;
 		}
 
-		m_apPlayers[creatorId]->m_AsciiViewsDefault++;
+		m_apPlayers[CreatorId]->m_AsciiViewsDefault++;
 		//COULDDO: code: cfv45
 	}
-	else if(medium == 1) // '/profile view <player>'
+	else if(Medium == 1) // '/profile view <player>'
 	{
-		if(m_apPlayers[creatorId]->m_Account.m_aAsciiPublishState[1] == '0')
+		if(m_apPlayers[CreatorId]->m_Account.m_aAsciiPublishState[1] == '0')
 		{
 			//SendChatTarget(viewerId, "ascii art not published on profile");
 			return;
 		}
 
-		m_apPlayers[creatorId]->m_AsciiViewsProfile++;
+		m_apPlayers[CreatorId]->m_AsciiViewsProfile++;
 	}
-	else if(medium == 2) // not used yet
+	else if(Medium == 2) // not used yet
 	{
-		if(m_apPlayers[creatorId]->m_Account.m_aAsciiPublishState[2] == '0')
+		if(m_apPlayers[CreatorId]->m_Account.m_aAsciiPublishState[2] == '0')
 		{
 			SendChatTarget(viewerId, "ascii art not published on medium 2");
 			return;
 		}
 	}
 
-	m_apPlayers[viewerId]->m_AsciiWatchingId = creatorId;
+	m_apPlayers[viewerId]->m_AsciiWatchingId = CreatorId;
 }
 
-bool CGameContext::IsHooked(int hookedId, int power)
+bool CGameContext::IsHooked(int HookedId, int power)
 {
 	for(auto &Player : m_apPlayers)
 	{
@@ -912,9 +912,9 @@ bool CGameContext::IsHooked(int hookedId, int power)
 
 		CCharacter *pChar = GetPlayerChar(Player->GetCid());
 
-		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCid() == hookedId)
+		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCid() == HookedId)
 			continue;
-		if(pChar->Core()->HookedPlayer() == hookedId && pChar->GetPlayer()->m_HookPower == power)
+		if(pChar->Core()->HookedPlayer() == HookedId && pChar->GetPlayer()->m_HookPower == power)
 		{
 			return true;
 		}
@@ -923,7 +923,7 @@ bool CGameContext::IsHooked(int hookedId, int power)
 	return false;
 }
 
-bool CGameContext::IsSameIp(int Id1, int Id2)
+bool CGameContext::IsSameIp(int Id1, int Id2) const
 {
 	char aIp1[64];
 	char aIp2[64];
@@ -944,9 +944,9 @@ bool CGameContext::CharToBool(char c)
 	return c != '0';
 }
 
-void CGameContext::ShowHideConfigBoolToChar(int id)
+void CGameContext::ShowHideConfigBoolToChar(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
@@ -963,9 +963,9 @@ void CGameContext::ShowHideConfigBoolToChar(int id)
 #endif
 }
 
-void CGameContext::ShowHideConfigCharToBool(int id)
+void CGameContext::ShowHideConfigCharToBool(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
@@ -990,18 +990,18 @@ void CGameContext::ShowHideConfigCharToBool(int id)
 #endif
 }
 
-void CGameContext::FNN_LoadRun(const char *path, int botId)
+void CGameContext::FNN_LoadRun(const char *path, int BotId)
 {
-	CPlayer *pPlayer = m_apPlayers[botId];
+	CPlayer *pPlayer = m_apPlayers[BotId];
 	if(!pPlayer)
 	{
-		dbg_msg("FNN", "failed to load run player with id=%d doesn't exist", botId);
+		dbg_msg("FNN", "failed to load run player with id=%d doesn't exist", BotId);
 		return;
 	}
-	CCharacter *pChr = GetPlayerChar(botId);
+	CCharacter *pChr = GetPlayerChar(BotId);
 	if(!pChr)
 	{
-		dbg_msg("FNN", "failed to load run character with id=%d, name=%s doesn't exist", botId, Server()->ClientName(botId));
+		dbg_msg("FNN", "failed to load run character with id=%d, name=%s doesn't exist", BotId, Server()->ClientName(BotId));
 		return;
 	}
 	if(pPlayer->DummyMode() != DUMMYMODE_FNN)
@@ -1011,39 +1011,39 @@ void CGameContext::FNN_LoadRun(const char *path, int botId)
 
 	//reset values
 	pDummyFNN->m_FNN_CurrentMoveIndex = 0;
-	float loaded_distance = 0;
-	float loaded_fitness = 0;
-	float loaded_distance_finish = 0;
+	float LoadedDistance = 0;
+	float LoadedFitness = 0;
+	float LoadedDistanceFinish = 0;
 	char aBuf[128];
 
 	//load run
-	std::ifstream readfile;
+	std::ifstream ReadFile;
 	char aFilePath[512];
 	str_copy(aFilePath, path, sizeof(aFilePath));
-	readfile.open(aFilePath);
-	if(readfile.is_open())
+	ReadFile.open(aFilePath);
+	if(ReadFile.is_open())
 	{
-		std::string line;
+		std::string Line;
 		int i = 0;
 
 		//first four five are stats:
-		std::getline(readfile, line); // read but ignore header
+		std::getline(ReadFile, Line); // read but ignore header
 
-		std::getline(readfile, line); //moveticks
-		pDummyFNN->m_FNN_ticks_loaded_run = atoi(line.c_str());
+		std::getline(ReadFile, Line); //moveticks
+		pDummyFNN->m_FNN_ticks_loaded_run = atoi(Line.c_str());
 
-		std::getline(readfile, line); //distance
-		loaded_distance = atof(line.c_str());
+		std::getline(ReadFile, Line); //distance
+		LoadedDistance = atof(Line.c_str());
 
-		std::getline(readfile, line); //fitness
-		loaded_fitness = atof(line.c_str());
+		std::getline(ReadFile, Line); //fitness
+		LoadedFitness = atof(Line.c_str());
 
-		std::getline(readfile, line); //distance_finish
-		loaded_distance_finish = atof(line.c_str());
+		std::getline(ReadFile, Line); //distance_finish
+		LoadedDistanceFinish = atof(Line.c_str());
 
-		while(std::getline(readfile, line))
+		while(std::getline(ReadFile, Line))
 		{
-			pDummyFNN->m_aRecMove[i] = atoi(line.c_str());
+			pDummyFNN->m_aRecMove[i] = atoi(Line.c_str());
 			i++;
 		}
 	}
@@ -1055,13 +1055,13 @@ void CGameContext::FNN_LoadRun(const char *path, int botId)
 
 	//start run
 	pPlayer->m_dmm25 = 4; //replay submode
-	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
-	SendChat(botId, TEAM_ALL, aBuf);
+	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FNN_ticks_loaded_run, LoadedDistance, LoadedFitness, LoadedDistanceFinish);
+	SendChat(BotId, TEAM_ALL, aBuf);
 }
 
-void CGameContext::TestPrintTiles(int botId)
+void CGameContext::TestPrintTiles(int BotId)
 {
-	CPlayer *pPlayer = m_apPlayers[botId];
+	CPlayer *pPlayer = m_apPlayers[BotId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1138,41 +1138,41 @@ vec2 CGameContext::GetFinishTile()
 	return vec2(0, 0);
 }
 
-void CGameContext::ShowInstaStats(int requestId, int requestedId)
+void CGameContext::ShowInstaStats(int RequestId, int RequestedId)
 {
-	if(!m_apPlayers[requestId])
+	if(!m_apPlayers[RequestId])
 		return;
-	CPlayer *pPlayer = m_apPlayers[requestedId];
+	CPlayer *pPlayer = m_apPlayers[RequestedId];
 	if(!pPlayer)
 		return;
 
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Grenade instagib ~~~", Server()->ClientName(pPlayer->GetCid()));
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_GrenadeKills);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_GrenadeDeaths);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_GrenadeSpree);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_GrenadeShots);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_Account.m_GrenadeShotsNoRJ);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_Account.m_GrenadeShots - pPlayer->m_Account.m_GrenadeShotsNoRJ);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_Account.m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
 	//SendChatTarget(requestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Rifle instagib ~~~", Server()->ClientName(pPlayer->GetCid()));
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_RifleKills);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_RifleDeaths);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_RifleSpree);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_RifleShots);
-	SendChatTarget(requestId, aBuf);
+	SendChatTarget(RequestId, aBuf);
 }
 
 void CGameContext::ShowSurvivalStats(int RequestingId, int RequestedId)
@@ -1265,74 +1265,74 @@ bool CGameContext::ChillWriteToLine(char const *pFilename, unsigned LineNo, char
 	return false;
 }
 
-int CGameContext::ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingId)
+int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *value, int RequestingId)
 {
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, account);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, pUsername);
 	std::fstream Acc2File(aBuf);
 
 	if(!std::ifstream(aBuf))
 	{
-		SendChatTarget(requestingId, "[ACCOUNT] username not found.");
+		SendChatTarget(RequestingId, "[ACCOUNT] username not found.");
 		Acc2File.close();
 		return -1; //return error code -1
 	}
 
-	std::string data[32];
+	std::string Data[32];
 	int index = 0;
 
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] password: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] password: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] loggedin: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] loggedin: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] port: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] port: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] frozen: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] frozen: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] vip: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] vip: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] vip+: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] vip+: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] sup: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] sup: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] money: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] money: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] level: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] level: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] xp: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] xp: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] shit: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] shit: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] police: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] police: '%s'", index, Data[index].c_str());
 	index++;
-	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] taser: '%s'", index, data[index].c_str());
+	getline(Acc2File, Data[index]);
+	dbg_msg("acc2", "[%d] taser: '%s'", index, Data[index].c_str());
 	index++;
 
-	if(data[1] == "1")
+	if(Data[1] == "1")
 	{
-		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is logged in on port '%s'", account, data[2].c_str());
-		SendChatTarget(requestingId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is logged in on port '%s'", pUsername, Data[2].c_str());
+		SendChatTarget(RequestingId, aBuf);
 		Acc2File.close();
 		return -2;
 	}
 
-	if(line != 3 && data[3] == "1") //only can update the frozen value if acc is frozen
+	if(Line != 3 && Data[3] == "1") //only can update the frozen value if acc is frozen
 	{
-		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is frozen cant set line '%d'", account, line);
-		SendChatTarget(requestingId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is frozen cant set line '%d'", pUsername, Line);
+		SendChatTarget(RequestingId, aBuf);
 		Acc2File.close();
 		return -3;
 	}
@@ -1343,72 +1343,72 @@ int CGameContext::ChillUpdateFileAcc(const char *account, unsigned int line, con
 	//===============
 
 	//set new data
-	data[line] = value;
+	Data[Line] = value;
 
-	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, account);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, pUsername);
 	std::ofstream Acc2FileW(aBuf);
 
 	if(Acc2FileW.is_open())
 	{
-		dbg_msg("acc2", "write acc '%s'", account);
+		dbg_msg("acc2", "write acc '%s'", pUsername);
 		index = 0;
 
-		Acc2FileW << data[index++] << "\n"; //0 password
-		Acc2FileW << data[index++] << "\n"; //1 loggedin
-		Acc2FileW << data[index++] << "\n"; //2 port
-		Acc2FileW << data[index++] << "\n"; //3 frozen
-		Acc2FileW << data[index++] << "\n"; //4 vip
-		Acc2FileW << data[index++] << "\n"; //5 vip+
-		Acc2FileW << data[index++] << "\n"; //6 sup
-		Acc2FileW << data[index++] << "\n"; //7 money
-		Acc2FileW << data[index++] << "\n"; //8 level
-		Acc2FileW << data[index++] << "\n"; //9 xp
-		Acc2FileW << data[index++] << "\n"; //10 shit
-		Acc2FileW << data[index++] << "\n"; //11 police
-		Acc2FileW << data[index++] << "\n"; //12 taser
+		Acc2FileW << Data[index++] << "\n"; //0 password
+		Acc2FileW << Data[index++] << "\n"; //1 loggedin
+		Acc2FileW << Data[index++] << "\n"; //2 port
+		Acc2FileW << Data[index++] << "\n"; //3 frozen
+		Acc2FileW << Data[index++] << "\n"; //4 vip
+		Acc2FileW << Data[index++] << "\n"; //5 vip+
+		Acc2FileW << Data[index++] << "\n"; //6 sup
+		Acc2FileW << Data[index++] << "\n"; //7 money
+		Acc2FileW << Data[index++] << "\n"; //8 level
+		Acc2FileW << Data[index++] << "\n"; //9 xp
+		Acc2FileW << Data[index++] << "\n"; //10 shit
+		Acc2FileW << Data[index++] << "\n"; //11 police
+		Acc2FileW << Data[index++] << "\n"; //12 taser
 
 		Acc2FileW.close();
 	}
 	else
 	{
-		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", account, aBuf);
+		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", pUsername, aBuf);
 		Acc2FileW.close();
 		return -4;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' updated line [%d] to value [%s]", account, line, value);
-	SendChatTarget(requestingId, aBuf);
+	str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' updated line [%d] to value [%s]", pUsername, Line, value);
+	SendChatTarget(RequestingId, aBuf);
 
 	Acc2File.close();
 	return 0; //all clean no errors --> return false
 }
 
-void CGameContext::ConnectFngBots(int amount, int mode)
+void CGameContext::ConnectFngBots(int Amount, int Mode)
 {
-	for(int i = 0; i < amount; i++)
+	for(int i = 0; i < Amount; i++)
 	{
-		if(mode == 0) //rifle
+		if(Mode == 0) //rifle
 		{
 			CreateNewDummy(DUMMYMODE_RIFLE_FNG);
 		}
-		else if(mode == 1) // grenade
+		else if(Mode == 1) // grenade
 		{
 			CreateNewDummy(DUMMYMODE_GRENADE_FNG);
 		}
 		else
 		{
-			dbg_msg("WARNING", "ConnectFngBots() mode %d not valid.", mode);
+			dbg_msg("WARNING", "ConnectFngBots() mode %d not valid.", Mode);
 			return;
 		}
 	}
 }
 
-void CGameContext::SaveCosmetics(int id)
+void CGameContext::SaveCosmetics(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
-	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	CCharacter *pChr = m_apPlayers[ClientId]->GetCharacter();
 	if(!pChr)
 		return;
 
@@ -1422,12 +1422,12 @@ void CGameContext::SaveCosmetics(int id)
 	pPlayer->m_IsBackupWaveBloody = pChr->m_WaveBloody;
 }
 
-void CGameContext::LoadCosmetics(int id)
+void CGameContext::LoadCosmetics(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
-	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	CCharacter *pChr = m_apPlayers[ClientId]->GetCharacter();
 	if(!pChr)
 		return;
 
@@ -1441,12 +1441,12 @@ void CGameContext::LoadCosmetics(int id)
 	pChr->m_WaveBloody = pPlayer->m_IsBackupWaveBloody;
 }
 
-void CGameContext::DeleteCosmetics(int id)
+void CGameContext::DeleteCosmetics(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
-	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	CCharacter *pChr = m_apPlayers[ClientId]->GetCharacter();
 	if(!pChr)
 		return;
 
@@ -1466,15 +1466,15 @@ void CGameContext::CheckDDPPshutdown()
 	if(g_Config.m_SvDDPPshutdown)
 	{
 		int players = CountConnectedHumans();
-		time_t now;
-		struct tm *now_tm;
-		int hour;
+		time_t Now;
+		struct tm *NowTm;
+		int Hour;
 		int min;
-		now = time(NULL);
-		now_tm = localtime(&now);
-		hour = now_tm->tm_hour;
-		min = now_tm->tm_min;
-		if(hour == g_Config.m_SvDDPPshutdownHour && (min == 0 || min == 5 || min == 10)) //Try it 3 times (slow tick shouldnt trigger it multiple times a minute)
+		Now = time(NULL);
+		NowTm = localtime(&Now);
+		Hour = NowTm->tm_hour;
+		min = NowTm->tm_min;
+		if(Hour == g_Config.m_SvDDPPshutdownHour && (min == 0 || min == 5 || min == 10)) //Try it 3 times (slow tick shouldnt trigger it multiple times a minute)
 		{
 			if(players < g_Config.m_SvDDPPshutdownPlayers)
 			{
@@ -1888,7 +1888,7 @@ void CGameContext::AsciiTick(int i)
 void CGameContext::LoadSinglePlayer()
 {
 	FILE *pFile;
-	struct CBinaryStorage statsBuff;
+	struct CBinaryStorage StatsBuff;
 
 	pFile = fopen("ddpp-stats.dat", "rb");
 	if(!pFile)
@@ -1897,29 +1897,29 @@ void CGameContext::LoadSinglePlayer()
 		return;
 	}
 
-	if(!fread(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile))
+	if(!fread(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile))
 	{
 		dbg_msg("ddpp-stats", "failed to read ddpp singleplayer stats");
 		return;
 	}
-	dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", statsBuff.x);
-	m_MissionUnlockedLevel = statsBuff.x;
-	if(!fread(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile))
+	dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", StatsBuff.x);
+	m_MissionUnlockedLevel = StatsBuff.x;
+	if(!fread(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile))
 	{
 		dbg_msg("ddpp-stats", "failed to read ddpp singleplayer stats");
 		return;
 	}
-	dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", statsBuff.x);
-	m_MissionCurrentLevel = statsBuff.x;
+	dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", StatsBuff.x);
+	m_MissionCurrentLevel = StatsBuff.x;
 
 	if(fclose(pFile))
 		dbg_msg("ddpp-stats", "failed to close singleplayer file='%s' errno=%d", "ddpp-stats.dat", errno);
 }
 
-void CGameContext::SaveSinglePlayer()
+void CGameContext::SaveSinglePlayer() const
 {
 	FILE *pFile;
-	struct CBinaryStorage statsBuff;
+	struct CBinaryStorage StatsBuff;
 
 	pFile = fopen("ddpp-stats.dat", "wb");
 	if(!pFile)
@@ -1927,10 +1927,10 @@ void CGameContext::SaveSinglePlayer()
 		dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
 		return;
 	}
-	statsBuff.x = m_MissionUnlockedLevel;
-	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
-	statsBuff.x = m_MissionCurrentLevel;
-	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+	StatsBuff.x = m_MissionUnlockedLevel;
+	fwrite(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+	StatsBuff.x = m_MissionCurrentLevel;
+	fwrite(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile);
 
 	fclose(pFile);
 }
@@ -1946,7 +1946,7 @@ void CGameContext::SaveMapPlayerData()
 		dbg_msg("ddpp-mapsave", "failed to write ddpp player data file '%s'.", aSaveFile);
 		return;
 	}
-	int saved = 0;
+	int Saved = 0;
 	int players = CountTimeoutCodePlayers();
 	fwrite(&players, sizeof(players), 1, pFile);
 	for(auto &Player : m_apPlayers)
@@ -1965,15 +1965,15 @@ void CGameContext::SaveMapPlayerData()
 		dbg_msg("ddpp-mapsave", "writing isloaded at pos %ld", get_file_offset(pFile));
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
-		CSaveTee savetee;
-		savetee.Save(pChr);
-		fwrite(&savetee, sizeof(savetee), 1, pFile);
+		CSaveTee SaveTee;
+		SaveTee.Save(pChr);
+		fwrite(&SaveTee, sizeof(SaveTee), 1, pFile);
 
 		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(Player->GetCid()), Player->m_aTimeoutCode);
-		saved++;
+		Saved++;
 	}
 	fclose(pFile);
-	dbg_msg("ddpp-mapsave", "saved %d/%d players", saved, players);
+	dbg_msg("ddpp-mapsave", "saved %d/%d players", Saved, players);
 }
 
 void CGameContext::LoadMapPlayerData()
@@ -1988,14 +1988,14 @@ void CGameContext::LoadMapPlayerData()
 		dbg_msg("ddpp-mapload", "failed to open ddpp player data file '%s'.", aSaveFile);
 		return;
 	}
-	int loaded = 0;
-	int players = 0;
-	if(!fread(&players, sizeof(players), 1, pFile))
+	int Loaded = 0;
+	int Players = 0;
+	if(!fread(&Players, sizeof(Players), 1, pFile))
 	{
 		dbg_msg("ddpp-mapload", "failed to read data");
 		return;
 	}
-	for(int i = 0; i < players; i++)
+	for(int i = 0; i < Players; i++)
 	{
 		// ValidPlayer replaces continue to make sure the binary cursor is at the right offset
 		bool ValidPlayer = true;
@@ -2057,8 +2057,8 @@ void CGameContext::LoadMapPlayerData()
 		fsetpos(pFile, &pos);
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
-		CSaveTee savetee;
-		if(!fread(&savetee, sizeof(savetee), 1, pFile))
+		CSaveTee SaveTee;
+		if(!fread(&SaveTee, sizeof(SaveTee), 1, pFile))
 		{
 			dbg_msg("ddpp-mapload", "failed to read data");
 			return;
@@ -2069,18 +2069,18 @@ void CGameContext::LoadMapPlayerData()
 			CPlayer *pPlayer = m_apPlayers[id];
 			CCharacter *pChr = pPlayer->GetCharacter();
 
-			savetee.Load(pChr, 0); // load to team0 always xd cuz teams sokk!
+			SaveTee.Load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;
 			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%ld", Server()->ClientName(id), pPlayer->m_aTimeoutCode, get_file_offset(pFile));
-			loaded++;
+			Loaded++;
 		}
 	}
 	if(fclose(pFile))
 		dbg_msg("ddpp-mapload", "failed to close file '%s' errno=%d", aSaveFile, errno);
-	m_MapsavePlayers = players;
-	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
+	m_MapsavePlayers = Players;
+	dbg_msg("ddpp-mapload", "loaded %d/%d players", Loaded, Players);
 }
 
 void CGameContext::ReadMapPlayerData(int ClientId)
@@ -2094,15 +2094,15 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 		dbg_msg("ddpp-mapread", "failed to read ddpp player data file '%s'.", aSaveFile);
 		return;
 	}
-	int loaded = 0;
-	int red = 0;
-	int players = 0;
-	if(!fread(&players, sizeof(players), 1, pFile))
+	int Loaded = 0;
+	int Red = 0;
+	int Players = 0;
+	if(!fread(&Players, sizeof(Players), 1, pFile))
 	{
 		dbg_msg("ddpp-mapread", "failed to read data");
 		return;
 	}
-	for(int i = 0; i < players; i++)
+	for(int i = 0; i < Players; i++)
 	{
 		char aTimeoutCode[64];
 		dbg_msg("ddpp-mapread", "read timeout code at %ld", get_file_offset(pFile));
@@ -2119,38 +2119,38 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 			return;
 		}
 		if(IsLoaded)
-			loaded++;
+			Loaded++;
 
-		CSaveTee savetee;
-		if(!fread(&savetee, sizeof(savetee), 1, pFile))
+		CSaveTee SaveTee;
+		if(!fread(&SaveTee, sizeof(SaveTee), 1, pFile))
 		{
 			dbg_msg("ddpp-mapread", "failed to read data");
 			return;
 		}
 
 		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
-		red++;
+		Red++;
 	}
 	if(fclose(pFile))
 		dbg_msg("ddpp-mapread", "failed to close file '%s' errno=%d", aSaveFile, errno);
 	if(ClientId != -1)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: loaded %d/%d players", loaded, players);
+		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: loaded %d/%d players", Loaded, Players);
 		SendChatTarget(ClientId, aBuf);
-		if(red != players)
+		if(Red != Players)
 		{
-			str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: WARNING only found %d/%d players", red, players);
+			str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: WARNING only found %d/%d players", Red, Players);
 			SendChatTarget(ClientId, aBuf);
 		}
 	}
-	dbg_msg("ddpp-mapread", "red %d/%d players (%d loaded)", red, players, loaded);
+	dbg_msg("ddpp-mapread", "red %d/%d players (%d loaded)", Red, Players, Loaded);
 }
 
 void CGameContext::GlobalChatPrintMessage()
 {
 	char aData[1024];
-	std::string data;
+	std::string Data;
 
 	std::fstream ChatReadFile(g_Config.m_SvGlobalChatFile);
 
@@ -2162,8 +2162,8 @@ void CGameContext::GlobalChatPrintMessage()
 		return;
 	}
 
-	getline(ChatReadFile, data);
-	str_format(aData, sizeof(aData), "%s", data.c_str());
+	getline(ChatReadFile, Data);
+	str_format(aData, sizeof(aData), "%s", Data.c_str());
 	aData[0] = ' '; //remove the confirms before print in chat
 
 	if(!str_comp(m_aLastPrintedGlobalChatMessage, aData))
@@ -2173,7 +2173,7 @@ void CGameContext::GlobalChatPrintMessage()
 		return;
 	}
 
-	GlobalChatUpdateConfirms(data.c_str());
+	GlobalChatUpdateConfirms(Data.c_str());
 	str_format(m_aLastPrintedGlobalChatMessage, sizeof(m_aLastPrintedGlobalChatMessage), "%s", aData);
 	SendChat(-1, TEAM_ALL, aData);
 	//str_format(aBuf, sizeof(aBuf), "[CHAT] '%s'", aData);
@@ -2186,25 +2186,25 @@ void CGameContext::GlobalChatUpdateConfirms(const char *pStr)
 {
 	char aBuf[1024];
 	str_format(aBuf, sizeof(aBuf), "%s", pStr);
-	int confirms = 0;
+	int Confirms = 0;
 	if(pStr[0] == '1')
-		confirms = 1;
+		Confirms = 1;
 	else if(pStr[0] == '2')
-		confirms = 2;
+		Confirms = 2;
 	else if(pStr[0] == '3')
-		confirms = 3;
+		Confirms = 3;
 	else if(pStr[0] == '4')
-		confirms = 4;
+		Confirms = 4;
 	else if(pStr[0] == '5')
-		confirms = 5;
+		Confirms = 5;
 	else if(pStr[0] == '6')
-		confirms = 6;
+		Confirms = 6;
 	else if(pStr[0] == '7')
-		confirms = 7;
+		Confirms = 7;
 	else if(pStr[0] == '8')
-		confirms = 8;
+		Confirms = 8;
 	else if(pStr[0] == '9')
-		confirms = 9;
+		Confirms = 9;
 
 	std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
 	if(!ChatFile)
@@ -2218,8 +2218,8 @@ void CGameContext::GlobalChatUpdateConfirms(const char *pStr)
 
 	if(ChatFile.is_open())
 	{
-		confirms++;
-		aBuf[0] = confirms + '0';
+		Confirms++;
+		aBuf[0] = Confirms + '0';
 		ChatFile << aBuf << "\n";
 	}
 	else

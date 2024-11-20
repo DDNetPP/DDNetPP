@@ -382,7 +382,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	Leave(pPlayer);
 	pPlayer->m_IsBlockTourningDead = true;
 	pPlayer->m_IsBlockTourningInArena = false;
-	int wonId = CountAlive();
+	int WonId = CountAlive();
 
 	//update skill levels
 	if(pPlayer->GetCid() == Killer) //selfkill
@@ -391,12 +391,12 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	}
 	else
 	{
-		int deadskill = pPlayer->m_Account.m_BlockSkill;
-		int killskill = GameServer()->m_apPlayers[Killer]->m_Account.m_BlockSkill;
-		int skilldiff = abs(deadskill - killskill);
-		if(skilldiff < 1500) //pretty same skill lvl
+		int DeadSkill = pPlayer->m_Account.m_BlockSkill;
+		int KillSkill = GameServer()->m_apPlayers[Killer]->m_Account.m_BlockSkill;
+		int SkillDiff = abs(DeadSkill - KillSkill);
+		if(SkillDiff < 1500) //pretty same skill lvl
 		{
-			if(deadskill < killskill) //the killer is better
+			if(DeadSkill < KillSkill) //the killer is better
 			{
 				GameServer()->UpdateBlockSkill(-29, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+30, Killer); //killer
@@ -409,7 +409,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		}
 		else //unbalanced skill lvl --> punish harder and reward nicer
 		{
-			if(deadskill < killskill) //the killer is better
+			if(DeadSkill < KillSkill) //the killer is better
 			{
 				GameServer()->UpdateBlockSkill(-19, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+20, Killer); //killer
@@ -422,94 +422,94 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		}
 	}
 
-	if(wonId == -404)
+	if(WonId == -404)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", WonId);
 		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
-	else if(wonId < 0)
+	else if(WonId < 0)
 	{
-		if(wonId == -420)
-			wonId = 0;
-		wonId *= -1;
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonId), m_StartPlayers);
+		if(WonId == -420)
+			WonId = 0;
+		WonId *= -1;
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(WonId), m_StartPlayers);
 		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_ENDING; //set end state
 
 		//give price to the winner
-		int xp_rew;
-		int points_rew;
-		int money_rew;
-		int skill_rew;
+		int XpRew;
+		int PointsRew;
+		int MoneyRew;
+		int SkillRew;
 		if(m_StartPlayers <= 5) //depending on how many tees participated
 		{
-			xp_rew = 200;
-			points_rew = 3;
-			money_rew = 100;
-			skill_rew = 10;
+			XpRew = 200;
+			PointsRew = 3;
+			MoneyRew = 100;
+			SkillRew = 10;
 		}
 		else if(m_StartPlayers <= 10)
 		{
-			xp_rew = 500;
-			points_rew = 5;
-			money_rew = 500;
-			skill_rew = 20;
+			XpRew = 500;
+			PointsRew = 5;
+			MoneyRew = 500;
+			SkillRew = 20;
 		}
 		else if(m_StartPlayers <= 15)
 		{
-			xp_rew = 3000;
-			points_rew = 10;
-			money_rew = 1000;
-			skill_rew = 30;
+			XpRew = 3000;
+			PointsRew = 10;
+			MoneyRew = 1000;
+			SkillRew = 30;
 		}
 		else if(m_StartPlayers <= 32)
 		{
-			xp_rew = 5000;
-			points_rew = 25;
-			money_rew = 2000;
-			skill_rew = 120;
+			XpRew = 5000;
+			PointsRew = 25;
+			MoneyRew = 2000;
+			SkillRew = 120;
 		}
 		else if(m_StartPlayers <= 44)
 		{
-			xp_rew = 20000;
-			points_rew = 30;
-			money_rew = 10000;
-			skill_rew = 400;
+			XpRew = 20000;
+			PointsRew = 30;
+			MoneyRew = 10000;
+			SkillRew = 400;
 		}
 		else
 		{
-			xp_rew = 25000;
-			points_rew = 100;
-			money_rew = 50000;
-			skill_rew = 900;
+			XpRew = 25000;
+			PointsRew = 100;
+			MoneyRew = 50000;
+			SkillRew = 900;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", xp_rew);
-		GameServer()->SendChatTarget(wonId, aBuf);
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", money_rew);
-		GameServer()->SendChatTarget(wonId, aBuf);
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
-		GameServer()->SendChatTarget(wonId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", XpRew);
+		GameServer()->SendChatTarget(WonId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", MoneyRew);
+		GameServer()->SendChatTarget(WonId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", PointsRew);
+		GameServer()->SendChatTarget(WonId, aBuf);
 
-		GameServer()->m_apPlayers[wonId]->MoneyTransaction(+money_rew, "block tournament");
-		GameServer()->m_apPlayers[wonId]->GiveXP(xp_rew);
-		GameServer()->m_apPlayers[wonId]->GiveBlockPoints(points_rew);
-		GameServer()->UpdateBlockSkill(+skill_rew, wonId);
+		GameServer()->m_apPlayers[WonId]->MoneyTransaction(+MoneyRew, "block tournament");
+		GameServer()->m_apPlayers[WonId]->GiveXP(XpRew);
+		GameServer()->m_apPlayers[WonId]->GiveBlockPoints(PointsRew);
+		GameServer()->UpdateBlockSkill(+SkillRew, WonId);
 	}
-	else if(wonId == 0)
+	else if(WonId == 0)
 	{
 		GameServer()->SendChat(-1, TEAM_ALL, "[BLOCK] nobody won the tournament");
 		m_State = STATE_OFF;
 	}
-	else if(wonId > 1)
+	else if(WonId > 1)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonId + 1);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", WonId + 1);
 		GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", WonId);
 		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
