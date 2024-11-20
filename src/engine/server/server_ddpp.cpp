@@ -3,6 +3,10 @@
 #include <base/math.h>
 #include <base/system.h>
 
+#ifdef CONF_PLATFORM_LINUX
+#include <cerrno> // Storage()->OpenFile() fail details (it is a fopen wrapper on linux)
+#endif
+
 #include <engine/config.h>
 #include <engine/console.h>
 #include <engine/engine.h>
@@ -103,6 +107,9 @@ void CServer::WriteWrongRconJson(int ClientId, const char *pName, const char *pP
 	if(!pFile)
 	{
 		dbg_msg("ddnet++", "failed to open %s", g_Config.m_SvWrongRconFile);
+#ifdef CONF_PLATFORM_LINUX
+		dbg_msg("ddnet++", "  errno=%d", errno);
+#endif
 		return;
 	}
 
