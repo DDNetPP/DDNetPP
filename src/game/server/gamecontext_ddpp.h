@@ -149,7 +149,7 @@ public:
 	void HttpGetStable(const char *pUrl, const char *pContent);
 	// wrapper around ddnets always changing http api
 	void HttpPostStable(const char *pUrl, const char *pContent) const;
-	void SendDiscordWebhook(const char *pWebhookUrl, const char *pContent);
+	void SendDiscordWebhook(const char *pWebhookUrl, const char *pContent) const;
 
 	IHttp *m_pDdppHttp;
 

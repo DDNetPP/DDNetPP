@@ -35,57 +35,57 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromId, const char *
 		return -1;
 	}
 
-	int item = TradeItemToInt(pItemName); // ITEM EXIST ???
-	if(item == -1)
+	int Item = TradeItemToInt(pItemName); // ITEM EXIST ???
+	if(Item == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
 		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
-	if(item == 2 && pPlayer->m_SpawnShotgunActive) // are items spawn weapons?
+	if(Item == 2 && pPlayer->m_SpawnShotgunActive) // are items spawn weapons?
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade your spawn shotgun.");
 		return -1;
 	}
-	if(item == 3 && pPlayer->m_SpawnGrenadeActive)
+	if(Item == 3 && pPlayer->m_SpawnGrenadeActive)
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade your spawn grenade.");
 		return -1;
 	}
-	if(item == 4 && pPlayer->m_SpawnRifleActive)
+	if(Item == 4 && pPlayer->m_SpawnRifleActive)
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade your spawn rifle.");
 		return -1;
 	}
-	if(item == 5 && (pPlayer->m_SpawnShotgunActive || pPlayer->m_SpawnGrenadeActive || pPlayer->m_SpawnRifleActive))
+	if(Item == 5 && (pPlayer->m_SpawnShotgunActive || pPlayer->m_SpawnGrenadeActive || pPlayer->m_SpawnRifleActive))
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade your spawn weapons.");
 		return -1;
 	}
 
-	if(item == 2 && pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN]) // do items have infinite ammo? (not a pickep up spawn weapon)
+	if(Item == 2 && pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN]) // do items have infinite ammo? (not a pickep up spawn weapon)
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
-	if(item == 3 && pChr->m_aDecreaseAmmo[WEAPON_GRENADE])
+	if(Item == 3 && pChr->m_aDecreaseAmmo[WEAPON_GRENADE])
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
-	if(item == 4 && pChr->m_aDecreaseAmmo[WEAPON_LASER])
+	if(Item == 4 && pChr->m_aDecreaseAmmo[WEAPON_LASER])
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
-	if(item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_LASER]))
+	if(Item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_LASER]))
 	{
 		SendChatTarget(FromId, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
 		return -1;
 	}
 
-	int HasItem = TradeHasItem(item, FromId); // ITEM OWNED ???
+	int HasItem = TradeHasItem(Item, FromId); // ITEM OWNED ???
 	if(HasItem == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you don't own the item [ %s ]", pItemName);
@@ -320,25 +320,25 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromId)
 
 int CGameContext::TradeItemToInt(const char *pItemName)
 {
-	int item = -1;
+	int Item = -1;
 
 	if(!str_comp_nocase(pItemName, "shotgun"))
 	{
-		item = 2;
+		Item = 2;
 	}
 	else if(!str_comp_nocase(pItemName, "grenade"))
 	{
-		item = 3;
+		Item = 3;
 	}
 	else if(!str_comp_nocase(pItemName, "rifle"))
 	{
-		item = 4;
+		Item = 4;
 	}
 	else if(!str_comp_nocase(pItemName, "all_weapons"))
 	{
-		item = 5;
+		Item = 5;
 	}
-	return item;
+	return Item;
 }
 
 const char *CGameContext::TradeItemToStr(int ItemId)
@@ -362,13 +362,13 @@ const char *CGameContext::TradeItemToStr(int ItemId)
 	return "(null)";
 }
 
-int CGameContext::TradeHasItem(int ItemId, int Id)
+int CGameContext::TradeHasItem(int ItemId, int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[Id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return -1;
 
-	CCharacter *pChr = GetPlayerChar(Id);
+	CCharacter *pChr = GetPlayerChar(ClientId);
 	if(!pChr)
 		return -1;
 

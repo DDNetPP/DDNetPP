@@ -22,7 +22,7 @@ void CGameContext::HttpPostStable(const char *pUrl, const char *pContent) const
 	m_pDdppHttp->Run(pDiscord);
 }
 
-void CGameContext::SendDiscordWebhook(const char *pWebhookUrl, const char *pContent)
+void CGameContext::SendDiscordWebhook(const char *pWebhookUrl, const char *pContent) const
 {
 	char aPayload[4048];
 	char aContentStr[4000];

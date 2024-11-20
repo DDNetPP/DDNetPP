@@ -3,7 +3,6 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
-#include <cinttypes>
 #include <cstring>
 
 #include "../gamecontext.h"
@@ -21,10 +20,10 @@ bool CBalance::HandleCharacterTiles(CCharacter *pChr, int Index)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
 
-	int m_TileIndex = GameServer()->Collision()->GetTileIndex(Index);
-	int m_TileFIndex = GameServer()->Collision()->GetFTileIndex(Index);
+	int TileIndex = GameServer()->Collision()->GetTileIndex(Index);
+	int TileFIndex = GameServer()->Collision()->GetFTileIndex(Index);
 	// freeze
-	if((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE))
+	if((TileIndex == TILE_FREEZE) || (TileFIndex == TILE_FREEZE))
 	{
 		if((pPlayer->GetCid() == GameServer()->m_BalanceId1 || pPlayer->GetCid() == GameServer()->m_BalanceId2) && GameServer()->m_BalanceBattleState == 2)
 		{

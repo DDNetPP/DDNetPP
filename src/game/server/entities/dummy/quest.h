@@ -5,10 +5,12 @@
 
 class CDummyQuest : public CDummyBase
 {
+	bool m_IsAimbot = false;
+
 public:
 	CDummyQuest(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual ~CDummyQuest(){};
+	void OnTick() override;
+	~CDummyQuest() override = default;
 	const char *ModeStr() override { return "Quest"; }
 };
 

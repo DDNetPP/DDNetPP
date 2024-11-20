@@ -158,20 +158,20 @@ void CDummyChillBlock5Blocker::OnTick()
 	{
 		m_Dummy_mode18 = 2;
 	}
-	else if(m_Dummy_special_defend) //Check mode 3 [Attack from tunnel wayblocker]
+	else if(m_Dummy_special_defend) // Check mode 3 [Attack from tunnel wayblocker]
 	{
 		m_Dummy_mode18 = 3;
 	}
 	else
 	{
-		m_Dummy_mode18 = 0; //change to main mode
+		m_Dummy_mode18 = 0; // change to main mode
 	}
 
 	//Modes:
 
-	if(m_Dummy_mode18 == 3) //special defend mode
+	if(m_Dummy_mode18 == 3) // special defend mode
 	{
-		//testy wenn der dummy in den special defend mode gesetzt wird pusht das sein adrenalin und ihm is nicht mehr lw
+		// testy wenn der dummy in den special defend mode gesetzt wird pusht das sein adrenalin und ihm is nicht mehr lw
 		m_Dummy_bored_counter = 0;
 
 		CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(GetPos(), true, m_pCharacter);
@@ -180,36 +180,37 @@ void CDummyChillBlock5Blocker::OnTick()
 			AimX(pChr->GetPos().x - GetPos().x);
 			AimY(pChr->GetPos().y - GetPos().y);
 
-			//rest on tick
+			// rest on tick
 			Hook(0);
 			Jump(0);
 			StopMoving();
 			Fire(0);
-			SetWeapon(1); //gun verwenden damit auch erkannt wird wann der mode getriggert wird
+			SetWeapon(1); // gun verwenden damit auch erkannt wird wann der mode getriggert wird
 
 			if(pChr->m_FreezeTime == 0)
 			{
-				//wenn der gegner doch irgendwie unfreeze wird übergib an den main mode und lass den notstand das regeln
+				// wenn der gegner doch irgendwie unfreeze wird übergib an den main mode und lass den notstand das regeln
 				m_Dummy_special_defend = false;
 				m_Dummy_special_defend_attack = false;
 			}
-			//mode18 sub mode 3
-			//Main code:
-			//warte bis der gegner auf den boden geklatscht ist
-			//dann werf ihn rechts runter
+			// mode18 sub mode 3
+			// Main code:
+			// warte bis der gegner auf den boden geklatscht ist
+			// dann werf ihn rechts runter
 
 			if(pChr->Core()->m_Vel.y > -0.9f && pChr->m_Pos.y > 211 * 32)
 			{
-				//wenn der gegner am boden liegt starte angriff
+				// wenn der gegner am boden liegt starte angriff
 				m_Dummy_special_defend_attack = true;
 
-				//start jump
+				// start jump
 				Jump();
 			}
 
 			if(m_Dummy_special_defend_attack)
 			{
-				if(GetPos().x - pChr->m_Pos.x < 50) //wenn der gegner nah genung is mach dj
+				// if the enemy is close enough do a double jump
+				if(GetPos().x - pChr->m_Pos.x < 50)
 				{
 					Jump();
 				}
@@ -224,7 +225,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					m_Dummy_special_defend_attack = false;
 				}
 
-				//Der bot sollte möglichst weit nach rechts gehen aber natürlich nicht ins freeze
+				// the bot should be as much on the ride side as possible but not in the freeze
 
 				if(GetPos().x < 427 * 32 + 15)
 				{
@@ -236,13 +237,13 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 			}
 		}
-		else //wenn kein gegner mehr im Ruler bereich is
+		else // wenn kein gegner mehr im Ruler bereich is
 		{
 			m_Dummy_special_defend = false;
 			m_Dummy_special_defend_attack = false;
 		}
 	}
-	else if(m_Dummy_mode18 == 2) //different wayblock mode
+	else if(m_Dummy_mode18 == 2) // different wayblock mode
 	{
 		//rest on tick
 		Hook(0);
@@ -253,15 +254,15 @@ void CDummyChillBlock5Blocker::OnTick()
 		{
 			SetWeapon(0);
 		}
-		//if (Server()->Tick() % 5 == 0)
-		//{
-		//	GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
-		//}
+		// if (Server()->Tick() % 5 == 0)
+		// {
+		// 	GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
+		// }
 
-		//Selfkills (bit random but they work)
+		// Selfkills (bit random but they work)
 		if(IsFrozen())
 		{
-			//wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
+			// wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
 			if(Server()->Tick() % 300 == 0)
 			{
 				Die();
@@ -272,7 +273,7 @@ void CDummyChillBlock5Blocker::OnTick()
 		CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler2(GetPos(), true, m_pCharacter);
 		if(pChr && pChr->IsAlive())
 		{
-			//Check ob an notstand mode18 = 0 übergeben
+			// Check ob an notstand mode18 = 0 übergeben
 			if(pChr->m_FreezeTime == 0)
 			{
 				m_Dummy_bored = false;
@@ -285,7 +286,8 @@ void CDummyChillBlock5Blocker::OnTick()
 
 			Jump();
 
-			if(pChr->GetPos().y > GetPos().y && pChr->GetPos().x > GetPos().x + 20) //solange der bot über dem gegner ist (damit er wenn er ihn weg hammert nicht weiter hookt)
+			// solange der bot über dem gegner ist (damit er wenn er ihn weg hammert nicht weiter hookt)
+			if(pChr->GetPos().y > GetPos().y && pChr->GetPos().x > GetPos().x + 20)
 			{
 				Hook();
 			}
@@ -319,7 +321,7 @@ void CDummyChillBlock5Blocker::OnTick()
 		//Selfkills (bit random but they work)
 		if(IsFrozen())
 		{
-			//wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
+			// wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
 			if(Server()->Tick() % 300 == 0)
 			{
 				Die();
@@ -365,7 +367,7 @@ void CDummyChillBlock5Blocker::OnTick()
 				CCharacter *pChrTunnel = GameServer()->m_World.ClosestCharTypeTunnel(GetPos(), true, m_pCharacter);
 				if(pChrTunnel && pChrTunnel->IsAlive())
 				{
-					//wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
+					// wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
 					if(pChrTunnel->m_Pos.x < GetPos().x) //hooke nur wenn kein Gegner rechts von dem bot im tunnel is (da er sonst ziemlich wahrscheinlich den hooken würde)
 					{
 						Hook();
@@ -373,12 +375,12 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 				else
 				{
-					//wenn eh keiner im tunnel is hau raus dat ding
+					// wenn eh keiner im tunnel is hau raus dat ding
 					Hook();
 				}
 
-				//schau ob sich der gegner bewegt und der bot grad nicht mehr am angreifen iss dann resette falls er davor halt misshookt hat
-				//geht nich -.-
+				// schau ob sich der gegner bewegt und der bot grad nicht mehr am angreifen iss dann resette falls er davor halt misshookt hat
+				// geht nich -.-
 				if(HookState() != HOOK_FLYING && HookState() != HOOK_GRABBED)
 				{
 					if(Server()->Tick() % 10 == 0)
@@ -404,29 +406,29 @@ void CDummyChillBlock5Blocker::OnTick()
 	}
 	else if(m_Dummy_mode18 == 0) //main mode
 	{
-		//if (mode18_main_init)
-		//{
-		//	//initialzing main mode...
-		//	//resetting stuff...
-		//	Hook(0);
-		//}
+		// if (mode18_main_init)
+		// {
+		// 	//initialzing main mode...
+		// 	//resetting stuff...
+		// 	Hook(0);
+		// }
 
-		//Hook(0);
-		//if (HookState() == HOOK_FLYING)
-		//	Hook();
-		//else if (HookState() == HOOK_GRABBED)
-		//	Hook();
-		//else
-		//	Hook(0);
+		// Hook(0);
+		// if (HookState() == HOOK_FLYING)
+		// 	Hook();
+		// else if (HookState() == HOOK_GRABBED)
+		// 	Hook();
+		// else
+		// 	Hook(0);
 
 		Jump(0);
 		StopMoving();
 		Fire(0);
 
-		//char aBuf[256];
-		//str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f speed pChr:  x: %f y: %f", GetVel().x, GetVel().y);
+		// char aBuf[256];
+		// str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f speed pChr:  x: %f y: %f", GetVel().x, GetVel().y);
 
-		//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		// GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 		if(1 == 2)
 		{
@@ -461,101 +463,101 @@ void CDummyChillBlock5Blocker::OnTick()
 			m_Dummy_left_freeze_full = false;
 		}
 
-		//hardcodet selfkill (moved in lower area only)
-		//if (GetPos().x < 390 * 32 && GetPos().y > 214 * 32)  //Links am spawn runter
-		//{
-		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Links am spawn runter");
-		//}
-		//else if ((GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x > 392 * 32 && GetPos().y > 190) || (GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x < 390 * 32 && GetPos().y > 190)) //freeze decke am spawn
-		//{
-		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke am spawn");
-		//}
-		//else if (GetPos().y > 218 * 32 + 31 /* für tee balance*/ && GetPos().x < 415 * 32) //freeze boden am spawn
-		//{
-		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden am spawn");
-		//}
-		//else if (GetPos().y < 215 * 32 && GetPos().y > 213 * 32 && GetPos().x > 415 * 32 && GetPos().x < 428 * 32) //freeze decke im tunnel
-		//{
-		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke im tunnel");
-		//}
-		//else if (GetPos().y > 222 * 32) //freeze becken unter area
-		//{
-		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze becken unter area");
-		//}
-		//else if (GetPos().y > 213 * 32 && GetPos().x > 436 * 32) //freeze rechts neben freeze becken
-		//{
-		//	//Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze rechts neben freeze becken");
-		//}
-		//else if (GetPos().x > 469 * 32) //zu weit ganz rechts in der ruler area
-		//{
-		//	//Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "zu weit ganz rechts in der ruler area");
-		//}
-		//else if (GetPos().y > 211 * 32 + 34 && GetPos().x > 455 * 32) //alles freeze am boden rechts in der area
-		//{
-		//	//Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
-		//}
+		// hardcodet selfkill (moved in lower area only)
+		// if (GetPos().x < 390 * 32 && GetPos().y > 214 * 32)  //Links am spawn runter
+		// {
+		// 	Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Links am spawn runter");
+		// }
+		// else if ((GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x > 392 * 32 && GetPos().y > 190) || (GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x < 390 * 32 && GetPos().y > 190)) //freeze decke am spawn
+		// {
+		// 	Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke am spawn");
+		// }
+		// else if (GetPos().y > 218 * 32 + 31 /* für tee balance*/ && GetPos().x < 415 * 32) //freeze boden am spawn
+		// {
+		// 	Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden am spawn");
+		// }
+		// else if (GetPos().y < 215 * 32 && GetPos().y > 213 * 32 && GetPos().x > 415 * 32 && GetPos().x < 428 * 32) //freeze decke im tunnel
+		// {
+		// 	Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke im tunnel");
+		// }
+		// else if (GetPos().y > 222 * 32) //freeze becken unter area
+		// {
+		// 	Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze becken unter area");
+		// }
+		// else if (GetPos().y > 213 * 32 && GetPos().x > 436 * 32) //freeze rechts neben freeze becken
+		// {
+		// 	//Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze rechts neben freeze becken");
+		// }
+		// else if (GetPos().x > 469 * 32) //zu weit ganz rechts in der ruler area
+		// {
+		// 	//Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "zu weit ganz rechts in der ruler area");
+		// }
+		// else if (GetPos().y > 211 * 32 + 34 && GetPos().x > 455 * 32) //alles freeze am boden rechts in der area
+		// {
+		// 	//Die();
+		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
+		// }
 
-		//if (GetPos().y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unsued version (this code makes no sense at all)
-		//{
-		//	AimX(200);
-		//	AimY(-80);
+		// if (GetPos().y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unsued version (this code makes no sense at all)
+		// {
+		// 	AimX(200);
+		// 	AimY(-80);
 
-		//	//not falling in freeze is bad
-		//	if (GetVel().y < 0.01f && m_FreezeTime > 0)
-		//	{
-		//		if (Server()->Tick() % 40 == 0)
-		//		{
-		//			Die();
-		//		}
-		//	}
-		//	if (GetPos().y > 116 * 32 && GetPos().x > 394 * 32)
-		//	{
-		//		Die();
-		//	}
+		// 	//not falling in freeze is bad
+		// 	if (GetVel().y < 0.01f && m_FreezeTime > 0)
+		// 	{
+		// 		if (Server()->Tick() % 40 == 0)
+		// 		{
+		// 			Die();
+		// 		}
+		// 	}
+		// 	if (GetPos().y > 116 * 32 && GetPos().x > 394 * 32)
+		// 	{
+		// 		Die();
+		// 	}
 
-		//	if (GetPos().x > 364 * 32 && GetPos().y < 126 * 32 && GetPos().y > 122 * 32 + 10)
-		//	{
-		//		if (GetVel().y > -1.0f)
-		//		{
-		//			Hook();
-		//		}
-		//	}
+		// 	if (GetPos().x > 364 * 32 && GetPos().y < 126 * 32 && GetPos().y > 122 * 32 + 10)
+		// 	{
+		// 		if (GetVel().y > -1.0f)
+		// 		{
+		// 			Hook();
+		// 		}
+		// 	}
 
-		//	if (GetPos().y < 121 * 32 && GetPos().x > 369 * 32)
-		//	{
-		//		Left();
-		//	}
-		//	else
-		//	{
-		//		Right();
-		//	}
-		//	if (GetPos().y < 109 * 32 && GetPos().x > 377 * 32 && GetPos().x < 386 * 32)
-		//	{
-		//		Right();
-		//	}
+		// 	if (GetPos().y < 121 * 32 && GetPos().x > 369 * 32)
+		// 	{
+		// 		Left();
+		// 	}
+		// 	else
+		// 	{
+		// 		Right();
+		// 	}
+		// 	if (GetPos().y < 109 * 32 && GetPos().x > 377 * 32 && GetPos().x < 386 * 32)
+		// 	{
+		// 		Right();
+		// 	}
 
-		//	if (GetPos().y > 128 * 32)
-		//	{
-		//		Jump();
-		//	}
+		// 	if (GetPos().y > 128 * 32)
+		// 	{
+		// 		Jump();
+		// 	}
 
-		//	//speeddown at end to avoid selfkill cuz to slow falling in freeze
-		//	if (GetPos().x > 384 * 32 && GetPos().y > 121 * 32)
-		//	{
-		//		AimX(200);
-		//		AimY(300);
-		//		Hook();
-		//	}
-		//}
-		//else //under 193 (above 193 is new spawn)
+		// 	//speeddown at end to avoid selfkill cuz to slow falling in freeze
+		// 	if (GetPos().x > 384 * 32 && GetPos().y > 121 * 32)
+		// 	{
+		// 		AimX(200);
+		// 		AimY(300);
+		// 		Hook();
+		// 	}
+		// }
+		// else //under 193 (above 193 is new spawn)
 
 		if(GetPos().x > 241 * 32 && GetPos().x < 418 * 32 && GetPos().y > 121 * 32 && GetPos().y < 192 * 32) //new spawn ChillBlock5 (tourna edition (the on with the gores stuff))
 		{
@@ -607,11 +609,11 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 			}
-			else if(GetPos().x < 317 * 32) //top left spawn
+			else if(GetPos().x < 317 * 32) // top left spawn
 			{
-				if(GetPos().y < 158 * 32) //spawn area find down
+				if(GetPos().y < 158 * 32) // spawn area find down
 				{
-					//selfkill
+					// selfkill
 					if(IsFrozen())
 					{
 						Die();
@@ -930,8 +932,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						Fire();
 					}
 
-					int duNIPPEL = rand() % 1337;
-					if(duNIPPEL > 420)
+					if(rand() % 1337 > 420)
 					{
 						SetWeapon(0);
 					}
@@ -955,7 +956,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							if(Server()->Tick() % 10 == 0)
 							{
 								int x = rand() % 20;
-								int y = rand() % 20 - 10;
+								int y = (rand() % 20) - 10;
 								AimX(x);
 								AimY(y);
 							}
@@ -1152,7 +1153,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					{
 						if(pChr->GetPos().x < 429 * 32 && pChr->Core()->m_Vel.x < 4.3f)
 						{
-							int x = rand() % 100 - 50;
+							int x = (rand() % 100) - 50;
 							int y = rand() % 100;
 
 							AimX(pChr->GetPos().x - GetPos().x + x);
@@ -1749,14 +1750,14 @@ void CDummyChillBlock5Blocker::OnTick()
 										Hook();
 										if(Server()->Tick() % 10 == 0)
 										{
-											int x = rand() % 100 - 50;
-											int y = rand() % 100 - 50;
+											int x = (rand() % 100) - 50;
+											int y = (rand() % 100) - 50;
 
 											AimX(x);
 											AimY(y);
 										}
-										//random shooting xD
-										int r = rand() % 200 + 10;
+										// random shooting xD
+										int r = (rand() % 200) + 10;
 										if(Server()->Tick() % r == 0 && m_pCharacter->m_FreezeTime == 0)
 										{
 											Fire();
@@ -1764,8 +1765,8 @@ void CDummyChillBlock5Blocker::OnTick()
 									}
 								}
 
-								//also this trick needs some freeze dogining because sometime huge speed fucks the bot
-								//and NOW THIS CODE is here to fuck the high speed
+								// also this trick needs some freeze dogining because sometime huge speed fucks the bot
+								// and NOW THIS CODE is here to fuck the high speed
 								// yo!
 								if(GetPos().x > 440 * 32)
 								{
@@ -1776,7 +1777,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									StopMoving();
 								}
 							}
-							else if(m_DummyFreezeBlockTrick == 3) //enemy on the left swing him to the right
+							else if(m_DummyFreezeBlockTrick == 3) // enemy on the left swing him to the right
 							{
 								AimX(pChrRuler->GetPos().x - GetPos().x);
 								AimY(pChrRuler->GetPos().y - GetPos().y);
@@ -1813,30 +1814,30 @@ void CDummyChillBlock5Blocker::OnTick()
 									Left();
 								}
 
-								//STOPPER hook:
-								//hook the tee if he flys to much to the right
+								// STOPPER hook:
+								// hook the tee if he flys to much to the right
 								if(pChrRuler->m_Pos.x > 433 * 32 + 20)
 								{
 									Hook();
 								}
 
-								//Hook the tee again and go to the left -> drag him under block area
-								//-->Trick 5
+								// Hook the tee again and go to the left -> drag him under block area
+								// -->Trick 5
 								if(pChrRuler->Core()->m_Vel.y > 8.1f && pChrRuler->m_Pos.x > 429 * 32 + 1 && pChrRuler->m_Pos.y > 209 * 32)
 								{
 									m_DummyFreezeBlockTrick = 5;
 									Hook();
 								}
 
-								//if he lands on the right plattform switch trick xD
-								//doesnt work anysways (now fixed by the stopper hook)
+								// if he lands on the right plattform switch trick xD
+								// doesnt work anysways (now fixed by the stopper hook)
 								if(pChrRuler->m_Pos.x > 433 * 32 && pChrRuler->Core()->m_Vel.y == 0.0f)
 								{
 									m_DummyFreezeBlockTrick = 2;
-									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "trick gone wrong --> change trick");
+									// GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "trick gone wrong --> change trick");
 								}
 
-								//Check for trick went wrong --> trick3 panic activation
+								// Check for trick went wrong --> trick3 panic activation
 								if(m_Dummy_trick3_start_count)
 								{
 									m_Dummy_trick_panic_check_delay++;
@@ -1875,7 +1876,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									}
 								}
 							}
-							else if(m_DummyFreezeBlockTrick == 4) //clear left freeze
+							else if(m_DummyFreezeBlockTrick == 4) // clear left freeze
 							{
 								Hook(0);
 								Jump(0);
@@ -1908,7 +1909,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									else
 									{
 										Hook(0);
-										m_DummyFreezeBlockTrick = 0; //fuck it too lazy normal stuff shoudl do the rest xD
+										m_DummyFreezeBlockTrick = 0; // fuck it too lazy normal stuff shoudl do the rest xD
 									}
 									if(Server()->Tick() % 7 == 0)
 									{
@@ -1916,7 +1917,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									}
 								}
 							}
-							else if(m_DummyFreezeBlockTrick == 5) //Hook under blockarea to the left (mostly the end of a trick)
+							else if(m_DummyFreezeBlockTrick == 5) // Hook under blockarea to the left (mostly the end of a trick)
 							{
 								//For now this trick only gets triggerd in trick 3 at the end
 
@@ -1938,7 +1939,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							}
 						}
 					}
-					else //nobody alive in ruler area --> stop tricks
+					else // nobody alive in ruler area --> stop tricks
 					{
 						m_Dummy_trick4_hasstartpos = false;
 						m_Dummy_trick3_panic = false;
@@ -1950,15 +1951,15 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 			}
 
-			//##################################
-			// 29 only protections and doge moves
-			//##################################
+			// ##################################
+			//  29 only protections and doge moves
+			// ##################################
 
-			//Super last jumpy freeze protection o.O
-			//saves alot bot live im very sure
-			//#longlivesthebotrofl
+			// Super last jumpy freeze protection o.O
+			// saves alot bot live im very sure
+			// #longlivesthebotrofl
 
-			if(GetPos().x > 429 * 32 && GetPos().x < 436 * 32 && GetPos().y < 214 * 32) //dangerous area over the freeze
+			if(GetPos().x > 429 * 32 && GetPos().x < 436 * 32 && GetPos().y < 214 * 32) // dangerous area over the freeze
 			{
 				//first check! too low?
 				if(GetPos().y > 211 * 32 + 10 && !IsGrounded())
@@ -1982,28 +1983,28 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 			}
 
-			//survival moves above the second freeze in the ruler from the left
-			// ascii art shows where :
+			// survival moves above the second freeze in the ruler from the left
+			//  ascii art shows where :
 			//
-			//                   |
-			//                   |
-			//                   v
-			//                        --------
-			//-----#####----###########-######
-			//###########-####################
-			//           #
-			//           #
-			//           -#########################----------
-			//           #--------------------------
+			//                    |
+			//                    |
+			//                    v
+			//                         --------
+			// -----#####----###########-######
+			// ###########-####################
+			//            #
+			//            #
+			//            -#########################----------
+			//            #--------------------------
 
 			if(GetPos().x > 439 * 32 && GetPos().x < 449 * 32)
 			{
-				//low left lowspeed --> go left
+				// low left lowspeed --> go left
 				if(GetPos().x > 439 * 32 && GetPos().y > 209 * 32 && GetVel().x < 3.0f)
 				{
 					Left();
 				}
-				//low left highrightspeed --> go right with the speed and activate some random modes to keep the speed xD
+				// low left highrightspeed --> go right with the speed and activate some random modes to keep the speed xD
 				if(GetPos().x > 439 * 32 && GetPos().y > 209 * 32 && GetVel().x > 6.0f && Jumped() < 2)
 				{
 					Right();
@@ -2024,7 +2025,7 @@ void CDummyChillBlock5Blocker::OnTick()
 				{
 					Right();
 					AimX(200);
-					int r = rand() % 200 - 100;
+					int r = (rand() % 200) - 100;
 					AimY(r);
 					Hook();
 					if(Server()->Tick() % 30 == 0 && HookState() != HOOK_GRABBED)
@@ -2033,38 +2034,38 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 			}
-			else //out of the freeze area resett bools
+			else // out of the freeze area resett bools
 			{
 				m_Dummy_speedright = false;
 			}
 
-			//go down on plattform to get dj
-			//bot always fails going back from right
-			//because he doesnt refills his dj
+			// go down on plattform to get dj
+			// bot always fails going back from right
+			// because he doesnt refills his dj
 
-			//            |
-			//            |
-			//            v
-			//                        --------
-			//-----#####----###########-######
-			//###########-####################
-			//           #
-			//           #
-			//           -#########################----------
-			//           #--------------------------
+			//             |
+			//             |
+			//             v
+			//                         --------
+			// -----#####----###########-######
+			// ###########-####################
+			//            #
+			//            #
+			//            -#########################----------
+			//            #--------------------------
 
 			if(GetPos().x > 433 * 32 + 20 && GetPos().x < 437 * 32 && Jumped() > 2)
 			{
 				Right();
 			}
 
-			//##########################################
-			// S P E C I A L    S H I T ! ! !          #
-			//##########################################             agian...
+			// ##########################################
+			//  S P E C I A L    S H I T ! ! !          #
+			// ##########################################             agian...
 
-			//woo special late important new stuff xD
-			//reached hammerfly plattform --> get new movement skills
-			//this area has his own extra codeblock with cool stuff
+			// woo special late important new stuff xD
+			// reached hammerfly plattform --> get new movement skills
+			// this area has his own extra codeblock with cool stuff
 
 			if(GetPos().x > 448 * 32)
 			{
@@ -2089,7 +2090,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						Right();
 					}
 
-					if(pChr->GetPos().x < GetPos().x - 7 * 32 && Jumped() < 2) //if enemy is on the left & bot has jump --> go left too
+					if(pChr->GetPos().x < GetPos().x - 7 * 32 && Jumped() < 2) // if enemy is on the left & bot has jump --> go left too
 					{
 						Left();
 					}
@@ -2154,7 +2155,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							else
 							{
 								//do the random flick
-								int r = rand() % 100 - 50;
+								int r = (rand() % 100) - 50;
 								AimX(r);
 								AimY(-200);
 							}
@@ -2186,7 +2187,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							else
 							{
 								//do the random flick
-								int r = rand() % 100 - 50;
+								int r = (rand() % 100) - 50;
 								AimX(r);
 								AimY(-200);
 							}
@@ -2254,28 +2255,28 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 			}
 
-			//shitty nub like jump correction because i am too lazy too fix bugsis
-			//T0D0(done): fix this bugsis
-			//the bot jumps somehow at spawn if a player is in the ruler area
-			//i was working with dummybored and tricks
-			//because i cant find the bug i set jump to 0 at spawn
+			// shitty nub like jump correction because i am too lazy too fix bugsis
+			// T0D0(done): fix this bugsis
+			// the bot jumps somehow at spawn if a player is in the ruler area
+			// i was working with dummybored and tricks
+			// because i cant find the bug i set jump to 0 at spawn
 
-			//here is ChillerDragon from ze future!
-			// FUCK YOU old ChillerDragon you just wasted my fucking time with this shitty line
-			//im working on another movement where i need jumps at spawn and it took me 20 minutes to find this shitty line u faggot!
-			//wow ofc the bot does shit at spawn because u only said the ruler area is (GetPos().y < 213 * 32) and no check on X omg!
-			//hope this wont happen agian! (talking to you future dragon)
+			// here is ChillerDragon from ze future!
+			//  FUCK YOU old ChillerDragon you just wasted my fucking time with this shitty line
+			// im working on another movement where i need jumps at spawn and it took me 20 minutes to find this shitty line u faggot!
+			// wow ofc the bot does shit at spawn because u only said the ruler area is (GetPos().y < 213 * 32) and no check on X omg!
+			// hope this wont happen agian! (talking to you future dragon)
 
-			//if (GetPos().x < 407 * 32)
-			//{
-			//	Jump(0);
-			//}
+			// if (GetPos().x < 407 * 32)
+			// {
+			// 	Jump(0);
+			// }
 		}
 	}
-	else //Change to mode main and reset all
+	else // Change to mode main and reset all
 	{
 		GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "EROOR!!!!");
-		//RestOnChange (zuruecksetzten)
+		// RestOnChange (zuruecksetzten)
 		Hook(0);
 		Jump(0);
 		StopMoving();

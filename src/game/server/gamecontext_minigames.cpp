@@ -3,7 +3,6 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
-#include <cinttypes>
 #include <cstring>
 
 #include "gamecontext.h"
@@ -79,9 +78,9 @@ int CGameContext::IsMinigame(int playerId) //if you update this function please 
 	return 0;
 }
 
-const char *CGameContext::GetBlockSkillGroup(int id)
+const char *CGameContext::GetBlockSkillGroup(int ClientId)
 {
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return "error";
 

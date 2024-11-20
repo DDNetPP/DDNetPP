@@ -15,8 +15,8 @@ CDummyGrenadeFng::CDummyGrenadeFng(class CPlayer *pPlayer) :
 
 void CDummyGrenadeFng::OnTick()
 {
-	int offset_x = 0; //offset for ChillBlock5 667 (for rifle)
-	int offset_y = 0;
+	int OffsetX = 0; //offset for ChillBlock5 667 (for rifle)
+	int OffsetY = 0;
 
 	Hook(0);
 	Jump(0);
@@ -45,9 +45,9 @@ void CDummyGrenadeFng::OnTick()
 	}
 
 	//don't fall in holes
-	if(GetPos().x + offset_x > 90 * 32 && GetPos().x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+	if(GetPos().x + OffsetX > 90 * 32 && GetPos().x + OffsetX < 180 * 32) //map middle (including 3 fall traps)
 	{
-		if(GetPos().y + offset_y > 73 * 32)
+		if(GetPos().y + OffsetY > 73 * 32)
 		{
 			Jump();
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hopsa");

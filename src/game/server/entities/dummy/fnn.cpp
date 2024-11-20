@@ -217,17 +217,17 @@ void CDummyFNN::OnTick()
 			//m_pPlayer->m_Dummy_nn_time++; //maybe use it some day to analys each tick stuff or total trainign time idk
 
 			// random inputs
-			int rand_Fire = rand() % 2; // 1 0
-			int rand_Jump = 0;
+			int RandFire = rand() % 2; // 1 0
+			int RandJump = 0;
 			if(rand() % 32 - (IsGrounded() * 6) == 0) // more likley to jump if grounded to avoid spamming dj
 			{
-				rand_Jump = 1;
+				RandJump = 1;
 			}
-			int rand_Hook = rand() % 2;
-			int rand_Weapon = rand() % 4;
-			int rand_TargetX = rand() % 401 - 200;
-			int rand_TargetY = rand() % 401 - 200;
-			static int rand_Direction = rand() % 3 - 1; //-1 0 1
+			int RandHook = rand() % 2;
+			int RandWeapon = rand() % 4;
+			int RandTargetX = (rand() % 401) - 200;
+			int RandTargetY = (rand() % 401) - 200;
+			static int rand_Direction = (rand() % 3) - 1; //-1 0 1
 			if(Server()->Tick() % 77 == 0)
 			{
 				rand_Direction = rand() % 3 - 1; //-1 0 1
@@ -246,10 +246,10 @@ void CDummyFNN::OnTick()
 			}
 
 			SetDirection(rand_Direction);
-			Jump(rand_Jump);
-			Hook(rand_Hook);
-			AimX(rand_TargetX);
-			AimY(rand_TargetY);
+			Jump(RandJump);
+			Hook(RandHook);
+			AimX(RandTargetX);
+			AimY(RandTargetY);
 
 			// read world inputs
 			float Offset = 16.0f;
@@ -327,29 +327,29 @@ void CDummyFNN::OnTick()
 			// dbg_msg("fnn", "targetY: %d", GetTargetY());
 			m_FNN_CurrentMoveIndex++;
 
-			if(rand_Weapon == 0)
+			if(RandWeapon == 0)
 			{
 				SetWeapon(0); //hammer
 			}
-			else if(rand_Weapon == 1)
+			else if(RandWeapon == 1)
 			{
 				SetWeapon(1); //gun
 			}
-			else if(rand_Weapon == 2)
+			else if(RandWeapon == 2)
 			{
 				if(m_pCharacter->GetWeaponGot(WEAPON_SHOTGUN))
 				{
 					SetWeapon(2); //shotgun
 				}
 			}
-			else if(rand_Weapon == 3)
+			else if(RandWeapon == 3)
 			{
 				if(m_pCharacter->GetWeaponGot(WEAPON_GRENADE))
 				{
 					SetWeapon(3); //grenade
 				}
 			}
-			else if(rand_Weapon == 4)
+			else if(RandWeapon == 4)
 			{
 				if(m_pCharacter->GetWeaponGot(WEAPON_LASER))
 				{
@@ -358,10 +358,10 @@ void CDummyFNN::OnTick()
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "Error unknown weapon: %d", rand_Weapon);
+				str_format(aBuf, sizeof(aBuf), "Error unknown weapon: %d", RandWeapon);
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
 			}
-			if(rand_Fire == 1 && m_pCharacter->m_FreezeTime == 0)
+			if(RandFire == 1 && m_pCharacter->m_FreezeTime == 0)
 			{
 				Fire();
 			}
@@ -513,56 +513,56 @@ void CDummyFNN::OnTick()
 							str_format(aBuf, sizeof(aBuf), "[FNN] new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
 							GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
 							GameServer()->m_FNN_best_fitness = newest_fitness;
-							std::ofstream statsfile;
+							std::ofstream StatsFile;
 							char aFilePath[512];
 							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
-							statsfile.open(aFilePath);
-							if(statsfile.is_open())
+							StatsFile.open(aFilePath);
+							if(StatsFile.is_open())
 							{
 								// statsfile << "-- total stats --";
 								// statsfile << std::endl;
-								statsfile << GameServer()->m_FNN_best_distance; //distance
-								statsfile << std::endl;
-								statsfile << newest_fitness; //fitness
-								statsfile << std::endl;
-								statsfile << GameServer()->m_FNN_best_distance_finish; //distance_finish
-								statsfile << std::endl;
+								StatsFile << GameServer()->m_FNN_best_distance; //distance
+								StatsFile << std::endl;
+								StatsFile << newest_fitness; //fitness
+								StatsFile << std::endl;
+								StatsFile << GameServer()->m_FNN_best_distance_finish; //distance_finish
+								StatsFile << std::endl;
 							}
 							else
 							{
 								dbg_msg("FNN", "failed to update stats. failed to open file '%s'", aFilePath);
 							}
-							statsfile.close();
+							StatsFile.close();
 
 							//saving the run
-							std::ofstream savefile;
+							std::ofstream SaveFile;
 							str_copy(aFilePath, "FNN/move_fitness.fnn", sizeof(aFilePath));
-							savefile.open(aFilePath);
-							if(savefile.is_open())
+							SaveFile.open(aFilePath);
+							if(SaveFile.is_open())
 							{
 								//first five lines are stats
-								savefile << "-- stats fitness --";
-								savefile << std::endl;
-								savefile << m_FNN_CurrentMoveIndex; //moveticks
-								savefile << std::endl;
-								savefile << newest_distance; //distance
-								savefile << std::endl;
-								savefile << newest_fitness; //fitness
-								savefile << std::endl;
-								savefile << newest_distance_finish; //distance_finish
-								savefile << std::endl;
+								SaveFile << "-- stats fitness --";
+								SaveFile << '\n';
+								SaveFile << m_FNN_CurrentMoveIndex; //moveticks
+								SaveFile << '\n';
+								SaveFile << newest_distance; //distance
+								SaveFile << '\n';
+								SaveFile << newest_fitness; //fitness
+								SaveFile << '\n';
+								SaveFile << newest_distance_finish; //distance_finish
+								SaveFile << '\n';
 
 								for(int i = 0; i < m_FNN_CurrentMoveIndex; i++)
 								{
-									savefile << m_aRecMove[i];
-									savefile << std::endl;
+									SaveFile << m_aRecMove[i];
+									SaveFile << std::endl;
 								}
 							}
 							else
 							{
 								dbg_msg("FNN", "failed to save record. failed to open file '%s'", aFilePath);
 							}
-							savefile.close();
+							SaveFile.close();
 						}
 
 						/***************************************
@@ -580,56 +580,56 @@ void CDummyFNN::OnTick()
 							str_format(aBuf, sizeof(aBuf), "[FNN] new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
 							GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
 							GameServer()->m_FNN_best_distance_finish = newest_distance_finish;
-							std::ofstream statsfile;
+							std::ofstream StatsFile;
 							char aFilePath[512];
 							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
-							statsfile.open(aFilePath);
-							if(statsfile.is_open())
+							StatsFile.open(aFilePath);
+							if(StatsFile.is_open())
 							{
 								// statsfile << "-- total stats --";
 								// statsfile << std::endl;
-								statsfile << GameServer()->m_FNN_best_distance; //distance
-								statsfile << std::endl;
-								statsfile << GameServer()->m_FNN_best_fitness; //fitness
-								statsfile << std::endl;
-								statsfile << newest_distance_finish; //distance_finish
-								statsfile << std::endl;
+								StatsFile << GameServer()->m_FNN_best_distance; //distance
+								StatsFile << '\n';
+								StatsFile << GameServer()->m_FNN_best_fitness; //fitness
+								StatsFile << '\n';
+								StatsFile << newest_distance_finish; //distance_finish
+								StatsFile << '\n';
 							}
 							else
 							{
 								dbg_msg("FNN", "failed to update stats. failed to open file '%s'", aFilePath);
 							}
-							statsfile.close();
+							StatsFile.close();
 
 							//saving the run
-							std::ofstream savefile;
+							std::ofstream SaveFile;
 							str_copy(aFilePath, "FNN/move_distance_finish.fnn", sizeof(aFilePath));
-							savefile.open(aFilePath);
-							if(savefile.is_open())
+							SaveFile.open(aFilePath);
+							if(SaveFile.is_open())
 							{
 								//first five lines are stats
-								savefile << "-- stats distance finish --";
-								savefile << std::endl;
-								savefile << m_FNN_CurrentMoveIndex; //moveticks
-								savefile << std::endl;
-								savefile << newest_distance; //distance
-								savefile << std::endl;
-								savefile << newest_fitness; //fitness
-								savefile << std::endl;
-								savefile << newest_distance_finish; //distance_finish
-								savefile << std::endl;
+								SaveFile << "-- stats distance finish --";
+								SaveFile << '\n';
+								SaveFile << m_FNN_CurrentMoveIndex; //moveticks
+								SaveFile << '\n';
+								SaveFile << newest_distance; //distance
+								SaveFile << '\n';
+								SaveFile << newest_fitness; //fitness
+								SaveFile << '\n';
+								SaveFile << newest_distance_finish; //distance_finish
+								SaveFile << '\n';
 
 								for(int i = 0; i < m_FNN_CurrentMoveIndex; i++)
 								{
-									savefile << m_aRecMove[i];
-									savefile << std::endl;
+									SaveFile << m_aRecMove[i];
+									SaveFile << '\n';
 								}
 							}
 							else
 							{
 								dbg_msg("FNN", "failed to save record. failed to open file '%s'", aFilePath);
 							}
-							savefile.close();
+							SaveFile.close();
 						}
 
 						m_FNN_CurrentMoveIndex = 0;

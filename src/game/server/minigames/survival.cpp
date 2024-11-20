@@ -174,59 +174,59 @@ void CGameContext::SendBroadcastSurvival(const char *pMsg, int Importance)
 	}
 }
 
-void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 3=die
+void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=ingame 3=die
 {
-	if(!m_apPlayers[id])
+	if(!m_apPlayers[ClientId])
 		return;
 
-	if(mode == SURVIVAL_OFF)
+	if(Mode == SURVIVAL_OFF)
 	{
-		m_apPlayers[id]->m_IsSurvivaling = false;
-		m_apPlayers[id]->m_IsVanillaDmg = false;
-		m_apPlayers[id]->m_IsVanillaWeapons = false;
-		m_apPlayers[id]->m_IsVanillaCompetetive = false;
-		m_apPlayers[id]->m_IsSurvivalAlive = false;
-		m_apPlayers[id]->Pause(CPlayer::PAUSE_NONE, true);
+		m_apPlayers[ClientId]->m_IsSurvivaling = false;
+		m_apPlayers[ClientId]->m_IsVanillaDmg = false;
+		m_apPlayers[ClientId]->m_IsVanillaWeapons = false;
+		m_apPlayers[ClientId]->m_IsVanillaCompetetive = false;
+		m_apPlayers[ClientId]->m_IsSurvivalAlive = false;
+		m_apPlayers[ClientId]->Pause(CPlayer::PAUSE_NONE, true);
 	}
-	else if(mode == SURVIVAL_LOBBY)
+	else if(Mode == SURVIVAL_LOBBY)
 	{
-		m_apPlayers[id]->m_IsSurvivalAlive = false;
-		m_apPlayers[id]->m_IsSurvivaling = true;
-		m_apPlayers[id]->m_IsVanillaDmg = true;
-		m_apPlayers[id]->m_IsVanillaWeapons = true;
-		m_apPlayers[id]->m_IsVanillaCompetetive = true;
-		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		m_apPlayers[ClientId]->m_IsSurvivalAlive = false;
+		m_apPlayers[ClientId]->m_IsSurvivaling = true;
+		m_apPlayers[ClientId]->m_IsVanillaDmg = true;
+		m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
+		m_apPlayers[ClientId]->m_IsVanillaCompetetive = true;
+		m_apPlayers[ClientId]->m_IsSurvivalLobby = true;
 		if(!m_survivalgamestate) //no game running --> start lobby
 		{
 			SurvivalSetGameState(SURVIVAL_LOBBY);
 			dbg_msg("survival", "lobby started");
 		}
 	}
-	else if(mode == SURVIVAL_INGAME)
+	else if(Mode == SURVIVAL_INGAME)
 	{
-		m_apPlayers[id]->m_IsSurvivalAlive = true;
-		m_apPlayers[id]->m_IsSurvivaling = true;
-		m_apPlayers[id]->m_IsVanillaDmg = true;
-		m_apPlayers[id]->m_IsVanillaWeapons = true;
-		m_apPlayers[id]->m_IsVanillaCompetetive = true;
-		m_apPlayers[id]->m_IsSurvivalLobby = false;
-		m_apPlayers[id]->m_IsSurvivalWinner = false;
+		m_apPlayers[ClientId]->m_IsSurvivalAlive = true;
+		m_apPlayers[ClientId]->m_IsSurvivaling = true;
+		m_apPlayers[ClientId]->m_IsVanillaDmg = true;
+		m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
+		m_apPlayers[ClientId]->m_IsVanillaCompetetive = true;
+		m_apPlayers[ClientId]->m_IsSurvivalLobby = false;
+		m_apPlayers[ClientId]->m_IsSurvivalWinner = false;
 	}
-	else if(mode == SURVIVAL_DIE)
+	else if(Mode == SURVIVAL_DIE)
 	{
-		m_apPlayers[id]->m_IsSurvivalAlive = false;
-		m_apPlayers[id]->m_IsSurvivalLobby = true;
-		m_apPlayers[id]->m_Account.m_SurvivalDeaths++;
+		m_apPlayers[ClientId]->m_IsSurvivalAlive = false;
+		m_apPlayers[ClientId]->m_IsSurvivalLobby = true;
+		m_apPlayers[ClientId]->m_Account.m_SurvivalDeaths++;
 	}
 	else
 	{
-		dbg_msg("survival", "WARNING setted undefined mode %d", mode);
+		dbg_msg("survival", "WARNING setted undefined mode %d", Mode);
 	}
 }
 
 int CGameContext::SurvivalGetRandomAliveId(int NotThis)
 {
-	int r = rand() % CountSurvivalPlayers(true);
+	int RandPlayerIndex = rand() % CountSurvivalPlayers(true);
 	int x = 0;
 	for(auto &Player : m_apPlayers)
 	{
@@ -236,7 +236,7 @@ int CGameContext::SurvivalGetRandomAliveId(int NotThis)
 			continue;
 
 		if(Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
-			if(x++ == r)
+			if(x++ == RandPlayerIndex)
 				return Player->GetCid();
 	}
 	return -1;

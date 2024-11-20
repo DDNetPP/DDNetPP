@@ -26,7 +26,7 @@ void CDummyQuest::OnTick()
 	StopMoving();
 
 	if(rand() % 20 > 17)
-		SetDirection(rand() % 3 - 1);
+		SetDirection((rand() % 3) - 1);
 	if(rand() % 660 > 656)
 		Jump();
 	if(rand() % 256 > 244)
@@ -37,8 +37,7 @@ void CDummyQuest::OnTick()
 	CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), false, m_pCharacter);
 	if(pChr && pChr->IsAlive())
 	{
-		static bool IsAimbot = false;
-		if(IsAimbot)
+		if(m_IsAimbot)
 		{
 			vec2 EnemyPos = pChr->GetPos();
 			EnemyPos.y -= 20;
@@ -48,11 +47,11 @@ void CDummyQuest::OnTick()
 			if(!GameServer()->Collision()->IntersectLine(GetPos(), pChr->GetPos(), 0x0, 0))
 				if(Server()->Tick() % 77 == 0 && m_pCharacter->m_FreezeTime < 1)
 					Fire();
-			IsAimbot = rand() % 50 > 40;
+			m_IsAimbot = rand() % 50 > 40;
 		}
 		else // no aimbot
 		{
-			IsAimbot = rand() % 3000 > 2789;
+			m_IsAimbot = rand() % 3000 > 2789;
 		}
 	}
 
