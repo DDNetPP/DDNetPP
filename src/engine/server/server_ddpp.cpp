@@ -93,7 +93,7 @@ void CServer::WriteWrongRconJson(int ClientId, const char *pName, const char *pP
 	JsonWriter.WriteStrValue(pName);
 
 	JsonWriter.WriteAttribute("password");
-	JsonWriter.WriteStrValue(pName);
+	JsonWriter.WriteStrValue(pPassword);
 
 	JsonWriter.EndObject();
 
