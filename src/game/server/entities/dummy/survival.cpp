@@ -39,19 +39,19 @@ void CDummySurvival::OnTick()
 
 		if(Server()->Tick() % 10 == 0) //random aim strong every 10 secs
 		{
-			int rand_x_inp = pChr->GetPos().x - GetPos().x + rand() % 200 - 100;
-			int rand_y_inp = pChr->GetPos().y - GetPos().y + rand() % 200 - 100;
+			int RandXInp = pChr->GetPos().x - GetPos().x + (rand() % 200) - 100;
+			int RandYInp = pChr->GetPos().y - GetPos().y + (rand() % 200) - 100;
 
-			AimX(rand_x_inp);
-			AimY(rand_y_inp);
+			AimX(RandXInp);
+			AimY(RandYInp);
 		}
 		else //aim normal bad
 		{
-			int rand_x_inp = pChr->GetPos().x - GetPos().x + rand() % 20 - 10;
-			int rand_y_inp = pChr->GetPos().y - GetPos().y + rand() % 20 - 10;
+			int RandXInp = pChr->GetPos().x - GetPos().x + (rand() % 20) - 10;
+			int RandYInp = pChr->GetPos().y - GetPos().y + (rand() % 20) - 10;
 
-			AimX(rand_x_inp);
-			AimY(rand_y_inp);
+			AimX(RandXInp);
+			AimY(RandYInp);
 		}
 
 		//Fire();
@@ -106,11 +106,11 @@ void CDummySurvival::OnTick()
 			}
 			else if(GetPos().x > pChr->GetPos().x) //move towards enemy from to right side <---
 			{
-				int rand_x_inp = (rand() % 60 + 15) * -1;
-				int rand_y_inp = rand() % 100 * -1;
+				int RandXInp = (rand() % 60 + 15) * -1;
+				int RandYInp = rand() % 100 * -1;
 
-				AimX(rand_x_inp);
-				AimY(rand_y_inp);
+				AimX(RandXInp);
+				AimY(RandYInp);
 
 				if(GetVel().y > -0.6f)
 				{
@@ -123,11 +123,11 @@ void CDummySurvival::OnTick()
 			}
 			else if(GetPos().x < pChr->GetPos().x) //move towards enemy from the left side ---->
 			{
-				int rand_x_inp = rand() % 60 + 15;
-				int rand_y_inp = rand() % 100 * -1;
+				int RandXInp = (rand() % 60) + 15;
+				int RandYInp = rand() % 100 * -1;
 
-				AimX(rand_x_inp);
-				AimY(rand_y_inp);
+				AimX(RandXInp);
+				AimY(RandYInp);
 
 				if(GetVel().y > -0.6f)
 				{
@@ -141,12 +141,12 @@ void CDummySurvival::OnTick()
 		}
 		else if(GetPos().y > pChr->GetPos().y) //too low
 		{
-			int rand_x_inp = rand() % 60 - 30;
-			int rand_y_inp = rand() % 120 * -1;
+			int RandXInp = (rand() % 60) - 30;
+			int RandYInp = rand() % 120 * -1;
 			Hook();
 
-			AimX(rand_x_inp);
-			AimY(rand_y_inp);
+			AimX(RandXInp);
+			AimY(RandYInp);
 
 			if(rand() % 3 == 1)
 			{
@@ -161,12 +161,12 @@ void CDummySurvival::OnTick()
 		}
 		else if(GetPos().y < pChr->GetPos().y) //too high
 		{
-			int rand_x_inp = rand() % 60 - 30;
-			int rand_y_inp = rand() % 120;
+			int RandXInp = (rand() % 60) - 30;
+			int RandYInp = rand() % 120;
 			Hook();
 
-			AimX(rand_x_inp);
-			AimY(rand_y_inp);
+			AimX(RandXInp);
+			AimY(RandYInp);
 
 			if(rand() % 3 == 1)
 			{
@@ -194,18 +194,20 @@ void CDummySurvival::OnTick()
 		}
 	}
 
-	//avoid killtiles
-	if(GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y + 30) == 2) //deathtiles on the left side
+	// avoid killtiles
+	if(GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y + 30) == 2)
 	{
 		Right();
 	}
-	else if(GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y + 30) == 2) //deathtiles on the right side
+	else if(GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y + 30) == 2)
 	{
 		Left();
 	}
-	if(!IsGrounded()) //flybot for fly parts (working in 10% of the cases)
+	// flybot for fly parts (working in 10% of the cases)
+	if(!IsGrounded())
 	{
-		if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 5 * 32) == 2) //falling on killtiles
+		// falling on killtiles
+		if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + (5 * 32)) == 2)
 		{
 			AimX(2);
 			AimY(-200);
@@ -220,18 +222,18 @@ void CDummySurvival::OnTick()
 		}
 	}
 
-	//check for stucking in walls
+	// check for stucking in walls
 	if(GetDirection() != 0 && GetVel().x == 0.0f)
 		if(Server()->Tick() % 60 == 0)
 			Jump();
 
-	//slow tick
+	// slow tick
 	if(Server()->Tick() % 200 == 0)
 	{
-		//escape stuck hook
+		// escape stuck hook
 		Hook(0);
 
-		//anti stuck whatever
+		// anti stuck whatever
 		if(m_DummyDir == 1 && (GameServer()->Collision()->GetCollisionAt(GetPos().x + 20, GetPos().y) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x + 20, GetPos().y) == 3))
 		{
 			m_DummyDir = -1;
@@ -241,8 +243,8 @@ void CDummySurvival::OnTick()
 			m_DummyDir = 1;
 		}
 
-		//end game if all humans dead
-		if(GameServer()->m_survivalgamestate > 1) //survival game running
+		// end game if all humans dead
+		if(GameServer()->m_survivalgamestate > 1) // survival game running
 		{
 			if(m_pPlayer->m_IsSurvivalAlive)
 			{

@@ -15,6 +15,8 @@ public:
 	virtual ~CDummyFNN(){};
 	const char *ModeStr() override { return "FNN"; }
 
+	int m_RandDirection = 0;
+
 	bool m_Dummy_nn_ready;
 	bool m_Dummy_nn_touched_by_humans;
 	int m_aRecMove[FNN_MOVE_LEN];
