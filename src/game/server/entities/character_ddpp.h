@@ -111,7 +111,7 @@ public:
 	void PostSpawnDDPP(vec2 Pos);
 	void DDPPPostCoreTick();
 	bool DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon);
-	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
+	int DDPP_DIE(int Killer, int Weapon, bool FngScore = false);
 	void TwblTick();
 	void DummyTick();
 	void PvPArenaTick();
@@ -121,8 +121,8 @@ public:
 	void MoveTee(int x, int y);
 	void ChillTelePort(float X, float Y);
 	void ChillTelePortTile(int X, int Y);
-	void FreezeAll(int seconds);
-	bool HasWeapon(int weapon);
+	void FreezeAll(int Seconds);
+	bool HasWeapon(int Weapon);
 	void KillSpeed();
 	int GetAimDir() const;
 	bool InputActive();
@@ -138,7 +138,7 @@ public:
 	int m_ci_freezetime;
 
 	//Block
-	int BlockPointsMain(int Killer, bool fngscore = false);
+	int BlockPointsMain(int Killer, bool FngScore = false);
 	void XpOnKill(int Killer);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
