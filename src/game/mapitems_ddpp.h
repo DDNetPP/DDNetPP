@@ -41,6 +41,8 @@ enum
 	TILE_DDPP_END = 163,
 	TILE_MONEY_POLICE = 164,
 
+	TILE_KING_OF_THE_HILL = 169,
+
 	// block deathmath spawns
 	TILE_BLOCK_DM_A1 = 165, //arena 1
 	TILE_BLOCK_DM_A2 = 166, //arena 2

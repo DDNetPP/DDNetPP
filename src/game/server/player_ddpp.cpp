@@ -621,6 +621,13 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 			else
 				pPlayerInfo->m_Score = m_KillStreak;
 		}
+		else if(pSnapping->m_DisplayScore == SCORE_KING_OF_THE_HILL)
+		{
+			if(pSnapping->m_ScoreFixForDDNet)
+				pPlayerInfo->m_Score = m_KingOfTheHillScore * 60;
+			else
+				pPlayerInfo->m_Score = m_KingOfTheHillScore;
+		}
 	}
 }
 

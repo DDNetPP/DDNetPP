@@ -854,6 +854,8 @@ bool CCollision::TileExists(int Index) const
 
 	if(m_pTiles[Index].m_Index >= TILE_MONEY_PLUS && m_pTiles[Index].m_Index <= TILE_END_CUSTOM)
 		return true;
+	if(m_pFront && m_pFront[Index].m_Index == TILE_KING_OF_THE_HILL)
+		return true;
 	if((m_pTiles[Index].m_Index >= TILE_FREEZE && m_pTiles[Index].m_Index <= TILE_TELE_LASER_DISABLE) || (m_pTiles[Index].m_Index >= TILE_LFREEZE && m_pTiles[Index].m_Index <= TILE_LUNFREEZE))
 		return true;
 	if(m_pFront && ((m_pFront[Index].m_Index >= TILE_FREEZE && m_pFront[Index].m_Index <= TILE_TELE_LASER_DISABLE) || (m_pFront[Index].m_Index >= TILE_LFREEZE && m_pFront[Index].m_Index <= TILE_LUNFREEZE)))

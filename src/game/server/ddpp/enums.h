@@ -7,6 +7,7 @@ enum EScore
 	SCORE_LEVEL = 1,
 	SCORE_BLOCK = 2,
 	SCORE_CURRENT_SPREE = 3,
+	SCORE_KING_OF_THE_HILL = 4,
 };
 
 #endif

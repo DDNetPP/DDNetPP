@@ -1,4 +1,5 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+#include "game/server/ddpp/enums.h"
 #include "gamecontext.h"
 
 #include <base/system.h>
@@ -601,10 +602,15 @@ void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_DisplayScore = SCORE_CURRENT_SPREE;
 		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'current_spree'.");
 	}
+	else if(!str_comp_nocase(pResult->GetString(0), "hill"))
+	{
+		pPlayer->m_DisplayScore = SCORE_KING_OF_THE_HILL;
+		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'hill'.");
+	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] You can choose what the player score will display:");
-		pSelf->SendChatTarget(pResult->m_ClientId, "time, level, block, current_spree");
+		pSelf->SendChatTarget(pResult->m_ClientId, "time, level, block, current_spree, hill");
 	}
 }
 

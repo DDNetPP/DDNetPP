@@ -2,6 +2,7 @@
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/mapitems_ddpp.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
@@ -286,6 +287,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))
 	{
 		MoneyTileDouble();
+	}
+
+	if(((m_TileIndex == TILE_KING_OF_THE_HILL) || (m_TileFIndex == TILE_KING_OF_THE_HILL)))
+	{
+		if((Server()->Tick() % 500) == 0 && !m_FreezeTime)
+			m_pPlayer->m_KingOfTheHillScore++;
 	}
 
 	// ROOM POINT

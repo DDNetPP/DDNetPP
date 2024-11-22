@@ -615,6 +615,10 @@ public:
 
 	int m_BlockBounty;
 
+	// gets incremented when touching the
+	// king of the hill tile
+	int m_KingOfTheHillScore = 0;
+
 	//bool m_hammerfight;
 	//bool m_isHeal;
 	bool m_ninjasteam;
