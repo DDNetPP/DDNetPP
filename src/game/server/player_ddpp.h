@@ -127,17 +127,24 @@ public:
 
 	class CInputTracker
 	{
-	public:
 		CNetObj_PlayerInput m_LastInput;
 
-		int m_HookChanges = 0;
-		int m_DirectionChanges = 0;
-		int m_FireChanges = 0;
-		int m_JumpChanges = 0;
+		unsigned int m_HookChanges = 0;
+		unsigned int m_DirectionChanges = 0;
+		unsigned int m_FireChanges = 0;
+		unsigned int m_JumpChanges = 0;
 
-		void OnTick(CNetObj_PlayerInput *pInput);
+		unsigned int m_FlagTicksPlaying = 0;
+		unsigned int m_FlagTicksMenu = 0;
+		unsigned int m_FlagTicksChatting = 0;
+		unsigned int m_FlagTicksScoreboard = 0;
+		unsigned int m_FlagTicksAim = 0;
+
+	public:
+		void OnTick(CNetObj_PlayerInput *pInput, int PlayerFlags);
 		bool SentAllInputsAtLeastOnce() const;
-		int SumOfAllInputChanges() const;
+		unsigned int SumOfAllInputChanges() const;
+		unsigned int TicksSpentChatting() const;
 	};
 
 	CInputTracker m_InputTracker;
@@ -301,7 +308,7 @@ public:
 		2  wait 10 sec
 		3  a few movement or chat inputs ( messages or commands )
 		4  wait 10 sec
-		5  be somewhat active: finish race/get block points/login to account/ TODO: send chat messages that recieve responses
+		5  be somewhat active: finish race/get block points/login to account/have chat open for 20 ticks
 		6  wait 20 sec
 		7  solve the antibot captcha command
 		8  played quest until finish map/make more than 10 block points

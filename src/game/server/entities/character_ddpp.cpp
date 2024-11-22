@@ -871,7 +871,7 @@ void CCharacter::DDPP_Tick()
 	CosmeticTick();
 	PvPArenaTick();
 
-	m_pPlayer->m_InputTracker.OnTick(&m_Input);
+	m_pPlayer->m_InputTracker.OnTick(&m_Input, m_pPlayer->m_PlayerFlags);
 
 	for(int i = 0; i < 2; i++)
 	{

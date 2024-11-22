@@ -167,7 +167,7 @@ void CPlayer::SetLanguage(const char *pLang)
 	GameServer()->SendChatTarget(m_ClientId, "[lang] language set");
 }
 
-void CPlayer::CInputTracker::OnTick(CNetObj_PlayerInput *pInput)
+void CPlayer::CInputTracker::OnTick(CNetObj_PlayerInput *pInput, int PlayerFlags)
 {
 	if(pInput->m_Hook != m_LastInput.m_Hook)
 		m_HookChanges++;
@@ -177,6 +177,17 @@ void CPlayer::CInputTracker::OnTick(CNetObj_PlayerInput *pInput)
 		m_JumpChanges++;
 	if(pInput->m_Direction != m_LastInput.m_Direction)
 		m_DirectionChanges++;
+
+	if(PlayerFlags & PLAYERFLAG_PLAYING)
+		m_FlagTicksPlaying++;
+	if(PlayerFlags & PLAYERFLAG_IN_MENU)
+		m_FlagTicksMenu++;
+	if(PlayerFlags & PLAYERFLAG_CHATTING)
+		m_FlagTicksChatting++;
+	if(PlayerFlags & PLAYERFLAG_SCOREBOARD)
+		m_FlagTicksScoreboard++;
+	if(PlayerFlags & PLAYERFLAG_AIM)
+		m_FlagTicksAim++;
 }
 
 bool CPlayer::CInputTracker::SentAllInputsAtLeastOnce() const
@@ -184,9 +195,14 @@ bool CPlayer::CInputTracker::SentAllInputsAtLeastOnce() const
 	return m_HookChanges && m_FireChanges && m_JumpChanges && m_DirectionChanges;
 }
 
-int CPlayer::CInputTracker::SumOfAllInputChanges() const
+unsigned int CPlayer::CInputTracker::SumOfAllInputChanges() const
 {
 	return m_HookChanges + m_FireChanges + m_JumpChanges + m_DirectionChanges;
+}
+
+unsigned int CPlayer::CInputTracker::TicksSpentChatting() const
+{
+	return m_FlagTicksChatting;
 }
 
 void CPlayer::DDPPTick()
@@ -381,8 +397,14 @@ void CPlayer::PlayerHumanLevelTick()
 	{
 		if(GetCharacter())
 		{
+			// this covers even sending one short message such as "hello"
+			// 20 ticks is quite fast
+			bool ChattedFor20TicksAndStopped =
+				m_InputTracker.TicksSpentChatting() > 20 && ((m_PlayerFlags & PLAYERFLAG_CHATTING) == 0);
+
 			if(GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
 				m_Account.m_BlockPoints > 5 ||
+				ChattedFor20TicksAndStopped ||
 				IsLoggedIn())
 			{
 				m_PlayerHumanLevel++;
