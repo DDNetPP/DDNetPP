@@ -251,7 +251,11 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 
 bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
 {
-	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
+	if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
+	{
+		SendChatTarget(ClientId, "you are not allowed to use the public chat");
+	}
+	else if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
