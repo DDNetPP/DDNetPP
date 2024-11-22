@@ -3,8 +3,10 @@
 #include <base/ddpp_logs.h>
 #include <base/system.h>
 #include <base/system_ddpp.h>
+#include <base/types.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <engine/shared/linereader.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/teams.h>
@@ -344,6 +346,7 @@ void CGameContext::OnInitDDPP()
 		sizeof(aBuf));
 	m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
 
+	ReadSpamfilterList();
 	LoadSinglePlayer();
 	//dummy_init
 	if(g_Config.m_SvBasicDummys)
@@ -2927,3 +2930,68 @@ void CGameContext::CallVetoVote(int ClientId, const char *pDesc, const char *pCm
 	else
 		CallVote(ClientId, pDesc, pCmd, pReason, pChatmsg, pSixupDesc);
 }
+
+#define SPAMFILTERS_FILE "spamfilters.txt"
+
+void CGameContext::ListSpamfilters()
+{
+	const int Max = 10;
+	int i = 0;
+	char aBuf[512];
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", "==== spam filters ====");
+	for(const std::string &Filter : m_vSpamfilters)
+	{
+		if(i++ >= Max)
+		{
+			str_format(aBuf, sizeof(aBuf), "and %d more", m_vSpamfilters.size() - i);
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", aBuf);
+			break;
+		}
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", Filter.c_str());
+	}
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", "======================");
+}
+
+void CGameContext::AddSpamfilter(const char *pFilter)
+{
+	IOHANDLE pFile = Storage()->OpenFile(SPAMFILTERS_FILE, IOFLAG_APPEND, IStorage::TYPE_ALL);
+	if(!pFile)
+	{
+		dbg_msg("spamfilters", "failed to open '%s'", SPAMFILTERS_FILE);
+		return;
+	}
+
+	m_vSpamfilters.emplace_back(pFilter);
+
+	io_write(pFile, pFilter, str_length(pFilter));
+	io_write_newline(pFile);
+
+	io_close(pFile);
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "added '%s' to " SPAMFILTERS_FILE, pFilter);
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", aBuf);
+}
+
+void CGameContext::ReadSpamfilterList()
+{
+	CLineReader LineReader;
+	m_vSpamfilters.clear();
+	if(LineReader.OpenFile(Storage()->OpenFile(SPAMFILTERS_FILE, IOFLAG_READ, IStorage::TYPE_ALL)))
+	{
+		while(const char *pLine = LineReader.Get())
+		{
+			m_vSpamfilters.emplace_back(pLine);
+		}
+	}
+	else
+	{
+		dbg_msg("spamfilters", "failed to open '%s'", SPAMFILTERS_FILE);
+	}
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "loaded %d filters that will drop chat messages from " SPAMFILTERS_FILE, m_vSpamfilters.size());
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", aBuf);
+}
+
+#undef SPAMFILTERS_FILE

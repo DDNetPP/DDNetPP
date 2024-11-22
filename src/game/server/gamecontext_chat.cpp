@@ -250,27 +250,52 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 	return true;
 }
 
+bool CGameContext::IsMessageSpamfiltered(const char *pMessage)
+{
+	for(const std::string &Filter : m_vSpamfilters)
+	{
+		if(str_utf8_find_nocase(pMessage, Filter.c_str()))
+			return true;
+	}
+	return false;
+}
+
 bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
 {
-	if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
+	if(IsMessageSpamfiltered(pMessage) && g_Config.m_SvSpamfilterMode)
+	{
+		// mode 1 is silent drop
+		if(g_Config.m_SvSpamfilterMode == 2) // error to user
+		{
+			SendChatTarget(ClientId, "Your message got spam filtered.");
+		}
+		else if(g_Config.m_SvSpamfilterMode == 3) // ghost filter
+		{
+			SendChat(ClientId, Team, pMessage, -1, FLAG_SIX | FLAG_SIXUP, ClientId);
+		}
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' spamfiltered msg: %s", ClientId, Server()->ClientName(ClientId), pMessage);
+		ddpp_log(DDPP_LOG_FLOOD, aBuf);
+	}
+	else if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
 	{
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' was blocked from chat (missing playerflag chat)", ClientId, Server()->ClientName(ClientId));
 		ddpp_log(DDPP_LOG_FLOOD, aBuf);
-		SendChatTarget(ClientId, "you are not allowed to use the public chat");
+		SendChatTarget(ClientId, "You are not allowed to use the public chat");
 	}
 	else if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
+		str_format(aBuf, sizeof(aBuf), "Your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
 		SendChatTarget(ClientId, aBuf);
 	}
 	else if(m_apPlayers[ClientId] && !Server()->GetAuthedState(ClientId) && AdminChatPing(pMessage))
 	{
 		if(g_Config.m_SvMinAdminPing > 256)
-			SendChatTarget(ClientId, "you are not allowed to ping admins in chat.");
+			SendChatTarget(ClientId, "You are not allowed to ping admins in chat.");
 		else
-			SendChatTarget(ClientId, "your message is too short to bother an admin with that.");
+			SendChatTarget(ClientId, "Your message is too short to bother an admin with that.");
 	}
 	else
 	{

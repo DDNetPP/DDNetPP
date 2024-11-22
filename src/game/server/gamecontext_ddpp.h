@@ -7,6 +7,7 @@
 #include <engine/http.h>
 #include <game/generated/protocol.h>
 #include <game/generated/server_data.h>
+#include <game/server/ddpp/letters.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
@@ -170,19 +171,6 @@ public:
 		CON_SHOW_JOIN,
 		CON_SHOW_JOIN_LEAVE,
 		CON_SHOW_ALL,
-	};
-	enum
-	{
-		// CHAT_ALL = -2,
-		// CHAT_SPEC = -1,
-		// CHAT_RED = 0,
-		// CHAT_BLUE = 1,
-		// CHAT_WHISPER_SEND = 2,
-		// CHAT_WHISPER_RECV = 3,
-		CHAT_TO_ONE_CLIENT = TEAM_WHISPER_RECV + 1, // 4
-
-		// CHAT_SIX = 1 << 0,
-		// CHAT_SIXUP = 1 << 1,
 	};
 
 	int m_WrongRconAttempts;
@@ -717,6 +705,24 @@ private:
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
 	int64_t NameChangeMuteTime(int ClientId);
 
+	void ListSpamfilters();
+
+	// reads the spamfilters.txt file
+	// and updates the vector that is used to drop messages in chat
+	void ReadSpamfilterList();
+
+	// writes one line to the spamfilters.txt file
+	// and also updates the internal vector
+	void AddSpamfilter(const char *pFilter);
+
+	// checks if one line of spamfilters.txt
+	// is contained in message
+	bool IsMessageSpamfiltered(const char *pMessage);
+
+	// if one of these strings is contained in a chat message
+	// it will be silently dropped
+	std::vector<std::string> m_vSpamfilters;
+
 	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 
@@ -848,6 +854,9 @@ private:
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHidePlayer(IConsole::IResult *pResult, void *pUserData);
+	static void ConReloadSpamfilters(IConsole::IResult *pResult, void *pUserData);
+	static void ConListSpamfilters(IConsole::IResult *pResult, void *pUserData);
+	static void ConAddSpamfilter(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);

@@ -648,7 +648,22 @@ void CGameContext::SendChat(int ChatterClientId, int Team, const char *pText, in
 		str_format(aBuf, sizeof(aBuf), "*** %s", aText);
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, Team != TEAM_ALL ? "teamchat" : "chat", aBuf);
 
-	if(Team == TEAM_ALL)
+	if(ToClientId > -1) // ddnet++ Could also be its own function to avoid conflicts such as SendChatSpoofed()
+	{
+		CNetMsg_Sv_Chat Msg;
+		Msg.m_Team = Team;
+		Msg.m_ClientId = ChatterClientId;
+		Msg.m_pMessage = aText;
+
+		// pack one for the recording only
+		if(g_Config.m_SvDemoChat)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
+
+		// send to the clients
+		if(!m_apPlayers[ToClientId]->m_DND)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientId);
+	}
+	else if(Team == TEAM_ALL)
 	{
 		CNetMsg_Sv_Chat Msg;
 		Msg.m_Team = 0;
@@ -673,21 +688,6 @@ void CGameContext::SendChat(int ChatterClientId, int Team, const char *pText, in
 
 		str_format(aBuf, sizeof(aBuf), "Chat: %s", aText);
 		LogEvent(aBuf, ChatterClientId);
-	}
-	else if(Team == CHAT_TO_ONE_CLIENT && ToClientId > -1)
-	{
-		CNetMsg_Sv_Chat Msg;
-		Msg.m_Team = 0;
-		Msg.m_ClientId = ChatterClientId;
-		Msg.m_pMessage = aText;
-
-		// pack one for the recording only
-		if(g_Config.m_SvDemoChat)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
-
-		// send to the clients
-		if(!m_apPlayers[ToClientId]->m_DND)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientId);
 	}
 	else
 	{

@@ -1234,3 +1234,21 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 #endif
 	pSelf->m_pAccounts->ExecuteSql(aSql);
 }
+
+void CGameContext::ConReloadSpamfilters(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->ReadSpamfilterList();
+}
+
+void CGameContext::ConListSpamfilters(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->ListSpamfilters();
+}
+
+void CGameContext::ConAddSpamfilter(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->AddSpamfilter(pResult->GetString(0));
+}

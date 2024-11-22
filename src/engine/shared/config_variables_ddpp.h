@@ -248,6 +248,7 @@ MACRO_CONFIG_STR(SvRconFakePassword, sv_rcon_fake_password, 32, "", CFGFLAG_SERV
 //ddnet++ anti spoof/flood
 // MACRO_CONFIG_INT(SvHaxx0rSpoof, sv_haxx0r_spoof, 0, 0, 1, CFGFLAG_SERVER, "dont touch if ur knoop (chillers anti spoof) 1=on 0=off")
 // MACRO_CONFIG_INT(SvHaxx0rSpoofPort, sv_haxx0r_spoof_port, 8303, 8300, 65534, CFGFLAG_SERVER, "used for sv_haxx0r_spoof 1 (don't touch if ur knoop)")
+MACRO_CONFIG_INT(SvSpamfilterMode, sv_spamfilter_mode, 2, 0, 3, CFGFLAG_SERVER, "0=off 1=silent 2=error 3=ghost spamfilters.txt drop mode (see also add_spamfilter)")
 MACRO_CONFIG_INT(SvRequireChatFlagToRegister, sv_require_chat_flag_to_register, 0, 0, 1, CFGFLAG_SERVER, "require clients to send playerflag chat to be able to use /register command")
 MACRO_CONFIG_INT(SvRequireChatFlagToChat, sv_require_chat_flag_to_chat, 0, 0, 1, CFGFLAG_SERVER, "clients have to send playerflag chat to use public chat (commands are unrelated)")
 MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "how high the captcha score has to be to verfiy humans ('/captcha')")
