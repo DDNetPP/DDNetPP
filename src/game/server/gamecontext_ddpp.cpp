@@ -2418,12 +2418,17 @@ void CGameContext::ShowAdminWelcome(int Id)
 	if(m_WrongRconAttempts >= g_Config.m_SvRconAttemptReport)
 	{
 		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login! 'logs wrong_rcon'", m_WrongRconAttempts);
-		// Server()->SendRconLine(Id, aBuf); // TODO: uncomment
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", aBuf);
 	}
 	if(aDDPPLogs[DDPP_LOG_AUTH_RCON][1][0]) // index 1 because index 0 is current login
 	{
 		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_AUTH_RCON][1]);
-		// Server()->SendRconLine(Id, aBuf); // TODO: uncomment
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", aBuf);
+	}
+	if(aDDPPLogs[DDPP_LOG_FLOOD][0][0])
+	{
+		str_format(aBuf, sizeof(aBuf), "last flood warning ('logs flood' to see all): %s", aDDPPLogs[DDPP_LOG_FLOOD][0]);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", aBuf);
 	}
 	int SurvError = TestSurvivalSpawns();
 	if(SurvError == -1)

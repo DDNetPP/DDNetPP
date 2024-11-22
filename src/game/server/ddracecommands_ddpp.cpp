@@ -1116,7 +1116,7 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
 			"ddpp_logs",
-			"types: mastersrv, wrong_rcon, rcon_auth");
+			"types: mastersrv, wrong_rcon, rcon_auth, flood");
 		return;
 	}
 	if(!str_comp_nocase(pResult->GetString(0), "mastersrv"))
@@ -1131,6 +1131,10 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->m_pConsole->PrintDDPPLogs(DDPP_LOG_WRONG_RCON);
 	}
+	else if(!str_comp_nocase(pResult->GetString(0), "flood"))
+	{
+		pSelf->m_pConsole->PrintDDPPLogs(DDPP_LOG_FLOOD);
+	}
 	else
 	{
 		pSelf->Console()->Print(
@@ -1140,7 +1144,7 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
 			"ddpp_logs",
-			"valid types: mastersrv, wrong_rcon, rcon_auth");
+			"valid types: mastersrv, wrong_rcon, rcon_auth, flood");
 	}
 }
 

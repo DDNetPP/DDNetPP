@@ -1,5 +1,6 @@
 // gamecontext scoped chat ddnet++ methods
 
+#include <base/ddpp_logs.h>
 #include <base/system.h>
 #include <engine/server/server.h> // ddpp imported for dummys
 #include <engine/shared/config.h>
@@ -253,6 +254,9 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 {
 	if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
 	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' was blocked from chat (missing playerflag chat)", ClientId, Server()->ClientName(ClientId));
+		ddpp_log(DDPP_LOG_FLOOD, aBuf);
 		SendChatTarget(ClientId, "you are not allowed to use the public chat");
 	}
 	else if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
