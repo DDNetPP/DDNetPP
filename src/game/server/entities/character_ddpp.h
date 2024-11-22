@@ -125,7 +125,6 @@ public:
 	bool HasWeapon(int Weapon);
 	void KillSpeed();
 	int GetAimDir() const;
-	bool InputActive();
 	void UnDeep() { m_Core.m_DeepFrozen = false; }
 	// returns false if in team 0 and true otherwise
 	bool IsInDDraceTeam();

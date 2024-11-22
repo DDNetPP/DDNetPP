@@ -871,6 +871,8 @@ void CCharacter::DDPP_Tick()
 	CosmeticTick();
 	PvPArenaTick();
 
+	m_pPlayer->m_InputTracker.OnTick(&m_Input);
+
 	for(int i = 0; i < 2; i++)
 	{
 		CFlag *Flag = ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[i];
@@ -3026,30 +3028,6 @@ void CCharacter::SendShopMessage(const char *pMsg)
 	else
 		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::FLAG_SIX, m_pPlayer->GetCid());
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
-}
-
-bool CCharacter::InputActive()
-{
-	static bool IsWalk = false;
-	// static bool IsFire = false;
-	static bool IsJump = false;
-	static bool IsHook = false;
-	if(m_Input.m_Direction)
-		IsWalk = true;
-	// if (m_Input.m_Fire)
-	// IsFire = true;
-	if(m_Input.m_Jump)
-		IsJump = true;
-	if(m_Input.m_Hook)
-		IsHook = true;
-	if(IsWalk && IsJump && IsHook)
-	{
-		IsWalk = false;
-		IsJump = false;
-		IsHook = false;
-		return true;
-	}
-	return false;
 }
 
 bool CCharacter::IsInDDraceTeam()

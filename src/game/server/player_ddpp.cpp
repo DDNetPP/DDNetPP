@@ -167,6 +167,28 @@ void CPlayer::SetLanguage(const char *pLang)
 	GameServer()->SendChatTarget(m_ClientId, "[lang] language set");
 }
 
+void CPlayer::CInputTracker::OnTick(CNetObj_PlayerInput *pInput)
+{
+	if(pInput->m_Hook != m_LastInput.m_Hook)
+		m_HookChanges++;
+	if(pInput->m_Fire != m_LastInput.m_Fire)
+		m_FireChanges++;
+	if(pInput->m_Jump != m_LastInput.m_Jump)
+		m_JumpChanges++;
+	if(pInput->m_Direction != m_LastInput.m_Direction)
+		m_DirectionChanges++;
+}
+
+bool CPlayer::CInputTracker::SentAllInputsAtLeastOnce() const
+{
+	return m_HookChanges && m_FireChanges && m_JumpChanges && m_DirectionChanges;
+}
+
+int CPlayer::CInputTracker::SumOfAllInputChanges() const
+{
+	return m_HookChanges + m_FireChanges + m_JumpChanges + m_DirectionChanges;
+}
+
 void CPlayer::DDPPTick()
 {
 	if(g_Config.m_SvOffDDPP)
@@ -315,7 +337,7 @@ void CPlayer::PlayerHumanLevelTick()
 
 	if(m_PlayerHumanLevel == 0)
 	{
-		if(GetCharacter() && GetCharacter()->InputActive())
+		if(m_InputTracker.SentAllInputsAtLeastOnce())
 		{
 			m_PlayerHumanLevel++;
 			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
@@ -333,7 +355,10 @@ void CPlayer::PlayerHumanLevelTick()
 	{
 		if(Server()->Tick() % 40 == 0)
 		{
-			if(GetCharacter() && GetCharacter()->InputActive())
+			// hooking + jumping or changing direction or firing
+			// 50 times can take a bit of time for a super chill playstyle
+			// but should be easily reachable within seconds for a active playstyle
+			if(m_InputTracker.SumOfAllInputChanges() > 50)
 			{
 				m_PlayerHumanLevelState++;
 			}

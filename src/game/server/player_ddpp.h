@@ -1,5 +1,6 @@
 // This file can be included several times.
 
+#include "game/generated/protocol.h"
 #ifndef IN_CLASS_PLAYER
 #include "alloc.h"
 
@@ -123,6 +124,23 @@ public:
 	int m_AsciiWatchingId;
 	int m_AsciiViewsDefault; //direct with ascii view command
 	int m_AsciiViewsProfile;
+
+	class CInputTracker
+	{
+	public:
+		CNetObj_PlayerInput m_LastInput;
+
+		int m_HookChanges = 0;
+		int m_DirectionChanges = 0;
+		int m_FireChanges = 0;
+		int m_JumpChanges = 0;
+
+		void OnTick(CNetObj_PlayerInput *pInput);
+		bool SentAllInputsAtLeastOnce() const;
+		int SumOfAllInputChanges() const;
+	};
+
+	CInputTracker m_InputTracker;
 
 	// DDNet++ specific vote extensions
 	// works similar to CPlayer::m_SendVoteIndex
