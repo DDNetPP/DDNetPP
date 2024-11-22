@@ -728,7 +728,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	// the first message you sent
 	//
 	// but this will block legit headless clients such as term-ux
-	if(pPlayer->m_InputTracker.TicksSpentChatting() < 20)
+	if(pPlayer->m_InputTracker.TicksSpentChatting() < 20 && g_Config.m_SvRequireChatFlagToRegister)
 	{
 		// security through obscurity in open source lmao
 		// do not give bots creating accounts a hint on how to bypass it xd
