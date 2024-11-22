@@ -719,6 +719,23 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	// 20 ticks is quite fast
+	// if it takes you less than 20 ticks to type register you are a crazy fast typer
+	// it can happen
+	// but is quite unrealistic because you also have to
+	// choose a name and password and they have to match
+	// and there is just a high chance that the final register command is not
+	// the first message you sent
+	//
+	// but this will block legit headless clients such as term-ux
+	if(pPlayer->m_InputTracker.TicksSpentChatting() < 20)
+	{
+		// security through obscurity in open source lmao
+		// do not give bots creating accounts a hint on how to bypass it xd
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] something went wrong please try again.");
+		return;
+	}
+
 	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvRegisterHumanLevel)
 	{
 		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] your '/human_level' is too low %d/%d to use this command.", pPlayer->m_PlayerHumanLevel, g_Config.m_SvRegisterHumanLevel);

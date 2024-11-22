@@ -142,8 +142,19 @@ public:
 
 	public:
 		void OnTick(CNetObj_PlayerInput *pInput, int PlayerFlags);
+
+		// true if the player did jump, fire, move and hook
+		// at least once since he joined
 		bool SentAllInputsAtLeastOnce() const;
+
+		// amount of times the player changed direction
+		// hooked, shot and jumped
+		// since he joined
 		unsigned int SumOfAllInputChanges() const;
+
+		// number of gameticks that were spent with the chat open (playerflag chat sent)
+		// it is never reset and a total sum of all time chatting for this player
+		// since he connected to the server
 		unsigned int TicksSpentChatting() const;
 	};
 
