@@ -489,7 +489,7 @@ public:
 	void OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage);
 	void GlobalChat(int ClientId, const char *pMsg);
 	bool IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand);
-	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage);
+	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage);
 	void VotedYes(CCharacter *pChr, CPlayer *pPlayer);
 	void VotedNo(CCharacter *pChr);
 	bool AbortTeamChange(int ClientId, CPlayer *pPlayer);
