@@ -403,16 +403,21 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 
 void CDummyBlmapChillPolice::OnTick()
 {
-	if(X > 451 && X < 472 && Y > 74 && Y < 85) // new spawn area, walk into the left SPAWN teleporter
+	if (X > 452 && X < 467 && Y > 75 && Y < 100)  // new spawn area, walk into the left SPAWN teleporter
 	{
-		Left();
-		// jump into tele on spawn or jump onto edge after getting 5 jumps
-		if(X > 454 && X < 462) // left side of new spawn area
+		if (Y > 87)
 		{
-			Jump();
-			if(TicksPassed(10))
-				Jump(0);
+			Left();
+			Hook();
+			Aim(-1, 0);
 		}
+		return;
+	}
+	else if (X > 454 && X < 462 && Y > 74 && Y < 75) // new spawn area, jump onto edge after getting 5jumps
+	{
+		Jump();
+		if (TicksPassed(10))
+			Jump(0);
 	}
 	else if(X < 240 && Y < 36) // the complete zone in the map intselfs. its for resetting the dummy when he is back in spawn using tp
 	{
