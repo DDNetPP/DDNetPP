@@ -196,7 +196,7 @@ public:
 	bool m_ShopBotTileExists;
 
 	// used for DO NOT CHANGE MAP votes
-	bool m_VotingBlocked = false;
+	int64_t m_VotingBlockedUntil = 0;
 
 	//                                                                                                    \\ Escaping the escape seceqnze
 	//char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)

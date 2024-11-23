@@ -77,15 +77,26 @@ const char *CGameControllerDDNetPP::CommandByVoteMsg(const CNetMsg_Cl_CallVote *
 // return true to drop the vote
 bool CGameControllerDDNetPP::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId)
 {
-	if(GameServer()->RateLimitPlayerVote(ClientId) || GameServer()->m_VoteCloseTime)
-		return false;
-
-	if(GameServer()->m_VotingBlocked)
+	if(GameServer()->m_VotingBlockedUntil == -1 || (GameServer()->m_VotingBlockedUntil > time_get()))
 	{
 		if(str_comp(CommandByVoteMsg(pMsg), "unblock_votes"))
 		{
 			// dbg_msg("ddnet++", "blocked vote '%s' != '%s'", pMsg->m_pType, "unblock_votes");
-			GameServer()->SendChatTarget(ClientId, "votes are currently blocked by a vote");
+			if(GameServer()->m_VotingBlockedUntil == -1)
+			{
+				GameServer()->SendChatTarget(ClientId, "votes are currently blocked by a vote");
+			}
+			else
+			{
+				char aBuf[512];
+				int Seconds = (GameServer()->m_VotingBlockedUntil - time_get()) / time_freq();
+				int Minutes = Seconds / 60;
+				if(Seconds > 60)
+					str_format(aBuf, sizeof(aBuf), "votes are blocked for %d more minute%s", Minutes, Minutes == 1 ? "" : "s");
+				else
+					str_format(aBuf, sizeof(aBuf), "votes are blocked for %d more seconds", Seconds);
+				GameServer()->SendChatTarget(ClientId, aBuf);
+			}
 			return true;
 		}
 	}

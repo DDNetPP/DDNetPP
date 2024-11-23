@@ -1,17 +1,17 @@
 /*
     DDNet++ commands
 */
-#include "gamecontext.h"
 #include <base/ddpp_logs.h>
+#include <base/system.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/mapitems.h>
+#include <game/server/ddpp/shop.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
 #include <game/version.h>
 
-#include <game/mapitems.h>
-
-#include <game/server/ddpp/shop.h>
+#include "gamecontext.h"
 
 bool CheckClientId(int ClientId);
 
@@ -533,14 +533,22 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConBlockVotes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	pSelf->m_VotingBlocked = true;
-	pSelf->SendChat(-1, TEAM_ALL, "votes are blocked");
+	pSelf->m_VotingBlockedUntil = -1;
+	char aBuf[512];
+	str_copy(aBuf, "votes are blocked", sizeof(aBuf));
+	if(pResult->NumArguments() > 0)
+	{
+		int Mins = pResult->GetInteger(0);
+		pSelf->m_VotingBlockedUntil = time_get() + (Mins * time_freq() * 60);
+		str_format(aBuf, sizeof(aBuf), "votes are blocked for %d minutes", Mins);
+	}
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 }
 
 void CGameContext::ConUnblockVotes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	pSelf->m_VotingBlocked = false;
+	pSelf->m_VotingBlockedUntil = 0;
 	pSelf->SendChat(-1, TEAM_ALL, "votes are unblocked");
 }
 

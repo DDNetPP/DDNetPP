@@ -56,7 +56,7 @@ CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this
 
 CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "");
 
-CONSOLE_COMMAND("block_votes", "", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'");
+CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'");
 CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'");
 
 CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")

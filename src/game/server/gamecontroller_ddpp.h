@@ -32,11 +32,6 @@ public:
 			hooks into CGameContext::OnCallVoteNetMessage()
 			before any spam protection check
 
-			it is recommended to prefix your code with this to get spam protection
-
-			if(RateLimitPlayerVote(ClientId) || m_VoteCloseTime)
-				return;
-
 		Returns:
 			return true to not run the rest of CGameContext::OnCallVoteNetMessage()
 	*/
