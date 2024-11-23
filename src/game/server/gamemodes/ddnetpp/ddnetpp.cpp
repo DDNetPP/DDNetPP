@@ -57,3 +57,37 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer, bool Silent
 		}
 	}
 }
+
+// TODO: move to gamecontext because thats probably useful everywhere for example the extra vote menu
+const char *CGameControllerDDNetPP::CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg)
+{
+	if(str_comp_nocase(pMsg->m_pType, "option"))
+		return "";
+
+	CVoteOptionServer *pOption = GameServer()->m_pVoteOptionFirst;
+	while(pOption)
+	{
+		if(str_comp_nocase(pMsg->m_pValue, pOption->m_aDescription) == 0)
+			return pOption->m_aCommand;
+		pOption = pOption->m_pNext;
+	}
+	return "";
+}
+
+// return true to drop the vote
+bool CGameControllerDDNetPP::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId)
+{
+	if(GameServer()->RateLimitPlayerVote(ClientId) || GameServer()->m_VoteCloseTime)
+		return false;
+
+	if(GameServer()->m_VotingBlocked)
+	{
+		if(str_comp(CommandByVoteMsg(pMsg), "unblock_votes"))
+		{
+			// dbg_msg("ddnet++", "blocked vote '%s' != '%s'", pMsg->m_pType, "unblock_votes");
+			GameServer()->SendChatTarget(ClientId, "votes are currently blocked by a vote");
+			return true;
+		}
+	}
+	return false;
+}

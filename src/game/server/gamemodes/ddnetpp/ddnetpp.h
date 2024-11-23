@@ -19,6 +19,10 @@ public:
 
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
 	void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false) override;
+
+	const char *CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg);
+
+	bool OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId) override;
 };
 
 #endif

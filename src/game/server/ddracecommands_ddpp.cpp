@@ -530,6 +530,20 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConBlockVotes(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->m_VotingBlocked = true;
+	pSelf->SendChat(-1, TEAM_ALL, "votes are blocked");
+}
+
+void CGameContext::ConUnblockVotes(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->m_VotingBlocked = false;
+	pSelf->SendChat(-1, TEAM_ALL, "votes are unblocked");
+}
+
 void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

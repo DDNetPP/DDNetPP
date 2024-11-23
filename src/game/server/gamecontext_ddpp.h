@@ -195,6 +195,9 @@ public:
 	bool m_CreateShopBot;
 	bool m_ShopBotTileExists;
 
+	// used for DO NOT CHANGE MAP votes
+	bool m_VotingBlocked = false;
+
 	//                                                                                                    \\ Escaping the escape seceqnze
 	//char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)
 	char m_aAllowedCharSet[128]; //assignment moved to constructor
@@ -771,6 +774,9 @@ private:
 	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConBlockVotes(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnblockVotes(IConsole::IResult *pResult, void *pUserData);
 
 	//minigame (chidraqul)
 	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);

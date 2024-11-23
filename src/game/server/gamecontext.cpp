@@ -2331,6 +2331,9 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 
 void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId)
 {
+	// ddnet++
+	if(m_pController->OnCallVoteNetMessage(pMsg, ClientId))
+		return;
 	if(RateLimitPlayerVote(ClientId) || m_VoteCloseTime)
 		return;
 

@@ -17,6 +17,9 @@ struct CScoreLoadBestTimeResult;
 */
 class IGameController
 {
+#define IN_CLASS_IGAMECONTROLLER
+#include <game/server/gamecontroller_ddpp.h>
+
 	friend class CSaveTeam; // need access to GameServer() and Server()
 
 	std::vector<vec2> m_avSpawnPoints[4];

@@ -2825,6 +2825,7 @@ if(SERVER)
     gamecontext_votes.cpp
     gamecontroller.cpp
     gamecontroller.h
+    gamecontroller_ddpp.h
     gamemodes/DDRace.cpp
     gamemodes/DDRace.h
     gamemodes/DDRace_ddpp.cpp
