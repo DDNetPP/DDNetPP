@@ -48,7 +48,6 @@ private:
 	void DestructDDPP();
 	void SnapCharacterDDPP();
 	bool HandleTilesDDPP(int Index);
-	void PreTickDDPP();
 	void DDPPDDRacePostCoreTick();
 	/*
 		FireWeaponDDPP

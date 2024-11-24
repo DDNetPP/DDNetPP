@@ -47,11 +47,6 @@ void CCharacter::DestructDDPP()
 {
 }
 
-void CCharacter::PreTickDDPP()
-{
-	m_OnMoneytile = MONEYTILE_NONE;
-}
-
 void CCharacter::PreSpawnDDPP(vec2 Pos)
 {
 	// warning position and active weapon will be overwritten if set here
@@ -865,6 +860,11 @@ void CCharacter::DDPP_Tick()
 {
 	if(g_Config.m_SvOffDDPP)
 		return;
+
+	// has to stay on the top
+	// is used to count how many players are on a moneytile
+	// this tick
+	m_OnMoneytile = MONEYTILE_NONE;
 
 	char aBuf[256];
 	DummyTick();

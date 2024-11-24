@@ -828,7 +828,6 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	PreTickDDPP();
 	if(g_Config.m_SvNoWeakHook)
 	{
 		if(m_Paused)
