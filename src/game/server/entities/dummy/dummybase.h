@@ -34,7 +34,6 @@ protected:
 	class CGameContext *GameServer();
 	class CGameWorld *GameWorld();
 	struct CNetObj_PlayerInput *Input();
-	struct CNetObj_PlayerInput *LatestInput();
 
 	CCharacter *m_pCharacter;
 	CPlayer *m_pPlayer;

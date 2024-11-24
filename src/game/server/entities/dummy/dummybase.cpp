@@ -43,11 +43,6 @@ CNetObj_PlayerInput *CDummyBase::Input()
 	return m_pCharacter->Input();
 }
 
-CNetObj_PlayerInput *CDummyBase::LatestInput()
-{
-	return m_pCharacter->LatestInput();
-}
-
 bool CDummyBase::TicksPassed(int Ticks) { return Server()->Tick() % Ticks == 0; }
 vec2 CDummyBase::GetPos() { return m_pCharacter->Core()->m_Pos; }
 vec2 CDummyBase::GetVel() { return m_pCharacter->Core()->m_Vel; }
@@ -87,12 +82,10 @@ void CDummyBase::Aim(int TargetX, int TargetY)
 }
 void CDummyBase::AimX(int TargetX)
 {
-	m_pCharacter->LatestInput()->m_TargetX = TargetX;
 	m_pCharacter->Input()->m_TargetX = TargetX;
 }
 void CDummyBase::AimY(int TargetY)
 {
-	m_pCharacter->LatestInput()->m_TargetY = TargetY;
 	m_pCharacter->Input()->m_TargetY = TargetY;
 }
 void CDummyBase::AimPos(vec2 Pos) { Aim(Pos.x - GetPos().x, Pos.y - GetPos().y); }
@@ -100,12 +93,10 @@ void CDummyBase::Fire(int Stroke)
 {
 	if(Stroke)
 	{
-		m_pCharacter->LatestInput()->m_Fire++;
 		m_pCharacter->Input()->m_Fire++;
 	}
 	else
 	{
-		m_pCharacter->LatestInput()->m_Fire = 0;
 		m_pCharacter->Input()->m_Fire = 0;
 	}
 }

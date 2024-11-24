@@ -318,8 +318,7 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
-	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
+	CNetObj_PlayerInput *Input() { return &m_Input; };
 	void Fire(bool Fire = true);
 	int GetReloadTimer() { return m_ReloadTimer; }
 	void MineTeeBreakBlock();

@@ -56,8 +56,6 @@ void CCharacter::DummyTick()
 
 	m_Input.m_TargetX = 200;
 	m_Input.m_TargetY = 200;
-	m_LatestInput.m_TargetX = 200;
-	m_LatestInput.m_TargetY = 200;
 	if((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)
 	{
 		m_Rainbow = true;
@@ -79,4 +77,15 @@ void CCharacter::DummyTick()
 		m_pPlayer->m_pDummyMode->Tick(this);
 	else if(m_pPlayer->DummyMode() != DUMMYMODE_DEFAULT)
 		m_pPlayer->SetDummyMode(DUMMYMODE_DEFAULT);
+
+	// this is a bit of a mess and i am not really sure why it is needed
+	// but if this is not done the dummy input become unreliable
+	// for example the BlmapChill police bot fails when reaching the
+	// new spawn with 5 jumps but not always in the same way
+	//
+	// related issues
+	// https://github.com/DDNetPP/DDNetPP/issues/393
+	// https://github.com/ddnet/ddnet/issues/9281
+	mem_copy(&m_LatestInput, &m_Input, sizeof(m_LatestInput));
+	mem_copy(&m_SavedInput, &m_Input, sizeof(m_SavedInput));
 }
