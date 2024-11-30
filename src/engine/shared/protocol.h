@@ -108,8 +108,6 @@ enum
 
 	// for fake disconnect/connects
 	MSGFLAG_NOTRANSLATE = 32,
-	// for chat messages with no name
-	MSGFLAG_NONAME = 64,
 };
 
 enum
