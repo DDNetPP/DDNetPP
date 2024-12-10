@@ -492,7 +492,7 @@ public:
 		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 	*/
 	void CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
-	bool m_IsDDPPVetoVote;
+	bool m_IsDDPPVetoVote = false;
 
 	//Chiller
 	//ChillerDragihn!
