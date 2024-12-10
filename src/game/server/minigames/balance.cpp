@@ -21,7 +21,7 @@ bool CBalance::HandleCharacterTiles(CCharacter *pChr, int Index)
 	CPlayer *pPlayer = pChr->GetPlayer();
 
 	int TileIndex = GameServer()->Collision()->GetTileIndex(Index);
-	int TileFIndex = GameServer()->Collision()->GetFTileIndex(Index);
+	int TileFIndex = GameServer()->Collision()->GetFrontTileIndex(Index);
 	// freeze
 	if((TileIndex == TILE_FREEZE) || (TileFIndex == TILE_FREEZE))
 	{

@@ -71,7 +71,6 @@ public:
 	virtual int ClientCountry(int ClientId) const = 0;
 	virtual bool ClientSlotEmpty(int ClientId) const = 0;
 	virtual bool ClientIngame(int ClientId) const = 0;
-	virtual bool ClientAuthed(int ClientId) const = 0;
 	virtual bool GetClientInfo(int ClientId, CClientInfo *pInfo) const = 0;
 	virtual void SetClientDDNetVersion(int ClientId, int DDNetVersion) = 0;
 	virtual void GetClientAddr(int ClientId, char *pAddrStr, int Size) const = 0;
@@ -287,7 +286,6 @@ public:
 	virtual bool DnsblPending(int ClientId) = 0;
 	virtual bool DnsblBlack(int ClientId) = 0;
 	virtual const char *GetAnnouncementLine() = 0;
-	virtual void ReadAnnouncementsFile(const char *pFileName) = 0;
 	virtual bool ClientPrevIngame(int ClientId) = 0;
 	virtual const char *GetNetErrorString(int ClientId) = 0;
 	virtual void ResetNetErrorString(int ClientId) = 0;
