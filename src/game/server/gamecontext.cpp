@@ -1599,7 +1599,7 @@ void CGameContext::OnClientEnter(int ClientId, bool Silent)
 	{
 		m_TeeHistorian.RecordPlayerReady(ClientId);
 	}
-	m_pController->OnPlayerConnect(m_apPlayers[ClientId]);
+	m_pController->OnPlayerConnect(m_apPlayers[ClientId], Silent);
 	OnClientEnterDDPP(ClientId);
 
 	{
