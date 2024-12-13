@@ -88,6 +88,7 @@ void CDummyChillBlock5Race::OnTick()
 				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "Gwendal") ||
 				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "Blue") ||
 				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "Amol") ||
+				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "ch1th шoymeн?") ||
 				//!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "fokkonaut") ||
 				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "pro"))
 			{
