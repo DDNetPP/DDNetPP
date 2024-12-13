@@ -1,6 +1,7 @@
 // gamecontext scoped blockwave ddnet++ methods
 
 #include <engine/shared/config.h>
+#include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/teams.h>
 
@@ -35,6 +36,20 @@ void CGameContext::BlockWaveAddBots()
 			{
 				dbg_msg("BlockWave", "Stopped connecting at %d/15 + 1 bots because server has only %d free slots", i, FreeSlots);
 				break;
+			}
+		}
+	}
+}
+
+void CGameContext::BlockWaveRemoveBots()
+{
+	for(auto &Player : m_apPlayers)
+	{
+		if(Player)
+		{
+			if(Player->m_IsBlockWaving && Player->m_IsDummy) //disconnect dummys
+			{
+				Server()->BotLeave(Player->GetCid(), true);
 			}
 		}
 	}
@@ -77,12 +92,9 @@ void CGameContext::BlockWaveWonRound()
 		if(Player)
 		{
 			Player->m_IsBlockWaveDead = false; //noboy is dead on new round
-			if(Player->m_IsBlockWaving && Player->m_IsDummy) //disconnect dummys
-			{
-				Server()->BotLeave(Player->GetCid(), true);
-			}
 		}
 	}
+	BlockWaveRemoveBots();
 }
 
 void CGameContext::StartBlockWaveGame()
@@ -94,6 +106,11 @@ void CGameContext::StartBlockWaveGame()
 	{
 		return;
 	} //no resatrt only start if not started yet
+	if(!CountBlockWavePlayers())
+	{
+		StopBlockWaveGame();
+		return;
+	}
 	m_BlockWaveGameState = 1;
 	m_BlockWaveRound = 1; //reset rounds
 	m_BlockWavePrepareDelay = (10 * Server()->TickSpeed());
@@ -106,8 +123,23 @@ void CGameContext::StartBlockWaveGame()
 	}
 }
 
+void CGameContext::StopBlockWaveGame()
+{
+	SendChat(-1, TEAM_ALL, "[BlockWave] game stopped.");
+	BlockWaveRemoveBots();
+	m_BlockWaveGameState = 0;
+}
+
 void CGameContext::BlockWaveGameTick()
 {
+	if(!m_BlockWaveGameState)
+		return;
+	if(!CountBlockWavePlayers())
+	{
+		StopBlockWaveGame();
+		return;
+	}
+
 	char aBuf[256];
 
 	if(m_BlockWaveGameState == 1)

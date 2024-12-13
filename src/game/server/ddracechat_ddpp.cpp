@@ -7709,13 +7709,13 @@ void CGameContext::ConBlockWave(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
+			pSelf->SendChatTarget(pResult->m_ClientId, "[BlockWave] joined the arena! hf & gl staying alive.");
+			pPlayer->m_IsBlockWaving = true;
+			pPlayer->m_IsBlockWaveWaiting = false;
 			if(!pSelf->m_BlockWaveGameState) //no game? --> start one
 			{
 				pSelf->StartBlockWaveGame();
 			}
-			pSelf->SendChatTarget(pResult->m_ClientId, "[BlockWave] joined the arena! hf & gl staying alive.");
-			pPlayer->m_IsBlockWaving = true;
-			pPlayer->m_IsBlockWaveWaiting = false;
 			pChr->Die(pPlayer->GetCid(), WEAPON_SELF);
 		}
 	}

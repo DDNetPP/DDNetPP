@@ -393,8 +393,10 @@ public:
 	//blockwave
 
 	void BlockWaveAddBots();
+	void BlockWaveRemoveBots();
 	void BlockWaveWonRound();
 	void StartBlockWaveGame();
+	void StopBlockWaveGame();
 	void BlockWaveGameTick();
 	void BlockWaveEndGame();
 	void BlockWaveStartNewGame();
