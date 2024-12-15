@@ -132,6 +132,15 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 
 bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand)
 {
+	if(pPlayer->m_PendingCaptcha)
+	{
+		char aBuf[512];
+		SendChatTarget(ClientId, "The chat is locked until you reach the verification point!");
+		str_format(aBuf, sizeof(aBuf), "name='%s' blocked chat (captcha) msg: %s", Server()->ClientName(ClientId), pCommand);
+		ddpp_log(DDPP_LOG_FLOOD, aBuf);
+		return true;
+	}
+
 	// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
 	// geb mal ein cmd /join spec   && /join fight (player)
 	if(!str_comp(pCommand, "leave"))
@@ -262,6 +271,7 @@ bool CGameContext::IsMessageSpamfiltered(const char *pMessage)
 
 bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
 {
+	char aBuf[512];
 	if(IsMessageSpamfiltered(pMessage) && g_Config.m_SvSpamfilterMode)
 	{
 		// mode 1 is silent drop
@@ -273,20 +283,23 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 		{
 			SendChat(ClientId, Team, pMessage, -1, FLAG_SIX | FLAG_SIXUP, ClientId);
 		}
-		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' spamfiltered msg: %s", ClientId, Server()->ClientName(ClientId), pMessage);
 		ddpp_log(DDPP_LOG_FLOOD, aBuf);
 	}
 	else if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
 	{
-		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' was blocked from chat (missing playerflag chat)", ClientId, Server()->ClientName(ClientId));
 		ddpp_log(DDPP_LOG_FLOOD, aBuf);
 		SendChatTarget(ClientId, "You are not allowed to use the public chat");
 	}
+	else if(pPlayer->m_PendingCaptcha)
+	{
+		SendChatTarget(ClientId, "The chat is locked until you reach the verification point!");
+		str_format(aBuf, sizeof(aBuf), "name='%s' blocked chat (captcha) msg: %s", Server()->ClientName(ClientId), pMessage);
+		ddpp_log(DDPP_LOG_FLOOD, aBuf);
+	}
 	else if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
-		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
 		SendChatTarget(ClientId, aBuf);
 	}

@@ -3482,7 +3482,7 @@ void CGameContext::ConAntiFlood(IConsole::IResult *pResult, void *pUserData)
 	pSelf->AbuseMotd(
 		"*~~~~* ANTI FLOOD configs *~~~~*\n\n\
 \
-sv_spamfilter_mode\n\
+sv_spamfilter_mode, sv_captcha_room\n\
 sv_show_connection_msg\n\
 (0=none 1=join 2=leave 3=join/leave/spec)\n\n\
 \

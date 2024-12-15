@@ -30,7 +30,7 @@ void CPlayer::ConstructDDPP()
 	mem_zero((void *)&m_TwblPersistentState, sizeof(m_TwblPersistentState));
 
 	m_PendingCaptcha = false;
-	if(g_Config.m_SvCaptchaRoom)
+	if(g_Config.m_SvCaptchaRoom && !m_IsDummy)
 	{
 		m_PendingCaptcha = true;
 		m_PendingJoinMessage = true;

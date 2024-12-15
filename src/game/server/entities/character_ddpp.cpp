@@ -287,6 +287,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 
 		if(CaptchaSpawn != vec2(-1, -1))
 		{
+			SetSolo(true);
 			SetPosition(CaptchaSpawn);
 		}
 		else // no captcha spawn!
