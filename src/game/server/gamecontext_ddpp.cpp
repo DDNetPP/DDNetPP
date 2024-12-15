@@ -2775,6 +2775,11 @@ bool CGameContext::ShowJoinMessage(int ClientId)
 	if(g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
 		if(!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientId)))
 			return false;
+	// on flood do not show the message instantly
+	// it still might be shown at a later point in time
+	// after the player was verified as a legit connection
+	if(ReconnectFlood())
+		return false;
 	return true;
 }
 

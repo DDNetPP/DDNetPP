@@ -529,6 +529,13 @@ public:
 	// but it can also be used for anti flood reconnect spam silencing
 	bool m_SilentJoinMessage = false;
 
+	// if the anti flood protection is on
+	// join messages in chat are delayed until the player is verified as legit
+	// if the player leaves before verification the disconnect message is also not printed
+	//
+	// this is set to false as soon as the message got printed after verification
+	bool m_PendingJoinMessage = true;
+
 	/*
 		SetDummyMode
 

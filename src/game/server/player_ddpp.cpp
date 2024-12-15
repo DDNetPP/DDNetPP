@@ -369,6 +369,7 @@ void CPlayer::PlayerHumanLevelTick()
 	}
 	else if(m_PlayerHumanLevel == 2)
 	{
+		GameServer()->m_pController->PrintJoinMessage(this);
 		if(Server()->Tick() % 40 == 0)
 		{
 			// hooking + jumping or changing direction or firing

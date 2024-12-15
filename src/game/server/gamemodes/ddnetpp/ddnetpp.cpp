@@ -19,6 +19,13 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
 
+void CGameControllerDDNetPP::Tick()
+{
+	CGameControllerDDRace::Tick();
+
+	DetectReconnectFlood();
+}
+
 void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacer, int Progress)
 {
 	if(!pCharacer->GetPlayer()->m_IsVanillaDmg)
@@ -44,6 +51,19 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
+void CGameControllerDDNetPP::PrintJoinMessage(CPlayer *pPlayer)
+{
+	if(!pPlayer->m_PendingJoinMessage)
+		return;
+
+	pPlayer->m_PendingJoinMessage = false;
+
+	char aBuf[512];
+	int ClientId = pPlayer->GetCid();
+	str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
+	GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+}
+
 // full overwrites ddnet's OnPlayerConnect!
 void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
@@ -65,8 +85,7 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 		{
 			if(GameServer()->ShowJoinMessage(ClientId))
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+				PrintJoinMessage(pPlayer);
 			}
 			else
 			{
@@ -90,6 +109,9 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 		}
 	}
 
+	m_NumConnectionsInTheLastMinute++;
+	m_NumConnectionsInTheLast10Minutes++;
+
 	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
 	{
 		if(!pPlayer->IsLoggedIn())
@@ -106,6 +128,57 @@ void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool
 	if(!GameServer()->ShowJoinMessage(pPlayer->GetCid()))
 		DoChatMsg = false;
 	CGameControllerDDRace::DoTeamChange(pPlayer, Team, DoChatMsg);
+}
+
+void CGameControllerDDNetPP::DetectReconnectFlood()
+{
+	int Threshold = 0;
+	if(GameServer()->CountConnectedHumans() > 10)
+		Threshold = 10;
+
+	bool HitThreshold = false;
+
+	if(m_NumConnectionsInTheLastMinute > 10 + Threshold)
+		HitThreshold = true;
+
+	// 2 connections per minute on average seems fine
+	// but if that constantly happens over a span of 10 minutes
+	// it will get annoying!
+	if(m_NumConnectionsInTheLast10Minutes > 20 + Threshold)
+		HitThreshold = true;
+
+	// activate
+	if(HitThreshold)
+	{
+		m_LastConnectionSpamThresholdHit = time_get();
+		if(!GameServer()->ReconnectFlood())
+		{
+			ddpp_log(DDPP_LOG_FLOOD, "activate anti reconnect flood");
+			GameServer()->SetReconnectFlood(true);
+		}
+	}
+	// deactivate
+	else if(GameServer()->ReconnectFlood() && m_LastConnectionSpamThresholdHit)
+	{
+		int SecondsSinceLastHit = (time_get() - m_LastConnectionSpamThresholdHit) / time_freq();
+		if(SecondsSinceLastHit > 1000)
+		{
+			ddpp_log(DDPP_LOG_FLOOD, "deactivate anti reconnect flood");
+			GameServer()->SetReconnectFlood(false);
+		}
+	}
+
+	if(m_NextMinuteReset < time_get())
+	{
+		m_NextMinuteReset = time_get() + time_freq() * 60;
+		m_NumConnectionsInTheLastMinute = 0;
+	}
+
+	if(m_Next10MinutesReset < time_get())
+	{
+		m_NextMinuteReset = time_get() + time_freq() * 60 * 10;
+		m_NumConnectionsInTheLast10Minutes = 0;
+	}
 }
 
 // TODO: move to gamecontext because thats probably useful everywhere for example the extra vote menu

@@ -17,13 +17,25 @@ public:
 
 	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
 
+	void Tick() override;
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
+	void PrintJoinMessage(CPlayer *pPlayer) override;
 	void OnPlayerConnect(class CPlayer *pPlayer) override;
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
 
 	const char *CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg);
 
 	bool OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId) override;
+
+	int64_t m_NextMinuteReset = 0;
+	int64_t m_Next10MinutesReset = 0;
+	int64_t m_LastConnectionSpamThresholdHit = 0;
+
+	int m_NumConnectionsInTheLastMinute = 0;
+	int m_NumConnectionsInTheLast10Minutes = 0;
+
+	// automatic flood detection
+	void DetectReconnectFlood();
 };
 
 #endif

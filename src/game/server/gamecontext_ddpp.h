@@ -38,7 +38,23 @@ class CGameContext : public IGameServer
 	class CShop *m_pShop;
 	class CLoc *m_pLoc;
 
+	// See the setter and getter for documentation
+	// `SetReconnectFlood()` and `ReconnectFlood()`
+	bool m_IsReconnectFloodDetected = false;
+
 public:
+	// Sets the server in join/leave spam alert mode
+	// this should be called when a high amount of reconnects is detected
+	// and again if it stopped
+	//
+	// this is called from the ddnet++ controller
+	void SetReconnectFlood(bool ActiveFlooding) { m_IsReconnectFloodDetected = ActiveFlooding; }
+
+	// true if the server detected reconnect spam that is flooding the chat
+	// It then tries to silence all spamming/automated reconnects
+	// while still printing the join and leave messages of real players
+	bool ReconnectFlood() { return m_IsReconnectFloodDetected; }
+
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 

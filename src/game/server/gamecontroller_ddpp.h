@@ -41,6 +41,15 @@ public:
 		return false;
 	}
 
+	/*
+		Function: PrintJoinMessage
+			prints the chat message "entered and %s joined the game"
+			this can be called on join
+			or also at a later point in time (after human verification)
+			if the anti flood is on
+	*/
+	virtual void PrintJoinMessage(CPlayer *pPlayer){};
+
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER
 };
