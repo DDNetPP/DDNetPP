@@ -24,6 +24,8 @@
 
 #include <game/layers.h>
 
+#include <base/ddpp_logs.h> // ddnet++
+
 IGameController::IGameController(class CGameContext *pGameServer) :
 	m_Teams(pGameServer), m_pLoadBestTimeResult(nullptr)
 {
@@ -503,7 +505,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 			else
 			{
 				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
-				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+				ddpp_log(DDPP_LOG_FLOOD, aBuf);
 			}
 		}
 

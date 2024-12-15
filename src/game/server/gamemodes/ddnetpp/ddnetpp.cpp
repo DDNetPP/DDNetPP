@@ -123,6 +123,13 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	}
 }
 
+void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
+{
+	if(pPlayer->m_PendingJoinMessage)
+		Silent = true;
+	CGameControllerDDRace::OnPlayerDisconnect(pPlayer, pReason, Silent);
+}
+
 void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)
 {
 	if(!GameServer()->ShowJoinMessage(pPlayer->GetCid()))

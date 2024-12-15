@@ -21,6 +21,7 @@ public:
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
 	void PrintJoinMessage(CPlayer *pPlayer) override;
 	void OnPlayerConnect(class CPlayer *pPlayer) override;
+	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
 
 	const char *CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg);
