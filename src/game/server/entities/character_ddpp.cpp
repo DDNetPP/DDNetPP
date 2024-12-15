@@ -263,24 +263,6 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
 		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
 	}
-	else if(m_pPlayer->m_IsNoboSpawn)
-	{
-		char aBuf[128];
-		if(m_pPlayer->m_NoboSpawnStop > Server()->Tick())
-		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (m_pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
-			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
-			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
-			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
-		}
-		else
-		{
-			m_Core.m_Pos = m_Pos;
-			m_pPlayer->m_IsNoboSpawn = false;
-			str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
-			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
-		}
-	}
 	else if(m_pPlayer->m_PendingCaptcha)
 	{
 		vec2 CaptchaSpawn = GameServer()->Collision()->GetRandomTile(TILE_CAPTCHA_SPAWN);
@@ -297,6 +279,24 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			// so the con chain hook does not work
 			GameServer()->SendChat(-1, TEAM_ALL, "ERROR: deactivating sv_captcha_room because the captcha spawn tile is missing!");
 			g_Config.m_SvCaptchaRoom = 0;
+		}
+	}
+	else if(m_pPlayer->m_IsNoboSpawn)
+	{
+		char aBuf[128];
+		if(m_pPlayer->m_NoboSpawnStop > Server()->Tick())
+		{
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (m_pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
+			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
+			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
+		}
+		else
+		{
+			m_Core.m_Pos = m_Pos;
+			m_pPlayer->m_IsNoboSpawn = false;
+			str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		}
 	}
 	else
