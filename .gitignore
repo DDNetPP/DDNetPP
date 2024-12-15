@@ -166,6 +166,7 @@ cmake_install.cmake
 
 # bam masterrace
 
+.bam
 objs/
 config.lua
 
