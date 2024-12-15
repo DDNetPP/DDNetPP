@@ -572,6 +572,11 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 	if(!pSnapping)
 		return;
 
+	// hide players in the captcha room from the scoreboard
+	// this is 0.6 only so 0.7 players see all players at all times (too lazy to fix)
+	if(m_PendingCaptcha)
+		pPlayerInfo->m_Team = TEAM_BLUE;
+
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientId && g_Config.m_SvHideScore)
 	{
