@@ -137,33 +137,11 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 	if(!Server()->ClientPrevIngame(ClientId))
 	{
 		char aBuf[512];
-		if(!pPlayer->m_SilentJoinMessage)
-		{
-			if(GameServer()->ShowJoinMessage(ClientId))
-			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
-			}
-			else
-			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
-				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
-			}
-		}
-		if(g_Config.m_SvInstagibMode)
-		{
-			GameServer()->SendChatTarget(ClientId, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
-		}
-		else
-		{
-			char aWelcome[128];
-			char aSubGameType[128];
-			aSubGameType[0] = '\0';
-			if(g_Config.m_SvDDPPgametype[0])
-				str_format(aSubGameType, sizeof(aSubGameType), "(%s) ", g_Config.m_SvDDPPgametype);
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s%s based on DDNet " GAME_RELEASE_VERSION, aSubGameType, DDNETPP_VERSIONSTR);
-			GameServer()->SendChatTarget(ClientId, aWelcome);
-		}
+		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+
+		GameServer()->SendChatTarget(ClientId, "DDraceNetwork Mod. Version: " GAME_VERSION);
+		GameServer()->SendChatTarget(ClientId, "please visit DDNet.org or say /info and make sure to read our /rules");
 	}
 }
 

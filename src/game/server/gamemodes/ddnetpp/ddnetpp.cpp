@@ -43,9 +43,51 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
+// full overwrites ddnet's OnPlayerConnect!
 void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
-	CGameControllerDDRace::OnPlayerConnect(pPlayer);
+	// this code has to be manually kept in sync with CGameControllerDDrace::OnPlayerConnect()
+	IGameController::OnPlayerConnect(pPlayer);
+	int ClientId = pPlayer->GetCid();
+
+	// init the player
+	Score()->PlayerData(ClientId)->Reset();
+
+	// Can't set score here as LoadScore() is threaded, run it in
+	// LoadScoreThreaded() instead
+	Score()->LoadPlayerData(ClientId);
+
+	if(!Server()->ClientPrevIngame(ClientId))
+	{
+		char aBuf[512];
+		if(!pPlayer->m_SilentJoinMessage)
+		{
+			if(GameServer()->ShowJoinMessage(ClientId))
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
+				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			}
+		}
+		if(g_Config.m_SvInstagibMode)
+		{
+			GameServer()->SendChatTarget(ClientId, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
+		}
+		else
+		{
+			char aWelcome[128];
+			char aSubGameType[128];
+			aSubGameType[0] = '\0';
+			if(g_Config.m_SvDDPPgametype[0])
+				str_format(aSubGameType, sizeof(aSubGameType), "(%s) ", g_Config.m_SvDDPPgametype);
+			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s%s based on DDNet " GAME_RELEASE_VERSION, aSubGameType, DDNETPP_VERSIONSTR);
+			GameServer()->SendChatTarget(ClientId, aWelcome);
+		}
+	}
 
 	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
 	{
