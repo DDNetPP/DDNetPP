@@ -58,6 +58,13 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	}
 }
 
+void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)
+{
+	if(!GameServer()->ShowJoinMessage(pPlayer->GetCid()))
+		DoChatMsg = false;
+	CGameControllerDDRace::DoTeamChange(pPlayer, Team, DoChatMsg);
+}
+
 // TODO: move to gamecontext because thats probably useful everywhere for example the extra vote menu
 const char *CGameControllerDDNetPP::CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg)
 {
