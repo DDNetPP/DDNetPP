@@ -1,3 +1,4 @@
+#include <base/ddpp_logs.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
@@ -70,7 +71,7 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 			else
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
-				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+				ddpp_log(DDPP_LOG_FLOOD, aBuf);
 			}
 		}
 		if(g_Config.m_SvInstagibMode)
