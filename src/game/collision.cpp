@@ -1,5 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+#include "game/mapitems_ddpp.h"
 #include <base/math.h>
 #include <base/system.h>
 #include <base/vmath.h>
@@ -149,6 +150,7 @@ void CCollision::Init(class CLayers *pLayers)
 			}
 		}
 	}
+	m_FinishedInitialize = true; // ddnet++
 }
 
 void CCollision::Unload()
@@ -846,6 +848,8 @@ bool CCollision::TileExists(int Index) const
 	if(Index < 0)
 		return false;
 
+	if(m_pTiles[Index].m_Index == TILE_CAPTCHA_VERIFY)
+		return true;
 	if(m_pTiles[Index].m_Index >= TILE_MONEY_PLUS && m_pTiles[Index].m_Index <= TILE_END_CUSTOM)
 		return true;
 	if(m_pFront && m_pFront[Index].m_Index == TILE_KING_OF_THE_HILL)

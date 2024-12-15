@@ -372,6 +372,16 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		}
 	}
 
+	// sv_room_captcha
+	if(m_TileIndex == TILE_CAPTCHA_VERIFY || m_TileFIndex == TILE_CAPTCHA_VERIFY)
+	{
+		m_pPlayer->OnHumanVerify();
+
+		// human verify kills the character
+		// so we have to drop all the other code to avoid nullptr exceptions
+		return true;
+	}
+
 	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN) //BANKTILES
 	{
 		if(Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)

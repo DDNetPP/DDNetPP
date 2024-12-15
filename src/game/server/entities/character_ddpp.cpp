@@ -13,6 +13,7 @@
 
 #include <cinttypes>
 
+#include "base/ddpp_logs.h"
 #include "flag.h"
 #include "homing_missile.h"
 #include "laser.h"
@@ -278,6 +279,23 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			m_pPlayer->m_IsNoboSpawn = false;
 			str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
 			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
+		}
+	}
+	else if(m_pPlayer->m_PendingCaptcha)
+	{
+		vec2 CaptchaSpawn = GameServer()->Collision()->GetRandomTile(TILE_CAPTCHA_SPAWN);
+
+		if(CaptchaSpawn != vec2(-1, -1))
+		{
+			SetPosition(CaptchaSpawn);
+		}
+		else // no captcha spawn!
+		{
+			// this can happen if sv_captcha_room is set in the config
+			// the map is loaded after the config is executed
+			// so the con chain hook does not work
+			GameServer()->SendChat(-1, TEAM_ALL, "ERROR: deactivating sv_captcha_room because the captcha spawn tile is missing!");
+			g_Config.m_SvCaptchaRoom = 0;
 		}
 	}
 	else
@@ -839,6 +857,9 @@ void CCharacter::CosmeticTick()
 
 void CCharacter::DDPPPostCoreTick()
 {
+	if(!m_Alive)
+		return;
+
 	if(m_Core.m_updateFlagVel == FLAG_RED)
 	{
 		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_Vel = m_Core.m_UFlagVel;

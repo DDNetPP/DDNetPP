@@ -6,14 +6,28 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
+#include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
 #include <game/version.h>
 
+#include "base/vmath.h"
 #include "gamecontext.h"
 
 bool CheckClientId(int ClientId);
+
+void CGameContext::RegisterDDNetPPCommands()
+{
+#define CHAT_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);
+#include <game/ddracechat_ddpp.h>
+#undef CHAT_COMMAND
+
+#define CONSOLE_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);
+#include <game/ddracecommands_ddpp.h>
+#undef CONSOLE_COMMAND
+	Console()->Chain("sv_captcha_room", ConchainCaptchaRoom, this);
+}
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 {
@@ -327,6 +341,26 @@ void CGameContext::ConHidePlayer(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "player '%s' is now %s", pSelf->Server()->ClientName(ClientId), pPlayer->m_IsHiddenTee ? "hidden" : "visible");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "hide", aBuf);
+}
+
+void CGameContext::ConVerifyPlayer(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	int ClientId = pResult->GetVictim();
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
+	if(!pPlayer)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "captcha", "player not found");
+		return;
+	}
+
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "player '%s' was human verified by '%s' (force solved all captchas)", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "captcha", aBuf);
+	pPlayer->OnHumanVerify();
 }
 
 // cosmetics
@@ -1273,4 +1307,32 @@ void CGameContext::ConAddSpamfilter(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->AddSpamfilter(pResult->GetString(0));
+}
+
+void CGameContext::ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	bool Success = true;
+	if(pResult->NumArguments())
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		// only allow activate if the tiles are in the map
+		// this check only works from rcon
+		// because configs loaded at server start are loaded before collision is initialized
+		if(pResult->GetInteger(0) && pSelf->Collision()->Initialized())
+		{
+			bool MissingSpawn = pSelf->Collision()->GetTileAtNum(TILE_CAPTCHA_SPAWN, 0) == vec2(-1, -1);
+			bool MissingVerify = pSelf->Collision()->GetTileAtNum(TILE_CAPTCHA_VERIFY, 0) == vec2(-1, -1);
+
+			if(MissingSpawn || MissingVerify)
+			{
+				Success = false;
+				pSelf->Console()->Print(
+					IConsole::OUTPUT_LEVEL_STANDARD,
+					"captcha",
+					"failed to activate sv_captcha_room missing spawn or verification tile in the map.");
+			}
+		}
+	}
+	if(Success)
+		pfnCallback(pResult, pCallbackUserData);
 }

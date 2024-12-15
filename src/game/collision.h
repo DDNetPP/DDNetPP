@@ -147,6 +147,7 @@ public:
 	// DDNet++ start
 private:
 	int m_NumSurvivalSpawns;
+	bool m_FinishedInitialize = false;
 
 public:
 	int GetCustTile(int x, int y);
@@ -160,6 +161,7 @@ public:
 	bool FirstNonEmpty(int x, int y, int *pGroupOut, int *pLayerOut);
 
 	std::vector<std::vector<vec2>> m_vTiles;
+	bool Initialized() const { return m_FinishedInitialize; }
 	// DDNet++ end
 
 private:

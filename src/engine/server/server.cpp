@@ -3948,6 +3948,7 @@ void CServer::RegisterCommands()
 	Console()->Chain("sv_sixup", ConchainSixupUpdate, this);
 
 	//DDraceNetwork++ (ChillerDragon) ddpp
+	// TODO: move all of this to ddnet++ files
 
 	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");
 	Console()->Register("add_accounts_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]", CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConAddAccountsSqlServer, this, "add a sqlserver");

@@ -328,9 +328,39 @@ public:
 	int m_PlayerHumanLevel;
 	int m_PlayerHumanLevelState; // if the level has sublevels
 	int64_t m_HumanLevelTime;
+	const int m_MaxPlayerHumanLevel = 9;
 	void PlayerHumanLevelTick();
 
 	CCaptcha *m_pCaptcha;
+
+	// if set to true the "joined the game" chat message
+	// will not be printed
+	// this is used for server side dummies to connect silently
+	// especially for minigames with frequent reconnects
+	//
+	// but it can also be used for anti flood reconnect spam silencing
+	bool m_SilentJoinMessage = false;
+
+	// if the anti flood protection is on
+	// join messages in chat are delayed until the player is verified as legit
+	// if the player leaves before verification the disconnect message is also not printed
+	//
+	// this is set to false as soon as the message got printed after verification
+	bool m_PendingJoinMessage = true;
+
+	// if this is true the player is not supposed to be able to interact
+	// with anything that could affect other players
+	//
+	// this happens if the server is in lock down and has the sv_captcha_room (SvCaptchaRoom) active
+	// the player is not supposed to show up in the scoreboard or chat until he touches the
+	// TILE_CAPTCHA_VERIFY
+	//
+	// https://github.com/DDNetPP/DDNetPP/issues/400
+	bool m_PendingCaptcha = false;
+
+	// this is called when reaching the maximum human level
+	// or touching the captcha verify tile
+	void OnHumanVerify();
 
 	//money and traiding
 
@@ -520,21 +550,6 @@ public:
 	void CalcExp();
 
 	bool m_HammerRequest;
-
-	// if set to true the "joined the game" chat message
-	// will not be printed
-	// this is used for server side dummies to connect silently
-	// especially for minigames with frequent reconnects
-	//
-	// but it can also be used for anti flood reconnect spam silencing
-	bool m_SilentJoinMessage = false;
-
-	// if the anti flood protection is on
-	// join messages in chat are delayed until the player is verified as legit
-	// if the player leaves before verification the disconnect message is also not printed
-	//
-	// this is set to false as soon as the message got printed after verification
-	bool m_PendingJoinMessage = true;
 
 	/*
 		SetDummyMode

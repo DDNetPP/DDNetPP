@@ -28,6 +28,13 @@ void CPlayer::ConstructDDPP()
 	m_pCaptcha = new CCaptcha(GameServer(), GetCid());
 	m_pDummyMode = nullptr;
 	mem_zero((void *)&m_TwblPersistentState, sizeof(m_TwblPersistentState));
+
+	m_PendingCaptcha = false;
+	if(g_Config.m_SvCaptchaRoom)
+	{
+		m_PendingCaptcha = true;
+		m_PendingJoinMessage = true;
+	}
 }
 
 void CPlayer::DestructDDPP()
@@ -443,8 +450,21 @@ void CPlayer::PlayerHumanLevelTick()
 		{
 			m_PlayerHumanLevel++;
 			m_PlayerHumanLevelState = 0;
+			OnHumanVerify();
 		}
 	}
+	// make sure to adjust m_MaxPlayerHumanLevel if a new branch is added here
+}
+
+void CPlayer::OnHumanVerify()
+{
+	m_PlayerHumanLevel = m_MaxPlayerHumanLevel;
+	GameServer()->m_pController->PrintJoinMessage(this);
+
+	// teleport to spawn if in captcha room
+	if(m_PendingCaptcha)
+		KillCharacter();
+	m_PendingCaptcha = false;
 }
 
 bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)

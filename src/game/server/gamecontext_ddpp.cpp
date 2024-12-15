@@ -2780,6 +2780,8 @@ bool CGameContext::ShowJoinMessage(int ClientId)
 	// after the player was verified as a legit connection
 	if(ReconnectFlood())
 		return false;
+	if(m_apPlayers[ClientId]->m_PendingCaptcha)
+		return false;
 	return true;
 }
 

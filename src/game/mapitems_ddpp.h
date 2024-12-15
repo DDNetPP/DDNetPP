@@ -62,6 +62,9 @@ enum
 
 	TILE_NO_HAMMER = 185,
 
+	TILE_CAPTCHA_SPAWN = 186,
+	TILE_CAPTCHA_VERIFY = 187,
+
 	TILE_SHOP_SPAWN = 255, // entitiy index 64
 
 	// NOT ACTUAL TILES - start

@@ -878,6 +878,7 @@ private:
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHidePlayer(IConsole::IResult *pResult, void *pUserData);
+	static void ConVerifyPlayer(IConsole::IResult *pResult, void *pUserData);
 	static void ConReloadSpamfilters(IConsole::IResult *pResult, void *pUserData);
 	static void ConListSpamfilters(IConsole::IResult *pResult, void *pUserData);
 	static void ConAddSpamfilter(IConsole::IResult *pResult, void *pUserData);
@@ -941,6 +942,10 @@ private:
 	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeactivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
 	static void ConActivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+
+	void RegisterDDNetPPCommands();
 
 	bool DDPPCredits();
 	bool DDPPInfo();
