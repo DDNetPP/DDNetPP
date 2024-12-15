@@ -336,7 +336,7 @@ public:
 
 	bool OnClientDataPersist(int ClientId, void *pData) override;
 	void OnClientConnected(int ClientId, void *pData) override;
-	void OnClientEnter(int ClientId, bool Silent = false) override;
+	void OnClientEnter(int ClientId) override;
 	void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) override;
 	void OnClientPrepareInput(int ClientId, void *pInput) override;
 	void OnClientDirectInput(int ClientId, void *pInput) override;

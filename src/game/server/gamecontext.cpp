@@ -1610,13 +1610,13 @@ void CGameContext::ProgressVoteOptions(int ClientId)
 	}
 }
 
-void CGameContext::OnClientEnter(int ClientId, bool Silent)
+void CGameContext::OnClientEnter(int ClientId)
 {
 	if(m_TeeHistorianActive)
 	{
 		m_TeeHistorian.RecordPlayerReady(ClientId);
 	}
-	m_pController->OnPlayerConnect(m_apPlayers[ClientId], Silent);
+	m_pController->OnPlayerConnect(m_apPlayers[ClientId]);
 	OnClientEnterDDPP(ClientId);
 
 	{

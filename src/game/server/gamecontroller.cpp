@@ -452,7 +452,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 	return false;
 }
 
-void IGameController::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
+void IGameController::OnPlayerConnect(CPlayer *pPlayer)
 {
 	int ClientId = pPlayer->GetCid();
 	pPlayer->Respawn();

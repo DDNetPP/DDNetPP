@@ -115,7 +115,7 @@ public:
 	*/
 	virtual bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number = 0);
 
-	virtual void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false);
+	virtual void OnPlayerConnect(class CPlayer *pPlayer);
 	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false);
 
 	virtual void OnReset();

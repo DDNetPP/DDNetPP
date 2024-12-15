@@ -2649,7 +2649,8 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 		m_apPlayers[DummyId]->m_IsVanillaCompetetive = true;
 	}
 
-	OnClientEnter(DummyId, Silent);
+	m_apPlayers[DummyId]->m_SilentJoinMessage = Silent;
+	OnClientEnter(DummyId);
 
 	return DummyId;
 }

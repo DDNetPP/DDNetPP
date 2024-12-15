@@ -43,9 +43,9 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
-void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer, bool Silent)
+void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
-	CGameControllerDDRace::OnPlayerConnect(pPlayer, Silent);
+	CGameControllerDDRace::OnPlayerConnect(pPlayer);
 
 	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
 	{

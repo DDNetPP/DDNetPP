@@ -521,6 +521,14 @@ public:
 
 	bool m_HammerRequest;
 
+	// if set to true the "joined the game" chat message
+	// will not be printed
+	// this is used for server side dummies to connect silently
+	// especially for minigames with frequent reconnects
+	//
+	// but it can also be used for anti flood reconnect spam silencing
+	bool m_SilentJoinMessage = false;
+
 	/*
 		SetDummyMode
 

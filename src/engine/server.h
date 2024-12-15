@@ -349,7 +349,7 @@ public:
 	// previously stored.
 	virtual void OnClientConnected(int ClientId, void *pPersistentData) = 0;
 
-	virtual void OnClientEnter(int ClientId, bool Silent = false) = 0;
+	virtual void OnClientEnter(int ClientId) = 0;
 	virtual void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) = 0;
 	virtual void OnClientPrepareInput(int ClientId, void *pInput) = 0;
 	virtual void OnClientDirectInput(int ClientId, void *pInput) = 0;

@@ -122,9 +122,9 @@ void CGameControllerDDRace::SetArmorProgress(CCharacter *pCharacer, int Progress
 	pCharacer->SetArmor(clamp(10 - (Progress / 15), 0, 10));
 }
 
-void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
+void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 {
-	IGameController::OnPlayerConnect(pPlayer, Silent);
+	IGameController::OnPlayerConnect(pPlayer);
 	int ClientId = pPlayer->GetCid();
 
 	// init the player
@@ -137,7 +137,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 	if(!Server()->ClientPrevIngame(ClientId))
 	{
 		char aBuf[512];
-		if(!Silent)
+		if(!pPlayer->m_SilentJoinMessage)
 		{
 			if(GameServer()->ShowJoinMessage(ClientId))
 			{
