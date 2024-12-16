@@ -5,6 +5,7 @@
 #define GAME_SERVER_ENTITIES_FLAG_H
 
 #include <engine/shared/protocol.h>
+#include <game/server/entities/character.h>
 #include <game/server/entity.h>
 
 enum
@@ -15,11 +16,11 @@ enum
 
 class CFlag : public CEntity
 {
-public:
-	static constexpr float ms_PhysSize = 28.0f;
-	;
 	CCharacter *m_pCarryingCharacter;
 	CCharacter *m_pLastCarryingCharacter;
+
+public:
+	static constexpr float ms_PhysSize = 28.0f;
 
 	vec2 m_Vel;
 	vec2 m_StandPos;
@@ -37,6 +38,9 @@ public:
 	void Snap(int SnappingClient) override;
 
 	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
+	CCharacter *GetLastCarrier() const { return m_pLastCarryingCharacter; }
+	void SetCarrier(CCharacter *pChr) { m_pCarryingCharacter = pChr; }
+	void SetLastCarrier(CCharacter *pChr) { m_pLastCarryingCharacter = pChr; }
 
 	int m_TuneZone;
 

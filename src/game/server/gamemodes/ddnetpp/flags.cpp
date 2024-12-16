@@ -35,31 +35,31 @@ void CGameControllerDDNetPP::FlagTick()
 		}
 
 		//
-		if(pFlag->m_pCarryingCharacter)
+		if(pFlag->GetCarrier())
 		{
 			// update flag position
-			pFlag->m_Pos = pFlag->m_pCarryingCharacter->m_Pos;
+			pFlag->m_Pos = pFlag->GetCarrier()->m_Pos;
 
-			if(pFlag->m_pCarryingCharacter->m_FirstFreezeTick != 0)
+			if(pFlag->GetCarrier()->m_FirstFreezeTick != 0)
 			{
 				/*char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",pFlag->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
-				GameServer()->SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), aBuf);*/
+				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",pFlag->GetCarrier()->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
+				GameServer()->SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), aBuf);*/
 
-				if(Server()->Tick() > pFlag->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed() * 8)
+				if(Server()->Tick() > pFlag->GetCarrier()->m_FirstFreezeTick + Server()->TickSpeed() * 8)
 				{
-					/*pFlag->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-					pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = pFlag->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-					pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = pFlag->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-					if(m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter && m_apFlags[0]->m_pCarryingCharacter == pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					/*pFlag->GetCarrier()->GetPlayer()->m_Rainbow = false;
+					pFlag->GetCarrier()->GetPlayer()->m_TeeInfos.m_ColorBody = pFlag->GetCarrier()->GetPlayer()->m_ColorBodyOld;
+					pFlag->GetCarrier()->GetPlayer()->m_TeeInfos.m_ColorFeet = pFlag->GetCarrier()->GetPlayer()->m_ColorFeetOld;*/
+					if(m_apFlags[0] && m_apFlags[0]->GetCarrier() && m_apFlags[0]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
 					{
-						DropFlag(0, pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
-						//SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped red flag");
+						DropFlag(0, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //red
+						//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped red flag");
 					}
-					else if(m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter && m_apFlags[1]->m_pCarryingCharacter == pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					else if(m_apFlags[1] && m_apFlags[1]->GetCarrier() && m_apFlags[1]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
 					{
-						DropFlag(1, pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
-						//SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped blue flag");
+						DropFlag(1, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //blue
+						//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped blue flag");
 					}
 				}
 			}
@@ -83,19 +83,19 @@ void CGameControllerDDNetPP::FlagTick()
 					continue;
 				if(m_apFlags[0] && m_apFlags[1])
 				{
-					if(m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (pFlag->m_pLastCarryingCharacter == apCloseCCharacters[i] && (pFlag->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
+					if(m_apFlags[0]->GetCarrier() == apCloseCCharacters[i] || m_apFlags[1]->GetCarrier() == apCloseCCharacters[i] || (pFlag->GetLastCarrier() == apCloseCCharacters[i] && (pFlag->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
 						continue;
 				}
 				else
 				{
 					if(m_apFlags[0])
 					{
-						if(m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || (m_apFlags[0]->m_pLastCarryingCharacter == apCloseCCharacters[i] && (m_apFlags[0]->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
+						if(m_apFlags[0]->GetCarrier() == apCloseCCharacters[i] || (m_apFlags[0]->GetLastCarrier() == apCloseCCharacters[i] && (m_apFlags[0]->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
 							continue;
 					}
 					if(m_apFlags[1])
 					{
-						if(m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (m_apFlags[1]->m_pLastCarryingCharacter == apCloseCCharacters[i] && (m_apFlags[1]->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
+						if(m_apFlags[1]->GetCarrier() == apCloseCCharacters[i] || (m_apFlags[1]->GetLastCarrier() == apCloseCCharacters[i] && (m_apFlags[1]->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
 							continue;
 					}
 				}
@@ -113,8 +113,8 @@ void CGameControllerDDNetPP::FlagTick()
 				}
 
 				pFlag->m_AtStand = 0;
-				pFlag->m_pCarryingCharacter = apCloseCCharacters[i];
-				pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+				pFlag->SetCarrier(apCloseCCharacters[i]);
+				pFlag->GetCarrier()->GetPlayer()->m_ChangeTeamOnFlag = true;
 				/*if (!apCloseCCharacters[i]->GetPlayer()->m_Rainbow){
 					apCloseCCharacters[i]->GetPlayer()->m_ColorBodyOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorBody;
 					apCloseCCharacters[i]->GetPlayer()->m_ColorFeetOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorFeet;
@@ -254,14 +254,14 @@ void CGameControllerDDNetPP::DropFlag(int FlagId, int Dir)
 	{
 		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
-	if(pFlag->m_pCarryingCharacter && pFlag->m_pCarryingCharacter->GetPlayer())
+	if(pFlag->GetCarrier() && pFlag->GetCarrier()->GetPlayer())
 	{
-		pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
-		pFlag->m_pLastCarryingCharacter = pFlag->m_pCarryingCharacter;
+		pFlag->GetCarrier()->GetPlayer()->m_ChangeTeamOnFlag = true;
+		pFlag->SetLastCarrier(pFlag->GetCarrier());
 	}
 	pFlag->m_DropTick = Server()->Tick();
 	pFlag->m_DropFreezeTick = Server()->Tick();
-	pFlag->m_pCarryingCharacter = 0;
+	pFlag->SetCarrier(nullptr);
 	pFlag->m_Vel = vec2(5 * Dir, -5);
 }
 
@@ -278,7 +278,7 @@ void CGameControllerDDNetPP::ChangeFlagOwner(int FlagId, int ClientId)
 		return;
 
 	CFlag *pFlag = m_apFlags[FlagId];
-	if((m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter == pChr) || (m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter == pChr))
+	if((m_apFlags[0] && m_apFlags[0]->GetCarrier() == pChr) || (m_apFlags[1] && m_apFlags[1]->GetCarrier() == pChr))
 	{
 		// target already has a flag
 		return;
@@ -290,8 +290,8 @@ void CGameControllerDDNetPP::ChangeFlagOwner(int FlagId, int ClientId)
 	}
 
 	pFlag->m_AtStand = 0;
-	pFlag->m_pCarryingCharacter = pChr;
-	pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
+	pFlag->SetCarrier(pChr);
+	pFlag->GetCarrier()->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
 }
 
 int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
@@ -300,7 +300,7 @@ int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
 		return -1;
 
 	for(CFlag *pFlag : m_apFlags)
-		if(pFlag && pFlag->m_pCarryingCharacter == pChr)
+		if(pFlag && pFlag->GetCarrier() == pChr)
 			return pChr->GetPlayer()->GetCid();
 	return -1;
 }

@@ -901,8 +901,8 @@ void CCharacter::DDPP_Tick()
 		if(!Flag)
 			continue;
 		int CarryId = -1;
-		if(Flag->m_pCarryingCharacter)
-			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCid();
+		if(Flag->GetCarrier())
+			CarryId = Flag->GetCarrier()->GetPlayer()->GetCid();
 		m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
 
@@ -1621,7 +1621,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	m_pPlayer->UpdateLastToucher(-1);
 	if(GameServer()->m_pController->m_apFlags[0])
 	{
-		if(GameServer()->m_pController->m_apFlags[0]->m_pCarryingCharacter == this)
+		if(GameServer()->m_pController->m_apFlags[0]->GetCarrier() == this)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 
@@ -1634,7 +1634,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 
 	if(GameServer()->m_pController->m_apFlags[1])
 	{
-		if(GameServer()->m_pController->m_apFlags[1]->m_pCarryingCharacter == this)
+		if(GameServer()->m_pController->m_apFlags[1]->GetCarrier() == this)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 

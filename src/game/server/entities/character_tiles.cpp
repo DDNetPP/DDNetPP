@@ -112,7 +112,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0)
 	// {
 
-	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
+	// 	if ((GameServer()->m_pController->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this)
 	// 	{
 	// 	}
 	// 	else
@@ -134,7 +134,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0)
 	// {
 
-	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
+	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this) {
 	// 	}
 	// 	else {
 	// 		/*

@@ -152,9 +152,9 @@ int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CP
 		if(!Flag)
 			continue;
 
-		if(pKiller && pKiller->GetCharacter() && Flag->m_pCarryingCharacter == pKiller->GetCharacter())
+		if(pKiller && pKiller->GetCharacter() && Flag->GetCarrier() == pKiller->GetCharacter())
 			HadFlag |= 2;
-		if(Flag->m_pCarryingCharacter == pVictim)
+		if(Flag->GetCarrier() == pVictim)
 		{
 			if(g_Config.m_SvFlagSounds)
 			{
@@ -164,13 +164,13 @@ int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CP
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorBody = pVictim->GetPlayer()->m_ColorBodyOld;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorFeet = pVictim->GetPlayer()->m_ColorFeetOld;*/
 			Flag->m_DropTick = Server()->Tick();
-			Flag->m_pCarryingCharacter = 0;
+			Flag->SetCarrier(nullptr);
 			Flag->m_Vel = vec2(0, 0);
 
 			HadFlag |= 1;
 		}
-		if(Flag->m_pLastCarryingCharacter == pVictim)
-			Flag->m_pLastCarryingCharacter = 0;
+		if(Flag->GetLastCarrier() == pVictim)
+			Flag->SetCarrier(nullptr);
 	}
 
 	return HadFlag;
