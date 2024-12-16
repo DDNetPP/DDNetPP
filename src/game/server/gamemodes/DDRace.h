@@ -13,7 +13,6 @@ public:
 	void HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
 	void Snap(int SnappingClient) override;
 	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
-	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();

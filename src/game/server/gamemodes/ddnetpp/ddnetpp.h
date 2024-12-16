@@ -23,6 +23,7 @@ public:
 	void OnPlayerConnect(class CPlayer *pPlayer) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
+	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 
 	const char *CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg);
 

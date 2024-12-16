@@ -262,41 +262,6 @@ bool CGameControllerDDRace::OnEntity(int Index, int x, int y, int Layer, int Fla
 	return true;
 }
 
-int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponId)
-{
-	IGameController::OnCharacterDeath(pVictim, pKiller, WeaponId);
-	int HadFlag = 0;
-
-	// drop flags
-	for(auto &Flag : m_apFlags)
-	{
-		if(!Flag)
-			continue;
-
-		if(pKiller && pKiller->GetCharacter() && Flag->m_pCarryingCharacter == pKiller->GetCharacter())
-			HadFlag |= 2;
-		if(Flag->m_pCarryingCharacter == pVictim)
-		{
-			if(g_Config.m_SvFlagSounds)
-			{
-				GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
-			}
-			/*pVictim->GetPlayer()->m_Rainbow = false;
-			pVictim->GetPlayer()->m_TeeInfos.m_ColorBody = pVictim->GetPlayer()->m_ColorBodyOld;
-			pVictim->GetPlayer()->m_TeeInfos.m_ColorFeet = pVictim->GetPlayer()->m_ColorFeetOld;*/
-			Flag->m_DropTick = Server()->Tick();
-			Flag->m_pCarryingCharacter = 0;
-			Flag->m_Vel = vec2(0, 0);
-
-			HadFlag |= 1;
-		}
-		if(Flag->m_pLastCarryingCharacter == pVictim)
-			Flag->m_pLastCarryingCharacter = 0;
-	}
-
-	return HadFlag;
-}
-
 void CGameControllerDDRace::Snap(int SnappingClient)
 {
 	IGameController::Snap(SnappingClient);
