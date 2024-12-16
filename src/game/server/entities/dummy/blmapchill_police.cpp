@@ -16,10 +16,23 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
+#ifdef CONF_DUMMY_TEST
+#define print_once(uuid, text) \
+	static bool s_printed##uuid = false; \
+	if(!s_printed##uuid) \
+	{ \
+		s_printed##uuid = true; \
+		dbg_msg("DEBUG", "%s", text); \
+	}
+#else
+#define print_once(uuid, text)
+#endif
+
 CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_BLMAPCHILL_POLICE)
 {
 	OnDeath();
+	print_once(constructor, "constructor");
 }
 
 void CDummyBlmapChillPolice::OnDeath()
@@ -407,6 +420,7 @@ void CDummyBlmapChillPolice::OnTick()
 {
 	if(X > 452 && X < 467 && Y > 75 && Y < 100) // new spawn area, walk into the left SPAWN teleporter
 	{
+		print_once(new_spawn_left, "new spawn area, walk into left spawn teleport");
 		if(Y > 87)
 		{
 			Left();
@@ -417,6 +431,7 @@ void CDummyBlmapChillPolice::OnTick()
 	}
 	else if(X > 454 && X < 462 && Y > 74 && Y < 75) // new spawn area, jump onto edge after getting 5jumps
 	{
+		print_once(new_spawn_jump, "new spawn area, jump onto edge after getting 5jumps");
 		Jump();
 		if(TicksPassed(10))
 			Jump(0);
@@ -533,8 +548,9 @@ void CDummyBlmapChillPolice::OnTick()
 			if(GetPos().y < RAW(23) + 20 && GetVel().y < -1.1f)
 				Fire();
 		}
-		else if(X > 75 && X < 135) //gores stuff (the thign with freeze spikes from top and bottom)
+		else if(X > 75 && X < 135) // gores stuff (the thign with freeze spikes from top and bottom)
 		{
+			print_once(gores_stuff_freeze_spikes, "gores stuff (the thign with freeze spikes from top and bottom)");
 			Jump(0);
 			Right();
 			// start jump into gores
@@ -593,6 +609,7 @@ void CDummyBlmapChillPolice::OnTick()
 			// 5 jumps area
 			if(X > 222)
 			{
+				print_once(jump5_area, "5 jumps area");
 				Jump(0);
 				if(Jumps() < 5)
 				{
@@ -702,6 +719,7 @@ void CDummyBlmapChillPolice::OnTick()
 		// somebody is blocking flappy intentionally
 		if(m_FailedAttempts > 4 && X > 452 && X < 505)
 		{
+			print_once(blocker_detected, "someone is blocking flappy intentionally");
 			// don't aim for edge and rather go full speed to bypass the blocker
 			Left();
 			Hook(0);
@@ -721,6 +739,7 @@ void CDummyBlmapChillPolice::OnTick()
 		// rocket jump from new spawn edge to old map entry
 		if(X < 453 && Y < 80)
 		{
+			print_once(prep_rj, "preparing rocket jump");
 			StopMoving();
 			if(TicksPassed(10)) // change to grenade
 				SetWeapon(WEAPON_GRENADE);
@@ -812,6 +831,7 @@ void CDummyBlmapChillPolice::OnTick()
 	}
 	else if(X > 325 && X < 366 && Y < 295 && Y > 59) // insane grenade jump
 	{
+		print_once(insane_rj, "preparing insane rocket jump");
 		if(IsGrounded() && m_GrenadeJump == 0) // shoot up
 		{
 			Jump();
@@ -851,6 +871,7 @@ void CDummyBlmapChillPolice::OnTick()
 		}
 		if(X < 330 && GetVel().x == 0.0f && Y > 59) // if on wall jump and shoot
 		{
+			print_once(insane_rj_hit_wall, "insane rocket jump reached wall");
 			if(Y > 250 && GetVel().y > 6.0f)
 			{
 				Jump();
@@ -874,6 +895,7 @@ void CDummyBlmapChillPolice::OnTick()
 	}
 	if(Y < 60 && X < 337 && X > 325 && Y > 53) // top of the grenade jump // shoot left to get to the right
 	{
+		print_once(insane_rj_reach_top, "insane rocket jump reached top");
 		Right();
 		Aim(-100, 0);
 		Fire();
@@ -1027,6 +1049,7 @@ void CDummyBlmapChillPolice::OnTick()
 	}
 	else if(X > 180 && X < 450 && Y < 450 && Y > 358) // wider police area with left entrance
 	{
+		print_once(wider_police, "reached the wider police area");
 		// kills when in freeze in policebase or left of it (takes longer that he kills bcs the way is so long he wait a bit longer for help)
 		if(IsFrozen())
 		{

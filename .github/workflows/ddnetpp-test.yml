@@ -29,7 +29,7 @@ jobs:
         export CXX=clang++
         export CXXFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
         export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
-        cmake -DCMAKE_BUILD_TYPE=Debug -DCLIENT=ON -DHEADLESS_CLIENT=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCLIENT=ON -DHEADLESS_CLIENT=ON -DDUMMY_TEST=ON ..
         make -j"$(nproc)"
     - name: Make sure dummy can reach police on BlmapChill
       run: |

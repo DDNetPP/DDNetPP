@@ -1215,7 +1215,14 @@ void CGameContext::ConRunTest(IConsole::IResult *pResult, void *pUserData)
 
 	if(Test == 0)
 	{
+#ifdef CONF_DUMMY_TEST
 		pSelf->CreateNewDummy(EDummyMode::DUMMYMODE_BLMAPCHILL_POLICE, false, 0, EDummyTest::BLMAPCHILL_POLICE);
+#else
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"test",
+			"ERROR: to run BlmapChill police dummy test compile with -DDUMMY_TEST=ON");
+#endif
 	}
 	else
 	{

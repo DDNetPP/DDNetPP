@@ -122,6 +122,9 @@ option(IPO "Enable interprocedural optimizations" OFF)
 option(FUSE_LD "Linker to use" OFF)
 option(SECURITY_COMPILER_FLAGS "Whether to set security-relevant compiler flags like -D_FORTIFY_SOURCE=2 and -fstack-protector-strong" ON)
 
+# ddnet++ options
+option(DUMMY_TEST "enable tracing and testing for ddnet++ dummy modes" OFF)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   include(${PROJECT_SOURCE_DIR}/cmake/toolchains/Emscripten.toolchain)
 endif()
@@ -3757,6 +3760,11 @@ foreach(target ${TARGETS_OWN})
   endif()
   if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
    target_compile_definitions(${target} PRIVATE CONF_WEBASM)
+  endif()
+
+  # ddnet++
+  if(DUMMY_TEST)
+    target_compile_definitions(${target} PRIVATE CONF_DUMMY_TEST)
   endif()
 endforeach()
 
