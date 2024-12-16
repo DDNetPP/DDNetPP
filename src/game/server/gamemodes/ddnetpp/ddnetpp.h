@@ -37,6 +37,10 @@ public:
 
 	// automatic flood detection
 	void DetectReconnectFlood();
+
+	void DropFlag(int FlagId, int Dir = 1) override;
+	void ChangeFlagOwner(int FlagId, int ClientId) override;
+	int HasFlag(CCharacter *pChr) override;
 };
 
 #endif

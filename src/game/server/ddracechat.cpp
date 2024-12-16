@@ -1038,7 +1038,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 	}
 	if(pPlayer->GetCharacter())
 	{
-		if(((CGameControllerDDRace *)m_pController)->HasFlag(pPlayer->GetCharacter()) != -1)
+		if(m_pController->HasFlag(pPlayer->GetCharacter()) != -1)
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while holding the flag.");
 			return;

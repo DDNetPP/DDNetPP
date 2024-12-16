@@ -386,7 +386,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	{
 		if(Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
 		{
-			if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+			if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
@@ -410,7 +410,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		}
 		if(Server()->Tick() % 450 == 0 || m_EnteredShop)
 		{
-			if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+			if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
@@ -539,7 +539,7 @@ void CCharacter::MoneyTile()
 	int VIPBonus = 0;
 
 	// flag extra xp
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
+	if(GameServer()->m_pController->HasFlag(this) != -1)
 	{
 		XP += 1;
 	}
@@ -602,7 +602,7 @@ void CCharacter::MoneyTile()
 		}
 
 		// xp
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
+		if(GameServer()->m_pController->HasFlag(this) != -1)
 			str_append(aXp, " +1 flag", sizeof(aXp));
 		if(VIPBonus)
 		{
@@ -813,7 +813,7 @@ void CCharacter::MoneyTileDouble()
 	int Money = 0;
 
 	// flag extra xp
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
+	if(GameServer()->m_pController->HasFlag(this) != -1)
 	{
 		Exp += 2;
 	}
@@ -849,7 +849,7 @@ void CCharacter::MoneyTileDouble()
 		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// xp
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
+		if(GameServer()->m_pController->HasFlag(this) != -1)
 			str_append(aXp, " +2 flag", sizeof(aXp));
 		if(m_survivexpvalue > 0)
 		{

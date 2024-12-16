@@ -258,7 +258,7 @@ void CPlayer::DDPPTick()
 
 	if((m_ChangeTeamOnFlag || (Server()->Tick() % 600 == 0)) && m_Team != TEAM_SPECTATORS && m_IsDummy)
 	{
-		if((((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GetCharacter()) == -1) && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+		if((GameServer()->m_pController->HasFlag(GetCharacter()) == -1) && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
 		{
 			m_Team = TEAM_BLUE;
 		}
@@ -1356,7 +1356,7 @@ void CPlayer::GiveBlockPoints(int Points)
 	char aBuf[128];
 	bool FlagBonus = false;
 
-	if(GetCharacter() && ((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GetCharacter()) != -1)
+	if(GetCharacter() && GameServer()->m_pController->HasFlag(GetCharacter()) != -1)
 	{
 		Points++;
 		FlagBonus = true;

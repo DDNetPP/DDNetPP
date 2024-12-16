@@ -1,8 +1,10 @@
 #include <base/ddpp_logs.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
+#include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 #include <game/server/entities/character.h>
+#include <game/server/entities/flag.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 #include <game/server/score.h>
@@ -186,6 +188,70 @@ void CGameControllerDDNetPP::DetectReconnectFlood()
 		m_NextMinuteReset = time_get() + time_freq() * 60 * 10;
 		m_NumConnectionsInTheLast10Minutes = 0;
 	}
+}
+
+void CGameControllerDDNetPP::DropFlag(int FlagId, int Dir)
+{
+	CFlag *pFlag = m_apFlags[FlagId]; //red=0 blue=1
+	if(!pFlag)
+		return;
+
+	if(g_Config.m_SvFlagSounds)
+	{
+		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	}
+	if(pFlag->m_pCarryingCharacter && pFlag->m_pCarryingCharacter->GetPlayer())
+	{
+		/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+		pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+		pFlag->m_pLastCarryingCharacter = pFlag->m_pCarryingCharacter;
+	}
+	pFlag->m_DropTick = Server()->Tick();
+	pFlag->m_DropFreezeTick = Server()->Tick();
+	pFlag->m_pCarryingCharacter = 0;
+	pFlag->m_Vel = vec2(5 * Dir, -5);
+}
+
+void CGameControllerDDNetPP::ChangeFlagOwner(int FlagId, int ClientId)
+{
+	dbg_assert(FlagId >= 0 && FlagId <= 1, "invalid flag id");
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+		return;
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return;
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return;
+
+	CFlag *pFlag = m_apFlags[FlagId];
+	if((m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter == pChr) || (m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter == pChr))
+	{
+		// target already has a flag
+		return;
+	}
+
+	if(g_Config.m_SvFlagSounds)
+	{
+		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	}
+
+	pFlag->m_AtStand = 0;
+	pFlag->m_pCarryingCharacter = pChr;
+	pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
+}
+
+int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
+{
+	if(!pChr)
+		return -1;
+
+	for(CFlag *pFlag : m_apFlags)
+		if(pFlag && pFlag->m_pCarryingCharacter == pChr)
+			return pChr->GetPlayer()->GetCid();
+	return -1;
 }
 
 // TODO: move to gamecontext because thats probably useful everywhere for example the extra vote menu

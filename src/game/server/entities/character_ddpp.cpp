@@ -1210,7 +1210,7 @@ void CCharacter::DDPP_Tick()
 
 void CCharacter::DDPP_FlagTick()
 {
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) == -1)
+	if(GameServer()->m_pController->HasFlag(this) == -1)
 		return;
 
 	if(!m_pPlayer->IsLoggedIn())
@@ -1619,28 +1619,28 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	}
 
 	m_pPlayer->UpdateLastToucher(-1);
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
+	if(GameServer()->m_pController->m_apFlags[0])
 	{
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
+		if(GameServer()->m_pController->m_apFlags[0]->m_pCarryingCharacter == this)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 
 			if(m_Core.m_LastHookedPlayer != -1)
 			{
-				((CGameControllerDDRace *)GameServer()->m_pController)->ChangeFlagOwner(0, Killer);
+				GameServer()->m_pController->ChangeFlagOwner(0, Killer);
 			}
 		}
 	}
 
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
+	if(GameServer()->m_pController->m_apFlags[1])
 	{
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this)
+		if(GameServer()->m_pController->m_apFlags[1]->m_pCarryingCharacter == this)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 
 			if(m_Core.m_LastHookedPlayer != -1)
 			{
-				((CGameControllerDDRace *)GameServer()->m_pController)->ChangeFlagOwner(1, Killer);
+				GameServer()->m_pController->ChangeFlagOwner(1, Killer);
 			}
 		}
 	}
@@ -2131,7 +2131,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 			else if(GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 9) //TODO: TEST THIS QUEST (should be working now)
 			{
 				//success (blocking player)
-				if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GameServer()->m_apPlayers[Killer]->GetCharacter()) != -1)
+				if(GameServer()->m_pController->HasFlag(GameServer()->m_apPlayers[Killer]->GetCharacter()) != -1)
 				{
 					GameServer()->QuestAddProgress(Killer, 11);
 				}

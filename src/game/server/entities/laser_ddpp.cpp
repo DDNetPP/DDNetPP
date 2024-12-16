@@ -280,7 +280,7 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCid(), "[QUEST] rifle a different tee");
 			}
-			else if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(pOwnerChar) == -1) //no flag
+			else if(GameServer()->m_pController->HasFlag(pOwnerChar) == -1) //no flag
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCid(), "[QUEST] you need the flag");
 			}

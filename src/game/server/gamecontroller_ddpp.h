@@ -50,6 +50,12 @@ public:
 	*/
 	virtual void PrintJoinMessage(CPlayer *pPlayer){};
 
+	// flags only work if the ddnet++ gamecontroller is active
+	// which should always be the case because not even sv_gametype can load pure ddnet
+	virtual void DropFlag(int FlagId, int Dir = 1){};
+	virtual void ChangeFlagOwner(int FlagId, int ClientId){};
+	virtual int HasFlag(CCharacter *pChr) { return -1; };
+
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER
 };

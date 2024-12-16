@@ -9,9 +9,6 @@ class CGameControllerDDRace : public IGameController
 public:
 	// ddnet++
 	bool m_IsGrounded;
-	void DropFlag(int id, int Dir = 1);
-	void ChangeFlagOwner(int id, int character);
-	int HasFlag(CCharacter *pChr);
 	void FlagTick();
 	void HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
 	void Snap(int SnappingClient) override;
