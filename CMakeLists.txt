@@ -2833,6 +2833,7 @@ if(SERVER)
     gamemodes/ctf.cpp
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
+    gamemodes/ddnetpp/flags.cpp
     gamemodes/mod.cpp
     gamemodes/mod.h
     gameworld.cpp
