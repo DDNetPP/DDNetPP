@@ -40,7 +40,7 @@ void CCaptcha::GenQuestion(int Type)
 void CCaptcha::GenBigText(int Type)
 {
 	int i = 0;
-	while(i < 6)
+	while(i < 3)
 	{
 		int c = RandAlphaNum();
 		if(Type == NUM)
