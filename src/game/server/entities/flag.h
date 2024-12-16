@@ -39,6 +39,9 @@ public:
 	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
 
 	int m_TuneZone;
+
+	// ddnet++
+	bool m_IsGrounded;
 };
 
 #endif

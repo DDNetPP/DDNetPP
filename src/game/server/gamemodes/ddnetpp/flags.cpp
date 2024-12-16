@@ -154,13 +154,13 @@ void CGameControllerDDNetPP::FlagTick()
 			else
 			{
 				//Friction
-				m_IsGrounded = false;
+				F->m_IsGrounded = false;
 				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x + CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
-					m_IsGrounded = true;
+					F->m_IsGrounded = true;
 				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x - CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
-					m_IsGrounded = true;
+					F->m_IsGrounded = true;
 
-				if(m_IsGrounded)
+				if(F->m_IsGrounded)
 				{
 					F->m_Vel.x *= 0.75f;
 				}
