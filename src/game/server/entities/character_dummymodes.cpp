@@ -5,6 +5,7 @@
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/gamecontext.h>
 
 #include <game/server/ddpp/shop.h>
@@ -51,7 +52,9 @@ void CCharacter::DummyTick()
 {
 	if(!m_pPlayer->m_IsDummy)
 		return;
-	if(GameServer()->IsServerEmpty())
+	// save cpu if the server is empty
+	// unless an integration test is running in the CI (DummyTest)
+	if(GameServer()->IsServerEmpty() && m_pPlayer->m_DummyTest == EDummyTest::NONE)
 		return;
 
 	if((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)

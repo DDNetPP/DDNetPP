@@ -31,6 +31,11 @@ jobs:
         export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
         cmake -DCMAKE_BUILD_TYPE=Debug -DCLIENT=ON -DHEADLESS_CLIENT=ON ..
         make -j"$(nproc)"
+    - name: Make sure dummy can reach police on BlmapChill
+      run: |
+        cd san
+        wget -O data/maps/BlmapChill.map https://raw.githubusercontent.com/DDNetPP/maps/01db10591e64a398f762536b046c04c5b391a2d2/BlmapChill.map
+        ./DDNetPP "sv_map BlmapChill;defer run_test 0"
     - name: Run integration tests with ASan and UBSan
       run: |
         ./scripts/ddpp_test.sh san
