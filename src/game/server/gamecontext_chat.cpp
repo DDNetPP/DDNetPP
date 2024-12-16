@@ -134,11 +134,20 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 {
 	if(pPlayer->m_PendingCaptcha)
 	{
-		char aBuf[512];
-		SendChatTarget(ClientId, "The chat is locked until you reach the verification point!");
-		str_format(aBuf, sizeof(aBuf), "name='%s' blocked chat (captcha) msg: %s", Server()->ClientName(ClientId), pCommand);
-		ddpp_log(DDPP_LOG_FLOOD, aBuf);
-		return true;
+		// only allow the timeout command in captcha room
+		// otherwise the client does not resend it and timeout protection breaks
+		// timout restore should be safe because it also restores the pending captcha state
+		//
+		// check for ; to avoid players smuggeling commands through
+		bool IsTimeoutCmd = str_startswith(pCommand, "timeout ") && !str_find(pCommand, ";");
+		if(!IsTimeoutCmd)
+		{
+			char aBuf[512];
+			SendChatTarget(ClientId, "The chat is locked until you reach the verification point!");
+			str_format(aBuf, sizeof(aBuf), "name='%s' blocked chat (captcha) msg: %s", Server()->ClientName(ClientId), pCommand);
+			ddpp_log(DDPP_LOG_FLOOD, aBuf);
+			return true;
+		}
 	}
 
 	// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
