@@ -17,73 +17,73 @@ void CGameControllerDDNetPP::FlagTick()
 {
 	for(int Fi = 0; Fi < 2; Fi++)
 	{
-		CFlag *F = m_apFlags[Fi];
+		CFlag *pFlag = m_apFlags[Fi];
 
-		if(!F)
+		if(!pFlag)
 			continue;
 
 		// flag hits death-tile or left the game layer, reset it
-		if(GameServer()->Collision()->GetCollisionAt(F->m_Pos.x, F->m_Pos.y) == TILE_DEATH || F->GameLayerClipped(F->m_Pos))
+		if(GameServer()->Collision()->GetCollisionAt(pFlag->m_Pos.x, pFlag->m_Pos.y) == TILE_DEATH || pFlag->GameLayerClipped(pFlag->m_Pos))
 		{
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "flag_return");
 			if(g_Config.m_SvFlagSounds)
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 			}
-			F->Reset();
+			pFlag->Reset();
 			continue;
 		}
 
 		//
-		if(F->m_pCarryingCharacter)
+		if(pFlag->m_pCarryingCharacter)
 		{
 			// update flag position
-			F->m_Pos = F->m_pCarryingCharacter->m_Pos;
+			pFlag->m_Pos = pFlag->m_pCarryingCharacter->m_Pos;
 
-			if(F->m_pCarryingCharacter->m_FirstFreezeTick != 0)
+			if(pFlag->m_pCarryingCharacter->m_FirstFreezeTick != 0)
 			{
 				/*char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
-				GameServer()->SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), aBuf);*/
+				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",pFlag->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
+				GameServer()->SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), aBuf);*/
 
-				if(Server()->Tick() > F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed() * 8)
+				if(Server()->Tick() > pFlag->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed() * 8)
 				{
-					/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-					if(m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter && m_apFlags[0]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					/*pFlag->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
+					pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = pFlag->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
+					pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = pFlag->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+					if(m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter && m_apFlags[0]->m_pCarryingCharacter == pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
-						DropFlag(0, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
-						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped red flag");
+						DropFlag(0, pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
+						//SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped red flag");
 					}
-					else if(m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter && m_apFlags[1]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					else if(m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter && m_apFlags[1]->m_pCarryingCharacter == pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
-						DropFlag(1, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
-						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped blue flag");
+						DropFlag(1, pFlag->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
+						//SendChatTarget(pFlag->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped blue flag");
 					}
 				}
 			}
 		}
 		else
 		{
-			if(GameServer()->Collision()->GetTileIndex(GameServer()->Collision()->GetMapIndex(F->m_Pos)) == 95)
+			if(GameServer()->Collision()->GetTileIndex(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos)) == 95)
 			{
 				if(g_Config.m_SvFlagSounds)
 				{
 					GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 				}
-				F->Reset();
+				pFlag->Reset();
 			}
 
 			CCharacter *apCloseCCharacters[MAX_CLIENTS];
-			int Num = GameServer()->m_World.FindEntities(F->m_Pos, CFlag::ms_PhysSize, (CEntity **)apCloseCCharacters, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+			int Num = GameServer()->m_World.FindEntities(pFlag->m_Pos, CFlag::ms_PhysSize, (CEntity **)apCloseCCharacters, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 			for(int i = 0; i < Num; i++)
 			{
-				if(!apCloseCCharacters[i]->IsAlive() || apCloseCCharacters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(F->m_Pos, apCloseCCharacters[i]->m_Pos, NULL, NULL))
+				if(!apCloseCCharacters[i]->IsAlive() || apCloseCCharacters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(pFlag->m_Pos, apCloseCCharacters[i]->m_Pos, NULL, NULL))
 					continue;
 				if(m_apFlags[0] && m_apFlags[1])
 				{
-					if(m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (F->m_pLastCarryingCharacter == apCloseCCharacters[i] && (F->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
+					if(m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (pFlag->m_pLastCarryingCharacter == apCloseCCharacters[i] && (pFlag->m_DropFreezeTick + Server()->TickSpeed() * 2) > Server()->Tick()))
 						continue;
 				}
 				else
@@ -107,14 +107,14 @@ void CGameControllerDDNetPP::FlagTick()
 					continue;
 
 				// take the flag
-				if(F->m_AtStand)
+				if(pFlag->m_AtStand)
 				{
-					F->m_GrabTick = Server()->Tick();
+					pFlag->m_GrabTick = Server()->Tick();
 				}
 
-				F->m_AtStand = 0;
-				F->m_pCarryingCharacter = apCloseCCharacters[i];
-				F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+				pFlag->m_AtStand = 0;
+				pFlag->m_pCarryingCharacter = apCloseCCharacters[i];
+				pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
 				/*if (!apCloseCCharacters[i]->GetPlayer()->m_Rainbow){
 					apCloseCCharacters[i]->GetPlayer()->m_ColorBodyOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorBody;
 					apCloseCCharacters[i]->GetPlayer()->m_ColorFeetOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorFeet;
@@ -144,45 +144,45 @@ void CGameControllerDDNetPP::FlagTick()
 			}
 		}
 
-		if(!F->m_AtStand)
+		if(!pFlag->m_AtStand)
 		{
-			if(F->m_DropTick && Server()->Tick() > F->m_DropTick + Server()->TickSpeed() * 90)
+			if(pFlag->m_DropTick && Server()->Tick() > pFlag->m_DropTick + Server()->TickSpeed() * 90)
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
-				F->Reset();
+				pFlag->Reset();
 			}
 			else
 			{
 				//Friction
-				F->m_IsGrounded = false;
-				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x + CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
-					F->m_IsGrounded = true;
-				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x - CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
-					F->m_IsGrounded = true;
+				pFlag->m_IsGrounded = false;
+				if(GameServer()->Collision()->CheckPoint(pFlag->m_Pos.x + CFlag::ms_PhysSize / 2, pFlag->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
+					pFlag->m_IsGrounded = true;
+				if(GameServer()->Collision()->CheckPoint(pFlag->m_Pos.x - CFlag::ms_PhysSize / 2, pFlag->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
+					pFlag->m_IsGrounded = true;
 
-				if(F->m_IsGrounded)
+				if(pFlag->m_IsGrounded)
 				{
-					F->m_Vel.x *= 0.75f;
+					pFlag->m_Vel.x *= 0.75f;
 				}
 				else
 				{
-					F->m_Vel.x *= 0.98f;
+					pFlag->m_Vel.x *= 0.98f;
 				}
 
 				//Gravity
-				F->m_Vel.y += GameServer()->Tuning()->m_Gravity;
+				pFlag->m_Vel.y += GameServer()->Tuning()->m_Gravity;
 
 				//Speedups
-				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(F->m_Pos)))
+				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos)))
 				{
 					int Force, MaxSpeed = 0;
-					vec2 Direction, TempVel = F->m_Vel;
+					vec2 Direction, TempVel = pFlag->m_Vel;
 					float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
-					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(F->m_Pos), &Direction, &Force, &MaxSpeed);
+					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos), &Direction, &Force, &MaxSpeed);
 
 					if(Force == 255 && MaxSpeed)
 					{
-						F->m_Vel = Direction * (MaxSpeed / 5);
+						pFlag->m_Vel = Direction * (MaxSpeed / 5);
 					}
 
 					else
@@ -231,14 +231,14 @@ void CGameControllerDDNetPP::FlagTick()
 						else
 							TempVel += Direction * Force;
 					}
-					F->m_Vel = TempVel;
+					pFlag->m_Vel = TempVel;
 				}
 
 				GameServer()->Collision()->MoveBox(
-					&F->m_Pos,
-					&F->m_Vel,
+					&pFlag->m_Pos,
+					&pFlag->m_Vel,
 					vec2(CFlag::ms_PhysSize, CFlag::ms_PhysSize),
-					vec2(GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityY));
+					vec2(GameServer()->TuningList()[pFlag->m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[pFlag->m_TuneZone].m_GroundElasticityY));
 			}
 		}
 	}
@@ -256,9 +256,6 @@ void CGameControllerDDNetPP::DropFlag(int FlagId, int Dir)
 	}
 	if(pFlag->m_pCarryingCharacter && pFlag->m_pCarryingCharacter->GetPlayer())
 	{
-		/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-		pFlag->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
 		pFlag->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
 		pFlag->m_pLastCarryingCharacter = pFlag->m_pCarryingCharacter;
 	}
