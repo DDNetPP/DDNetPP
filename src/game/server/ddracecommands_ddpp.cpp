@@ -7,6 +7,8 @@
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/ddpp/dummymode.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
@@ -1201,6 +1203,23 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 			IConsole::OUTPUT_LEVEL_STANDARD,
 			"ddpp_logs",
 			"valid types: mastersrv, wrong_rcon, rcon_auth, flood");
+	}
+}
+
+void CGameContext::ConRunTest(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	int Test = pResult->GetInteger(0);
+	pSelf->SendChat(-1, TEAM_ALL, "WARNING: running tests! server will shutdown!");
+
+	if(Test == 0)
+	{
+		pSelf->CreateNewDummy(EDummyMode::DUMMYMODE_BLMAPCHILL_POLICE, false, 0, EDummyTest::BLMAPCHILL_POLICE);
+	}
+	else
+	{
+		dbg_msg("test", "ERROR: unknown test %d", Test);
 	}
 }
 

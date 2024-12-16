@@ -10,4 +10,10 @@ enum EScore
 	SCORE_KING_OF_THE_HILL = 4,
 };
 
+enum class EDummyTest
+{
+	NONE,
+	BLMAPCHILL_POLICE,
+};
+
 #endif

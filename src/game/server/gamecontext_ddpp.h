@@ -7,6 +7,7 @@
 #include <engine/http.h>
 #include <game/generated/protocol.h>
 #include <game/generated/server_data.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/letters.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
@@ -142,7 +143,7 @@ public:
 
 	// dummy
 	void CreateBasicDummys();
-	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0);
+	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0, EDummyTest TestMode = EDummyTest::NONE);
 
 	//usefull everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
@@ -913,6 +914,8 @@ private:
 
 	//SQL
 	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConRunTest(IConsole::IResult *pResult, void *pUserData);
 
 	//rcon api
 	static void ConRconApiSayId(IConsole::IResult *pResult, void *pUserData);

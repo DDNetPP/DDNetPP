@@ -1,12 +1,13 @@
 // This file can be included several times.
 
-#include "game/generated/protocol.h"
 #ifndef IN_CLASS_PLAYER
 #include "alloc.h"
 
 // this include should perhaps be removed
 #include "captcha.h"
 #include "entities/character.h"
+#include <game/generated/protocol.h>
+#include <game/server/ddpp/enums.h>
 #include <game/version.h>
 
 #include "ddpp/accounts.h"
@@ -563,6 +564,7 @@ public:
 	const char *DummyModeStr() { return m_aDummyMode; }
 	char m_aDummyMode[128];
 	CDummyBase *m_pDummyMode; // TODO: make private
+	EDummyTest m_DummyTest = EDummyTest::NONE;
 
 	int m_dmm25; //change dummy modes in the mode 25  ( choose sub modes)
 	float m_Dummy_nn_latest_Distance;

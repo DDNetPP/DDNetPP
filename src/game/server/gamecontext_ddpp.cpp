@@ -15,6 +15,7 @@
 #include "ddpp/loc.h"
 #include "ddpp/shop.h"
 
+#include "game/server/ddpp/enums.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/instagib.h"
@@ -2587,7 +2588,7 @@ void CGameContext::CreateBasicDummys()
 	dbg_msg("basic_dummys", "map=%s", Server()->GetMapName());
 }
 
-int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
+int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyTest TestMode)
 {
 	int DummyId = GetNextClientId();
 	if(DummyId < 0 || DummyId >= MAX_CLIENTS)
@@ -2613,6 +2614,7 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 	m_apPlayers[DummyId]->m_TeeInfos.m_ColorFeet = 0;
 	m_apPlayers[DummyId]->m_TeeInfos.m_ColorBody = 0;
 	m_apPlayers[DummyId]->m_DummySpawnTile = Tile;
+	m_apPlayers[DummyId]->m_DummyTest = TestMode;
 
 	dbg_msg("dummy", "Dummy connected: %d", DummyId);
 

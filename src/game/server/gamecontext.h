@@ -20,6 +20,7 @@
 #include "minigames/minigame_base.h"
 #include <atomic>
 #include <engine/http.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/letters.h>
 #include <game/server/twbl/callback_ctx.h>
 #include <mutex>

@@ -4,7 +4,9 @@
 
 #include "../character.h"
 #include <base/math_ddpp.h>
+#include <base/system.h>
 #include <engine/shared/config.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
@@ -1059,6 +1061,12 @@ void CDummyBlmapChillPolice::OnTick()
 		 * * * * * * * */
 		if(X > 363 && X < 450 && Y < 450 && Y > 380)
 		{
+			if(m_pCharacter->GetPlayer()->m_DummyTest == EDummyTest::BLMAPCHILL_POLICE)
+			{
+				dbg_msg("test", "blmapchill police test passed! Reached police!");
+				exit(0);
+			}
+
 			NewPoliceMoves();
 			//OldPoliceMoves();
 		}
