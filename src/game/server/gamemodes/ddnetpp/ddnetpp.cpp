@@ -28,6 +28,13 @@ void CGameControllerDDNetPP::Tick()
 
 	FlagTick();
 	DetectReconnectFlood();
+
+	if(GameServer()->m_TicksUntilDefer > 0)
+	{
+		GameServer()->m_TicksUntilDefer--;
+		if(!GameServer()->m_TicksUntilDefer)
+			GameServer()->RunDeferredCommands();
+	}
 }
 
 void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacer, int Progress)

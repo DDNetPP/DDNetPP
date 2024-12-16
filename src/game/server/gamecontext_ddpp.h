@@ -145,6 +145,22 @@ public:
 	void CreateBasicDummys();
 	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0, EDummyTest TestMode = EDummyTest::NONE);
 
+	// run commands using ./DDNetPP "defer say hi"
+	// which will run "say hi" after the server fully initialized
+	std::vector<std::string> m_vDeferQueue;
+
+	// should be called after every component is fully initialized
+	// will execute all commands registered with the "defer" command
+	void RunDeferredCommands();
+
+	// runs the command as rcon console command
+	// after the server is fully intitialized
+	void DeferCommand(const char *pCommand);
+
+	// gets decremented every tick
+	// if it hits 0 all commands registered with "defer" will be executed
+	int m_TicksUntilDefer = 10;
+
 	//usefull everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
@@ -916,6 +932,7 @@ private:
 	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRunTest(IConsole::IResult *pResult, void *pUserData);
+	static void ConDeferCommand(IConsole::IResult *pResult, void *pUserData);
 
 	//rcon api
 	static void ConRconApiSayId(IConsole::IResult *pResult, void *pUserData);

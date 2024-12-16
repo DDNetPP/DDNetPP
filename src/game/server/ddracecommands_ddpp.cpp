@@ -1223,6 +1223,12 @@ void CGameContext::ConRunTest(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConDeferCommand(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->DeferCommand(pResult->GetString(0));
+}
+
 void CGameContext::ConRconApiSayId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

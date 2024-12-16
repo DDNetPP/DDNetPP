@@ -88,6 +88,7 @@ CONSOLE_COMMAND("deactivate_all_shop_items", "", CFGFLAG_SERVER, ConDeactivateAl
 CONSOLE_COMMAND("activate_all_shop_items", "", CFGFLAG_SERVER, ConActivateAllShopItems, this, "activates all shop items")
 
 CONSOLE_COMMAND("run_test", "i[test_number]", CFGFLAG_SERVER, ConRunTest, this, "WARNING WILL KILL THE SERVER! run integration tests (used in CI)");
+CONSOLE_COMMAND("defer", "r[command]", CFGFLAG_SERVER, ConDeferCommand, this, "Run a cmd after the server fully initialized. Run cmds from cfg or cli that would crash if executed too early.");
 
 //rcon api commands
 CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayId, this, "RCON API command dont use it") //sends a servermessage to player v

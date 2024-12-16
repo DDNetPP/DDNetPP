@@ -76,6 +76,7 @@ void CGameContext::ConstructDDPP()
 	m_IsServerEmpty = false;
 	m_IsPoliceFarmActive = true;
 	m_TwblCallbackCtx.m_pGameServer = this;
+	m_vDeferQueue.resize(0);
 }
 
 void CGameContext::DestructDDPP()
@@ -111,6 +112,29 @@ void CGameContext::DestructDDPP()
 		delete Minigame;
 		Minigame = nullptr;
 	}
+}
+
+void CGameContext::RunDeferredCommands()
+{
+	if(m_vDeferQueue.empty())
+		return;
+
+	dbg_msg("defer", "running deferred commands ...");
+	for(const std::string &Command : m_vDeferQueue)
+	{
+		Console()->ExecuteLine(Command.c_str());
+	}
+	m_vDeferQueue.clear();
+}
+
+void CGameContext::DeferCommand(const char *pCommand)
+{
+	if(!m_TicksUntilDefer)
+	{
+		Console()->ExecuteLine(pCommand);
+		return;
+	}
+	m_vDeferQueue.emplace_back(pCommand);
 }
 
 bool CGameContext::DDPPOnMessage(int MsgId, void *pRawMsg, CUnpacker *pUnpacker, int ClientId)
