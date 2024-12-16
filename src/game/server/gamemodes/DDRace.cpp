@@ -172,7 +172,6 @@ void CGameControllerDDRace::OnReset()
 void CGameControllerDDRace::Tick()
 {
 	IGameController::Tick();
-	FlagTick();
 	Teams().ProcessSaveTeam();
 	Teams().Tick();
 }
