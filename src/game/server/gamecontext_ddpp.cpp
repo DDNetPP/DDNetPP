@@ -38,7 +38,7 @@
 
 using namespace std::chrono_literals;
 
-void CGameContext::ConstructDDPP()
+void CGameContext::ConstructDDPP(int Resetting)
 {
 	m_pShop = nullptr;
 	m_pLoc = nullptr;

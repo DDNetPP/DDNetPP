@@ -59,7 +59,7 @@ public:
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
-	void ConstructDDPP();
+	void ConstructDDPP(int Resetting);
 
 	virtual void LogoutAllPlayers() override;
 	virtual void OnStartBlockTournament() override;

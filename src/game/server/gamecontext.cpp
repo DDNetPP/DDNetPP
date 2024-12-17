@@ -141,7 +141,7 @@ void CGameContext::Construct(int Resetting)
 	m_aDeleteTempfile[0] = 0;
 	m_TeeHistorianActive = false;
 
-	ConstructDDPP();
+	ConstructDDPP(Resetting);
 }
 
 void CGameContext::Destruct(int Resetting)
