@@ -13,15 +13,25 @@
 
 #include "gamecontext.h"
 
-void CGameContext::OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage)
+void CGameContext::OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
 {
 	char aBuf[2048];
 
 	if(g_Config.m_SvChatDiscordWebhook[0])
 	{
-		str_format(aBuf, sizeof(aBuf), "%s: %s", Server()->ClientName(ClientId), pMesage);
+		str_format(aBuf, sizeof(aBuf), "%s: %s", Server()->ClientName(ClientId), pMessage);
 		// dbg_msg("discord-chat", "sending to %s: %s", g_Config.m_SvChatDiscordWebhook, aBuf);
 		SendDiscordWebhook(g_Config.m_SvChatDiscordWebhook, aBuf);
+	}
+
+	for(CPlayer *pPingedPlayer : m_apPlayers)
+	{
+		if(!pPingedPlayer)
+			continue;
+		if(!str_find_nocase(pMessage, Server()->ClientName(pPingedPlayer->GetCid())))
+			continue;
+
+		pPingedPlayer->m_ReceivedChatPings++;
 	}
 }
 
@@ -295,7 +305,7 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' spamfiltered msg: %s", ClientId, Server()->ClientName(ClientId), pMessage);
 		ddpp_log(DDPP_LOG_FLOOD, aBuf);
 	}
-	else if(g_Config.m_SvRequireChatFlagToChat && pPlayer->m_InputTracker.TicksSpentChatting() < 10)
+	else if(g_Config.m_SvRequireChatFlagToChat && (pPlayer->m_InputTracker.TicksSpentChatting() < 10 && pPlayer->m_ReceivedChatPings < 1))
 	{
 		str_format(aBuf, sizeof(aBuf), "cid=%d name='%s' was blocked from chat (missing playerflag chat)", ClientId, Server()->ClientName(ClientId));
 		ddpp_log(DDPP_LOG_FLOOD, aBuf);

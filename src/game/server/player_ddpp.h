@@ -161,6 +161,9 @@ public:
 
 	CInputTracker m_InputTracker;
 
+	// the amount of times this player was pinged in the chat
+	int m_ReceivedChatPings = 0;
+
 	// DDNet++ specific vote extensions
 	// works similar to CPlayer::m_SendVoteIndex
 	// but is not for regular votes but for custom vote menus
