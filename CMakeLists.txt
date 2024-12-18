@@ -2834,6 +2834,7 @@ if(SERVER)
     gamemodes/DDRace.h
     gamemodes/DDRace_ddpp.cpp
     gamemodes/ctf.cpp
+    gamemodes/ddnetpp/chat.cpp
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
     gamemodes/ddnetpp/flags.cpp

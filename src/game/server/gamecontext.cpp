@@ -2290,13 +2290,12 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 	else
 		Team = TEAM_ALL;
 
+	if(m_pController->OnChatMessage(pMsg, Length, Team, pPlayer)) // ddnet++
+		return;
+
 	if(pMsg->m_pMessage[0] == '/')
 	{
-		if(IsDDPPChatCommand(ClientId, pPlayer, pMsg->m_pMessage + 1))
-		{
-			// pass
-		}
-		else if(str_startswith_nocase(pMsg->m_pMessage + 1, "w "))
+		if(str_startswith_nocase(pMsg->m_pMessage + 1, "w "))
 		{
 			char aWhisperMsg[256];
 			str_copy(aWhisperMsg, pMsg->m_pMessage + 3);

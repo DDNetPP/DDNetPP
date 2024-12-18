@@ -37,9 +37,19 @@ public:
 	*/
 	virtual bool OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId)
 	{
-		dbg_msg("fuck", "this");
 		return false;
 	}
+
+	/*
+		Function: OnChatMessage
+			hooks into CGameContext::OnSayNetMessage()
+			after unicode check and teehistorian already happend
+
+		Returns:
+			return true to not run the rest of CGameContext::OnSayNetMessage()
+			which would print it to the chat or run it as a ddrace chat command
+	*/
+	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; };
 
 	/*
 		Function: PrintJoinMessage
