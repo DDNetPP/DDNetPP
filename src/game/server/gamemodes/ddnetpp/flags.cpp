@@ -309,8 +309,12 @@ int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
 	if(!pChr)
 		return -1;
 
+	int FlagId = 0;
 	for(CFlag *pFlag : m_apFlags)
+	{
 		if(pFlag && pFlag->GetCarrier() == pChr)
-			return pChr->GetPlayer()->GetCid();
+			return FlagId;
+		FlagId++;
+	}
 	return -1;
 }
