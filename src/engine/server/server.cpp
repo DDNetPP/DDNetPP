@@ -51,6 +51,10 @@
 
 extern bool IsInterrupted();
 
+#if defined(CONF_PLATFORM_ANDROID)
+extern std::vector<std::string> FetchAndroidServerCommandQueue();
+#endif
+
 void CServerBan::InitServerBan(IConsole *pConsole, IStorage *pStorage, CServer *pServer)
 {
 	CNetBan::Init(pConsole, pStorage);
@@ -250,6 +254,7 @@ CServer::CServer()
 	m_ReloadedWhenEmpty = false;
 	m_aCurrentMap[0] = '\0';
 	m_pCurrentMapName = m_aCurrentMap;
+	m_aMapDownloadUrl[0] = '\0';
 
 	m_RconClientId = IServer::RCON_CID_SERV;
 	m_RconAuthLevel = AUTHED_ADMIN;
@@ -1229,7 +1234,14 @@ void CServer::SendMap(int ClientId)
 		Msg.AddRaw(&m_aCurrentMapSha256[MapType].data, sizeof(m_aCurrentMapSha256[MapType].data));
 		Msg.AddInt(m_aCurrentMapCrc[MapType]);
 		Msg.AddInt(m_aCurrentMapSize[MapType]);
-		Msg.AddString("", 0); // HTTPS map download URL
+		if(m_aMapDownloadUrl[0])
+		{
+			Msg.AddString(m_aMapDownloadUrl, 0);
+		}
+		else
+		{
+			Msg.AddString("", 0);
+		}
 		SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 	}
 	{
@@ -2634,6 +2646,16 @@ int CServer::LoadMap(const char *pMapName)
 		m_apCurrentMapData[MAP_TYPE_SIX] = (unsigned char *)pData;
 	}
 
+	if(Config()->m_SvMapsBaseUrl[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "%s%s_%s.map", Config()->m_SvMapsBaseUrl, pMapName, aSha256);
+		EscapeUrl(m_aMapDownloadUrl, aBuf);
+	}
+	else
+	{
+		m_aMapDownloadUrl[0] = '\0';
+	}
+
 	// load sixup version of the map
 	if(Config()->m_SvSixup)
 	{
@@ -2984,6 +3006,14 @@ int CServer::Run()
 				UpdateClientRconCommands();
 
 				m_Fifo.Update();
+
+#if defined(CONF_PLATFORM_ANDROID)
+				std::vector<std::string> vAndroidCommandQueue = FetchAndroidServerCommandQueue();
+				for(const std::string &Command : vAndroidCommandQueue)
+				{
+					Console()->ExecuteLineFlag(Command.c_str(), CFGFLAG_SERVER, -1);
+				}
+#endif
 
 				// master server stuff
 				m_pRegister->Update();
