@@ -294,6 +294,16 @@ void CGameControllerDDNetPP::ChangeFlagOwner(int FlagId, int ClientId)
 	pFlag->GetCarrier()->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
 }
 
+bool CGameControllerDDNetPP::CharacterDropFlag(CCharacter *pChr)
+{
+	int FlagId = HasFlag(pChr);
+	if(FlagId == -1)
+		return false;
+
+	DropFlag(FlagId, pChr->GetAimDir());
+	return true;
+}
+
 int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
 {
 	if(!pChr)

@@ -44,6 +44,7 @@ public:
 	void FlagTick();
 	void DropFlag(int FlagId, int Dir = 1) override;
 	void ChangeFlagOwner(int FlagId, int ClientId) override;
+	bool CharacterDropFlag(CCharacter *pChr) override;
 	int HasFlag(CCharacter *pChr) override;
 
 	// tiles.cpp

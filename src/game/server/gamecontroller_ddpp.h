@@ -7,10 +7,10 @@
 #include <base/vmath.h>
 #include <engine/map.h>
 #include <engine/shared/protocol.h>
-#include <game/server/teams.h>
-
 #include <game/generated/protocol.h>
 #include <game/generated/protocol7.h>
+#include <game/server/entities/character.h>
+#include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;
 
@@ -64,6 +64,14 @@ public:
 	// which should always be the case because not even sv_gametype can load pure ddnet
 	virtual void DropFlag(int FlagId, int Dir = 1){};
 	virtual void ChangeFlagOwner(int FlagId, int ClientId){};
+
+	// returns true if the character had the flag and it got dropped
+	// returns false if the character did not have the flag and nothing happend
+	virtual bool CharacterDropFlag(CCharacter *pChr) { return false; }
+
+	// returns -1 if the player has no flag
+	// returns 0 of the player has the red flag
+	// returns 1 if the player has the blue flag
 	virtual int HasFlag(CCharacter *pChr) { return -1; };
 
 private:

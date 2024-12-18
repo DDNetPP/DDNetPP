@@ -15,22 +15,11 @@ void CGameContext::VotedYes(CCharacter *pChr, CPlayer *pPlayer)
 		return;
 	if(Shop()->VoteYes(pChr->GetPlayer()->GetCid()))
 		return;
-	IGameController *ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-	if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0])
+
+	IGameController *Controller = pPlayer->GetCharacter()->GameServer()->m_pController;
+	if(Controller->CharacterDropFlag(pChr))
 	{
-		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0]->GetCarrier() == pChr)
-		{
-			((CGameControllerDDRace *)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
-			//SendChatTarget(ClientId, "you dropped red flag");
-		}
-	}
-	if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1])
-	{
-		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1]->GetCarrier() == pChr)
-		{
-			((CGameControllerDDRace *)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
-			//SendChatTarget(ClientId, "you dropped blue flag");
-		}
+		// SendChatTarget(ClientId, "you dropped the flag");
 	}
 }
 
