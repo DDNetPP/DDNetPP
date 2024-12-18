@@ -2863,6 +2863,8 @@ if(SERVER)
     player_ddpp.cpp
     player_ddpp.h
     player_sql.cpp
+    playermapping.cpp
+    playermapping.h
     save.cpp
     save.h
     score.cpp
