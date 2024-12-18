@@ -1,4 +1,5 @@
 // ddnet++ tile character stuff
+// see also ddnetpp/tiles.cpp
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
@@ -20,6 +21,7 @@
 
 #include <game/mapitems.h>
 
+// TODO: this should probably moved to ddnetpp/tiles.cpp
 bool CCharacter::HandleTilesDDPP(int Index)
 {
 	if(g_Config.m_SvOffDDPP)

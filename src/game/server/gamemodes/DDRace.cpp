@@ -114,7 +114,6 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		GameServer()->SendChatTarget(ClientId, "You are now out of the solo part");
 		pChr->SetSolo(false);
 	}
-	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
 }
 
 void CGameControllerDDRace::SetArmorProgress(CCharacter *pCharacer, int Progress)

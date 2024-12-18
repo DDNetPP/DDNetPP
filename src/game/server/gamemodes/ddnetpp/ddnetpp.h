@@ -45,6 +45,10 @@ public:
 	void DropFlag(int FlagId, int Dir = 1) override;
 	void ChangeFlagOwner(int FlagId, int ClientId) override;
 	int HasFlag(CCharacter *pChr) override;
+
+	// tiles.cpp
+	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
+	void HandleCharacterTilesDDPP(class CCharacter *pChr, int TileIndex, int TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
 };
 
 #endif
