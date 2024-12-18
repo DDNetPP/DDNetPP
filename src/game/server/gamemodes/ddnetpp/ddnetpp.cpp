@@ -119,6 +119,12 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 			GameServer()->SendChatTarget(ClientId, aWelcome);
 		}
 	}
+	else
+	{
+		// do not send delayed join messages on map change
+		// if the player was in game the regular join message will not be printed
+		pPlayer->m_PendingJoinMessage = false;
+	}
 
 	m_NumConnectionsInTheLastMinute++;
 	m_NumConnectionsInTheLast10Minutes++;
