@@ -512,8 +512,6 @@ public:
 
 	bool CheckAccounts(int AccountId);
 
-	// TODO: move to controller and match ddnet-insta api
-	void OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage);
 	void GlobalChat(int ClientId, const char *pMsg);
 	bool IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand);
 	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage);

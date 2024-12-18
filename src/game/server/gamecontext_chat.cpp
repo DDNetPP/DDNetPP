@@ -1,4 +1,5 @@
 // gamecontext scoped chat ddnet++ methods
+// this file is deprecated use ddnetpp/chat.cpp instead
 
 #include <base/ddpp_logs.h>
 #include <base/system.h>
@@ -12,28 +13,6 @@
 #include <fstream>
 
 #include "gamecontext.h"
-
-void CGameContext::OnChatMessage(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
-{
-	char aBuf[2048];
-
-	if(g_Config.m_SvChatDiscordWebhook[0])
-	{
-		str_format(aBuf, sizeof(aBuf), "%s: %s", Server()->ClientName(ClientId), pMessage);
-		// dbg_msg("discord-chat", "sending to %s: %s", g_Config.m_SvChatDiscordWebhook, aBuf);
-		SendDiscordWebhook(g_Config.m_SvChatDiscordWebhook, aBuf);
-	}
-
-	for(CPlayer *pPingedPlayer : m_apPlayers)
-	{
-		if(!pPingedPlayer)
-			continue;
-		if(!str_find_nocase(pMessage, Server()->ClientName(pPingedPlayer->GetCid())))
-			continue;
-
-		pPingedPlayer->m_ReceivedChatPings++;
-	}
-}
 
 void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 {
@@ -331,6 +310,7 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 	}
 	else
 	{
+		// TODO: not sure if this entire thing is correct
 		if(!pPlayer->m_ShowName)
 		{
 			str_copy(pPlayer->m_ChatText, pMessage, sizeof(pPlayer->m_ChatText));
@@ -339,7 +319,6 @@ bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team
 		}
 		else
 		{
-			OnChatMessage(ClientId, pPlayer, Team, pMessage);
 			return false;
 		}
 	}

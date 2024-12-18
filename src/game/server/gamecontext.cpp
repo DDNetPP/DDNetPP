@@ -2350,7 +2350,7 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 			Console()->SetFlagMask(CFGFLAG_SERVER);
 		}
 	}
-	else if(!IsChatMessageBlocked(ClientId, pPlayer, Team, pMsg->m_pMessage)) // ddnet++
+	else
 	{
 		pPlayer->UpdatePlaytime();
 		char aCensoredMessage[256];
