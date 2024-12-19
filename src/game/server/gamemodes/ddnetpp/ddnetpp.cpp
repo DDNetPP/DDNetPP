@@ -126,9 +126,6 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 		pPlayer->m_PendingJoinMessage = false;
 	}
 
-	m_NumConnectionsInTheLastMinute++;
-	m_NumConnectionsInTheLast10Minutes++;
-
 	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
 	{
 		if(!pPlayer->IsLoggedIn())
@@ -144,6 +141,16 @@ void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const ch
 {
 	if(pPlayer->m_PendingJoinMessage)
 		Silent = true;
+
+	int64_t TicksOnline = Server()->Tick() - pPlayer->m_JoinTick;
+	int64_t SecondsOnline = TicksOnline / Server()->TickSpeed();
+
+	if(SecondsOnline < 60)
+	{
+		m_NumShortConnectionsInTheLastMinute++;
+		m_NumShortConnectionsInTheLast10Minutes++;
+	}
+
 	CGameControllerDDRace::OnPlayerDisconnect(pPlayer, pReason, Silent);
 }
 
@@ -197,13 +204,13 @@ void CGameControllerDDNetPP::DetectReconnectFlood()
 
 	bool HitThreshold = false;
 
-	if(m_NumConnectionsInTheLastMinute > 10 + Threshold)
+	if(m_NumShortConnectionsInTheLastMinute > 10 + Threshold)
 		HitThreshold = true;
 
 	// 2 connections per minute on average seems fine
 	// but if that constantly happens over a span of 10 minutes
 	// it will get annoying!
-	if(m_NumConnectionsInTheLast10Minutes > 20 + Threshold)
+	if(m_NumShortConnectionsInTheLast10Minutes > 20 + Threshold)
 		HitThreshold = true;
 
 	// activate
@@ -230,13 +237,13 @@ void CGameControllerDDNetPP::DetectReconnectFlood()
 	if(m_NextMinuteReset < time_get())
 	{
 		m_NextMinuteReset = time_get() + time_freq() * 60;
-		m_NumConnectionsInTheLastMinute = 0;
+		m_NumShortConnectionsInTheLastMinute = 0;
 	}
 
 	if(m_Next10MinutesReset < time_get())
 	{
 		m_NextMinuteReset = time_get() + time_freq() * 60 * 10;
-		m_NumConnectionsInTheLast10Minutes = 0;
+		m_NumShortConnectionsInTheLast10Minutes = 0;
 	}
 }
 

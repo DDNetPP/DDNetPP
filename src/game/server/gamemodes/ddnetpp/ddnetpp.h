@@ -34,8 +34,11 @@ public:
 	int64_t m_Next10MinutesReset = 0;
 	int64_t m_LastConnectionSpamThresholdHit = 0;
 
-	int m_NumConnectionsInTheLastMinute = 0;
-	int m_NumConnectionsInTheLast10Minutes = 0;
+	// count the amount of quick reconnects
+	// if there are too many we start anti flood mode
+	// and show join messages delayed
+	int m_NumShortConnectionsInTheLastMinute = 0;
+	int m_NumShortConnectionsInTheLast10Minutes = 0;
 
 	// automatic flood detection
 	void DetectReconnectFlood();
