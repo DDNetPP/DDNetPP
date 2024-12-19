@@ -217,7 +217,7 @@ void CGameControllerDDNetPP::DetectReconnectFlood()
 	if(HitThreshold)
 	{
 		m_LastConnectionSpamThresholdHit = time_get();
-		if(!GameServer()->ReconnectFlood())
+		if(!GameServer()->ReconnectFlood() && g_Config.m_SvAutoAntiReconnectFlood)
 		{
 			ddpp_log(DDPP_LOG_FLOOD, "activate anti reconnect flood");
 			GameServer()->SetReconnectFlood(true);
