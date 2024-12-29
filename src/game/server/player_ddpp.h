@@ -644,7 +644,10 @@ public:
 		used for block kills
 	*/
 	int m_LastToucherId;
+
+	// ticks since last touch
 	int m_LastTouchTicks;
+
 	char m_aLastToucherName[64];
 	void UpdateLastToucher(int Id);
 
