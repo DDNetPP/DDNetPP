@@ -640,14 +640,21 @@ void CGameContext::ConForceJail(IConsole::IResult *pResult, void *pUserData)
 
 	int ClientId = pResult->GetVictim();
 
+	int Seconds = 60;
+	if(pResult->NumArguments() > 1)
+		Seconds = pResult->GetInteger(1);
+
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
-		pPlayer->JailPlayer(pResult->GetInteger(0));
+		pPlayer->JailPlayer(Seconds);
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "[JAIL] You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientId), pResult->GetInteger(0));
+		str_format(aBuf, sizeof(aBuf), "[JAIL] You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientId), Seconds);
 		pSelf->SendChatTarget(ClientId, aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "[JAIL] You jailed '%s' for %d seconds.", pSelf->Server()->ClientName(ClientId), Seconds);
+		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 	}
 }
 
