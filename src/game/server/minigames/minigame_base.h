@@ -97,7 +97,7 @@ public:
 
         Will be called after the CCharacter spawned
     */
-	virtual void PostSpawn(CCharacter *pChr, vec2 Pos){};
+	virtual void PostSpawn(CCharacter *pChr){};
 
 	/*
         PickSpawn

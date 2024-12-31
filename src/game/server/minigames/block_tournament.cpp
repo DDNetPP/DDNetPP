@@ -110,7 +110,7 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 	return true;
 }
 
-void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
+void CBlockTournament::PostSpawn(CCharacter *pChr)
 {
 	if(!pChr)
 		return;

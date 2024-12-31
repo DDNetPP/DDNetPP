@@ -87,7 +87,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	Antibot()->OnSpawn(m_pPlayer->GetCid());
 
 	m_Core.Reset();
-	PreSpawnDDPP(Pos);
 	m_Core.Init(&GameServer()->m_World.m_Core, Collision());
 	m_Core.m_ActiveWeapon = WEAPON_GUN;
 	m_Core.m_Pos = m_Pos;
@@ -98,6 +97,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_SendCore = CCharacterCore();
 	m_ReckoningCore = CCharacterCore();
 
+	PreSpawnDDPP();
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
@@ -143,7 +143,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 
-	PostSpawnDDPP(Pos);
+	PostSpawnDDPP();
 	return true;
 }
 
