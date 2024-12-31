@@ -106,7 +106,6 @@ public:
 	void DDPP_Tick();
 	void DDPP_FlagTick();
 	void CosmeticTick();
-	vec2 GetSpawnPositionDDPP();
 	void PreSpawnDDPP();
 	void PostSpawnDDPP();
 	void DDPPPostCoreTick();
