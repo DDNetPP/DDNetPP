@@ -2154,6 +2154,7 @@ set_src(GAME_SHARED GLOB src/game
   gamecore.cpp
   gamecore.h
   gamecore_ddpp.cpp
+  gamecore_ddpp.h
   layers.cpp
   layers.h
   localization.cpp

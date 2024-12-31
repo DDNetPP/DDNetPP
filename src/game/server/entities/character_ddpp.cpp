@@ -698,7 +698,7 @@ void CCharacter::DDPP_Tick()
 		int CarryId = -1;
 		if(Flag->GetCarrier())
 			CarryId = Flag->GetCarrier()->GetPlayer()->GetCid();
-		m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
+		m_Core.m_DDNetPP.SetFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
 
 	if(m_RandomCosmetics)

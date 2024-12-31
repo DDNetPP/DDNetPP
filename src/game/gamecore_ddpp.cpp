@@ -9,7 +9,7 @@
 
 #include <game/collision.h>
 
-void CCharacterCore::setFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId)
+void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId)
 {
 	m_aFlags[FlagId].m_Pos = Pos;
 	m_aFlags[FlagId].m_Vel = Vel;
@@ -84,9 +84,9 @@ bool CCharacterCore::HookFlag()
 	if(FlagId == -1)
 		return false;
 
-	if(m_aFlags[FlagId].m_CarrierId == -1)
+	if(m_DDNetPP.m_aFlags[FlagId].m_CarrierId == -1)
 	{
-		m_HookPos = m_aFlags[FlagId].m_Pos;
+		m_HookPos = m_DDNetPP.m_aFlags[FlagId].m_Pos;
 	}
 	else
 	{
@@ -101,15 +101,15 @@ void CCharacterCore::DDPPTick()
 {
 	m_updateFlagVel = 0;
 
-	if(m_LastHookedTick != -1)
+	if(m_DDNetPP.m_LastHookedTick != -1)
 	{
-		m_LastHookedTick = m_LastHookedTick + 1;
+		m_DDNetPP.m_LastHookedTick = m_DDNetPP.m_LastHookedTick + 1;
 	}
 
-	if(m_LastHookedTick > SERVER_TICK_SPEED * 10)
+	if(m_DDNetPP.m_LastHookedTick > SERVER_TICK_SPEED * 10)
 	{
-		m_LastHookedPlayer = -1;
-		m_LastHookedTick = -1;
+		m_DDNetPP.m_LastHookedPlayer = -1;
+		m_DDNetPP.m_LastHookedTick = -1;
 	}
 	if(m_HookState == HOOK_GRABBED)
 	{
@@ -118,7 +118,7 @@ void CCharacterCore::DDPPTick()
 
 		if(m_HookedPlayer == FLAG_RED)
 		{
-			if(m_aFlags[0].m_AtStand)
+			if(m_DDNetPP.m_aFlags[0].m_AtStand)
 			{
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
@@ -127,7 +127,7 @@ void CCharacterCore::DDPPTick()
 		}
 		if(m_HookedPlayer == FLAG_BLUE)
 		{
-			if(m_aFlags[1].m_AtStand)
+			if(m_DDNetPP.m_aFlags[1].m_AtStand)
 			{
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
@@ -136,9 +136,9 @@ void CCharacterCore::DDPPTick()
 		}
 	}
 
-	if(m_LastHookedPlayer != FLAG_BLUE && m_LastHookedPlayer != FLAG_RED && m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_LastHookedPlayer])
+	if(m_DDNetPP.m_LastHookedPlayer != FLAG_BLUE && m_DDNetPP.m_LastHookedPlayer != FLAG_RED && m_DDNetPP.m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_DDNetPP.m_LastHookedPlayer])
 	{
-		m_LastHookedPlayer = -1;
+		m_DDNetPP.m_LastHookedPlayer = -1;
 	}
 
 	if(m_pWorld)
@@ -154,20 +154,20 @@ void CCharacterCore::DDPPTick()
 			if(m_HookedPlayer == FLAG_RED)
 			{
 				m_updateFlagVel = FLAG_RED;
-				Temp = m_aFlags[0].m_Vel;
-				FlagVel = m_aFlags[0].m_Vel;
-				FPos = m_aFlags[0].m_Pos;
-				Distance = distance(m_Pos, m_aFlags[0].m_Pos);
-				Dir = normalize(m_Pos - m_aFlags[0].m_Pos);
+				Temp = m_DDNetPP.m_aFlags[0].m_Vel;
+				FlagVel = m_DDNetPP.m_aFlags[0].m_Vel;
+				FPos = m_DDNetPP.m_aFlags[0].m_Pos;
+				Distance = distance(m_Pos, m_DDNetPP.m_aFlags[0].m_Pos);
+				Dir = normalize(m_Pos - m_DDNetPP.m_aFlags[0].m_Pos);
 			}
 			if(m_HookedPlayer == FLAG_BLUE)
 			{
 				m_updateFlagVel = FLAG_BLUE;
-				Temp = m_aFlags[1].m_Vel;
-				FlagVel = m_aFlags[1].m_Vel;
-				FPos = m_aFlags[1].m_Pos;
-				Distance = distance(m_Pos, m_aFlags[1].m_Pos);
-				Dir = normalize(m_Pos - m_aFlags[1].m_Pos);
+				Temp = m_DDNetPP.m_aFlags[1].m_Vel;
+				FlagVel = m_DDNetPP.m_aFlags[1].m_Vel;
+				FPos = m_DDNetPP.m_aFlags[1].m_Pos;
+				Distance = distance(m_Pos, m_DDNetPP.m_aFlags[1].m_Pos);
+				Dir = normalize(m_Pos - m_DDNetPP.m_aFlags[1].m_Pos);
 			}
 
 			if(Distance > CFlag::ms_PhysSize * 1.50f) // TODO: fix tweakable variable

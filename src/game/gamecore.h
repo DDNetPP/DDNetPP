@@ -3,6 +3,8 @@
 #ifndef GAME_GAMECORE_H
 #define GAME_GAMECORE_H
 
+#include "gamecore_ddpp.h"
+
 #include <base/vmath.h>
 
 #include <map>
@@ -276,31 +278,19 @@ private:
 	// DDNet++
 
 public:
+	CCharacterCoreDDPP m_DDNetPP;
+
 	void DDPPWrite(CNetObj_CharacterCore *pObjCore) const;
 	void DDPPRead(const CNetObj_CharacterCore *pObjCore);
 	void DDPPTickHookFlying(vec2 NewPos);
 	void DDPPTick();
 	bool HookFlag();
-	void setFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId);
-
-	class CFlagCore
-	{
-	public:
-		vec2 m_Pos = vec2(0, 0);
-		vec2 m_Vel = vec2(0, 0);
-		bool m_AtStand = true;
-		int m_CarrierId = -1;
-	};
-
-	CFlagCore m_aFlags[2];
 
 	// TODO: wtf is this shit?
 	int m_updateFlagVel;
 	vec2 m_UFlagVel;
 
 	bool IsValidHookedPlayer() const { return m_HookedPlayer >= 0 && m_HookedPlayer < MAX_CLIENTS; }
-	int m_LastHookedPlayer;
-	int m_LastHookedTick;
 };
 
 // input count

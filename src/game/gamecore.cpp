@@ -148,6 +148,9 @@ void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CT
 
 void CCharacterCore::Reset()
 {
+	m_DDNetPP.m_LastHookedPlayer = -1;
+	m_DDNetPP.m_LastHookedTick = 0;
+
 	m_Pos = vec2(0, 0);
 	m_Vel = vec2(0, 0);
 	m_NewHook = false;
@@ -156,7 +159,6 @@ void CCharacterCore::Reset()
 	m_HookTeleBase = vec2(0, 0);
 	m_HookTick = 0;
 	m_HookState = HOOK_IDLE;
-	m_LastHookedPlayer = -1;
 	SetHookedPlayer(-1);
 	m_AttachedPlayers.clear();
 	m_Jumped = 0;
@@ -372,8 +374,8 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 							m_HookState = HOOK_GRABBED;
 							SetHookedPlayer(i);
 							Distance = distance(m_HookPos, pCharCore->m_Pos);
-							pCharCore->m_LastHookedPlayer = m_Id;
-							pCharCore->m_LastHookedTick = 0;
+							pCharCore->m_DDNetPP.m_LastHookedPlayer = m_Id;
+							pCharCore->m_DDNetPP.m_LastHookedTick = 0;
 						}
 					}
 				}
