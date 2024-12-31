@@ -664,11 +664,11 @@ void CCharacter::DDPPPostCoreTick()
 	{
 		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
 	}
-	if(m_Core.m_LastHookedPlayer != m_OldLastHookedPlayer)
+	if(m_Core.m_DDNetPP.m_LastHookedPlayer != m_OldLastHookedPlayer)
 	{
 		m_LastHitWeapon = -1;
 	}
-	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
+	m_OldLastHookedPlayer = m_Core.m_DDNetPP.m_LastHookedPlayer;
 
 	GameServer()->Shop()->MotdTick(GetPlayer()->GetCid());
 }
@@ -1420,7 +1420,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 
-			if(m_Core.m_LastHookedPlayer != -1)
+			if(m_Core.m_DDNetPP.m_LastHookedPlayer != -1)
 			{
 				GameServer()->m_pController->ChangeFlagOwner(0, Killer);
 			}
@@ -1433,7 +1433,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 		{
 			m_pPlayer->m_HadFlagOnDeath = true;
 
-			if(m_Core.m_LastHookedPlayer != -1)
+			if(m_Core.m_DDNetPP.m_LastHookedPlayer != -1)
 			{
 				GameServer()->m_pController->ChangeFlagOwner(1, Killer);
 			}
