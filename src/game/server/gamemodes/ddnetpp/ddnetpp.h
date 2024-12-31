@@ -24,6 +24,7 @@ public:
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
+	bool CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam) override;
 
 	const char *CommandByVoteMsg(const CNetMsg_Cl_CallVote *pMsg);
 

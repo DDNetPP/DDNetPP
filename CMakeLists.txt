@@ -2838,6 +2838,7 @@ if(SERVER)
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
     gamemodes/ddnetpp/flags.cpp
+    gamemodes/ddnetpp/spawn.cpp
     gamemodes/ddnetpp/tiles.cpp
     gamemodes/mod.cpp
     gamemodes/mod.h
