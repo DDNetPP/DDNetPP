@@ -2295,29 +2295,22 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 
 	if(pMsg->m_pMessage[0] == '/')
 	{
-		if(str_startswith_nocase(pMsg->m_pMessage + 1, "w "))
+		const char *pWhisper;
+		if((pWhisper = str_startswith_nocase(pMsg->m_pMessage + 1, "w ")))
 		{
-			char aWhisperMsg[256];
-			str_copy(aWhisperMsg, pMsg->m_pMessage + 3);
-			Whisper(pPlayer->GetCid(), aWhisperMsg);
+			Whisper(pPlayer->GetCid(), const_cast<char *>(pWhisper));
 		}
-		else if(str_startswith_nocase(pMsg->m_pMessage + 1, "whisper "))
+		else if((pWhisper = str_startswith_nocase(pMsg->m_pMessage + 1, "whisper ")))
 		{
-			char aWhisperMsg[256];
-			str_copy(aWhisperMsg, pMsg->m_pMessage + 9);
-			Whisper(pPlayer->GetCid(), aWhisperMsg);
+			Whisper(pPlayer->GetCid(), const_cast<char *>(pWhisper));
 		}
-		else if(str_startswith_nocase(pMsg->m_pMessage + 1, "c "))
+		else if((pWhisper = str_startswith_nocase(pMsg->m_pMessage + 1, "c ")))
 		{
-			char aWhisperMsg[256];
-			str_copy(aWhisperMsg, pMsg->m_pMessage + 3);
-			Converse(pPlayer->GetCid(), aWhisperMsg);
+			Converse(pPlayer->GetCid(), const_cast<char *>(pWhisper));
 		}
-		else if(str_startswith_nocase(pMsg->m_pMessage + 1, "converse "))
+		else if((pWhisper = str_startswith_nocase(pMsg->m_pMessage + 1, "converse ")))
 		{
-			char aWhisperMsg[256];
-			str_copy(aWhisperMsg, pMsg->m_pMessage + 10);
-			Converse(pPlayer->GetCid(), aWhisperMsg);
+			Converse(pPlayer->GetCid(), const_cast<char *>(pWhisper));
 		}
 		else
 		{
@@ -2455,12 +2448,12 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 
 		if(g_Config.m_SvVoteKickMin && !GetDDRaceTeam(ClientId))
 		{
-			char aaAddresses[MAX_CLIENTS][NETADDR_MAXSTRSIZE] = {{0}};
+			NETADDR aAddresses[MAX_CLIENTS];
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
 				if(m_apPlayers[i])
 				{
-					Server()->GetClientAddr(i, aaAddresses[i], NETADDR_MAXSTRSIZE);
+					Server()->GetClientAddr(i, &aAddresses[i]);
 				}
 			}
 			int NumPlayers = 0;
@@ -2473,7 +2466,7 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 					{
 						if(m_apPlayers[j] && m_apPlayers[j]->GetTeam() != TEAM_SPECTATORS && !GetDDRaceTeam(j))
 						{
-							if(str_comp(aaAddresses[i], aaAddresses[j]) == 0)
+							if(!net_addr_comp_noport(&aAddresses[i], &aAddresses[j]))
 							{
 								NumPlayers--;
 								break;

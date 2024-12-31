@@ -621,6 +621,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	{
 		GameClient()->m_Skins.RandomizeSkin(m_Dummy);
 		SetNeedSendInfo();
+		m_SkinListScrollToSelected = true;
 		s_CurrentDie = rand() % std::size(s_apDice);
 	}
 	TextRender()->SetRenderFlags(0);
@@ -721,7 +722,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 				return false;
 
 			// no special skins
-			if((pSkinToBeSelected->GetName()[0] == 'x' && pSkinToBeSelected->GetName()[1] == '_'))
+			if(CSkins::IsSpecialSkin(pSkinToBeSelected->GetName()))
 				return false;
 
 			return true;
@@ -3232,7 +3233,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(Ui()->DoScrollbarOption(&g_Config.m_ClDefaultZoom, &g_Config.m_ClDefaultZoom, &Button, Localize("Default zoom"), 0, 20))
-		m_pClient->m_Camera.SetZoom(std::pow(CCamera::ZOOM_STEP, g_Config.m_ClDefaultZoom - 10), g_Config.m_ClSmoothZoomTime);
+		m_pClient->m_Camera.SetZoom(CCamera::ZoomStepsToValue(g_Config.m_ClDefaultZoom - 10), g_Config.m_ClSmoothZoomTime, true);
 
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(DoButton_CheckBox(&g_Config.m_ClAntiPing, Localize("AntiPing"), g_Config.m_ClAntiPing, &Button))
