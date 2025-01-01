@@ -83,7 +83,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	m_LastIndexTile = m_TileIndex; // do not remove
 	m_LastIndexFrontTile = m_TileFIndex; // do not remove
 
-	//hammer tiles
+	// hammer tiles
 	if(((m_TileIndex == TILE_NO_HAMMER) || (m_TileFIndex == TILE_NO_HAMMER)))
 	{
 		m_Core.m_aWeapons[WEAPON_HAMMER].m_Got = false;
@@ -101,68 +101,6 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_pPlayer->m_IsBlockDeathmatch = true;
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[BLOCK] you joined the deathmatch arena!");
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[BLOCK] type /leave to leave");
-		}
-	}
-
-	// sv_room_captcha
-	if(m_TileIndex == TILE_CAPTCHA_VERIFY || m_TileFIndex == TILE_CAPTCHA_VERIFY)
-	{
-		m_pPlayer->OnHumanVerify();
-
-		// human verify kills the character
-		// so we have to drop all the other code to avoid nullptr exceptions
-		return true;
-	}
-
-	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN) //BANKTILES
-	{
-		if(Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
-		{
-			if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
-			{
-				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
-				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
-				}
-			}
-			else // no flag --> print always
-			{
-				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
-			}
-		}
-		m_InBank = true;
-	}
-
-	if(m_TileIndex == TILE_SHOP || m_TileFIndex == TILE_SHOP) // SHOP
-	{
-		if(!GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
-		{
-			m_EnteredShop = true;
-			GameServer()->Shop()->EnterShop(GetPlayer()->GetCid());
-		}
-		if(Server()->Tick() % 450 == 0 || m_EnteredShop)
-		{
-			if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
-			{
-				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
-				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
-				}
-			}
-			else // no flag --> print always
-			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
-			}
-		}
-		if(m_EnteredShop)
-		{
-			if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
-			{
-				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCid()));
-				SendShopMessage(aBuf);
-			}
-			m_EnteredShop = false;
 		}
 	}
 
@@ -204,6 +142,58 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_DummyFreezed = true;
 	}
 	return false;
+}
+
+void CCharacter::OnTileBank()
+{
+	if(Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+	{
+		if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
+		{
+			if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
+			{
+				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
+			}
+		}
+		else // no flag --> print always
+		{
+			GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
+		}
+	}
+	m_InBank = true;
+}
+
+void CCharacter::OnTileShop()
+{
+	if(!GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
+	{
+		m_EnteredShop = true;
+		GameServer()->Shop()->EnterShop(GetPlayer()->GetCid());
+	}
+	if(Server()->Tick() % 450 == 0 || m_EnteredShop)
+	{
+		if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
+		{
+			if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
+			{
+				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+			}
+		}
+		else // no flag --> print always
+		{
+			GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+		}
+	}
+	if(m_EnteredShop)
+	{
+		if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
+		{
+			char aBuf[256];
+			str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCid()));
+			SendShopMessage(aBuf);
+		}
+		m_EnteredShop = false;
+	}
 }
 
 void CCharacter::OnTileRoom()

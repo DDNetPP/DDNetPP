@@ -350,6 +350,8 @@ public:
 
 	bool IsOnTile(int Tile) const;
 
+	void OnTileShop();
+	void OnTileBank();
 	void OnTileRoom();
 	void OnTileMoney();
 	void OnTileMoneyPolice();

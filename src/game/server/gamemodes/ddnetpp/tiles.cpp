@@ -104,6 +104,16 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 	{
 		pChr->OnTileRoom();
 	}
+
+	if(TileIndex == TILE_SHOP || TileFIndex == TILE_SHOP)
+	{
+		pChr->OnTileShop();
+	}
+
+	if(TileIndex == TILE_BANK_IN || TileFIndex == TILE_BANK_IN)
+	{
+		pChr->OnTileBank();
+	}
 }
 
 bool CGameControllerDDNetPP::HandleTilesThatCanKill(CCharacter *pChr)
@@ -116,6 +126,16 @@ bool CGameControllerDDNetPP::HandleTilesThatCanKill(CCharacter *pChr)
 	if(((TileIndex == TILE_FNG_SCORE) || (TileFIndex == TILE_FNG_SCORE)))
 	{
 		pChr->Die(ClientId, WEAPON_WORLD, true, true);
+		return true;
+	}
+
+	// sv_room_captcha
+	if(TileIndex == TILE_CAPTCHA_VERIFY || TileFIndex == TILE_CAPTCHA_VERIFY)
+	{
+		pPlayer->OnHumanVerify();
+
+		// human verify kills the character
+		// so we have to drop all the other code to avoid nullptr exceptions
 		return true;
 	}
 
