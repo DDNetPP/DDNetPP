@@ -334,6 +334,8 @@ public:
 	int m_survivexpvalue;
 	bool m_DDPP_Finished;
 
+	bool HasBloody();
+
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;

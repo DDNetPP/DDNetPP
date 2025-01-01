@@ -167,7 +167,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		if(((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
 			return false;
 
-		if((m_Bloody) || (m_StrongBloody) || (m_pPlayer->m_InfBloody))
+		if(HasBloody())
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost bloody!");
 			m_Bloody = false;

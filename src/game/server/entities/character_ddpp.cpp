@@ -167,6 +167,11 @@ void CCharacter::BulletAmounts()
 	m_RifleBullets = m_Core.m_aWeapons[4].m_Ammo;
 }
 
+bool CCharacter::HasBloody()
+{
+	return m_Bloody || m_StrongBloody || GetPlayer()->m_InfBloody;
+}
+
 bool CCharacter::HandleConfigTile(int Type)
 {
 	if(Type == CFG_TILE_OFF)
