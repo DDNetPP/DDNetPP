@@ -246,6 +246,14 @@ static int GetMoveRestrictionsRaw(int Direction, int Tile, int Flags, CDDNetPPMo
 			pDDNetPP->m_RoomEnterBlocked = true;
 			return CANTMOVE_LEFT | CANTMOVE_RIGHT | CANTMOVE_UP | CANTMOVE_DOWN;
 		}
+		break;
+	case TILE_VIP_PLUS_ONLY:
+		if(pDDNetPP && !pDDNetPP->m_CanEnterVipPlusOnly)
+		{
+			pDDNetPP->m_VipPluOnlyEnterBlocked = true;
+			return CANTMOVE_LEFT | CANTMOVE_RIGHT | CANTMOVE_UP | CANTMOVE_DOWN;
+		}
+		break;
 	}
 	return 0;
 }
@@ -894,6 +902,21 @@ bool CCollision::TileExistsNext(int Index) const
 		return true;
 	if(m_pTiles[TileBelow].m_Index == TILE_ROOM || m_pTiles[TileAbove].m_Index == TILE_ROOM)
 		return true;
+	if(m_pTiles[TileOnTheRight].m_Index == TILE_VIP_PLUS_ONLY || m_pTiles[TileOnTheLeft].m_Index == TILE_VIP_PLUS_ONLY)
+		return true;
+	if(m_pTiles[TileBelow].m_Index == TILE_VIP_PLUS_ONLY || m_pTiles[TileAbove].m_Index == TILE_VIP_PLUS_ONLY)
+		return true;
+	if(m_pFront)
+	{
+		if(m_pFront[TileOnTheRight].m_Index == TILE_ROOM || m_pFront[TileOnTheLeft].m_Index == TILE_ROOM)
+			return true;
+		if(m_pFront[TileBelow].m_Index == TILE_ROOM || m_pFront[TileAbove].m_Index == TILE_ROOM)
+			return true;
+		if(m_pFront[TileOnTheRight].m_Index == TILE_VIP_PLUS_ONLY || m_pFront[TileOnTheLeft].m_Index == TILE_VIP_PLUS_ONLY)
+			return true;
+		if(m_pFront[TileBelow].m_Index == TILE_VIP_PLUS_ONLY || m_pFront[TileAbove].m_Index == TILE_VIP_PLUS_ONLY)
+			return true;
+	}
 
 	if((m_pTiles[TileOnTheRight].m_Index == TILE_STOP && m_pTiles[TileOnTheRight].m_Flags == ROTATION_270) || (m_pTiles[TileOnTheLeft].m_Index == TILE_STOP && m_pTiles[TileOnTheLeft].m_Flags == ROTATION_90))
 		return true;

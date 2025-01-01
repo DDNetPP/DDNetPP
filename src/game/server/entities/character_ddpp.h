@@ -344,6 +344,7 @@ public:
 	bool m_HomingMissile;
 
 	int64_t m_NextCantEnterRoomMessage = 0;
+	int64_t m_NextCantEnterVipRoomMessage = 0;
 	bool CanEnterRoom();
 
 	// character_tiles.cpp
@@ -353,6 +354,7 @@ public:
 	void OnTileShop();
 	void OnTileBank();
 	void OnTileRoom();
+	void OnTileVipPlusOnly();
 	void OnTileMoney();
 	void OnTileMoneyPolice();
 	void OnTileMoneyPlus();

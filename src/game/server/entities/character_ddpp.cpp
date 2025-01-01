@@ -138,6 +138,8 @@ void CCharacter::PostSpawnDDPP()
 		m_pPlayer->m_ChangeTeamOnFlag = true;
 		m_pPlayer->m_HadFlagOnDeath = false;
 	}
+
+	Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = GetPlayer()->m_Account.m_IsSuperModerator;
 }
 
 void CCharacter::DDPPDDRacePostCoreTick()

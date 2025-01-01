@@ -44,6 +44,10 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	{
 		pChr->OnTileRoom();
 	}
+	if(pChr->Core()->m_DDNetPP.m_RestrictionData.m_VipPluOnlyEnterBlocked)
+	{
+		pChr->OnTileVipPlusOnly();
+	}
 
 	for(auto &Minigame : GameServer()->m_vMinigames)
 		if(Minigame->HandleCharacterTiles(pChr, MapIndex))
@@ -103,11 +107,6 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 	{
 		if((Server()->Tick() % 500) == 0 && !pChr->m_FreezeTime)
 			pPlayer->m_KingOfTheHillScore++;
-	}
-
-	if(TileIndex == TILE_ROOM || TileFIndex == TILE_ROOM)
-	{
-		pChr->OnTileRoom();
 	}
 
 	if(TileIndex == TILE_SHOP || TileFIndex == TILE_SHOP)

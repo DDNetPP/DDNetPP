@@ -207,6 +207,17 @@ void CCharacter::OnTileRoom()
 	}
 }
 
+void CCharacter::OnTileVipPlusOnly()
+{
+	Core()->m_DDNetPP.m_RestrictionData.m_VipPluOnlyEnterBlocked = false;
+
+	if(time_get() > m_NextCantEnterVipRoomMessage)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You need VIP+ to enter this area.");
+		m_NextCantEnterVipRoomMessage = time_get() + time_freq() * 10;
+	}
+}
+
 void CCharacter::OnTileStart()
 {
 	GetPlayer()->m_MoneyTilePlus = true;

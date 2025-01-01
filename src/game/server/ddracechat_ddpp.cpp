@@ -898,7 +898,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, "'/sql supporter <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientId, "'/sql freeze_acc <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <clientId>' additional info");
+		pSelf->SendChatTarget(ClientId, "'/acc_info <player name>' additional info");
 		pSelf->SendChatTarget(ClientId, "'/sql_name' similar command using account names");
 		pSelf->SendChatTarget(ClientId, "'/sql_logout <playername>' sets logout state (risky)");
 		pSelf->SendChatTarget(ClientId, "'/sql_logout_all' sets logout state only for current port (save)");
@@ -938,7 +938,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, "'/sql mod <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientId, "'/sql freeze_acc <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <clientId>' additional info");
+		pSelf->SendChatTarget(ClientId, "'/acc_info <player name>' additional info");
 	}
 	else if(!str_comp_nocase(aCommand, "supporter"))
 	{
@@ -8455,7 +8455,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, "'/acc2 supporter <name> <val>'");
 		pSelf->SendChatTarget(ClientId, "'/acc2 freeze_acc <name> <val>'");
 		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <clientId>' additional info");
+		pSelf->SendChatTarget(ClientId, "'/acc_info <player name>' additional info");
 		pSelf->SendChatTarget(ClientId, "'/sql' similar cmd using sql acc sys");
 		return;
 	}

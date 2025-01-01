@@ -106,6 +106,12 @@ void CPlayer::OnLogin()
 	if(!str_comp(m_Account.m_ProfileEmail, "") && !str_comp(m_Account.m_ProfileSkype, ""))
 		GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 
+	CCharacter *pChr = GetCharacter();
+	if(pChr)
+	{
+		pChr->Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = m_Account.m_IsSuperModerator;
+	}
+
 	//========================================
 	// LEAVE THIS CODE LAST!!!!
 	// multiple server account protection stuff
@@ -247,9 +253,23 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsSuperModerator = Result.m_State;
 					if(Result.m_State == 1)
+					{
 						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now VIP+.");
+						CCharacter *pChr = GetCharacter();
+						if(pChr)
+						{
+							pChr->Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = true;
+						}
+					}
 					else
+					{
 						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+.");
+						CCharacter *pChr = GetCharacter();
+						if(pChr)
+						{
+							pChr->Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = false;
+						}
+					}
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
 					break;
 				}

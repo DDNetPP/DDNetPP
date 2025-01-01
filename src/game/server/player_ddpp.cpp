@@ -708,6 +708,12 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_money_transaction2[0] = '\0';
 	m_money_transaction1[0] = '\0';
 	m_money_transaction0[0] = '\0';
+
+	CCharacter *pChr = GetCharacter();
+	if(pChr)
+	{
+		pChr->Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = false;
+	}
 }
 
 void CPlayer::JailPlayer(int Seconds)
