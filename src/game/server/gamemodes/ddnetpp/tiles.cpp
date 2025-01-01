@@ -52,7 +52,9 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 
 void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, int TileIndex, int TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState)
 {
-	int ClientId = pChr->GetPlayer()->GetCid();
+	CPlayer *pPlayer = pChr->GetPlayer();
+	int ClientId = pPlayer->GetCid();
+
 	// start
 	if(((TileIndex == TILE_START) || (TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GameServer()->GetDDRaceTeam(ClientId) && g_Config.m_SvTeam != 3)))
 	{
@@ -104,6 +106,71 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", pChr->GetPlayer()->GetXP());
 		GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCid(), 0);
 		*/
+	}
+
+	if(((TileIndex == TILE_DDPP_END) || (TileFIndex == TILE_DDPP_END)) && !pChr->m_DDPP_Finished)
+	{
+		char aBuf[256];
+		if(pChr->m_DDRaceState == DDRACE_STARTED)
+		{
+			float Time = (float)(Server()->Tick() - Teams().GetStartTime(pPlayer)) / ((float)Server()->TickSpeed());
+			if(Time < 0.000001f)
+				return;
+			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%.2f]!", Server()->ClientName(pPlayer->GetCid()), (int)Time / 60, Time - ((int)Time / 60 * 60));
+			GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+
+			// quest
+			if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
+			{
+				if(pPlayer->m_QuestStateLevel == 7)
+				{
+					if((int)Time > g_Config.m_SvQuestSpecialRaceTime)
+					{
+						GameServer()->QuestFailed(pPlayer->GetCid());
+					}
+					else
+					{
+						GameServer()->QuestCompleted(pPlayer->GetCid());
+					}
+				}
+			}
+		}
+		else
+		{
+			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCid()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
+			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(pPlayer->GetCid()));
+			GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+
+			// quest
+			if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
+			{
+				if(pPlayer->m_QuestStateLevel == 7)
+				{
+					if(Server()->Tick() > pChr->m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
+					{
+						GameServer()->QuestFailed(pPlayer->GetCid());
+					}
+					else
+					{
+						GameServer()->QuestCompleted(pPlayer->GetCid());
+					}
+				}
+			}
+		}
+
+		if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
+		{
+			if(pPlayer->m_QuestStateLevel == 6)
+			{
+				GameServer()->QuestCompleted(pPlayer->GetCid());
+			}
+			else if(pPlayer->m_QuestStateLevel == 8) //backwards
+			{
+				GameServer()->QuestAddProgress(pPlayer->GetCid(), 2, 1);
+			}
+		}
+
+		pChr->m_DDPP_Finished = true;
 	}
 }
 
