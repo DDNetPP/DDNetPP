@@ -185,10 +185,6 @@ public:
 	void InstagibSubDieFunc(int Killer, int Weapon);
 	void InstagibKillingSpree(int KillerId, int Weapon);
 	bool m_UpdateInstaScoreBoard;
-	void MoneyTile();
-	void MoneyTilePolice();
-	void MoneyTilePlus();
-	void MoneyTileDouble();
 	bool m_hammerfight; //used for the rcon command has nothing todo with arenas yet
 	//bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
 	//bool m_Hammerarena_exit_request;
@@ -350,6 +346,12 @@ public:
 	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
 
 	bool m_HomingMissile;
+
+	// character_tiles.cpp
+	void OnTileMoney();
+	void OnTileMoneyPolice();
+	void OnTileMoneyPlus();
+	void OnTileMoneyDouble();
 
 private:
 #ifndef IN_CLASS_CHARACTER

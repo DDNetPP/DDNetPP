@@ -178,22 +178,22 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 	//Money Tiles
 	if(((TileIndex == TILE_MONEY) || (TileFIndex == TILE_MONEY)))
 	{
-		pChr->MoneyTile();
+		pChr->OnTileMoney();
 	}
 
 	if(((TileIndex == TILE_MONEY_POLICE) || (TileFIndex == TILE_MONEY_POLICE)))
 	{
-		pChr->MoneyTilePolice();
+		pChr->OnTileMoneyPolice();
 	}
 
 	if(((TileIndex == TILE_MONEY_PLUS) || (TileFIndex == TILE_MONEY_PLUS)))
 	{
-		pChr->MoneyTilePlus();
+		pChr->OnTileMoneyPlus();
 	}
 
 	if(((TileIndex == TILE_MONEY_DOUBLE) || (TileFIndex == TILE_MONEY_DOUBLE)))
 	{
-		pChr->MoneyTileDouble();
+		pChr->OnTileMoneyDouble();
 	}
 
 	if(((TileIndex == TILE_KING_OF_THE_HILL) || (TileFIndex == TILE_KING_OF_THE_HILL)))

@@ -279,7 +279,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	return false;
 }
 
-void CCharacter::MoneyTile()
+void CCharacter::OnTileMoney()
 {
 	m_OnMoneytile = MONEYTILE_NORMAL;
 	if(Server()->Tick() % 50)
@@ -415,7 +415,7 @@ void CCharacter::MoneyTile()
 	}
 }
 
-void CCharacter::MoneyTilePolice()
+void CCharacter::OnTileMoneyPolice()
 {
 	m_OnMoneytile = MONEYTILE_POLICE;
 	if(Server()->Tick() % 50)
@@ -540,7 +540,7 @@ void CCharacter::MoneyTilePolice()
 	}
 }
 
-void CCharacter::MoneyTileDouble()
+void CCharacter::OnTileMoneyDouble()
 {
 	m_OnMoneytile = MONEYTILE_DOUBLE;
 	if(Server()->Tick() % 50)
@@ -656,7 +656,7 @@ void CCharacter::MoneyTileDouble()
 	}
 }
 
-void CCharacter::MoneyTilePlus()
+void CCharacter::OnTileMoneyPlus()
 {
 	if(!m_pPlayer->m_MoneyTilePlus)
 		return;
