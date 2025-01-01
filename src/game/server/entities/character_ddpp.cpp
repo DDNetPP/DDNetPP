@@ -3007,3 +3007,30 @@ bool CCharacter::FreezeFloat(float Seconds)
 	}
 	return false;
 }
+
+void CCharacter::SetSpawnWeapons()
+{
+	if(m_pPlayer->m_Account.m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->m_IsSurvivaling)
+	{
+		if(m_pPlayer->m_Account.m_SpawnWeaponShotgun)
+		{
+			m_Core.m_aWeapons[2].m_Got = true;
+			m_Core.m_aWeapons[2].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponShotgun;
+			m_pPlayer->m_SpawnShotgunActive = 1;
+		}
+
+		if(m_pPlayer->m_Account.m_SpawnWeaponGrenade)
+		{
+			m_Core.m_aWeapons[3].m_Got = true;
+			m_Core.m_aWeapons[3].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponGrenade;
+			m_pPlayer->m_SpawnGrenadeActive = 1;
+		}
+
+		if(m_pPlayer->m_Account.m_SpawnWeaponRifle)
+		{
+			m_Core.m_aWeapons[4].m_Got = true;
+			m_Core.m_aWeapons[4].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponRifle;
+			m_pPlayer->m_SpawnRifleActive = 1;
+		}
+	}
+}
