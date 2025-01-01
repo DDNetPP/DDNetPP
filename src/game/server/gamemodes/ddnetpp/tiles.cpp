@@ -46,6 +46,8 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 
 	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
 	HandleCosmeticTiles(pChr);
+	if(HandleTilesThatCanKill(pChr))
+		return;
 
 	CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
 }
@@ -172,6 +174,49 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 
 		pChr->m_DDPP_Finished = true;
 	}
+
+	//Money Tiles
+	if(((TileIndex == TILE_MONEY) || (TileFIndex == TILE_MONEY)))
+	{
+		pChr->MoneyTile();
+	}
+
+	if(((TileIndex == TILE_MONEY_POLICE) || (TileFIndex == TILE_MONEY_POLICE)))
+	{
+		pChr->MoneyTilePolice();
+	}
+
+	if(((TileIndex == TILE_MONEY_PLUS) || (TileFIndex == TILE_MONEY_PLUS)))
+	{
+		pChr->MoneyTilePlus();
+	}
+
+	if(((TileIndex == TILE_MONEY_DOUBLE) || (TileFIndex == TILE_MONEY_DOUBLE)))
+	{
+		pChr->MoneyTileDouble();
+	}
+
+	if(((TileIndex == TILE_KING_OF_THE_HILL) || (TileFIndex == TILE_KING_OF_THE_HILL)))
+	{
+		if((Server()->Tick() % 500) == 0 && !pChr->m_FreezeTime)
+			pPlayer->m_KingOfTheHillScore++;
+	}
+}
+
+bool CGameControllerDDNetPP::HandleTilesThatCanKill(CCharacter *pChr)
+{
+	CPlayer *pPlayer = pChr->GetPlayer();
+	int ClientId = pPlayer->GetCid();
+	int TileIndex = pChr->m_TileIndex;
+	int TileFIndex = pChr->m_TileFIndex;
+
+	if(((TileIndex == TILE_FNG_SCORE) || (TileFIndex == TILE_FNG_SCORE)))
+	{
+		pChr->Die(ClientId, WEAPON_WORLD, true, true);
+		return true;
+	}
+
+	return false;
 }
 
 void CGameControllerDDNetPP::HandleCosmeticTiles(CCharacter *pChr)

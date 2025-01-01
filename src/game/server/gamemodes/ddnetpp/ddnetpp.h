@@ -55,6 +55,9 @@ public:
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
 	void HandleCharacterTilesDDPP(class CCharacter *pChr, int TileIndex, int TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
 	void HandleCosmeticTiles(class CCharacter *pChr);
+
+	// returns true if it killed
+	bool HandleTilesThatCanKill(class CCharacter *pChr);
 };
 
 #endif

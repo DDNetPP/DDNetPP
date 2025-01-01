@@ -89,38 +89,6 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		SetWeaponThatChrHas();
 	}
 
-	//Money Tiles
-	if(((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
-	{
-		MoneyTile();
-	}
-
-	if(((m_TileIndex == TILE_MONEY_POLICE) || (m_TileFIndex == TILE_MONEY_POLICE)))
-	{
-		MoneyTilePolice();
-	}
-
-	if(((m_TileIndex == TILE_MONEY_PLUS) || (m_TileFIndex == TILE_MONEY_PLUS)))
-	{
-		MoneyTilePlus();
-	}
-
-	if(((m_TileIndex == TILE_FNG_SCORE) || (m_TileFIndex == TILE_FNG_SCORE)))
-	{
-		Die(m_pPlayer->GetCid(), WEAPON_WORLD, true, true);
-	}
-
-	if(((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))
-	{
-		MoneyTileDouble();
-	}
-
-	if(((m_TileIndex == TILE_KING_OF_THE_HILL) || (m_TileFIndex == TILE_KING_OF_THE_HILL)))
-	{
-		if((Server()->Tick() % 500) == 0 && !m_FreezeTime)
-			m_pPlayer->m_KingOfTheHillScore++;
-	}
-
 	// ROOM POINT
 	bool Allowed = false;
 	if(g_Config.m_SvRoomState == 0) //all
