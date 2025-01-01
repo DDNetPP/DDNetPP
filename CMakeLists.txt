@@ -2770,6 +2770,8 @@ if(SERVER)
     entities/dummy/fnn.h
     entities/dummy/grenade_fng.cpp
     entities/dummy/grenade_fng.h
+    entities/dummy/minigame_balance.cpp
+    entities/dummy/minigame_balance.h
     entities/dummy/quest.cpp
     entities/dummy/quest.h
     entities/dummy/rifle_fng.cpp

@@ -2642,12 +2642,12 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyT
 
 	dbg_msg("dummy", "Dummy connected: %d", DummyId);
 
-	if(Mode == DUMMYMODE_BALANCE1)
+	if(Mode == DUMMYMODE_MINIGAME_BALANCE1)
 	{
 		m_apPlayers[DummyId]->m_IsBalanceBattlePlayer1 = true;
 		m_apPlayers[DummyId]->m_IsBalanceBattleDummy = true;
 	}
-	else if(Mode == DUMMYMODE_BALANCE2)
+	else if(Mode == DUMMYMODE_MINIGAME_BALANCE2)
 	{
 		m_apPlayers[DummyId]->m_IsBalanceBattlePlayer1 = false;
 		m_apPlayers[DummyId]->m_IsBalanceBattleDummy = true;

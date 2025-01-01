@@ -3,23 +3,14 @@
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
-#include <game/server/ddpp/shop.h>
-
-#include <cinttypes>
-
-#include "flag.h"
-#include "laser.h"
-#include "plasmabullet.h"
-#include "projectile.h"
-
 #include "character.h"
-
-#include <game/mapitems.h>
 
 // TODO: this should probably moved to ddnetpp/tiles.cpp
 bool CCharacter::HandleTilesDDPP(int Index)
@@ -38,10 +29,10 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		char aBuf[256];
 		if(m_DDRaceState == DDRACE_STARTED)
 		{
-			float time = (float)(Server()->Tick() - Controller->Teams().GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
-			if(time < 0.000001f)
+			float Time = (float)(Server()->Tick() - Controller->Teams().GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
+			if(Time < 0.000001f)
 				return false;
-			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCid()), (int)time / 60, time - ((int)time / 60 * 60));
+			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCid()), (int)Time / 60, Time - ((int)Time / 60 * 60));
 			GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 
 			// quest
@@ -49,7 +40,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(m_pPlayer->m_QuestStateLevel == 7)
 				{
-					if((int)time > g_Config.m_SvQuestSpecialRaceTime)
+					if((int)Time > g_Config.m_SvQuestSpecialRaceTime)
 					{
 						GameServer()->QuestFailed(m_pPlayer->GetCid());
 					}

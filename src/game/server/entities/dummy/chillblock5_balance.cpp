@@ -1,4 +1,7 @@
-//ChillBlock5 the down left balance to secret moneyroom
+// ChillBlock5 specific balancing mode
+// not sure exactly what this is :D
+// maybe its the taxi from the old tunnel?
+//
 // mode 30
 
 #include "chillblock5_balance.h"
@@ -14,7 +17,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyChillBlock5Balance::CDummyChillBlock5Balance(class CPlayer *pPlayer) :
-	CDummyBase(pPlayer, DUMMYMODE_BALANCE1)
+	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BALANCE)
 {
 }
 

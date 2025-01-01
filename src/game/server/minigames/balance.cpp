@@ -82,8 +82,8 @@ void CGameContext::StartBalanceBattle(int Id1, int Id2)
 		//m_apPlayers[Id1]->GetCharacter()->Die(Id1, WEAPON_SELF);
 		//m_apPlayers[Id2]->GetCharacter()->Die(Id2, WEAPON_SELF);
 
-		m_BalanceDummyId1 = CreateNewDummy(DUMMYMODE_BALANCE1, true);
-		m_BalanceDummyId2 = CreateNewDummy(DUMMYMODE_BALANCE2, true);
+		m_BalanceDummyId1 = CreateNewDummy(DUMMYMODE_MINIGAME_BALANCE1, true);
+		m_BalanceDummyId2 = CreateNewDummy(DUMMYMODE_MINIGAME_BALANCE2, true);
 		m_BalanceId1 = Id1;
 		m_BalanceId2 = Id2;
 		m_BalanceBattleCountdown = Server()->TickSpeed() * 10;

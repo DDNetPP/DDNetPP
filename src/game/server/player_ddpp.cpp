@@ -7,14 +7,14 @@
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
-
-#include <cinttypes>
-#include <fstream>
-
-#include "gamemodes/DDRace.h"
+#include <game/server/entities/dummy/minigame_balance.h>
+#include <game/server/gamecontroller.h>
 
 #include "gamecontext.h"
 #include "player.h"
+
+#include <cinttypes>
+#include <fstream>
 
 void CPlayer::FixForNoName(int Id)
 {
@@ -317,8 +317,8 @@ bool CPlayer::SetDummyMode(EDummyMode Mode)
 
 	switch(m_DummyMode)
 	{
-	case DUMMYMODE_BALANCE1: m_pDummyMode = new CDummyChillBlock5Balance(this); break;
-	case DUMMYMODE_BALANCE2: m_pDummyMode = new CDummyChillBlock5Balance(this); break;
+	case DUMMYMODE_MINIGAME_BALANCE1: m_pDummyMode = new CDummyMinigameBalance(this); break;
+	case DUMMYMODE_MINIGAME_BALANCE2: m_pDummyMode = new CDummyMinigameBalance(this); break;
 	case DUMMYMODE_BLOCKWAVE: m_pDummyMode = new CDummyBlockWave(this); break;
 	case DUMMYMODE_RIFLE_FNG: m_pDummyMode = new CDummyRifleFng(this); break;
 	case DUMMYMODE_GRENADE_FNG: m_pDummyMode = new CDummyGrenadeFng(this); break;
