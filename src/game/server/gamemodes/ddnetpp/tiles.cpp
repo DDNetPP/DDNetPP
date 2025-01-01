@@ -5,6 +5,12 @@
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
 {
+	if(g_Config.m_SvOffDDPP)
+	{
+		CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
+		return;
+	}
+
 	CPlayer *pPlayer = pChr->GetPlayer();
 	const int ClientId = pPlayer->GetCid();
 
@@ -32,7 +38,13 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	{
 		CharacterDropFlag(pChr);
 	}
+
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		if(Minigame->HandleCharacterTiles(pChr, MapIndex))
+			return;
+
 	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
+
 	CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
 }
 

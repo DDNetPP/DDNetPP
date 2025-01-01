@@ -18,10 +18,6 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	if(g_Config.m_SvOffDDPP)
 		return false;
 
-	for(auto &Minigame : GameServer()->m_vMinigames)
-		if(Minigame->HandleCharacterTiles(this, Index))
-			return true;
-
 	CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
 	// DDNet++ finish tile
 	if(((m_TileIndex == TILE_DDPP_END) || (m_TileFIndex == TILE_DDPP_END)) && !m_DDPP_Finished)
