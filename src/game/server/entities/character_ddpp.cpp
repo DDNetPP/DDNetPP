@@ -172,6 +172,33 @@ bool CCharacter::HasBloody()
 	return m_Bloody || m_StrongBloody || GetPlayer()->m_InfBloody;
 }
 
+bool CCharacter::CanEnterRoom()
+{
+	// ROOM POINT
+	bool Allowed = false;
+	if(g_Config.m_SvRoomState == 0) //all
+	{
+		Allowed = true;
+	}
+	else if(g_Config.m_SvRoomState == 1) //buy
+	{
+		Allowed = m_pPlayer->m_BoughtRoom;
+	}
+	else if(g_Config.m_SvRoomState == 2) //buy invite
+	{
+		Allowed = m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator;
+	}
+	else if(g_Config.m_SvRoomState == 3) //buy admin
+	{
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCid());
+	}
+	else if(g_Config.m_SvRoomState == 4) //buy admin invite
+	{
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCid()) || m_HasRoomKeyBySuperModerator;
+	}
+	return Allowed;
+}
+
 bool CCharacter::HandleConfigTile(int Type)
 {
 	if(Type == CFG_TILE_OFF)

@@ -344,10 +344,13 @@ public:
 
 	bool m_HomingMissile;
 
+	bool CanEnterRoom();
+
 	// character_tiles.cpp
 
 	bool IsOnTile(int Tile) const;
 
+	void OnTileRoom();
 	void OnTileMoney();
 	void OnTileMoneyPolice();
 	void OnTileMoneyPlus();

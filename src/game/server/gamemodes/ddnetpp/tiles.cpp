@@ -99,6 +99,11 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 		if((Server()->Tick() % 500) == 0 && !pChr->m_FreezeTime)
 			pPlayer->m_KingOfTheHillScore++;
 	}
+
+	if(TileIndex == TILE_ROOM || TileFIndex == TILE_ROOM)
+	{
+		pChr->OnTileRoom();
+	}
 }
 
 bool CGameControllerDDNetPP::HandleTilesThatCanKill(CCharacter *pChr)
