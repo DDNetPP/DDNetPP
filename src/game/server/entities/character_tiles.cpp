@@ -13,6 +13,11 @@
 
 #include "character.h"
 
+bool CCharacter::IsOnTile(int Tile) const
+{
+	return m_TileIndex == Tile || m_TileFIndex == Tile;
+}
+
 // TODO: this should probably moved to ddnetpp/tiles.cpp
 bool CCharacter::HandleTilesDDPP(int Index)
 {
@@ -228,17 +233,6 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		}
 	}
 
-	if(m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
-	{
-		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCid(), 0); //dont spam people in jail this is just an tele tile
-	}
-	else if(m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
-	{
-		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCid(), 0); //dont send the message here wtf this is just an to tele tile
-		m_InJailOpenArea = true;
-		//dbg_msg("ddpp-tiles", "in jail release area");
-	}
-
 	if((m_TileIndex == TILE_VANILLA_MODE || m_TileFIndex == TILE_VANILLA_MODE) && !(m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
 	{
 		if(m_pPlayer->DummyMode() != DUMMYMODE_ADVENTURE)
@@ -277,6 +271,123 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_DummyFreezed = true;
 	}
 	return false;
+}
+
+void CCharacter::OnTileStart()
+{
+	GetPlayer()->m_MoneyTilePlus = true;
+	if(GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
+	{
+		if((GetPlayer()->m_QuestStateLevel == 3 || GetPlayer()->m_QuestStateLevel == 8) && GetPlayer()->m_QuestProgressValue)
+		{
+			GameServer()->QuestAddProgress(GetPlayer()->GetCid(), 2);
+		}
+		else if(GetPlayer()->m_QuestStateLevel == 9 && GetPlayer()->m_QuestFailed)
+		{
+			// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "[QUEST] running agian.");
+			GetPlayer()->m_QuestFailed = false;
+		}
+	}
+	m_DDPP_Finished = false;
+}
+
+void CCharacter::OnTileFinish()
+{
+	if(GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
+	{
+		if(GetPlayer()->m_QuestStateLevel == 5)
+		{
+			if(GameServer()->m_pController->HasFlag(this) != -1) //has flag
+			{
+				GameServer()->QuestCompleted(GetPlayer()->GetCid());
+			}
+			else
+			{
+				GameServer()->QuestFailed(GetPlayer()->GetCid());
+			}
+		}
+		else if(GetPlayer()->m_QuestStateLevel == 9)
+		{
+			if(!GetPlayer()->m_QuestFailed)
+			{
+				GameServer()->QuestCompleted(GetPlayer()->GetCid());
+			}
+		}
+	}
+
+	m_DummyFinished = true;
+	m_DummyFinishes++;
+
+	/*
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", GetPlayer()->GetXP());
+	GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCid(), 0);
+	*/
+}
+
+void CCharacter::OnTileSpecialFinish()
+{
+	char aBuf[256];
+	if(m_DDRaceState == DDRACE_STARTED)
+	{
+		float Time = (float)(Server()->Tick() - Teams()->GetStartTime(GetPlayer())) / ((float)Server()->TickSpeed());
+		if(Time < 0.000001f)
+			return;
+		str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%.2f]!", Server()->ClientName(GetPlayer()->GetCid()), (int)Time / 60, Time - ((int)Time / 60 * 60));
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+
+		// quest
+		if(GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
+		{
+			if(GetPlayer()->m_QuestStateLevel == 7)
+			{
+				if((int)Time > g_Config.m_SvQuestSpecialRaceTime)
+				{
+					GameServer()->QuestFailed(GetPlayer()->GetCid());
+				}
+				else
+				{
+					GameServer()->QuestCompleted(GetPlayer()->GetCid());
+				}
+			}
+		}
+	}
+	else
+	{
+		// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_GetPlayer()->GetCid()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
+		str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(GetPlayer()->GetCid()));
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
+
+		// quest
+		if(GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
+		{
+			if(GetPlayer()->m_QuestStateLevel == 7)
+			{
+				if(Server()->Tick() > m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
+				{
+					GameServer()->QuestFailed(GetPlayer()->GetCid());
+				}
+				else
+				{
+					GameServer()->QuestCompleted(GetPlayer()->GetCid());
+				}
+			}
+		}
+	}
+
+	if(GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
+	{
+		if(GetPlayer()->m_QuestStateLevel == 6)
+		{
+			GameServer()->QuestCompleted(GetPlayer()->GetCid());
+		}
+		else if(GetPlayer()->m_QuestStateLevel == 8) //backwards
+		{
+			GameServer()->QuestAddProgress(GetPlayer()->GetCid(), 2, 1);
+		}
+	}
+
+	m_DDPP_Finished = true;
 }
 
 void CCharacter::OnTileMoney()

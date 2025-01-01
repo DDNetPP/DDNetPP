@@ -1,7 +1,4 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
-#include "game/server/ddpp/enums.h"
-#include "gamecontext.h"
-
 #include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
@@ -9,14 +6,17 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+#include <game/mapitems.h>
+#include <game/mapitems_ddpp.h>
 #include <game/server/captcha.h>
+#include <game/server/ddpp/accounts.h>
+#include <game/server/ddpp/enums.h>
+#include <game/server/ddpp/shop.h>
+#include <game/server/entities/laser_text.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/minigames/minigame_base.h>
 #include <game/server/teams.h>
 #include <game/version.h>
-
-#include <game/server/ddpp/accounts.h>
-#include <game/server/ddpp/shop.h>
 
 #include <cinttypes>
 #include <cstdio> //acc2 to_str()
@@ -24,9 +24,7 @@
 #include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
 
-#include <game/server/entities/laser_text.h>
-
-#include <game/mapitems.h>
+#include "gamecontext.h"
 
 bool CheckClientId(int ClientId); //TODO: whats this ? xd
 
@@ -3456,9 +3454,6 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 		*/
 
-		//str_format(aBuf, sizeof(aBuf), "InJailReleaseArea=%d", pChr->m_InJailOpenArea);
-		//pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
-
 		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientId); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}
 }
@@ -5552,7 +5547,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientId, "Missing parameters. '/jail open <code> <player>'");
 			return;
 		}
-		if(!pPlayer->GetCharacter()->m_InJailOpenArea)
+		if(!pPlayer->GetCharacter()->IsOnTile(TILE_JAILRELEASE))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "Get closer to the cell.");
 			return;

@@ -60,119 +60,17 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 	// start
 	if(((TileIndex == TILE_START) || (TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GameServer()->GetDDRaceTeam(ClientId) && g_Config.m_SvTeam != 3)))
 	{
-		pChr->GetPlayer()->m_MoneyTilePlus = true;
-		if(pChr->GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
-		{
-			if((pChr->GetPlayer()->m_QuestStateLevel == 3 || pChr->GetPlayer()->m_QuestStateLevel == 8) && pChr->GetPlayer()->m_QuestProgressValue)
-			{
-				GameServer()->QuestAddProgress(pChr->GetPlayer()->GetCid(), 2);
-			}
-			else if(pChr->GetPlayer()->m_QuestStateLevel == 9 && pChr->GetPlayer()->m_QuestFailed)
-			{
-				// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "[QUEST] running agian.");
-				pChr->GetPlayer()->m_QuestFailed = false;
-			}
-		}
-		pChr->m_DDPP_Finished = false;
+		pChr->OnTileStart();
 	}
 	// finish
 	if(((TileIndex == TILE_FINISH) || (TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == DDRACE_STARTED)
 	{
-		if(pChr->GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
-		{
-			if(pChr->GetPlayer()->m_QuestStateLevel == 5)
-			{
-				if(HasFlag(pChr) != -1) //has flag
-				{
-					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCid());
-				}
-				else
-				{
-					GameServer()->QuestFailed(pChr->GetPlayer()->GetCid());
-				}
-			}
-			else if(pChr->GetPlayer()->m_QuestStateLevel == 9)
-			{
-				if(!pChr->GetPlayer()->m_QuestFailed)
-				{
-					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCid());
-				}
-			}
-		}
-
-		pChr->m_DummyFinished = true;
-		pChr->m_DummyFinishes++;
-
-		/*
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", pChr->GetPlayer()->GetXP());
-		GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCid(), 0);
-		*/
+		pChr->OnTileFinish();
 	}
 
 	if(((TileIndex == TILE_DDPP_END) || (TileFIndex == TILE_DDPP_END)) && !pChr->m_DDPP_Finished)
 	{
-		char aBuf[256];
-		if(pChr->m_DDRaceState == DDRACE_STARTED)
-		{
-			float Time = (float)(Server()->Tick() - Teams().GetStartTime(pPlayer)) / ((float)Server()->TickSpeed());
-			if(Time < 0.000001f)
-				return;
-			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%.2f]!", Server()->ClientName(pPlayer->GetCid()), (int)Time / 60, Time - ((int)Time / 60 * 60));
-			GameServer()->SendChat(-1, TEAM_ALL, aBuf);
-
-			// quest
-			if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
-			{
-				if(pPlayer->m_QuestStateLevel == 7)
-				{
-					if((int)Time > g_Config.m_SvQuestSpecialRaceTime)
-					{
-						GameServer()->QuestFailed(pPlayer->GetCid());
-					}
-					else
-					{
-						GameServer()->QuestCompleted(pPlayer->GetCid());
-					}
-				}
-			}
-		}
-		else
-		{
-			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCid()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
-			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(pPlayer->GetCid()));
-			GameServer()->SendChat(-1, TEAM_ALL, aBuf);
-
-			// quest
-			if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
-			{
-				if(pPlayer->m_QuestStateLevel == 7)
-				{
-					if(Server()->Tick() > pChr->m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
-					{
-						GameServer()->QuestFailed(pPlayer->GetCid());
-					}
-					else
-					{
-						GameServer()->QuestCompleted(pPlayer->GetCid());
-					}
-				}
-			}
-		}
-
-		if(pPlayer->m_QuestState == CPlayer::QUEST_RACE)
-		{
-			if(pPlayer->m_QuestStateLevel == 6)
-			{
-				GameServer()->QuestCompleted(pPlayer->GetCid());
-			}
-			else if(pPlayer->m_QuestStateLevel == 8) //backwards
-			{
-				GameServer()->QuestAddProgress(pPlayer->GetCid(), 2, 1);
-			}
-		}
-
-		pChr->m_DDPP_Finished = true;
+		pChr->OnTileSpecialFinish();
 	}
 
 	//Money Tiles

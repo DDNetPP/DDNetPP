@@ -272,9 +272,6 @@ public:
 	//bank
 	bool m_InBank;
 
-	//jail
-	bool m_InJailOpenArea;
-
 	//bomb
 	bool m_IsBombing;
 	bool m_IsBomb;
@@ -348,10 +345,16 @@ public:
 	bool m_HomingMissile;
 
 	// character_tiles.cpp
+
+	bool IsOnTile(int Tile) const;
+
 	void OnTileMoney();
 	void OnTileMoneyPolice();
 	void OnTileMoneyPlus();
 	void OnTileMoneyDouble();
+	void OnTileStart();
+	void OnTileFinish();
+	void OnTileSpecialFinish();
 
 private:
 #ifndef IN_CLASS_CHARACTER

@@ -1004,8 +1004,6 @@ void CCharacter::DDPP_Tick()
 			}
 		}
 	}
-	//fast resets
-	m_InJailOpenArea = false;
 }
 
 void CCharacter::DDPP_FlagTick()
