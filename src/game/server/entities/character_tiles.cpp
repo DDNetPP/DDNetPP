@@ -1,6 +1,7 @@
 // ddnet++ tile character stuff
 // see also ddnetpp/tiles.cpp
 
+#include <base/system.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
@@ -140,103 +141,6 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// 	}
 
 	// }
-
-	// cosmetic tiles
-	//rainbow
-	if(((m_TileIndex == TILE_RAINBOW) || (m_TileFIndex == TILE_RAINBOW)))
-	{
-		if(((m_LastIndexTile == TILE_RAINBOW) || (m_LastIndexFrontTile == TILE_RAINBOW)))
-			return false;
-
-		if((m_Rainbow) || (m_pPlayer->m_InfRainbow))
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost rainbow!");
-			m_Rainbow = false;
-			m_pPlayer->m_InfRainbow = false;
-		}
-		else
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got rainbow!");
-			m_Rainbow = true;
-		}
-	}
-
-	//bloody
-	if(((m_TileIndex == TILE_BLOODY) || (m_TileFIndex == TILE_BLOODY)))
-	{
-		if(((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
-			return false;
-
-		if(HasBloody())
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost bloody!");
-			m_Bloody = false;
-			m_StrongBloody = false;
-			m_pPlayer->m_InfBloody = false;
-		}
-		else
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got bloody!");
-			m_Bloody = true;
-		}
-	}
-
-	// atom
-	if(((m_TileIndex == TILE_ATOM) || (m_TileFIndex == TILE_ATOM)))
-	{
-		if(((m_LastIndexTile == TILE_ATOM) || (m_LastIndexFrontTile == TILE_ATOM)))
-			return false;
-
-		if((m_Atom) || (m_pPlayer->m_InfAtom))
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost atom!");
-			m_Atom = false;
-			m_pPlayer->m_InfAtom = false;
-		}
-		else
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got atom!");
-			m_Atom = true;
-		}
-	}
-
-	// trail
-	if(((m_TileIndex == TILE_TRAIL) || (m_TileFIndex == TILE_TRAIL)))
-	{
-		if(((m_LastIndexTile == TILE_TRAIL) || (m_LastIndexFrontTile == TILE_TRAIL)))
-			return false;
-
-		if((m_Trail) || (m_pPlayer->m_InfTrail))
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost trail!");
-			m_Trail = false;
-			m_pPlayer->m_InfTrail = false;
-		}
-		else
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got trail!");
-			m_Trail = true;
-		}
-	}
-
-	// spread gun
-	if(((m_TileIndex == TILE_SPREAD_GUN) || (m_TileFIndex == TILE_SPREAD_GUN)))
-	{
-		if(((m_LastIndexTile == TILE_SPREAD_GUN) || (m_LastIndexFrontTile == TILE_SPREAD_GUN)))
-			return false;
-
-		if((m_autospreadgun) || (m_pPlayer->m_InfAutoSpreadGun))
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost spread gun!");
-			m_autospreadgun = false;
-			m_pPlayer->m_InfAutoSpreadGun = false;
-		}
-		else
-		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got spread gun!");
-			m_autospreadgun = true;
-		}
-	}
 
 	m_LastIndexTile = m_TileIndex; // do not remove
 	m_LastIndexFrontTile = m_TileFIndex; // do not remove

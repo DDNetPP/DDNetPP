@@ -1,6 +1,7 @@
 #include <game/mapitems.h>
 #include <game/server/gamemodes/DDRace.h>
 
+#include "base/system.h"
 #include "ddnetpp.h"
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
@@ -44,6 +45,7 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 			return;
 
 	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
+	HandleCosmeticTiles(pChr);
 
 	CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
 }
@@ -102,5 +104,109 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", pChr->GetPlayer()->GetXP());
 		GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCid(), 0);
 		*/
+	}
+}
+
+void CGameControllerDDNetPP::HandleCosmeticTiles(CCharacter *pChr)
+{
+	int TileIndex = pChr->m_TileIndex;
+	int FrontTileIndex = pChr->m_TileFIndex;
+	CPlayer *pPlayer = pChr->GetPlayer();
+
+	// cosmetic tiles
+	// rainbow
+	if(((TileIndex == TILE_RAINBOW) || (FrontTileIndex == TILE_RAINBOW)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_RAINBOW) || (pChr->m_LastIndexFrontTile == TILE_RAINBOW)))
+			return;
+
+		if((pChr->m_Rainbow) || (pChr->GetPlayer()->m_InfRainbow))
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You lost rainbow!");
+			pChr->m_Rainbow = false;
+			pChr->GetPlayer()->m_InfRainbow = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You got rainbow!");
+			pChr->m_Rainbow = true;
+		}
+	}
+
+	// bloody
+	if(((TileIndex == TILE_BLOODY) || (FrontTileIndex == TILE_BLOODY)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_BLOODY) || (pChr->m_LastIndexFrontTile == TILE_BLOODY)))
+			return;
+
+		if(pChr->HasBloody())
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You lost bloody!");
+			pChr->m_Bloody = false;
+			pChr->m_StrongBloody = false;
+			pChr->GetPlayer()->m_InfBloody = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You got bloody!");
+			pChr->m_Bloody = true;
+		}
+	}
+
+	// atom
+	if(((TileIndex == TILE_ATOM) || (FrontTileIndex == TILE_ATOM)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_ATOM) || (pChr->m_LastIndexFrontTile == TILE_ATOM)))
+			return;
+
+		if(pChr->m_Atom || pChr->GetPlayer()->m_InfAtom)
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You lost atom!");
+			pChr->m_Atom = false;
+			pChr->GetPlayer()->m_InfAtom = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You got atom!");
+			pChr->m_Atom = true;
+		}
+	}
+
+	// trail
+	if(((TileIndex == TILE_TRAIL) || (FrontTileIndex == TILE_TRAIL)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_TRAIL) || (pChr->m_LastIndexFrontTile == TILE_TRAIL)))
+			return;
+
+		if(pChr->m_Trail || pChr->GetPlayer()->m_InfTrail)
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You lost trail!");
+			pChr->m_Trail = false;
+			pChr->GetPlayer()->m_InfTrail = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You got trail!");
+			pChr->m_Trail = true;
+		}
+	}
+
+	// spread gun
+	if(((TileIndex == TILE_SPREAD_GUN) || (FrontTileIndex == TILE_SPREAD_GUN)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_SPREAD_GUN) || (pChr->m_LastIndexFrontTile == TILE_SPREAD_GUN)))
+			return;
+
+		if(pChr->m_autospreadgun || pPlayer->m_InfAutoSpreadGun)
+		{
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "You lost spread gun!");
+			pChr->m_autospreadgun = false;
+			pPlayer->m_InfAutoSpreadGun = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "You got spread gun!");
+			pChr->m_autospreadgun = true;
+		}
 	}
 }
