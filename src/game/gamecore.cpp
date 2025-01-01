@@ -195,7 +195,7 @@ void CCharacterCore::Reset()
 
 void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 {
-	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(UseInput ? IsSwitchActiveCb : 0, this, m_Pos);
+	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(UseInput ? IsSwitchActiveCb : 0, this, m_Pos, 18.f, -1, &m_DDNetPP.m_RestrictionData);
 	m_TriggeredEvents = 0;
 
 	// get ground state

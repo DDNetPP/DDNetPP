@@ -1,6 +1,9 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include "game/mapitems_ddpp.h"
+
+#include <game/collision_ddpp.h>
+#include <game/mapitems_ddpp.h>
+
 #include <base/math.h>
 #include <base/system.h>
 #include <base/vmath.h>
@@ -201,7 +204,7 @@ enum
 	NUM_MR_DIRS
 };
 
-static int GetMoveRestrictionsRaw(int Direction, int Tile, int Flags)
+static int GetMoveRestrictionsRaw(int Direction, int Tile, int Flags, CDDNetPPMoveRestrictionData *pDDNetPP)
 {
 	Flags = Flags & (TILEFLAG_XFLIP | TILEFLAG_YFLIP | TILEFLAG_ROTATE);
 	switch(Tile)
@@ -237,6 +240,12 @@ static int GetMoveRestrictionsRaw(int Direction, int Tile, int Flags)
 		break;
 	case TILE_STOPA:
 		return CANTMOVE_LEFT | CANTMOVE_RIGHT | CANTMOVE_UP | CANTMOVE_DOWN;
+	case TILE_ROOM:
+		if(pDDNetPP && !pDDNetPP->m_CanEnterRoom)
+		{
+			pDDNetPP->m_RoomEnterBlocked = true;
+			return CANTMOVE_LEFT | CANTMOVE_RIGHT | CANTMOVE_UP | CANTMOVE_DOWN;
+		}
 	}
 	return 0;
 }
@@ -255,9 +264,9 @@ static int GetMoveRestrictionsMask(int Direction)
 	return 0;
 }
 
-static int GetMoveRestrictions(int Direction, int Tile, int Flags)
+static int GetMoveRestrictions(int Direction, int Tile, int Flags, CDDNetPPMoveRestrictionData *pDDNetPP)
 {
-	int Result = GetMoveRestrictionsRaw(Direction, Tile, Flags);
+	int Result = GetMoveRestrictionsRaw(Direction, Tile, Flags, pDDNetPP);
 	// Generally, stoppers only have an effect if they block us from moving
 	// *onto* them. The one exception is one-way blockers, they can also
 	// block us from moving if we're on top of them.
@@ -268,7 +277,7 @@ static int GetMoveRestrictions(int Direction, int Tile, int Flags)
 	return Result & GetMoveRestrictionsMask(Direction);
 }
 
-int CCollision::GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void *pUser, vec2 Pos, float Distance, int OverrideCenterTileIndex) const
+int CCollision::GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void *pUser, vec2 Pos, float Distance, int OverrideCenterTileIndex, CDDNetPPMoveRestrictionData *pDDNetPP) const
 {
 	static const vec2 DIRECTIONS[NUM_MR_DIRS] =
 		{
@@ -301,7 +310,7 @@ int CCollision::GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void 
 				Tile = GetFrontTileIndex(ModMapIndex);
 				Flags = GetFrontTileFlags(ModMapIndex);
 			}
-			Restrictions |= ::GetMoveRestrictions(d, Tile, Flags);
+			Restrictions |= ::GetMoveRestrictions(d, Tile, Flags, pDDNetPP);
 		}
 		if(pfnSwitchActive)
 		{
@@ -309,7 +318,7 @@ int CCollision::GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void 
 			GetDoorTile(ModMapIndex, &DoorTile);
 			if(pfnSwitchActive(DoorTile.m_Number, pUser))
 			{
-				Restrictions |= ::GetMoveRestrictions(d, DoorTile.m_Index, DoorTile.m_Flags);
+				Restrictions |= ::GetMoveRestrictions(d, DoorTile.m_Index, DoorTile.m_Flags, pDDNetPP);
 			}
 		}
 	}
@@ -879,6 +888,12 @@ bool CCollision::TileExistsNext(int Index) const
 	int TileOnTheRight = (Index + 1 < m_Width * m_Height) ? Index + 1 : Index;
 	int TileBelow = (Index + m_Width < m_Width * m_Height) ? Index + m_Width : Index;
 	int TileAbove = (Index - m_Width > 0) ? Index - m_Width : Index;
+
+	// ddnet++
+	if(m_pTiles[TileOnTheRight].m_Index == TILE_ROOM || m_pTiles[TileOnTheLeft].m_Index == TILE_ROOM)
+		return true;
+	if(m_pTiles[TileBelow].m_Index == TILE_ROOM || m_pTiles[TileAbove].m_Index == TILE_ROOM)
+		return true;
 
 	if((m_pTiles[TileOnTheRight].m_Index == TILE_STOP && m_pTiles[TileOnTheRight].m_Flags == ROTATION_270) || (m_pTiles[TileOnTheLeft].m_Index == TILE_STOP && m_pTiles[TileOnTheLeft].m_Flags == ROTATION_90))
 		return true;

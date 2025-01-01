@@ -1,4 +1,5 @@
 #include <base/vmath.h>
+#include <game/collision_ddpp.h>
 
 class CCharacterCoreDDPP
 {
@@ -17,4 +18,6 @@ public:
 
 	int m_LastHookedPlayer;
 	int m_LastHookedTick;
+
+	CDDNetPPMoveRestrictionData m_RestrictionData;
 };

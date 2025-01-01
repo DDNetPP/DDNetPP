@@ -40,6 +40,11 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 		CharacterDropFlag(pChr);
 	}
 
+	if(pChr->Core()->m_DDNetPP.m_RestrictionData.m_RoomEnterBlocked)
+	{
+		pChr->OnTileRoom();
+	}
+
 	for(auto &Minigame : GameServer()->m_vMinigames)
 		if(Minigame->HandleCharacterTiles(pChr, MapIndex))
 			return;

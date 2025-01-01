@@ -237,7 +237,7 @@ bool CCharacter::IsGrounded()
 	if(Collision()->CheckPoint(m_Pos.x - GetProximityRadius() / 2, m_Pos.y + GetProximityRadius() / 2 + 5))
 		return true;
 
-	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, GetProximityRadius() / 2 + 4), 0.0f);
+	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, GetProximityRadius() / 2 + 4), 0.0f, &m_Core.m_DDNetPP.m_RestrictionData);
 	return (MoveRestrictionsBelow & CANTMOVE_DOWN) != 0;
 }
 
@@ -1589,7 +1589,7 @@ void CCharacter::HandleTiles(int Index)
 	//int PureMapIndex = Collision()->GetPureMapIndex(m_Pos);
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
 	m_TileFIndex = Collision()->GetFrontTileIndex(MapIndex);
-	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos, 18.0f, MapIndex);
+	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos, 18.0f, MapIndex, &m_Core.m_DDNetPP.m_RestrictionData);
 	if(Index < 0)
 	{
 		m_LastRefillJumps = false;

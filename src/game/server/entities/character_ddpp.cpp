@@ -730,6 +730,8 @@ void CCharacter::DDPP_Tick()
 			CarryId = Flag->GetCarrier()->GetPlayer()->GetCid();
 		m_Core.m_DDNetPP.SetFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
+	// do we really have to compute that every tick?
+	m_Core.m_DDNetPP.m_RestrictionData.m_CanEnterRoom = CanEnterRoom();
 
 	if(m_RandomCosmetics)
 	{
@@ -975,12 +977,6 @@ void CCharacter::DDPP_Tick()
 			m_isDmg = false;
 			m_Health = 10;
 		}
-	}
-
-	//Marcella's room code (used to slow down chat message spam)
-	if(IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
-	{
-		m_WasInRoom = false;
 	}
 
 	if(Server()->Tick() % 200 == 0) //ddpp public slow tick

@@ -198,48 +198,13 @@ void CCharacter::OnTileShop()
 
 void CCharacter::OnTileRoom()
 {
-	if(CanEnterRoom())
-		return;
+	Core()->m_DDNetPP.m_RestrictionData.m_RoomEnterBlocked = false;
 
-	//ChillerDragon upgrade to not cheat the map or stuff and tele too far
-
-	//if (distance(m_Core.m_Pos, m_PrevSavePos) > 10 * 32)
-	//{
-	//dbg_msg("debug","Player's last pos too nearby distance: INT %d FLOAT %2.f", distance(m_Core.m_Pos, m_PrevSavePos), distance(m_Core.m_Pos, m_PrevSavePos));
-	if(m_Core.m_Vel.x > 0)
-	{
-		m_Core.m_Pos = vec2(m_Core.m_Pos.x - (1 * 32), m_Core.m_Pos.y);
-		m_Pos = vec2(m_Pos.x - (1 * 32), m_Pos.y);
-		m_Core.m_Vel = vec2(-3, 0);
-	}
-	else
-	{
-		m_Core.m_Pos = vec2(m_Core.m_Pos.x + (1 * 32), m_Core.m_Pos.y);
-		m_Pos = vec2(m_Pos.x + (1 * 32), m_Pos.y);
-		m_Core.m_Vel = vec2(+3, 0);
-	}
-	//}
-	//else
-	//{
-	//	dbg_msg("debug","distance ok loading PrevSavePos distance: INT %d FLOAT %2.f", distance(m_Core.m_Pos, m_PrevSavePos), distance(m_Core.m_Pos, m_PrevSavePos));
-
-	//	m_Core.m_Pos = m_PrevSavePos;
-	//	m_Pos = m_PrevSavePos;
-	//	m_PrevPos = m_PrevSavePos;
-	//	m_Core.m_Vel = vec2(0, 0);
-	//	m_Core.m_HookedPlayer = -1;
-	//	m_Core.m_HookState = HOOK_RETRACTED;
-	//	m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
-	//	GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
-	//	m_Core.m_HookPos = m_Core.m_Pos;
-	//}
-
-	if(!m_WasInRoom)
+	if(time_get() > m_NextCantEnterRoomMessage)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+		m_NextCantEnterRoomMessage = time_get() + time_freq() * 10;
 	}
-
-	m_WasInRoom = true;
 }
 
 void CCharacter::OnTileStart()

@@ -102,7 +102,6 @@ public:
 	vec2 GetVel() { return m_Core.m_Vel; }
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
 	bool m_OnFire;
-	bool m_WasInRoom;
 	void DDPP_Tick();
 	void DDPP_FlagTick();
 	void CosmeticTick();
@@ -344,6 +343,7 @@ public:
 
 	bool m_HomingMissile;
 
+	int64_t m_NextCantEnterRoomMessage = 0;
 	bool CanEnterRoom();
 
 	// character_tiles.cpp

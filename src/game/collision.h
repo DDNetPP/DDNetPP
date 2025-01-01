@@ -3,6 +3,8 @@
 #ifndef GAME_COLLISION_H
 #define GAME_COLLISION_H
 
+#include <game/collision_ddpp.h>
+
 #include <base/vmath.h>
 #include <engine/shared/protocol.h>
 
@@ -65,10 +67,10 @@ public:
 	int GetIndex(vec2 PrevPos, vec2 Pos) const;
 	int GetFrontIndex(int x, int y) const;
 
-	int GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void *pUser, vec2 Pos, float Distance = 18.0f, int OverrideCenterTileIndex = -1) const;
-	int GetMoveRestrictions(vec2 Pos, float Distance = 18.0f) const
+	int GetMoveRestrictions(CALLBACK_SWITCHACTIVE pfnSwitchActive, void *pUser, vec2 Pos, float Distance = 18.0f, int OverrideCenterTileIndex = -1, CDDNetPPMoveRestrictionData *pDDNetPP = nullptr) const;
+	int GetMoveRestrictions(vec2 Pos, float Distance = 18.0f, CDDNetPPMoveRestrictionData *pDDNetPP = nullptr) const
 	{
-		return GetMoveRestrictions(nullptr, nullptr, Pos, Distance);
+		return GetMoveRestrictions(nullptr, nullptr, Pos, Distance, -1, pDDNetPP);
 	}
 
 	int GetTile(int x, int y) const;
