@@ -110,7 +110,7 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, in
 		pChr->OnTileShop();
 	}
 
-	if(TileIndex == TILE_BANK_IN || TileFIndex == TILE_BANK_IN)
+	if(TileIndex == TILE_BANK || TileFIndex == TILE_BANK)
 	{
 		pChr->OnTileBank();
 	}

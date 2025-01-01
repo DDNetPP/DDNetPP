@@ -1,28 +1,26 @@
 // ddnet++ generic character stuff
 
+#include <base/ddpp_logs.h>
 #include <base/math_ddpp.h>
 #include <base/system.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
+#include <game/mapitems.h>
+#include <game/mapitems_ddpp.h>
+#include <game/server/ddpp/shop.h>
+#include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
-#include <game/server/ddpp/shop.h>
-
-#include <cinttypes>
-
-#include "base/ddpp_logs.h"
 #include "flag.h"
 #include "homing_missile.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
 
-#include <game/mapitems.h>
-
-#include <game/server/entities/laser_text.h>
+#include <cinttypes>
 
 #include "character.h"
 
@@ -1011,7 +1009,7 @@ void CCharacter::DDPP_Tick()
 	{
 		if(m_InBank)
 		{
-			if(m_TileIndex != TILE_BANK_IN && m_TileFIndex != TILE_BANK_IN)
+			if(!IsOnTile(TILE_BANK))
 			{
 				GameServer()->SendBroadcast(" ", m_pPlayer->GetCid(), 0);
 				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
