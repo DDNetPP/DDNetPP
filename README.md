@@ -93,7 +93,12 @@ We added all the features missing in ddnet. For example:
 - xp
 - money
 - block system (count kills and stats)
-- minigames (bomb/fng/blockwave/survival)
+- minigames
+  + [block tournaments](./docs/block_tournaments.md)
+  + bomb
+  + fng
+  + blockwave
+  + survival
 - quests
 - [shop](./docs/shop.md)
 - police
