@@ -1,0 +1,26 @@
+// DDNet++ minigame
+
+#ifndef GAME_SERVER_MINIGAMES_BLOCKWAVE_H
+#define GAME_SERVER_MINIGAMES_BLOCKWAVE_H
+
+#include "minigame_base.h"
+
+class CBlockwave : public CMinigame
+{
+public:
+	using CMinigame::CMinigame;
+
+	// void OnInit() override;
+	// void Tick() override;
+	// void SlowTick() override;
+	// void CharacterTick(CCharacter *pChr) override;
+	// bool AllowSelfKill(int ClientId) override;
+	// void OnDeath(CCharacter *pChr, int Killer) override;
+	// void PostSpawn(CCharacter *pChr) override;
+	// bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
+	// bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) override;
+
+	bool IsActive(int ClientId) override;
+};
+
+#endif

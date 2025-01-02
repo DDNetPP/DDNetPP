@@ -10,6 +10,14 @@
 
 #include "../gamecontext.h"
 
+#include "blockwave.h"
+
+bool CBlockwave::IsActive(int ClientId)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	return pPlayer->m_IsBlockWaving;
+}
+
 void CGameContext::BlockWaveAddBots()
 {
 	int OccSlots = CountConnectedPlayers();
@@ -163,13 +171,13 @@ void CGameContext::BlockWaveGameTick()
 		//check for rip round or win round
 		if(Server()->Tick() % 60 == 0)
 		{
-			bool ripall = true;
-			bool won = true;
+			bool RipAll = true;
+			bool Won = true;
 			for(auto &Player : m_apPlayers)
 			{
 				if(Player && Player->m_IsBlockWaving && !Player->m_IsBlockWaveDead && !Player->m_IsDummy)
 				{
-					ripall = false;
+					RipAll = false;
 					break;
 				}
 			}
@@ -177,15 +185,15 @@ void CGameContext::BlockWaveGameTick()
 			{
 				if(Player && Player->m_IsBlockWaving && !Player->m_IsBlockWaveDead && Player->m_IsDummy)
 				{
-					won = false;
+					Won = false;
 					break;
 				}
 			}
-			if(ripall)
+			if(RipAll)
 			{
 				BlockWaveStartNewGame();
 			}
-			if(won)
+			if(Won)
 			{
 				BlockWaveWonRound();
 			}

@@ -25,6 +25,7 @@
 
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
+#include "minigames/blockwave.h"
 #include "minigames/instagib.h"
 
 #include "ddpp/dummymode.h"
@@ -357,6 +358,7 @@ public:
 	CBlockTournament *m_pBlockTournament;
 	CBalance *m_pBalance;
 	CInstagib *m_pInstagib;
+	CBlockwave *m_pBlockwave;
 
 	std::vector<CMinigame *> m_vMinigames;
 

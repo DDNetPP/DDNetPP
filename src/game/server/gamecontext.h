@@ -16,6 +16,7 @@
 #include "ddpp/dummymode.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
+#include "minigames/blockwave.h"
 #include "minigames/instagib.h"
 #include "minigames/minigame_base.h"
 #include <atomic>

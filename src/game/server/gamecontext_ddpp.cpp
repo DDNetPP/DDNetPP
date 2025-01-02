@@ -9,16 +9,15 @@
 #include <engine/shared/linereader.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
+#include <game/server/ddpp/accounts.h>
+#include <game/server/ddpp/enums.h>
+#include <game/server/ddpp/loc.h>
+#include <game/server/ddpp/shop.h>
+#include <game/server/minigames/balance.h>
+#include <game/server/minigames/block_tournament.h>
+#include <game/server/minigames/blockwave.h>
+#include <game/server/minigames/instagib.h>
 #include <game/server/teams.h>
-
-#include "ddpp/accounts.h"
-#include "ddpp/loc.h"
-#include "ddpp/shop.h"
-
-#include "game/server/ddpp/enums.h"
-#include "minigames/balance.h"
-#include "minigames/block_tournament.h"
-#include "minigames/instagib.h"
 
 #include "save.h"
 
@@ -44,9 +43,12 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pLoc = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
+	// minigames
 	m_pBlockTournament = nullptr;
 	m_pBalance = nullptr;
 	m_pInstagib = nullptr;
+	m_pBlockwave = nullptr;
+	// other
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -357,9 +359,12 @@ void CGameContext::OnInitDDPP()
 		m_pBalance = new CBalance(this);
 	if(!m_pInstagib)
 		m_pInstagib = new CInstagib(this);
+	if(!m_pBlockwave)
+		m_pBlockwave = new CBlockwave(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
 	m_vMinigames.push_back(m_pInstagib);
+	m_vMinigames.push_back(m_pBlockwave);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();

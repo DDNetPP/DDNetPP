@@ -2855,6 +2855,7 @@ if(SERVER)
     minigames/block_tournament.cpp
     minigames/block_tournament.h
     minigames/blockwave.cpp
+    minigames/blockwave.h
     minigames/bomb.cpp
     minigames/chidraqul3.cpp
     minigames/instagib.cpp
