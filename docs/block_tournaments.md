@@ -1,6 +1,6 @@
 # block tournaments
 
-You can place a block tournament tile (index 131) in the map. Then make sure ``sv_allow_block_tourna`` is set to ``1``.
+You can place a block tournament spawn tile (index 131) in the map. Then make sure ``sv_allow_block_tourna`` is set to ``1``.
 A admin or a vote can use the command ``start_block_tournament`` to start a tournament.
 Then all players have to opt in using the **/join** chat command.
 
