@@ -8,6 +8,7 @@
 #include "entities/character.h"
 #include <game/generated/protocol.h>
 #include <game/server/ddpp/enums.h>
+#include <game/server/minigames/one_vs_one_block.h>
 #include <game/version.h>
 
 #include "ddpp/accounts.h"
@@ -184,24 +185,29 @@ public:
 	//int m_BombColor;
 	//bool m_bwff; //black whithe flip flip
 
-	//bomb
+	// bomb
 	int m_BombTicksUnready;
 
-	//block tourna
-
+	// block tourna
 	bool m_IsBlockTourning;
 	bool m_IsBlockTourningDead;
 	bool m_IsBlockTourningInArena;
 
 	bool m_IsBlockDeathmatch;
 
-	//blockwave
+	// block 1vs1
+	// the player we sent a request too
+	int m_BlockOneVsOneRequestedId = -1;
+	bool m_IsBlockOneVsOneing = false;
+	int64_t m_BlockOneVsOneInviteExpire = 0;
+	COneVsOneBlock::CGameState *m_pBlockOneVsOneState = nullptr;
 
+	// blockwave
 	bool m_IsBlockWaving;
 	bool m_IsBlockWaveDead;
 	bool m_IsBlockWaveWaiting;
 
-	//chidraqul3 (minigame)
+	// chidraqul3 (minigame)
 	void chidraqul3_GameTick();
 	bool JoinMultiplayer();
 	bool m_C3_UpdateFrame;
@@ -528,7 +534,7 @@ public:
 		The minigame score can/should be used for kills
 		in fng/dm/gctf/block/bomb and so on
 	*/
-	int m_MinigameScore;
+	int m_MinigameScore = 0;
 
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;

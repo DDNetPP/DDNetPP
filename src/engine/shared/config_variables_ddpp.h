@@ -205,6 +205,9 @@ MACRO_CONFIG_INT(SvBlockTournaMaxPerIp, sv_block_tourna_max_per_ip, 4, 1, 64, CF
 //block deathmatch
 MACRO_CONFIG_INT(SvBlockDMarena, sv_block_dm_arena, 1, 1, 2, CFGFLAG_SERVER, "1=arena1 2=arena2")
 
+// block 1v1
+MACRO_CONFIG_INT(SvAllowBlockOneVsOne, sv_allow_block_1vs1, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow /1vs1 command")
+
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame 2=only logged in")
 

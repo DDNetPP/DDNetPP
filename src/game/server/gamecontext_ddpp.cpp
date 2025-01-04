@@ -17,6 +17,7 @@
 #include <game/server/minigames/block_tournament.h>
 #include <game/server/minigames/blockwave.h>
 #include <game/server/minigames/instagib.h>
+#include <game/server/minigames/one_vs_one_block.h>
 #include <game/server/teams.h>
 
 #include "save.h"
@@ -48,6 +49,7 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pBalance = nullptr;
 	m_pInstagib = nullptr;
 	m_pBlockwave = nullptr;
+	m_pOneVsOneBlock = nullptr;
 	// other
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
@@ -361,10 +363,13 @@ void CGameContext::OnInitDDPP()
 		m_pInstagib = new CInstagib(this);
 	if(!m_pBlockwave)
 		m_pBlockwave = new CBlockwave(this);
+	if(!m_pOneVsOneBlock)
+		m_pOneVsOneBlock = new COneVsOneBlock(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
 	m_vMinigames.push_back(m_pInstagib);
 	m_vMinigames.push_back(m_pBlockwave);
+	m_vMinigames.push_back(m_pOneVsOneBlock);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();
@@ -1654,40 +1659,42 @@ void CGameContext::DDPP_SlowTick()
 	int NumQuesting = 0;
 	int TotalPlayers = 0;
 	int NumAdventureBots = 0;
-	for(auto &Player : m_apPlayers)
+	for(CPlayer *pPlayer : m_apPlayers)
 	{
-		if(!Player)
+		if(!pPlayer)
 			continue;
 
-		int PlayerId = Player->GetCid();
+		for(auto &Minigame : m_vMinigames)
+			Minigame->PlayerSlowTick(pPlayer);
+		int PlayerId = pPlayer->GetCid();
 		TotalPlayers++;
 		CheckDeleteLoginBanEntry(PlayerId);
 		CheckDeleteRegisterBanEntry(PlayerId);
 		CheckDeleteNamechangeMuteEntry(PlayerId);
-		if(Player->IsQuesting())
+		if(pPlayer->IsQuesting())
 		{
 			NumQuesting++;
-			if(Player->m_QuestPlayerId != -1) //if player is on a <specfic player> quest
+			if(pPlayer->m_QuestPlayerId != -1) //if player is on a <specfic player> quest
 			{
-				if(!m_apPlayers[Player->m_QuestPlayerId])
+				if(!m_apPlayers[pPlayer->m_QuestPlayerId])
 				{
 					SendChatTarget(PlayerId, "[QUEST] Looks like your quest destination left the server.");
 					QuestFailed(PlayerId);
 				}
-				else if(m_apPlayers[Player->m_QuestPlayerId]->GetTeam() == TEAM_SPECTATORS)
+				else if(m_apPlayers[pPlayer->m_QuestPlayerId]->GetTeam() == TEAM_SPECTATORS)
 				{
 					SendChatTarget(PlayerId, "[QUEST] Looks like your quest destination is a spectator.");
 					QuestFailed(PlayerId);
 				}
 			}
 		}
-		if(Player->m_IsSurvivaling)
+		if(pPlayer->m_IsSurvivaling)
 		{
 			StopSurvival = false;
 		}
-		if(Player->m_IsDummy)
+		if(pPlayer->m_IsDummy)
 		{
-			if(Player->DummyMode() == DUMMYMODE_ADVENTURE)
+			if(pPlayer->DummyMode() == DUMMYMODE_ADVENTURE)
 				NumAdventureBots++;
 		}
 	}

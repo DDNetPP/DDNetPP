@@ -1,8 +1,8 @@
 // DDNet++ minigame base
 
 #include <game/server/gamecontext.h>
-
-#include "save_ddpp.h"
+#include <game/server/gamecontroller.h>
+#include <game/server/minigames/save_ddpp.h>
 
 #include "minigame_base.h"
 
@@ -31,6 +31,18 @@ IServer *CMinigame::Server()
 CCollision *CMinigame::Collision()
 {
 	return GameServer()->Collision();
+}
+
+IGameController *CMinigame::Controller()
+{
+	return GameServer()->m_pController;
+}
+
+void CMinigame::SendChatTarget(int To, const char *pText, int VersionFlags)
+{
+	if(VersionFlags == -1)
+		VersionFlags = CGameContext::FLAG_SIX | CGameContext::FLAG_SIXUP;
+	GameServer()->SendChatTarget(To, pText, VersionFlags);
 }
 
 void CMinigame::CleanupMinigame()

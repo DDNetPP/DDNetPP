@@ -19,6 +19,7 @@
 #include "minigames/blockwave.h"
 #include "minigames/instagib.h"
 #include "minigames/minigame_base.h"
+#include "minigames/one_vs_one_block.h"
 #include <atomic>
 #include <engine/http.h>
 #include <game/server/ddpp/enums.h>

@@ -15,6 +15,7 @@
 #include <game/server/entities/laser_text.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/minigames/minigame_base.h>
+#include <game/server/player.h>
 #include <game/server/teams.h>
 #include <game/version.h>
 
@@ -7729,8 +7730,54 @@ void CGameContext::ConBlockWave(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[BlockWave] uknown parameter. check '/blockwave cmdlist'");
+		pSelf->SendChatTarget(pResult->m_ClientId, "[BlockWave] unknown parameter. check '/blockwave cmdlist'");
 	}
+}
+
+void CGameContext::ConLeave(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int ClientId = pResult->m_ClientId;
+	if(!CheckClientId(ClientId))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return;
+
+	for(CMinigame *pMinigame : pSelf->m_vMinigames)
+		if(pMinigame->IsActive(ClientId))
+			if(pMinigame->OnChatCmdLeave(pPlayer))
+				return; // can only leave one minigame at a time
+
+	// TODO: move to minigame callback
+	if(pPlayer->m_IsBlockDeathmatch)
+	{
+		pSelf->SendChatTarget(ClientId, "[BLOCK] you left the deathmatch arena!");
+		pSelf->SendChatTarget(ClientId, "[BLOCK] now kys :p");
+		pPlayer->m_IsBlockDeathmatch = false;
+		return;
+	}
+
+	// TODO: remove this message but first all minigames need /leave support
+	pSelf->SendChatTarget(ClientId, "leave what? xd");
+	pSelf->SendChatTarget(ClientId, "Do you want to leave the minigame you are playing?");
+	pSelf->SendChatTarget(ClientId, "then type '/<minigame> leave'");
+	pSelf->SendChatTarget(ClientId, "check '/minigames status' for the minigame command you need");
+}
+
+void CGameContext::ConOneVsOneBlock(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int ClientId = pResult->m_ClientId;
+	if(!CheckClientId(ClientId))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return;
+
+	pSelf->m_pOneVsOneBlock->OnChatCmdInvite(pPlayer, pResult->GetString(0));
 }
 
 void CGameContext::ConBroadcastServer(IConsole::IResult *pResult, void *pUserData)

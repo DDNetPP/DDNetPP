@@ -53,10 +53,11 @@ vec2 CCollision::GetTileAtNum(int Tile, int Num)
 	if(!m_vTiles[Tile].empty())
 	{
 		int Amount = m_vTiles[Tile].size();
-		if(Num > Amount)
+		if(Num >= Amount)
 		{
-			dbg_msg("GetTileAtNum", "Error: requested too high index %d/%d for tile=%d", Num, Amount, Tile);
-			Num = Amount;
+			// dbg_msg("GetTileAtNum", "Error: requested too high index %d/%d for tile=%d", Num, Amount, Tile);
+			// Num = Amount - 1;
+			return vec2(-1, -1);
 		}
 		return m_vTiles[Tile][Num];
 	}

@@ -1,3 +1,4 @@
+#include <base/system.h>
 #include <game/mapitems_ddpp.h>
 
 #include "ddnetpp.h"

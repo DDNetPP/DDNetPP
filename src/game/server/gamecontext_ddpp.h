@@ -27,6 +27,7 @@
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
 #include "minigames/instagib.h"
+#include "minigames/one_vs_one_block.h"
 
 #include "ddpp/dummymode.h"
 
@@ -359,6 +360,7 @@ public:
 	CBalance *m_pBalance;
 	CInstagib *m_pInstagib;
 	CBlockwave *m_pBlockwave;
+	COneVsOneBlock *m_pOneVsOneBlock;
 
 	std::vector<CMinigame *> m_vMinigames;
 
@@ -884,6 +886,8 @@ private:
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
 	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
 	static void ConBlockWave(IConsole::IResult *pResult, void *pUserData);
+	static void ConOneVsOneBlock(IConsole::IResult *pResult, void *pUserData);
+	static void ConLeave(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConSpawn(IConsole::IResult *pResult, void *pUserData);

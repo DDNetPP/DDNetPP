@@ -12,6 +12,7 @@
 class CCharacter;
 class CPlayer;
 class CGameContext;
+class IGameController;
 class CCollision;
 class IServer;
 class CSpawnEval;
@@ -22,13 +23,27 @@ class CMinigame
 {
 protected:
 	CGameContext *m_pGameServer;
-	CGameContext *GameServer();
-	IServer *Server();
-	CCollision *Collision();
 	CSaveTee *m_apSavedPositions[MAX_CLIENTS];
 	CSaveTeeDDPP *m_apSavedPositionsDDPP[MAX_CLIENTS];
 	bool m_aRestorePos[MAX_CLIENTS];
 	int m_State;
+
+	//
+	// convienience getters/wrappers in minigame scope
+	//
+
+	CGameContext *GameServer();
+	IServer *Server();
+	CCollision *Collision();
+	IGameController *Controller();
+
+	// wraps GameServer()->SendChatTarget()
+	// see also the minigame specific methods
+	// `SendChatAll()` and `SendBroadcastAll()`
+	//
+	// the -1 version flags is just a hack to get it to compile
+	// because it depends on a cgamecontext enum
+	void SendChatTarget(int To, const char *pText, int VersionFlags = -1);
 
 public:
 	CMinigame(CGameContext *pGameContext);
@@ -54,8 +69,15 @@ public:
 	// will be called every 600 ticks
 	virtual void SlowTick(){};
 
+	// will be called every 600 ticks for every player
+	virtual void PlayerSlowTick(CPlayer *pPlayer){};
+
 	// will be called every tick for every alive player
 	virtual void CharacterTick(CCharacter *pChr){};
+
+	// Called for all connected players once per tick
+	// the pPlayer pointer is never invalid
+	virtual void PlayerTick(CPlayer *pPlayer){};
 
 	// Will be called for every client that tries to selfkill
 	// can be overwritten to disallow selfkill during the minigame
@@ -66,6 +88,12 @@ public:
 
 	// Will be called after the CCharacter spawned
 	virtual void PostSpawn(CCharacter *pChr){};
+
+	// Will be called once for every player that connects
+	virtual void OnPlayerConnect(class CPlayer *pPlayer){};
+
+	// Will be called once for every player that disconnects
+	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason){};
 
 	// return true if you want to set a spawnpoint
 	// return false if you want to default to normal spawn
@@ -82,6 +110,11 @@ public:
 
 	// Returns true if the ClientId is playing the minigame
 	virtual bool IsActive(int ClientId) = 0;
+
+	// Called when the player IsActive() and typed /leave into the chat
+	// Returns true when the player did leave the game
+	// Returns false when the leave failed
+	virtual bool OnChatCmdLeave(CPlayer *pPlayer) { return true; };
 
 	// If your minigame is race based
 	// you probably want to overwrite this method

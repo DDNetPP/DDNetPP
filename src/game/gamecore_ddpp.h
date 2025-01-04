@@ -1,3 +1,6 @@
+#ifndef GAME_GAMECORE_DDPP_H
+#define GAME_GAMECORE_DDPP_H
+
 #include <base/vmath.h>
 #include <game/collision_ddpp.h>
 
@@ -21,3 +24,5 @@ public:
 
 	CDDNetPPMoveRestrictionData m_RestrictionData;
 };
+
+#endif

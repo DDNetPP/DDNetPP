@@ -2862,6 +2862,8 @@ if(SERVER)
     minigames/instagib.h
     minigames/minigame_base.cpp
     minigames/minigame_base.h
+    minigames/one_vs_one_block.cpp
+    minigames/one_vs_one_block.h
     minigames/save_ddpp.cpp
     minigames/save_ddpp.h
     minigames/survival.cpp

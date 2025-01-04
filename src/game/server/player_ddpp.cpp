@@ -9,6 +9,7 @@
 #include <game/server/ddpp/shop.h>
 #include <game/server/entities/dummy/minigame_balance.h>
 #include <game/server/gamecontroller.h>
+#include <game/server/minigames/minigame_base.h>
 
 #include "gamecontext.h"
 #include "player.h"
@@ -216,6 +217,9 @@ void CPlayer::DDPPTick()
 {
 	if(g_Config.m_SvOffDDPP)
 		return;
+
+	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+		pMinigame->PlayerTick(this);
 
 	if(m_AccountQueryResult != nullptr && m_AccountQueryResult->m_Completed)
 	{

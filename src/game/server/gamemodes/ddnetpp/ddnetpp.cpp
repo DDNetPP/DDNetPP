@@ -80,6 +80,10 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
 	// this code has to be manually kept in sync with CGameControllerDDrace::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
+
+	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+		pMinigame->OnPlayerConnect(pPlayer);
+
 	int ClientId = pPlayer->GetCid();
 
 	// init the player
@@ -139,6 +143,9 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 
 void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
+	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+		pMinigame->OnPlayerDisconnect(pPlayer, pReason);
+
 	if(pPlayer->m_PendingJoinMessage)
 		Silent = true;
 

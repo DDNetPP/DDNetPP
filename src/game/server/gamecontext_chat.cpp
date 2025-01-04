@@ -141,23 +141,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 
 	// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
 	// geb mal ein cmd /join spec   && /join fight (player)
-	if(!str_comp(pCommand, "leave"))
-	{
-		if(pPlayer->m_IsBlockDeathmatch)
-		{
-			SendChatTarget(ClientId, "[BLOCK] you left the deathmatch arena!");
-			SendChatTarget(ClientId, "[BLOCK] now kys :p");
-			pPlayer->m_IsBlockDeathmatch = false;
-		}
-		else
-		{
-			SendChatTarget(ClientId, "leave what? xd");
-			SendChatTarget(ClientId, "Do you want to leave the minigame you are playing?");
-			SendChatTarget(ClientId, "then type '/<minigame> leave'");
-			SendChatTarget(ClientId, "check '/minigames status' for the minigame command you need");
-		}
-	}
-	else if(!str_comp(pCommand, "testcommand3000"))
+	if(!str_comp(pCommand, "testcommand3000"))
 	{
 		if(Server()->GetAuthedState(ClientId) != AUTHED_ADMIN)
 		{
