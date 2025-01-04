@@ -231,7 +231,7 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 
 	if(pPlayer->m_BlockOneVsOneRequestedId != -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "[1vs1] your old request was canceled because you sent a new request.");
+		str_format(aBuf, sizeof(aBuf), "[1vs1] your old request to '%s' was canceled because you sent a new request.", Server()->ClientName(pPlayer->m_BlockOneVsOneRequestedId));
 		SendChatTarget(ClientId, aBuf);
 	}
 	pPlayer->m_BlockOneVsOneRequestedId = InvitedId;
