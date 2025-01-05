@@ -1,3 +1,4 @@
+#include <game/mapitems_ddpp.h>
 #include <game/server/gamecontext.h>
 
 #include "pvp_arena.h"
@@ -20,6 +21,52 @@ bool CPvpArena::OnChatCmdLeave(CPlayer *pPlayer)
 	return true;
 }
 
+void CPvpArena::Join(CPlayer *pPlayer)
+{
+	int ClientId = pPlayer->GetCid();
+	if(GameServer()->IsMinigame(ClientId))
+	{
+		SendChatTarget(ClientId, "[PVP] You can't join becasue your are in another mingame or jail (check '/minigames status')");
+		return;
+	}
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return;
+
+	if(pPlayer->m_Account.m_PvpArenaTickets < 1)
+	{
+		SendChatTarget(ClientId, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
+		return;
+	}
+	if(pPlayer->GetCharacter()->m_IsPvpArenaing)
+	{
+		SendChatTarget(ClientId, "[PVP] You are already in the PvP-arena");
+		return;
+	}
+	SendChatTarget(ClientId, "[PVP] Teleport request sent. Don't move for 4 seconds.");
+	pPlayer->m_PVP_return_pos = pChr->GetPosition();
+	pPlayer->GetCharacter()->m_pvp_arena_exit_request = false; // join request
+	pChr->RequestTeleToTile(TILE_PVP_ARENA_SPAWN)
+		.DelayInSeconds(4)
+		.OnPreSuccess([=]() {
+			SavePosition(pChr->GetPlayer());
+		})
+		.OnPostSuccess([=]() {
+			pPlayer->m_Account.m_PvpArenaTickets--;
+			pPlayer->m_Account.m_PvpArenaGamesPlayed++;
+			pChr->m_IsPvpArenaing = true;
+			pChr->m_isDmg = true;
+			pChr->UnFreeze(); // seems like the server thinks we touched the freeze that we teleported over
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
+		})
+		.OnFailure([=](const char *pShort, const char *pLong) {
+			char aError[512];
+			str_format(aError, sizeof(aError), "[PVP] %s", pLong);
+			SendChatTarget(pChr->GetPlayer()->GetCid(), aError);
+		});
+}
+
 void CPvpArena::Leave(CPlayer *pPlayer)
 {
 	if(!IsActive(pPlayer->GetCid()))
@@ -33,8 +80,38 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 	pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
 }
 
-void CPvpArena::PlayerTick(CPlayer *pPlayer)
+void CPvpArena::CharacterTick(CCharacter *pChr)
 {
+	CPlayer *pPlayer = pChr->GetPlayer();
+
+	if(pChr->m_pvp_arena_tele_request_time < 0)
+		return;
+	pChr->m_pvp_arena_tele_request_time--;
+
+	if(pChr->m_pvp_arena_tele_request_time == 1)
+	{
+		if(pChr->m_pvp_arena_exit_request)
+		{
+			pPlayer->m_Account.m_PvpArenaTickets++;
+			pChr->SetHealth(10);
+			pChr->m_IsPvpArenaing = false;
+			pChr->m_isDmg = false;
+
+			pChr->SetPosition(pPlayer->m_PVP_return_pos);
+
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Successfully teleported out of arena.");
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] You got your ticket back because you have survived.");
+		}
+	}
+
+	if(pChr->Core()->m_Vel.x < -0.06f ||
+		pChr->Core()->m_Vel.x > 0.06f ||
+		pChr->Core()->m_Vel.y > 0.6f ||
+		pChr->Core()->m_Vel.y < -0.6f)
+	{
+		GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Teleport failed because you have moved.");
+		pChr->m_pvp_arena_tele_request_time = -1;
+	}
 }
 
 void CPvpArena::OnDeath(CCharacter *pChr, int Killer, int Weapon)

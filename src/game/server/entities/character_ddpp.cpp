@@ -534,54 +534,6 @@ void CCharacter::DropWeapon(int WeaponId)
 	SetWeaponThatChrHas();
 }
 
-void CCharacter::PvPArenaTick()
-{
-	if(m_pvp_arena_tele_request_time < 0)
-		return;
-	m_pvp_arena_tele_request_time--;
-
-	if(m_pvp_arena_tele_request_time == 1)
-	{
-		if(m_pvp_arena_exit_request)
-		{
-			m_pPlayer->m_Account.m_PvpArenaTickets++;
-			m_Health = 10;
-			m_IsPvpArenaing = false;
-			m_isDmg = false;
-
-			m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
-
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Successfully teleported out of arena.");
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] You got your ticket back because you have survived.");
-		}
-		else // join request
-		{
-			vec2 PvPArenaSpawnTile = Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
-
-			if(PvPArenaSpawnTile == vec2(-1, -1))
-			{
-				GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] error, this map has no arena!");
-				return;
-			}
-
-			SetPosition(PvPArenaSpawnTile);
-
-			m_pPlayer->m_Account.m_PvpArenaTickets--;
-			m_pPlayer->m_Account.m_PvpArenaGamesPlayed++;
-			m_IsPvpArenaing = true;
-			m_isDmg = true;
-			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
-			return;
-		}
-	}
-
-	if(m_Core.m_Vel.x < -0.06f || m_Core.m_Vel.x > 0.06f || m_Core.m_Vel.y > 0.6f || m_Core.m_Vel.y < -0.6f)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleport failed because you have moved.");
-		m_pvp_arena_tele_request_time = -1;
-	}
-}
-
 void CCharacter::CosmeticTick()
 {
 	if(m_Atom || m_pPlayer->m_InfAtom)
@@ -731,7 +683,6 @@ void CCharacter::DDPP_Tick()
 	char aBuf[256];
 	DummyTick();
 	CosmeticTick();
-	PvPArenaTick();
 
 	m_TeleRequest.Tick();
 

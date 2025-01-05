@@ -101,6 +101,7 @@ public:
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
 	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon dupe of CEntitiy::GetPos() ??
 	vec2 GetVel() { return m_Core.m_Vel; }
+	void SetHealth(int Health) { m_Health = Health; }
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
 	bool m_OnFire;
 	void DDPP_Tick();
@@ -113,7 +114,6 @@ public:
 	int DDPP_DIE(int Killer, int Weapon, bool FngScore = false);
 	void TwblTick();
 	void DummyTick();
-	void PvPArenaTick();
 
 	// useful everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
