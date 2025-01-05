@@ -228,10 +228,7 @@ public:
 	bool m_IsProfileViewLoaded;
 
 	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
-	int m_PVP_return_posX;
-	int m_PVP_return_posY;
 	int m_pvp_arena_last_kill_id;
-	vec2 m_PVP_return_pos;
 
 	bool m_IsInstaArena_gdm;
 	bool m_IsInstaArena_idm;

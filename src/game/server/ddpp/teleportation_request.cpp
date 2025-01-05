@@ -15,7 +15,7 @@ CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharact
 
 	if(m_IsActive)
 	{
-		DeferError("conflicting tele request", "you already have one teleportation request pending");
+		DeferError("conflicting tele request", "You already have one teleportation request pending.");
 		return *this;
 	}
 
@@ -31,7 +31,7 @@ CTeleportationRequest &CTeleportationRequest::TeleportToTile(class CCharacter *p
 	if(Pos == vec2(-1, -1))
 	{
 		// fails on tick to avoid breaking initialization chains
-		DeferError("missing tile", "destination tile not found");
+		DeferError("missing tile", "Destination tile not found.");
 	}
 	return TeleportToPos(pCharacter, Pos);
 }
@@ -81,7 +81,7 @@ void CTeleportationRequest::OnDeath()
 	if(!IsActive())
 		return;
 
-	TeleportFailure("died", "request was aborted because you died");
+	TeleportFailure("died", "Teleportation was aborted because you died.");
 }
 
 void CTeleportationRequest::Tick()
@@ -94,7 +94,7 @@ void CTeleportationRequest::Tick()
 		m_pCharacter->Core()->m_Vel.y > 0.6f ||
 		m_pCharacter->Core()->m_Vel.y < -0.6f)
 	{
-		DeferError("moved", "teleport failed because you moved");
+		DeferError("moved", "Teleportation failed because you moved.");
 	}
 
 	if(m_aErrorMsgShort[0])

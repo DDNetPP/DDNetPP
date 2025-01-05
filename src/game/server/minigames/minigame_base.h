@@ -131,6 +131,14 @@ public:
 	// m_aRestorePos[ClientId] has to be set to true
 	virtual void LoadPosition(CCharacter *pChr);
 
+	// returns true if the player has a position saved
+	// and sets the pPos passed in to that position
+	// the position will be set by `SavePosition()`
+	bool GetSavedPosition(CPlayer *pPlayer, vec2 *pPos);
+
+	// clears state saved by SavePosition()
+	void ClearSavedPosition(CPlayer *pPlayer);
+
 	// Send a chat message to all minigame participants
 	void SendChatAll(const char *pMessage);
 

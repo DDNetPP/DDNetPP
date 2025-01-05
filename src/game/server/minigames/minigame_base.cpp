@@ -1,5 +1,7 @@
 // DDNet++ minigame base
 
+#include <base/system.h>
+#include <base/vmath.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/save_ddpp.h>
@@ -53,18 +55,42 @@ void CMinigame::CleanupMinigame()
 		delete SavePos;
 }
 
+bool CMinigame::GetSavedPosition(CPlayer *pPlayer, vec2 *pPos)
+{
+	*pPos = vec2(-1, -1);
+	if(!pPlayer)
+		return false;
+	if(!m_apSavedPositions[pPlayer->GetCid()])
+		return false;
+
+	*pPos = m_apSavedPositions[pPlayer->GetCid()]->GetPos();
+	return true;
+}
+
+void CMinigame::ClearSavedPosition(CPlayer *pPlayer)
+{
+	if(!pPlayer)
+		return;
+
+	// wipe ddnet state
+	delete m_apSavedPositions[pPlayer->GetCid()];
+	m_apSavedPositions[pPlayer->GetCid()] = nullptr;
+
+	// wipe ddnet++ state
+	delete m_apSavedPositionsDDPP[pPlayer->GetCid()];
+	m_apSavedPositionsDDPP[pPlayer->GetCid()] = nullptr;
+}
+
 void CMinigame::SavePosition(CPlayer *pPlayer)
 {
 	if(!pPlayer)
 		return;
 
-	if(m_apSavedPositions[pPlayer->GetCid()])
-		delete m_apSavedPositions[pPlayer->GetCid()];
-	m_apSavedPositions[pPlayer->GetCid()] = nullptr;
-
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
+
+	ClearSavedPosition(pPlayer);
 
 	// save ddnet state
 	m_apSavedPositions[pPlayer->GetCid()] = new CSaveTee();
@@ -91,15 +117,9 @@ void CMinigame::LoadPosition(CCharacter *pChr)
 
 	m_aRestorePos[pPlayer->GetCid()] = false;
 
-	// restore ddnet state
 	m_apSavedPositions[pPlayer->GetCid()]->Load(pChr, 0);
-	delete m_apSavedPositions[pPlayer->GetCid()];
-	m_apSavedPositions[pPlayer->GetCid()] = nullptr;
-
-	// restore ddnet++ state
 	m_apSavedPositionsDDPP[pPlayer->GetCid()]->Load(pChr);
-	delete m_apSavedPositionsDDPP[pPlayer->GetCid()];
-	m_apSavedPositionsDDPP[pPlayer->GetCid()] = nullptr;
+	ClearSavedPosition(pPlayer);
 }
 
 void CMinigame::SendChatAll(const char *pMessage)

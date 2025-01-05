@@ -34,7 +34,6 @@ void CCharacter::ConstructDDPP()
 {
 	// variable initializations constructor
 	m_ci_freezetime = 0;
-	m_pvp_arena_tele_request_time = -1;
 	m_DDPP_Finished = false;
 	//if (g_Config.m_SvInstagibMode)
 	//{
