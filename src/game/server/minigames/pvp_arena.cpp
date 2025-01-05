@@ -1,3 +1,4 @@
+#include <engine/shared/config.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/gamecontext.h>
 
@@ -44,11 +45,12 @@ void CPvpArena::Join(CPlayer *pPlayer)
 		SendChatTarget(ClientId, "[PVP] You are already in the PvP-arena");
 		return;
 	}
-	SendChatTarget(ClientId, "[PVP] Teleport request sent. Don't move for 4 seconds.");
-
 	// we do not call LoadPosition()
 	// but do a manual tele request back to GetSavePosition()
 	SavePosition(pPlayer);
+
+	if(g_Config.m_SvTeleportationDelay)
+		SendChatTarget(ClientId, "[PVP] Teleport request sent. Don't move for 4 seconds.");
 
 	pChr->RequestTeleToTile(TILE_PVP_ARENA_SPAWN)
 		.DelayInSeconds(4)
@@ -88,7 +90,9 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 		return;
 	}
 
-	SendChatTarget(pPlayer->GetCid(), "[PVP] Teleport request sent. Don't move for 6 seconds.");
+	if(g_Config.m_SvTeleportationDelay)
+		SendChatTarget(pPlayer->GetCid(), "[PVP] Teleport request sent. Don't move for 6 seconds.");
+
 	pChr->RequestTeleToPos(OldPos)
 		.DelayInSeconds(6)
 		.OnPostSuccess([=]() {
