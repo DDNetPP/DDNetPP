@@ -5,6 +5,7 @@
 #include <engine/antibot.h>
 #include <game/generated/protocol.h>
 #include <game/generated/server_data.h>
+#include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
@@ -207,6 +208,10 @@ public:
 		it can still be used to bypass super but thats all i guess
 	*/
 	bool ForceFreeze(int Seconds);
+
+	CTeleportationRequest m_TeleRequest;
+	CTeleportationRequest &RequestTeleToTile(int Tile);
+	CTeleportationRequest &RequestTeleToPos(vec2 Pos);
 
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h

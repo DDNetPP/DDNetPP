@@ -2721,6 +2721,8 @@ if(SERVER)
     ddpp/loc.h
     ddpp/shop.cpp
     ddpp/shop.h
+    ddpp/teleportation_request.cpp
+    ddpp/teleportation_request.h
     ddracechat.cpp
     ddracechat_ddpp.cpp
     ddracecommands.cpp

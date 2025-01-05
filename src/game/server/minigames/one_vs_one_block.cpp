@@ -1,6 +1,7 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/ddpp/teleportation_request.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>

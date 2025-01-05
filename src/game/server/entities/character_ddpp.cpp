@@ -9,6 +9,7 @@
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/shop.h>
+#include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
@@ -705,6 +706,18 @@ void CCharacter::DDPPPostCoreTick()
 	GameServer()->Shop()->MotdTick(GetPlayer()->GetCid());
 }
 
+CTeleportationRequest &CCharacter::RequestTeleToTile(int Tile)
+{
+	m_TeleRequest.TeleportToTile(this, Tile);
+	return m_TeleRequest;
+}
+
+CTeleportationRequest &CCharacter::RequestTeleToPos(vec2 Pos)
+{
+	m_TeleRequest.TeleportToPos(this, Pos);
+	return m_TeleRequest;
+}
+
 void CCharacter::DDPP_Tick()
 {
 	if(g_Config.m_SvOffDDPP)
@@ -719,6 +732,8 @@ void CCharacter::DDPP_Tick()
 	DummyTick();
 	CosmeticTick();
 	PvPArenaTick();
+
+	m_TeleRequest.Tick();
 
 	m_pPlayer->m_InputTracker.OnTick(&m_Input, m_pPlayer->m_PlayerFlags);
 
@@ -1293,6 +1308,8 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	for(auto &Minigame : GameServer()->m_vMinigames)
 		Minigame->OnDeath(this, Killer);
+	if(m_TeleRequest.IsActive())
+		m_TeleRequest.OnDeath();
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 

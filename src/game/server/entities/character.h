@@ -31,6 +31,7 @@
 #include "dummy/survival.h"
 #include "weapon.h"
 #include <deque>
+#include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/stable_projectile.h>
 #include <vector>
 
