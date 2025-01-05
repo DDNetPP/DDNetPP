@@ -200,6 +200,7 @@ public:
 	int m_BlockOneVsOneRequestedId = -1;
 	bool m_IsBlockOneVsOneing = false;
 	int64_t m_BlockOneVsOneInviteExpire = 0;
+	bool m_BlockOneVsOneTeleported = false;
 	COneVsOneBlock::CGameState *m_pBlockOneVsOneState = nullptr;
 
 	// blockwave

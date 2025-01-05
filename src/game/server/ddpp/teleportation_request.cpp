@@ -10,18 +10,17 @@
 CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharacter, vec2 Pos)
 {
 	m_pCharacter = pCharacter;
-	m_aErrorMsg[0] = '\0';
+	m_aErrorMsgShort[0] = '\0';
+	m_aErrorMsgLong[0] = '\0';
 
 	if(m_IsActive)
 	{
-		DeferError("you already have one teleportation request pending");
+		DeferError("conflicting tele request", "you already have one teleportation request pending");
 		return *this;
 	}
 
 	m_IsActive = true;
 	m_DestinationPos = Pos;
-	str_copy(m_aDestNameLongDisplay, "teleportation", sizeof(m_aDestNameLongDisplay));
-	SetName("tele");
 	DelayInSeconds(10);
 	return *this;
 }
@@ -32,14 +31,20 @@ CTeleportationRequest &CTeleportationRequest::TeleportToTile(class CCharacter *p
 	if(Pos == vec2(-1, -1))
 	{
 		// fails on tick to avoid breaking initialization chains
-		DeferError("destination tile not found");
+		DeferError("missing tile", "destination tile not found");
 	}
 	return TeleportToPos(pCharacter, Pos);
 }
 
-void CTeleportationRequest::DeferError(const char *pMessage)
+void CTeleportationRequest::Abort()
 {
-	str_copy(m_aErrorMsg, pMessage, sizeof(m_aErrorMsg));
+	m_IsActive = false;
+}
+
+void CTeleportationRequest::DeferError(const char *pMessageShort, const char *pMessageLong)
+{
+	str_copy(m_aErrorMsgShort, pMessageShort, sizeof(m_aErrorMsgShort));
+	str_copy(m_aErrorMsgLong, pMessageLong, sizeof(m_aErrorMsgLong));
 }
 
 CTeleportationRequest &CTeleportationRequest::OnFailure(const FTeleRequestFailure &pfnFailure)
@@ -49,17 +54,17 @@ CTeleportationRequest &CTeleportationRequest::OnFailure(const FTeleRequestFailur
 	return *this;
 }
 
-CTeleportationRequest &CTeleportationRequest::OnSuccess(const FTeleRequestSuccess &pfnSuccess)
+CTeleportationRequest &CTeleportationRequest::OnPreSuccess(const FTeleRequestSuccess &pfnSuccess)
 {
 	dbg_assert(IsActive(), "request not active");
-	m_pfnSuccess = pfnSuccess;
+	m_pfnPreSuccess = pfnSuccess;
 	return *this;
 }
 
-CTeleportationRequest &CTeleportationRequest::SetName(const char *pName)
+CTeleportationRequest &CTeleportationRequest::OnPostSuccess(const FTeleRequestSuccess &pfnSuccess)
 {
 	dbg_assert(IsActive(), "request not active");
-	str_copy(m_aDestNameShortSlug, pName, sizeof(m_aDestNameShortSlug));
+	m_pfnPostSuccess = pfnSuccess;
 	return *this;
 }
 
@@ -73,8 +78,10 @@ CTeleportationRequest &CTeleportationRequest::DelayInSeconds(int Seconds)
 
 void CTeleportationRequest::OnDeath()
 {
-	dbg_assert(IsActive(), "request not active");
-	TeleportFailure("request was aborted because you died");
+	if(!IsActive())
+		return;
+
+	TeleportFailure("died", "request was aborted because you died");
 }
 
 void CTeleportationRequest::Tick()
@@ -87,12 +94,12 @@ void CTeleportationRequest::Tick()
 		m_pCharacter->Core()->m_Vel.y > 0.6f ||
 		m_pCharacter->Core()->m_Vel.y < -0.6f)
 	{
-		DeferError("teleport failed because you moved");
+		DeferError("moved", "teleport failed because you moved");
 	}
 
-	if(m_aErrorMsg[0])
+	if(m_aErrorMsgShort[0])
 	{
-		TeleportFailure(m_aErrorMsg);
+		TeleportFailure(m_aErrorMsgShort, m_aErrorMsgLong);
 		return;
 	}
 
@@ -111,7 +118,7 @@ void CTeleportationRequest::Tick()
 
 		new CLaserText(
 			m_pCharacter->GameWorld(),
-			vec2(m_pCharacter->GetPos().x + 10, m_pCharacter->GetPos().y - (5 * 32)),
+			vec2(m_pCharacter->GetPos().x - 20, m_pCharacter->GetPos().y - (5 * 32)),
 			m_pCharacter->Server()->TickSpeed(),
 			aSeconds);
 	}
@@ -119,15 +126,24 @@ void CTeleportationRequest::Tick()
 
 void CTeleportationRequest::TeleportSuccess()
 {
+	if(!IsActive())
+		return;
+
+	m_pfnPreSuccess();
+
 	m_pCharacter->m_Pos = m_DestinationPos; // TODO: why does SetPosition not set the position? xd
 	m_pCharacter->SetPosition(m_DestinationPos);
-
-	m_pfnSuccess();
 	m_IsActive = false;
+
+	m_pfnPostSuccess();
 }
 
-void CTeleportationRequest::TeleportFailure(const char *pMessage)
+void CTeleportationRequest::TeleportFailure(const char *pMessageShort, const char *pMessageLong)
 {
-	m_pfnFailure(pMessage);
+	if(!IsActive())
+		return;
+
 	m_IsActive = false;
+
+	m_pfnFailure(pMessageShort, pMessageLong);
 }

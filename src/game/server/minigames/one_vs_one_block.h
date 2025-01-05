@@ -30,6 +30,9 @@ public:
 	public:
 		enum class EState
 		{
+			// waiting for both players to teleport into the area
+			WAITING_FOR_PLAYERS,
+
 			// give players time to prepare
 			// scores will be reset on countdown end
 			// will change to RUNNING when m_CountDownTicksLeft reaches 0
@@ -47,11 +50,12 @@ public:
 			// the game is ending the winners were already announced
 			ROUND_END,
 		};
-		EState m_State = EState::COUNTDOWN;
+		EState m_State = EState::WAITING_FOR_PLAYERS;
 		EState State() const { return m_State; }
 		bool IsRunning() const { return m_State == EState::RUNNING || m_State == EState::SUDDEN_DEATH; }
 		int ScoreLimit() { return 10; }
 		int m_CountDownTicksLeft = 0;
+		int m_NumTeleportedPlayers = 0;
 
 		int m_DDRaceTeam = 0;
 		int m_SpawnCounter = 0;
@@ -84,6 +88,9 @@ public:
 	// prints the broadcast with the current score
 	// to both participants in the pGameState
 	void PrintScoreBroadcast(CGameState *pGameState);
+
+	// player teleported into the arena
+	void OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer);
 
 	// game will start running and scores can be made
 	void OnCountdownEnd(CGameState *pGameState);

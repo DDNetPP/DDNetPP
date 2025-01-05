@@ -1,10 +1,13 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
+#include <game/generated/protocol.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/teleportation_request.h>
+#include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
+#include <game/server/teams.h>
 
 #include "one_vs_one_block.h"
 
@@ -25,13 +28,49 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer)
 	CGameState *pState = pPlayer->m_pBlockOneVsOneState;
 	dbg_assert(pState, "1vs1 death without game state");
 
-	// TODO: is every death a score for the opponent?
-	//       What about untouched unfrozen selfkills?
-
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
-	if(pState->IsRunning())
+	if(pState->IsRunning() && Killer == pKiller->GetCid())
+	{
 		pKiller->m_MinigameScore++;
+		pKiller->KillCharacter();
+	}
 	PrintScoreBroadcast(pState);
+}
+
+void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
+{
+	pPlayer->m_BlockOneVsOneTeleported = true;
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(pChr)
+	{
+		// force join team
+		pChr->m_DDRaceState = DDRACE_NONE;
+	}
+
+	if(!pGameState->m_DDRaceTeam)
+		pGameState->m_DDRaceTeam = GameServer()->m_pController->Teams().GetFirstEmptyTeam();
+
+	const char *pError = nullptr;
+	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, false);
+	Controller()->Teams().ChangeTeamState(pGameState->m_DDRaceTeam, CGameTeams::TEAMSTATE_OPEN);
+	pError = Controller()->Teams().SetCharacterTeam(pPlayer->GetCid(), pGameState->m_DDRaceTeam);
+	if(pError)
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted joining team failed: %s", pError);
+		SendChatTarget(pPlayer->GetCid(), aBuf);
+		SendChatTarget(pGameState->OtherPlayer(pPlayer)->GetCid(), aBuf);
+		OnRoundEnd(pGameState);
+		return;
+	}
+	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, true);
+
+	pGameState->m_NumTeleportedPlayers++;
+	if(pGameState->m_NumTeleportedPlayers == 2)
+	{
+		pGameState->m_State = CGameState::EState::COUNTDOWN;
+	}
 }
 
 // called after OnRoundStart()
@@ -39,6 +78,9 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 {
 	pGameState->m_State = CGameState::EState::RUNNING;
 	PrintScoreBroadcast(pGameState);
+
+	pGameState->m_pPlayer1->KillCharacter();
+	pGameState->m_pPlayer2->KillCharacter();
 }
 
 // called before OnCountdownEnd()
@@ -47,43 +89,79 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 	pPlayer1->m_BlockOneVsOneRequestedId = -1;
 	pPlayer2->m_BlockOneVsOneRequestedId = -1;
 
+	pPlayer1->m_BlockOneVsOneTeleported = false;
+	pPlayer2->m_BlockOneVsOneTeleported = false;
+
+	char aBuf[512];
+	CCharacter *pChr1 = pPlayer1->GetCharacter();
+	CCharacter *pChr2 = pPlayer2->GetCharacter();
+	CCharacter *apCharacters[] = {pChr1, pChr2};
+	for(CCharacter *pChr : apCharacters)
+	{
+		if(!pChr || !pChr->IsAlive())
+		{
+			// TODO: can this be annoying? We could also delay the round start until the other player spawned
+			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' died", Server()->ClientName(pChr->GetPlayer()->GetCid()));
+			SendChatTarget(pPlayer1->GetCid(), aBuf);
+			SendChatTarget(pPlayer2->GetCid(), aBuf);
+			return;
+		}
+		if(pChr->GetPlayer()->GetTeam() != TEAM_RED)
+		{
+			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' is not in game", Server()->ClientName(pChr->GetPlayer()->GetCid()));
+			SendChatTarget(pPlayer1->GetCid(), aBuf);
+			SendChatTarget(pPlayer2->GetCid(), aBuf);
+			return;
+		}
+	}
+
 	pPlayer1->m_IsBlockOneVsOneing = true;
 	pPlayer2->m_IsBlockOneVsOneing = true;
 
 	CGameState *pGameState = new CGameState(pPlayer1, pPlayer2);
-	pGameState->m_State = CGameState::EState::COUNTDOWN;
+	pGameState->m_State = CGameState::EState::WAITING_FOR_PLAYERS;
 	pGameState->m_CountDownTicksLeft = Server()->TickSpeed() * 10;
+	pGameState->m_NumTeleportedPlayers = 0;
 	pPlayer1->m_pBlockOneVsOneState = pGameState;
 	pPlayer2->m_pBlockOneVsOneState = pGameState;
 
 	pPlayer1->m_MinigameScore = 0;
 	pPlayer2->m_MinigameScore = 0;
 
-	// TODO: this needs a bunch of checks if we can even join the team
-	//       for example ddnet only allows it to non spectator alive players
-	int Team = GameServer()->m_pController->Teams().GetFirstEmptyTeam();
-
-	const char *pError = nullptr;
-	pError = Controller()->Teams().SetCharacterTeam(pPlayer1->GetCid(), Team);
-	pError = Controller()->Teams().SetCharacterTeam(pPlayer2->GetCid(), Team);
-	if(pError)
+	for(CCharacter *pChr : apCharacters)
 	{
-		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted joining team failed: %s", pError);
-		SendChatTarget(pPlayer1->GetCid(), aBuf);
-		SendChatTarget(pPlayer2->GetCid(), aBuf);
-		OnRoundEnd(pGameState);
-		return;
+		pChr->RequestTeleToTile(TILE_BLOCK_DM_A1)
+			.DelayInSeconds(3)
+			.OnPreSuccess([=]() {
+				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)
+					SavePosition(pChr->GetPlayer());
+			})
+			.OnPostSuccess([=]() {
+				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)
+					OnTeleportSuccess(pGameState, pChr->GetPlayer());
+			})
+			.OnFailure([=](const char *pShort, const char *pLong) {
+				char aError[512];
+				str_format(aError, sizeof(aError), "[1vs1] game aborted '%s' failed to teleport (%s)", Server()->ClientName(pChr->GetPlayer()->GetCid()), pShort);
+				SendChatTarget(pPlayer1->GetCid(), aError);
+				SendChatTarget(pPlayer2->GetCid(), aError);
+
+				// this is seriously FUCKED
+				// the pGameState pointer can already be deleted
+				// by the time the OnFailure callback is run
+				//
+				// uglies hack ever to check if the game is still running
+				// the current character is guranteed to exist because its tick
+				// is triggering the failure
+				// and its player only ever points to valid game states
+				//
+				// NOBODY CAN EVER SEE THIS CODE
+				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)
+				{
+					OnRoundEnd(pGameState);
+				}
+			});
 	}
-	Controller()->Teams().SetTeamLock(Team, true);
-	pGameState->m_DDRaceTeam = Team;
-
-	pPlayer1->KillCharacter();
-	pPlayer2->KillCharacter();
-
-	// set ddrace teams
-	// make sure the players are not spectators and can be respawned
-	// respawn them and let the spawn code handle teleportation
 }
 
 void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
@@ -102,8 +180,21 @@ void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
 	pPlayer1->m_pBlockOneVsOneState = nullptr;
 	pPlayer2->m_pBlockOneVsOneState = nullptr;
 
-	pPlayer1->KillCharacter();
-	pPlayer2->KillCharacter();
+	CPlayer *apPlayers[] = {pPlayer1, pPlayer2};
+	for(CPlayer *pPlayer : apPlayers)
+	{
+		if(pPlayer->GetCharacter())
+		{
+			if(pPlayer->GetCharacter()->m_TeleRequest.IsActive())
+			{
+				SendChatTarget(pPlayer->GetCid(), "[1vs1] teleportation request aborted because of game end.");
+				pPlayer->GetCharacter()->m_TeleRequest.Abort();
+			}
+		}
+
+		pPlayer->KillCharacter();
+		m_aRestorePos[pPlayer->GetCid()] = true;
+	}
 }
 
 void COneVsOneBlock::OnRoundWin(CGameState *pGameState, CPlayer *pWinner, CPlayer *pLoser, const char *pMessage)
@@ -201,6 +292,8 @@ bool COneVsOneBlock::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 {
 	if(!pPlayer->m_IsBlockOneVsOneing)
 		return false;
+	if(!pPlayer->m_BlockOneVsOneTeleported)
+		return false;
 
 	vec2 Pos = GetNextArenaSpawn(pPlayer->m_pBlockOneVsOneState);
 	if(Pos == vec2(-1, -1))
@@ -286,6 +379,10 @@ void COneVsOneBlock::PrintScoreBroadcast(CGameState *pGameState)
 	else if(pGameState->State() == CGameState::EState::SUDDEN_DEATH)
 	{
 		str_copy(aTopText, "SUDDEN DEATH");
+	}
+	else if(pGameState->State() == CGameState::EState::WAITING_FOR_PLAYERS)
+	{
+		str_copy(aTopText, "WAITING FOR PLAYERS TO TELEPORT");
 	}
 
 	str_format(

@@ -5,7 +5,7 @@
 
 #include <functional>
 
-typedef std::function<void(const char *pMessage)> FTeleRequestFailure;
+typedef std::function<void(const char *pErrorShort, const char *pErrorLong)> FTeleRequestFailure;
 typedef std::function<void()> FTeleRequestSuccess;
 
 // some minigames require you to hold still before
@@ -28,30 +28,25 @@ class CTeleportationRequest
 
 	int m_TicksUntilTeleportation = 0;
 
-	// [xxx] wait until you will be teleported.
-	//  ^^^
-	char m_aDestNameShortSlug[16];
-
-	// [xxx] your teleportation to xxxxx xxxx failed because you moved
-	//                             ^^^^^^^^^^
-	char m_aDestNameLongDisplay[32];
-
 	// used to trigger a deferred error
 	// if set it will fire on tick
-	char m_aErrorMsg[512];
+	char m_aErrorMsgLong[512];
+	char m_aErrorMsgShort[512];
 
 	FTeleRequestFailure m_pfnFailure = nullptr;
-	FTeleRequestSuccess m_pfnSuccess = nullptr;
+	FTeleRequestSuccess m_pfnPreSuccess = nullptr;
+	FTeleRequestSuccess m_pfnPostSuccess = nullptr;
 	int m_Seconds = 10;
 	vec2 m_DestinationPos;
 
 public:
 	CTeleportationRequest &TeleportToPos(class CCharacter *pCharacter, vec2 Pos);
 	CTeleportationRequest &TeleportToTile(class CCharacter *pCharacter, int Tile);
+	void Abort();
 
 	CTeleportationRequest &OnFailure(const FTeleRequestFailure &pfnFailure);
-	CTeleportationRequest &OnSuccess(const FTeleRequestSuccess &pfnSuccess);
-	CTeleportationRequest &SetName(const char *pName);
+	CTeleportationRequest &OnPreSuccess(const FTeleRequestSuccess &pfnSuccess);
+	CTeleportationRequest &OnPostSuccess(const FTeleRequestSuccess &pfnSuccess);
 	CTeleportationRequest &DelayInSeconds(int Seconds);
 
 	void Tick();
@@ -60,11 +55,11 @@ public:
 
 	// register a error that will fire in the next tick
 	// fails on tick to avoid breaking initialization chains
-	void DeferError(const char *pMessage);
+	void DeferError(const char *pMessageShort, const char *pMessageLong);
 
 private:
 	void TeleportSuccess();
-	void TeleportFailure(const char *pMessage);
+	void TeleportFailure(const char *pMessageShort, const char *pMessageLong);
 };
 
 #endif
