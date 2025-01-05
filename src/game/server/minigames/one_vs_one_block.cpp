@@ -28,10 +28,19 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer)
 	//       What about untouched unfrozen selfkills?
 
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
-	pKiller->m_MinigameScore++;
+	if(pState->IsRunning())
+		pKiller->m_MinigameScore++;
 	PrintScoreBroadcast(pState);
 }
 
+// called after OnRoundStart()
+void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
+{
+	pGameState->m_State = CGameState::EState::RUNNING;
+	PrintScoreBroadcast(pGameState);
+}
+
+// called before OnCountdownEnd()
 void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 {
 	pPlayer1->m_BlockOneVsOneRequestedId = -1;
@@ -41,6 +50,8 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 	pPlayer2->m_IsBlockOneVsOneing = true;
 
 	CGameState *pGameState = new CGameState(pPlayer1, pPlayer2);
+	pGameState->m_State = CGameState::EState::COUNTDOWN;
+	pGameState->m_CountDownTicksLeft = Server()->TickSpeed() * 10;
 	pPlayer1->m_pBlockOneVsOneState = pGameState;
 	pPlayer2->m_pBlockOneVsOneState = pGameState;
 
@@ -263,13 +274,26 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 void COneVsOneBlock::PrintScoreBroadcast(CGameState *pGameState)
 {
 	char aBuf[512];
+	char aTopText[512];
+	aTopText[0] = '\0';
+	if(pGameState->State() == CGameState::EState::COUNTDOWN)
+	{
+		// TODO: we can also use the actual game timer here with a snap hook
+		int Seconds = pGameState->m_CountDownTicksLeft / Server()->TickSpeed();
+		str_format(aTopText, sizeof(aTopText), "START IN %d", Seconds);
+	}
+	else if(pGameState->State() == CGameState::EState::SUDDEN_DEATH)
+	{
+		str_copy(aTopText, "SUDDEN DEATH");
+	}
+
 	str_format(
 		aBuf,
 		sizeof(aBuf),
 		"%s                                                                                                                                  \n"
 		"%s: %d                                                                                                                              \n"
 		"%s: %d                                                                                                                                ",
-		pGameState->State() == CGameState::EState::SUDDEN_DEATH ? "SUDDEN DEATH" : "",
+		aTopText,
 		Server()->ClientName(pGameState->m_pPlayer1->GetCid()),
 		pGameState->m_pPlayer1->m_MinigameScore,
 		Server()->ClientName(pGameState->m_pPlayer2->GetCid()),
@@ -287,10 +311,32 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 	// that is a bit cursed but it works because a round can only be ended once
 	DoWincheck(pPlayer->m_pBlockOneVsOneState);
 
-	if(Server()->Tick() % 80 == 0)
+	// has to be checked again because DoWincheck could have already ended the game
+	// then we can not tick anymore
+	if(!pPlayer->m_IsBlockOneVsOneing)
+		return;
+
+	CGameState *pGameState = pPlayer->m_pBlockOneVsOneState;
+	dbg_assert(pGameState, "1vs1 without state");
+
+	bool PrintHud = false;
+	if(pGameState->m_State == CGameState::EState::COUNTDOWN)
 	{
-		CGameState *pGameState = pPlayer->m_pBlockOneVsOneState;
-		dbg_assert(pGameState, "1vs1 without state");
+		if(pGameState->m_CountDownTicksLeft)
+			pGameState->m_CountDownTicksLeft--;
+		if(pGameState->m_CountDownTicksLeft < 1)
+		{
+			pGameState->m_CountDownTicksLeft = 0;
+			OnCountdownEnd(pGameState);
+		}
+		else if(((pGameState->m_CountDownTicksLeft + 1) % Server()->TickSpeed()) == 0)
+		{
+			PrintHud = true;
+		}
+	}
+
+	if(PrintHud || Server()->Tick() % 120 == 0)
+	{
 		PrintScoreBroadcast(pGameState);
 	}
 }
@@ -323,8 +369,6 @@ CPlayer *COneVsOneBlock::GetInviteSender(const CPlayer *pPlayer)
 
 bool COneVsOneBlock::OnChatCmdLeave(CPlayer *pPlayer)
 {
-	dbg_msg("1vs1", "on leave");
-
 	dbg_assert(pPlayer->m_pBlockOneVsOneState, "tried to leave game without state");
 	OnGameAbort(pPlayer->m_pBlockOneVsOneState, pPlayer, "left the 1vs1");
 	return true;

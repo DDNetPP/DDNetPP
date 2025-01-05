@@ -30,6 +30,12 @@ public:
 	public:
 		enum class EState
 		{
+			// give players time to prepare
+			// scores will be reset on countdown end
+			// will change to RUNNING when m_CountDownTicksLeft reaches 0
+			COUNTDOWN,
+
+			// game is running and scores can be made
 			RUNNING,
 
 			// both players reached the scorelimit
@@ -41,10 +47,11 @@ public:
 			// the game is ending the winners were already announced
 			ROUND_END,
 		};
-		EState m_State = EState::RUNNING;
+		EState m_State = EState::COUNTDOWN;
 		EState State() const { return m_State; }
 		bool IsRunning() const { return m_State == EState::RUNNING || m_State == EState::SUDDEN_DEATH; }
 		int ScoreLimit() { return 10; }
+		int m_CountDownTicksLeft = 0;
 
 		int m_DDRaceTeam = 0;
 		int m_SpawnCounter = 0;
@@ -78,8 +85,15 @@ public:
 	// to both participants in the pGameState
 	void PrintScoreBroadcast(CGameState *pGameState);
 
+	// game will start running and scores can be made
+	void OnCountdownEnd(CGameState *pGameState);
+
 	// called when a 1vs1 is starting
 	// used to init all the game state
+	// only enters the countdown phase
+	// the real game starts after that
+	// if you need the real game start
+	// look into `OnCountdownEnd()`
 	void OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2);
 
 	// called when the round ends
