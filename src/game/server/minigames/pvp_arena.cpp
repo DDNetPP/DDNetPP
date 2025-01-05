@@ -57,7 +57,6 @@ void CPvpArena::Join(CPlayer *pPlayer)
 			pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			pChr->m_IsPvpArenaing = true;
 			pChr->m_isDmg = true;
-			pChr->UnFreeze(); // seems like the server thinks we touched the freeze that we teleported over
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
 		})
 		.OnFailure([=](const char *pShort, const char *pLong) {

@@ -145,6 +145,10 @@ void CCharacter::PostSpawnDDPP()
 
 void CCharacter::DDPPDDRacePostCoreTick()
 {
+	// has to be post core to make sure
+	// teleporting over freeze does not freeze
+	m_TeleRequest.Tick();
+
 	if(!isFreezed)
 		m_FirstFreezeTick = 0;
 }
@@ -683,8 +687,6 @@ void CCharacter::DDPP_Tick()
 	char aBuf[256];
 	DummyTick();
 	CosmeticTick();
-
-	m_TeleRequest.Tick();
 
 	m_pPlayer->m_InputTracker.OnTick(&m_Input, m_pPlayer->m_PlayerFlags);
 
