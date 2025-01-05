@@ -4,31 +4,29 @@
     https://github.com/fstd/teeworlds/blob/edceb914f47f3fb6407a85f8cd01060bf79b847a/src/game/server/entities/loltext.cpp
 */
 
+#include <base/system.h>
 #include <game/server/gamecontext.h>
 
 #include "laser_text.h"
 
-CLaserText::CLaserText(CGameWorld *pGameWorld, vec2 Pos, int Owner, int pAliveTicks, const char *pText, int pTextLen) :
+CLaserText::CLaserText(CGameWorld *pGameWorld, vec2 Pos, int AliveTicks, const char *pText) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos)
 {
 	m_Pos = Pos;
-	m_Owner = Owner;
 	GameWorld()->InsertEntity(this);
 
 	m_CurTicks = Server()->Tick();
 	m_StartTick = Server()->Tick();
-	m_AliveTicks = pAliveTicks;
+	m_AliveTicks = AliveTicks;
 
-	m_TextLen = pTextLen;
-	m_Text = new char[pTextLen + 1];
-	memcpy(m_Text, pText, pTextLen);
-	m_Text[pTextLen] = '\0';
+	str_copy(m_aText, pText, sizeof(m_aText));
+	m_TextLen = str_length(m_aText);
 
 	m_NumPlasma = 0;
 	m_MaxPlasmas = 0;
 	for(int i = 0; i < m_TextLen; ++i)
 	{
-		unsigned char Letter = (unsigned char)m_Text[i];
+		unsigned char Letter = (unsigned char)m_aText[i];
 		for(int x = 0; x < ASCII_CHAR_WIDTH; x++)
 			for(int y = 0; y < ASCII_CHAR_HEIGHT; y++)
 				if(gs_aaaAsciiTable[Letter][y][x])
@@ -44,10 +42,9 @@ CLaserText::~CLaserText()
 {
 	for(int i = 0; i < m_MaxPlasmas; ++i)
 	{
-		delete(CLolPlasma *)m_LolPlasmas[i];
+		delete m_LolPlasmas[i];
 	}
 	delete[] m_LolPlasmas;
-	delete[] m_Text;
 }
 
 void CLaserText::CreateLetter(unsigned char Ascii, int Offset)
@@ -59,8 +56,8 @@ void CLaserText::CreateLetter(unsigned char Ascii, int Offset)
 	// dbg_msg("laser_text", "create letter %d at offset %d", Ascii, Offset);
 
 	const int Spacing = 20;
-	const int LetterWidth = Spacing * ASCII_CHAR_WIDTH + 5;
-	vec2 Origin = vec2(GetPos().x + Offset * LetterWidth, GetPos().y);
+	const int LetterWidth = (Spacing * ASCII_CHAR_WIDTH) + 5;
+	vec2 Origin = vec2(GetPos().x + (Offset * LetterWidth), GetPos().y);
 	for(int x = 0; x < ASCII_CHAR_WIDTH; x++)
 	{
 		for(int y = 0; y < ASCII_CHAR_HEIGHT; y++)
@@ -70,7 +67,7 @@ void CLaserText::CreateLetter(unsigned char Ascii, int Offset)
 
 			m_LolPlasmas[m_NumPlasma] = new CLolPlasma(
 				GameWorld(),
-				vec2(Origin.x + x * Spacing, Origin.y + y * Spacing));
+				vec2(Origin.x + (x * Spacing), Origin.y + (y * Spacing)));
 			m_NumPlasma++;
 		}
 	}
@@ -81,7 +78,7 @@ void CLaserText::CreateLetters()
 	int Offset = 0;
 	for(int i = 0; i < m_TextLen; ++i)
 	{
-		unsigned char Letter = (unsigned char)m_Text[i];
+		unsigned char Letter = (unsigned char)m_aText[i];
 		CreateLetter(Letter, Offset++);
 	}
 	if(m_NumPlasma != m_MaxPlasmas)
@@ -99,7 +96,7 @@ void CLaserText::Reset()
 void CLaserText::Tick()
 {
 	if(++m_CurTicks - m_StartTick > m_AliveTicks)
-		m_MarkedForDestroy = true;
+		Reset();
 }
 
 void CLaserText::TickPaused()

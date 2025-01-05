@@ -9,6 +9,8 @@
 
 #include <game/server/entity.h>
 
+#define MAX_LASER_TEXT_LEN 32
+
 class CLolPlasma : public CEntity
 {
 public:
@@ -22,25 +24,23 @@ public:
 class CLaserText : public CEntity
 {
 public:
-	CLaserText(CGameWorld *pGameWorld, vec2 Pos, int Owner, int pAliveTicks, const char *pText, int pTextLen);
-	virtual ~CLaserText();
+	CLaserText(CGameWorld *pGameWorld, vec2 Pos, int AliveTicks, const char *pText);
+	~CLaserText() override;
 
-	virtual void Reset() override;
-	virtual void Tick() override;
-	virtual void TickPaused() override;
-	virtual void Snap(int SnappingClient) override;
+	void Reset() override;
+	void Tick() override;
+	void TickPaused() override;
+	void Snap(int SnappingClient) override;
 
 private:
 	void CreateLetters();
 	void CreateLetter(unsigned char Ascii, int Offset);
 
-	int m_Owner;
-
 	int m_AliveTicks;
 	int m_CurTicks;
 	int m_StartTick;
 
-	char *m_Text;
+	char m_aText[MAX_LASER_TEXT_LEN];
 	int m_TextLen;
 
 	CLolPlasma **m_LolPlasmas;

@@ -7808,7 +7808,7 @@ void CGameContext::ConBroadcastServer(IConsole::IResult *pResult, void *pUserDat
 	pSelf->SendBroadcastAll(pResult->GetString(0), 1, true); //send as important broadcast
 }
 
-void CGameContext::ConLasertext(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConLaserText(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientId(pResult->m_ClientId))
@@ -7833,10 +7833,8 @@ void CGameContext::ConLasertext(IConsole::IResult *pResult, void *pUserData)
 	new CLaserText(
 		&pSelf->m_World,
 		vec2(pChr->GetPos().x, pChr->GetPos().y - (5 * 32)),
-		pPlayer->GetCid(),
 		pSelf->Server()->TickSpeed() * 3,
-		pResult->GetString(0),
-		str_length(pResult->GetString(0)));
+		pResult->GetString(0));
 }
 
 void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)

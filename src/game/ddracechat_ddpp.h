@@ -103,8 +103,8 @@ CHAT_COMMAND("say_srv", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSayServer, this, 
 CHAT_COMMAND("broadcast_srv", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBroadcastServer, this, "broadcasts something as server")
 CHAT_COMMAND("hook", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHook, this, "modify your hook with this command")
 
-CHAT_COMMAND("lasertext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLasertext, this, "write some text in the world (lasertext from fng)")
-CHAT_COMMAND("loltext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLasertext, this, "write some text in the world (lasertext from fng)")
+CHAT_COMMAND("lasertext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLaserText, this, "write some text in the world (lasertext from fng)")
+CHAT_COMMAND("loltext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLaserText, this, "write some text in the world (lasertext from fng)")
 
 //Others
 CHAT_COMMAND("market", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStockMarket, this, "buy and sell virtual goods in the unregulated free market")

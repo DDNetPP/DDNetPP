@@ -834,7 +834,7 @@ private:
 	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
 	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
-	static void ConLasertext(IConsole::IResult *pResult, void *pUserData);
+	static void ConLaserText(IConsole::IResult *pResult, void *pUserData);
 
 	//police
 	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
