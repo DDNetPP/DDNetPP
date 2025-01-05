@@ -84,7 +84,7 @@ public:
 	virtual bool AllowSelfKill(int ClientId) { return true; }
 
 	// Will be called when the CCharacter dies
-	virtual void OnDeath(CCharacter *pChr, int Killer){};
+	virtual void OnDeath(CCharacter *pChr, int Killer, int Weapon){};
 
 	// Will be called after the CCharacter spawned
 	virtual void PostSpawn(CCharacter *pChr){};

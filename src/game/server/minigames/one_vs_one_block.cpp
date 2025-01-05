@@ -19,7 +19,7 @@ bool COneVsOneBlock::IsActive(int ClientId)
 	return pPlayer->m_IsBlockOneVsOneing;
 }
 
-void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer)
+void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
 	if(!pPlayer->m_IsBlockOneVsOneing)

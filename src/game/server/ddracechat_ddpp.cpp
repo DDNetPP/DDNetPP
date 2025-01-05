@@ -1564,7 +1564,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "[ACCOUNT] You can't logout in bomb games. ('/bomb leave' to leave)");
 			return;
 		}
-		if(pPlayer->GetCharacter()->m_IsPVParena)
+		if(pPlayer->GetCharacter()->m_IsPvpArenaing)
 		{
 			pSelf->SendChatTarget(ClientId, "[ACCOUNT] You can't logout in pvp_arena. ('/pvp_arena leave' to leave)");
 			return;
@@ -2586,7 +2586,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
 			return;
 		}
-		if(pPlayer->GetCharacter()->m_IsPVParena)
+		if(pPlayer->GetCharacter()->m_IsPvpArenaing)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] You are already in the PvP-arena");
 			return;
@@ -2610,16 +2610,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(aInput, "leave"))
 	{
-		if(pPlayer->GetCharacter()->m_IsPVParena)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] Teleport request sent. Don't move for 6 seconds.");
-			pPlayer->GetCharacter()->m_pvp_arena_tele_request_time = pSelf->Server()->TickSpeed() * 6;
-			pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "[PVP] You are not in an arena.");
-		}
+		pSelf->m_pPvpArena->Leave(pPlayer);
 	}
 	else
 	{

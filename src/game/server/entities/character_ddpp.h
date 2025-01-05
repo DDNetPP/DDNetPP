@@ -189,7 +189,8 @@ public:
 	//bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
 	//bool m_Hammerarena_exit_request;
 	//int m_Hammerarena_exit_request_time;
-	bool m_IsPVParena;
+	//
+	bool m_IsPvpArenaing = false;
 	bool m_pvp_arena_exit_request;
 	int m_pvp_arena_tele_request_time;
 	bool m_isHeal;

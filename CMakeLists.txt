@@ -2866,6 +2866,8 @@ if(SERVER)
     minigames/minigame_base.h
     minigames/one_vs_one_block.cpp
     minigames/one_vs_one_block.h
+    minigames/pvp_arena.cpp
+    minigames/pvp_arena.h
     minigames/save_ddpp.cpp
     minigames/save_ddpp.h
     minigames/survival.cpp

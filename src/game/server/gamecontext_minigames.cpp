@@ -57,7 +57,7 @@ int CGameContext::IsMinigame(int playerId) //if you update this function please 
 		{
 			return 5;
 		}
-		if(pChr->m_IsPVParena)
+		if(pChr->m_IsPvpArenaing)
 		{
 			return 6;
 		}

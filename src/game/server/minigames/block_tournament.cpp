@@ -359,7 +359,7 @@ int CBlockTournament::CountAlive()
 	return c;
 }
 
-void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
+void CBlockTournament::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 {
 	if(!pChr)
 		return;

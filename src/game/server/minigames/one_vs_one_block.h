@@ -19,7 +19,7 @@ public:
 	// void OnPlayerConnect(class CPlayer *pPlayer) override;
 	// void CharacterTick(CCharacter *pChr) override;
 	// bool AllowSelfKill(int ClientId) override;
-	void OnDeath(CCharacter *pChr, int Killer) override;
+	void OnDeath(CCharacter *pChr, int Killer, int Weapon) override;
 	// void PostSpawn(CCharacter *pChr) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 	// bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) override;

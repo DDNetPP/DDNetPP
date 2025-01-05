@@ -18,6 +18,7 @@
 #include <game/server/minigames/blockwave.h>
 #include <game/server/minigames/instagib.h>
 #include <game/server/minigames/one_vs_one_block.h>
+#include <game/server/minigames/pvp_arena.h>
 #include <game/server/teams.h>
 
 #include "save.h"
@@ -50,6 +51,7 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pInstagib = nullptr;
 	m_pBlockwave = nullptr;
 	m_pOneVsOneBlock = nullptr;
+	m_pPvpArena = nullptr;
 	// other
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
@@ -365,11 +367,14 @@ void CGameContext::OnInitDDPP()
 		m_pBlockwave = new CBlockwave(this);
 	if(!m_pOneVsOneBlock)
 		m_pOneVsOneBlock = new COneVsOneBlock(this);
+	if(!m_pPvpArena)
+		m_pPvpArena = new CPvpArena(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
 	m_vMinigames.push_back(m_pInstagib);
 	m_vMinigames.push_back(m_pBlockwave);
 	m_vMinigames.push_back(m_pOneVsOneBlock);
+	m_vMinigames.push_back(m_pPvpArena);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();
@@ -521,13 +526,6 @@ bool CGameContext::InitTileDDPP(int Index, int x, int y)
 		BlockTournaSpawn.m_Center = vec2(x, y);
 		dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
 		m_BlockTournaSpawn.push_back(BlockTournaSpawn);
-	}
-	else if(Index == TILE_PVP_ARENA_SPAWN)
-	{
-		CPVPArenaSpawn PVPArenaSpawn;
-		PVPArenaSpawn.m_Center = vec2(x, y);
-		dbg_msg("game layer", "got pvp arena spawn tile at (%.2f|%.2f)", PVPArenaSpawn.m_Center.x, PVPArenaSpawn.m_Center.y);
-		m_PVPArenaSpawn.push_back(PVPArenaSpawn);
 	}
 	else if(Index == TILE_VANILLA_MODE)
 	{

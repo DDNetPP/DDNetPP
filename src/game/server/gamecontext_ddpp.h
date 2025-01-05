@@ -28,6 +28,7 @@
 #include "minigames/blockwave.h"
 #include "minigames/instagib.h"
 #include "minigames/one_vs_one_block.h"
+#include "minigames/pvp_arena.h"
 
 #include "ddpp/dummymode.h"
 
@@ -361,6 +362,7 @@ public:
 	CInstagib *m_pInstagib;
 	CBlockwave *m_pBlockwave;
 	COneVsOneBlock *m_pOneVsOneBlock;
+	CPvpArena *m_pPvpArena;
 
 	std::vector<CMinigame *> m_vMinigames;
 
@@ -623,13 +625,6 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CBlockTournaSpawn> m_BlockTournaSpawn;
-
-	struct CPVPArenaSpawn // probably doesn't belong here, but whatever
-	{
-		int m_NumContestants;
-		vec2 m_Center;
-	};
-	std::vector<CPVPArenaSpawn> m_PVPArenaSpawn;
 
 	struct CVanillaMode // probably doesn't belong here, but whatever
 	{

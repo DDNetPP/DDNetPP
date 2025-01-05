@@ -546,7 +546,7 @@ void CCharacter::PvPArenaTick()
 		{
 			m_pPlayer->m_Account.m_PvpArenaTickets++;
 			m_Health = 10;
-			m_IsPVParena = false;
+			m_IsPvpArenaing = false;
 			m_isDmg = false;
 
 			m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
@@ -568,7 +568,7 @@ void CCharacter::PvPArenaTick()
 
 			m_pPlayer->m_Account.m_PvpArenaTickets--;
 			m_pPlayer->m_Account.m_PvpArenaGamesPlayed++;
-			m_IsPVParena = true;
+			m_IsPvpArenaing = true;
 			m_isDmg = true;
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
 			return;
@@ -1307,7 +1307,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	KillingSpree(Killer); // previously called BlockKillingSpree()
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	for(auto &Minigame : GameServer()->m_vMinigames)
-		Minigame->OnDeath(this, Killer);
+		Minigame->OnDeath(this, Killer, Weapon);
 	if(m_TeleRequest.IsActive())
 		m_TeleRequest.OnDeath();
 	InstagibSubDieFunc(Killer, Weapon);
@@ -1394,59 +1394,6 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2, Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1);
 				GameServer()->StopBalanceBattle();
 			}
-		}
-	}
-
-	// TODO: refactor this code and put it in own function
-	// ChillerDragon pvparena code
-	if(GameServer()->m_apPlayers[Killer])
-	{
-		if(GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME && Weapon != WEAPON_SELF)
-		{
-			//GameServer()->GetPlayerChar(Killer)->m_Bloody = true;
-
-			if(GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
-			{
-				if(GameServer()->m_apPlayers[Killer]->IsMaxLevel() ||
-					GameServer()->IsSameIp(Killer, m_pPlayer->GetCid()) || // dont give xp on dummy kill
-					GameServer()->IsSameIp(m_pPlayer->GetCid(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
-				)
-				{
-					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
-					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
-
-					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCid()));
-					GameServer()->SendChatTarget(Killer, aBuf);
-				}
-				else
-				{
-					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
-					GameServer()->m_apPlayers[Killer]->GiveXP(100);
-					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
-
-					str_format(aBuf, sizeof(aBuf), "[PVP] +100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCid()));
-					GameServer()->SendChatTarget(Killer, aBuf);
-				}
-
-				int r = rand() % 100;
-				if(r > 92)
-				{
-					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaTickets++;
-					GameServer()->SendChatTarget(Killer, "[PVP] +1 pvp_arena_ticket        (special random drop for kill)");
-				}
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCid();
-			}
-		}
-	}
-	if(m_pPlayer) //victim
-	{
-		//m_pPlayer->m_InfRainbow = true;
-		if(m_IsPVParena)
-		{
-			m_pPlayer->m_Account.m_PvpArenaDeaths++;
-
-			str_format(aBuf, sizeof(aBuf), "[PVP] You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
-			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		}
 	}
 

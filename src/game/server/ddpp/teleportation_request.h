@@ -14,12 +14,19 @@ typedef std::function<void()> FTeleRequestSuccess;
 //
 // example usage:
 //
-// CCharacter *pChr = pPlayer->GetCharacter();
 // pChr->RequestTeleToTile(TILE_BLOCK_DM_A1)
-// 	.SetName("1vs1")
-// 	.DelayInSeconds(10)
-// 	.OnSuccess([&]() { SendChatTarget(pPlayer->GetCid(), "tele worked uwu"); })
-// 	.OnFailure([&](const char *pMessage) { SendChatTarget(pPlayer->GetCid(), pMessage); });
+// 	.DelayInSeconds(3)
+// 	.OnPreSuccess([=]() {
+// 		SavePosition(pChr->GetPlayer());
+// 	})
+// 	.OnPostSuccess([=]() {
+// 		OnTeleportSuccess(pGameState, pChr->GetPlayer());
+// 	})
+// 	.OnFailure([=](const char *pShort, const char *pLong) {
+// 		char aError[512];
+// 		str_format(aError, sizeof(aError), "[1vs1] game aborted '%s' failed to teleport (%s)", Server()->ClientName(pChr->GetPlayer()->GetCid()), pShort);
+// 		SendChatTarget(pChr->GetPlayer()->GetCid(), aError);
+// 	});
 class CTeleportationRequest
 {
 	bool m_IsActive = false;
