@@ -34,7 +34,10 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	{
 		pKiller->m_MinigameScore++;
 		if(pKiller->GetCharacter())
+		{
 			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_MINIGAME);
+			pKiller->Respawn();
+		}
 	}
 	PrintScoreBroadcast(pState);
 }
@@ -85,7 +88,10 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 	for(CPlayer *pPlayer : apPlayers)
 	{
 		if(pPlayer->GetCharacter())
+		{
 			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
+			pPlayer->Respawn();
+		}
 	}
 }
 
@@ -230,6 +236,7 @@ void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
 				pPlayer->GetCharacter()->m_TeleRequest.Abort();
 			}
 			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
+			pPlayer->Respawn();
 		}
 
 		m_aRestorePos[pPlayer->GetCid()] = true;
