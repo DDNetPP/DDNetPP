@@ -74,6 +74,10 @@ int CGameContext::IsMinigame(int playerId) //if you update this function please 
 	{
 		return 9;
 	}
+	if(pPlayer->m_IsBlockOneVsOneing)
+	{
+		return 10;
+	}
 
 	return 0;
 }

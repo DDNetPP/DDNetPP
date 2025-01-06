@@ -740,8 +740,13 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_RACE;
 
 	if(pPlayer)
-		if(pPlayer->m_DisplayScore == SCORE_TIME || GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
+	{
+		if(GameServer()->IsMinigame(pPlayer->GetCid()) && GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+		else if(pPlayer->m_DisplayScore == SCORE_TIME)
+			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+	}
+
 	pGameInfoEx->m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE;
 	if(g_Config.m_SvNoWeakHook)
 		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;

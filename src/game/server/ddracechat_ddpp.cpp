@@ -1705,6 +1705,7 @@ void CGameContext::ConMinigames(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientId, "[BLOCKWAVE]   '/blockwave'"); // 7
 		// block tournament										/join						// 8
 		pSelf->SendChatTarget(pResult->m_ClientId, "[BLOCK]            '/block'"); // 9
+		pSelf->SendChatTarget(pResult->m_ClientId, "[1vs1]              '/1vs1'"); // 10
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "status"))
 	{
@@ -1757,6 +1758,11 @@ void CGameContext::ConMinigames(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[BLOCK] '/block' to join");
 			pSelf->SendChatTarget(pResult->m_ClientId, "[BLOCK] '/leave' to leave block deathmatch");
+		}
+		else if(GameId == 10)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientId, "[1vs1] '/1vs1' to join");
+			pSelf->SendChatTarget(pResult->m_ClientId, "[1vs1] '/leave' to leave block 1vs1");
 		}
 		else
 		{
