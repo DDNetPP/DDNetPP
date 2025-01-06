@@ -444,12 +444,12 @@ void COneVsOneBlock::PlayerSlowTick(CPlayer *pPlayer)
 	int ClientId = pPlayer->GetCid();
 	char aBuf[512];
 
-	if(pPlayer->m_BlockOneVsOneInviteExpire && time_get() > pPlayer->m_BlockOneVsOneInviteExpire)
+	if(pPlayer->m_BlockOneVsOneRequestedId != -1 && pPlayer->m_BlockOneVsOneInviteExpire && time_get() > pPlayer->m_BlockOneVsOneInviteExpire)
 	{
-		pPlayer->m_BlockOneVsOneRequestedId = -1;
 		const char *pName = Server()->ClientName(pPlayer->m_BlockOneVsOneRequestedId);
 		str_format(aBuf, sizeof(aBuf), "[1vs1] your invite to '%s' expired.", pName);
 		GameServer()->SendChatTarget(ClientId, aBuf);
+		pPlayer->m_BlockOneVsOneRequestedId = -1;
 	}
 }
 
