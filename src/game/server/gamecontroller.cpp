@@ -741,8 +741,11 @@ void IGameController::Snap(int SnappingClient)
 
 	if(pPlayer)
 	{
-		if(GameServer()->IsMinigame(pPlayer->GetCid()) && GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
-			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+		if(GameServer()->IsMinigaming(pPlayer->GetCid()) && !pPlayer->m_IsJailed)
+		{
+			if(GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
+				pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+		}
 		else if(pPlayer->m_DisplayScore == SCORE_TIME)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	}
