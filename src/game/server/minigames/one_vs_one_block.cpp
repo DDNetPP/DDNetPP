@@ -29,7 +29,7 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	dbg_assert(pState, "1vs1 death without game state");
 
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
-	if(pState->IsRunning() && Killer == pKiller->GetCid())
+	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME)
 	{
 		pKiller->m_MinigameScore++;
 		pKiller->KillCharacter();
@@ -83,6 +83,26 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 	pGameState->m_pPlayer2->KillCharacter();
 }
 
+bool COneVsOneBlock::AllowSelfKill(int ClientId)
+{
+	if(ClientId < 0 || ClientId > MAX_CLIENTS)
+		return true;
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return true;
+	if(!IsActive(ClientId))
+		return true;
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return false;
+
+	// avoid messing with the round start freeze
+	int SecondsSinceSpawn = (Server()->Tick() - pChr->m_SpawnTick) / Server()->TickSpeed();
+	if(SecondsSinceSpawn < 5)
+		return false;
+	return true;
+}
+
 void COneVsOneBlock::PostSpawn(CCharacter *pChr)
 {
 	if(!pChr)
@@ -95,7 +115,6 @@ void COneVsOneBlock::PostSpawn(CCharacter *pChr)
 
 	pChr->Freeze(3);
 }
-
 
 // called before OnCountdownEnd()
 void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
