@@ -75,6 +75,7 @@ CTeleportationRequest &CTeleportationRequest::DelayInSeconds(int Seconds)
 {
 	dbg_assert(IsActive(), "request not active");
 	m_TicksUntilTeleportation = Seconds * m_pCharacter->Server()->TickSpeed();
+	m_TicksUntilTeleportation++; // make sure the first laser text is printed
 	m_Seconds = Seconds;
 
 	if(!g_Config.m_SvTeleportationDelay)
