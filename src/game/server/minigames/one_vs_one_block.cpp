@@ -2,6 +2,7 @@
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
@@ -29,11 +30,11 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	dbg_assert(pState, "1vs1 death without game state");
 
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
-	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME)
+	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
 		pKiller->m_MinigameScore++;
 		if(pKiller->GetCharacter())
-			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_GAME);
+			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_MINIGAME);
 	}
 	PrintScoreBroadcast(pState);
 }
@@ -84,7 +85,7 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 	for(CPlayer *pPlayer : apPlayers)
 	{
 		if(pPlayer->GetCharacter())
-			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_GAME);
+			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
 	}
 }
 
@@ -228,7 +229,7 @@ void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
 				SendChatTarget(pPlayer->GetCid(), "[1vs1] teleportation request aborted because of game end.");
 				pPlayer->GetCharacter()->m_TeleRequest.Abort();
 			}
-			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_GAME);
+			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
 		}
 
 		m_aRestorePos[pPlayer->GetCid()] = true;
