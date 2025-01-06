@@ -2835,6 +2835,7 @@ if(SERVER)
     gamecontext_votes.cpp
     gamecontroller.cpp
     gamecontroller.h
+    gamecontroller_ddpp.cpp
     gamecontroller_ddpp.h
     gamemodes/DDRace.cpp
     gamemodes/DDRace.h
@@ -2844,6 +2845,7 @@ if(SERVER)
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
     gamemodes/ddnetpp/flags.cpp
+    gamemodes/ddnetpp/snapshot.cpp
     gamemodes/ddnetpp/spawn.cpp
     gamemodes/ddnetpp/tiles.cpp
     gamemodes/mod.cpp

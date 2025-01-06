@@ -52,6 +52,20 @@ public:
 	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; };
 
 	/*
+		Function: SnapPlayerScore
+			Warning its value could be overwritten by `CPlayer::DDPPSnapChangePlayerInfo()`
+
+		Arguments:
+			SnappingClient - Client Id of the player that will receive the snapshot
+			pPlayer - CPlayer that is being snapped
+			DDRaceScore - Current value of the score set by the ddnet code
+
+		Returns:
+			return the new score value that will be included in the snapshot
+	*/
+	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore);
+
+	/*
 		Function: PrintJoinMessage
 			prints the chat message "entered and %s joined the game"
 			this can be called on join

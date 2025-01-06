@@ -384,13 +384,11 @@ void CPlayer::Snap(int SnappingClient)
 		Score = -9999;
 	}
 
-	// DDNet++ score mod
-	if(g_Config.m_SvInstagibMode)
-		Score = m_MinigameScore;
-
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientId && g_Config.m_SvHideScore)
 		Score = -9999;
+
+	Score = GameServer()->m_pController->SnapPlayerScore(SnappingClient, this, Score); // ddnet++
 
 	if(!Server()->IsSixup(SnappingClient))
 	{
