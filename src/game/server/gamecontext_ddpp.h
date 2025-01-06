@@ -26,6 +26,7 @@
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
+#include "minigames/bomb.h"
 #include "minigames/instagib.h"
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
@@ -365,6 +366,7 @@ public:
 	COneVsOneBlock *m_pOneVsOneBlock = nullptr;
 	CPvpArena *m_pPvpArena = nullptr;
 	CSurvival *m_pSurvival = nullptr;
+	CBomb *m_pBomb = nullptr;
 
 	std::vector<CMinigame *> m_vMinigames;
 

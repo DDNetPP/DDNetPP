@@ -16,6 +16,7 @@
 #include <game/server/minigames/balance.h>
 #include <game/server/minigames/block_tournament.h>
 #include <game/server/minigames/blockwave.h>
+#include <game/server/minigames/bomb.h>
 #include <game/server/minigames/instagib.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/server/minigames/pvp_arena.h>
@@ -53,6 +54,8 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pBlockwave = nullptr;
 	m_pOneVsOneBlock = nullptr;
 	m_pPvpArena = nullptr;
+	m_pSurvival = nullptr;
+	m_pBomb = nullptr;
 	// other
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
@@ -372,6 +375,8 @@ void CGameContext::OnInitDDPP()
 		m_pPvpArena = new CPvpArena(this);
 	if(!m_pSurvival)
 		m_pSurvival = new CSurvival(this);
+	if(!m_pBomb)
+		m_pBomb = new CBomb(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
 	m_vMinigames.push_back(m_pInstagib);
@@ -379,6 +384,7 @@ void CGameContext::OnInitDDPP()
 	m_vMinigames.push_back(m_pOneVsOneBlock);
 	m_vMinigames.push_back(m_pPvpArena);
 	m_vMinigames.push_back(m_pSurvival);
+	m_vMinigames.push_back(m_pBomb);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();

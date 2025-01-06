@@ -7,6 +7,18 @@
 #include <cstring>
 
 #include "../gamecontext.h"
+#include "bomb.h"
+
+bool CBomb::IsActive(int ClientId)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return false;
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return false;
+	return pChr->m_IsBombing;
+}
 
 void CGameContext::EndBombGame(int WinnerId)
 {

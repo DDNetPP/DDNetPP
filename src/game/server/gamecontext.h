@@ -17,6 +17,7 @@
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
+#include "minigames/bomb.h"
 #include "minigames/instagib.h"
 #include "minigames/minigame_base.h"
 #include "minigames/one_vs_one_block.h"
