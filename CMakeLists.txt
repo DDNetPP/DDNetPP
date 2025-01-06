@@ -2871,6 +2871,7 @@ if(SERVER)
     minigames/save_ddpp.cpp
     minigames/save_ddpp.h
     minigames/survival.cpp
+    minigames/survival.h
     player.cpp
     player.h
     player_ddpp.cpp

@@ -19,6 +19,7 @@
 #include <game/server/minigames/instagib.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/server/minigames/pvp_arena.h>
+#include <game/server/minigames/survival.h>
 #include <game/server/teams.h>
 
 #include "save.h"
@@ -369,12 +370,15 @@ void CGameContext::OnInitDDPP()
 		m_pOneVsOneBlock = new COneVsOneBlock(this);
 	if(!m_pPvpArena)
 		m_pPvpArena = new CPvpArena(this);
+	if(!m_pSurvival)
+		m_pSurvival = new CSurvival(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
 	m_vMinigames.push_back(m_pInstagib);
 	m_vMinigames.push_back(m_pBlockwave);
 	m_vMinigames.push_back(m_pOneVsOneBlock);
 	m_vMinigames.push_back(m_pPvpArena);
+	m_vMinigames.push_back(m_pSurvival);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();

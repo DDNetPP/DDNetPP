@@ -5,6 +5,16 @@
 
 #include "../gamecontext.h"
 
+#include "survival.h"
+
+bool CSurvival::IsActive(int ClientId)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return false;
+	return pPlayer->m_IsSurvivaling;
+}
+
 vec2 CGameContext::GetNextSurvivalSpawn(int ClientId)
 {
 	vec2 Spawn = Collision()->GetSurvivalSpawn(m_survival_spawn_counter++);

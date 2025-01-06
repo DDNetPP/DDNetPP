@@ -29,6 +29,7 @@
 #include "minigames/instagib.h"
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
+#include "minigames/survival.h"
 
 #include "ddpp/dummymode.h"
 
@@ -357,12 +358,13 @@ public:
 	void GlobalChatUpdateConfirms(const char *pStr);
 	char m_aLastPrintedGlobalChatMessage[1024];
 
-	CBlockTournament *m_pBlockTournament;
-	CBalance *m_pBalance;
-	CInstagib *m_pInstagib;
-	CBlockwave *m_pBlockwave;
-	COneVsOneBlock *m_pOneVsOneBlock;
-	CPvpArena *m_pPvpArena;
+	CBlockTournament *m_pBlockTournament = nullptr;
+	CBalance *m_pBalance = nullptr;
+	CInstagib *m_pInstagib = nullptr;
+	CBlockwave *m_pBlockwave = nullptr;
+	COneVsOneBlock *m_pOneVsOneBlock = nullptr;
+	CPvpArena *m_pPvpArena = nullptr;
+	CSurvival *m_pSurvival = nullptr;
 
 	std::vector<CMinigame *> m_vMinigames;
 
