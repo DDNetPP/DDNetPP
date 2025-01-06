@@ -3,6 +3,7 @@
 
 #include <base/vmath.h>
 
+#include <cstdint>
 #include <functional>
 
 typedef std::function<void(const char *pErrorShort, const char *pErrorLong)> FTeleRequestFailure;
@@ -45,6 +46,8 @@ class CTeleportationRequest
 	FTeleRequestSuccess m_pfnPostSuccess = nullptr;
 	int m_Seconds = 10;
 	vec2 m_DestinationPos;
+	int64_t m_RequestStartTick = 0;
+	bool m_MoveWarningPrinted = false;
 
 public:
 	CTeleportationRequest &TeleportToPos(class CCharacter *pCharacter, vec2 Pos);

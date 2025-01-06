@@ -21,6 +21,8 @@ CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharact
 	}
 
 	m_IsActive = true;
+	m_MoveWarningPrinted = false;
+	m_RequestStartTick = pCharacter->Server()->Tick();
 	m_DestinationPos = Pos;
 	DelayInSeconds(10);
 	return *this;
@@ -99,7 +101,22 @@ void CTeleportationRequest::Tick()
 		m_pCharacter->Core()->m_Vel.y > 0.6f ||
 		m_pCharacter->Core()->m_Vel.y < -0.6f)
 	{
-		DeferError("moved", "Teleportation failed because you moved.");
+		int SecondsSinceStart = (m_pCharacter->Server()->Tick() - m_RequestStartTick) / m_pCharacter->Server()->TickSpeed();
+		if(SecondsSinceStart > 1)
+		{
+			DeferError("moved", "Teleportation failed because you moved.");
+		}
+		else
+		{
+			// restart timer on move
+			DelayInSeconds(m_Seconds);
+
+			if(!m_MoveWarningPrinted)
+			{
+				m_pCharacter->GameServer()->SendChatTarget(m_pCharacter->GetPlayer()->GetCid(), "[Teleportation] Stop moving or the request will fail.");
+				m_MoveWarningPrinted = true;
+			}
+		}
 	}
 
 	if(m_aErrorMsgShort[0])
