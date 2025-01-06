@@ -175,6 +175,13 @@ public:
 	// also returns true for jail
 	bool IsMinigaming(int ClientId);
 	EScore MinigameScoreType(int ClientId);
+
+	// returns the currently active minigame or nullptr
+	//
+	// TODO: this could be cached instead of iterating minigames
+	//       this could be stored in a CGameContext instance variable
+	//       which is updated when the minigame is changed
+	CMinigame *GetMinigame(int ClientId);
 	bool IsDDPPgametype(const char *pGametype);
 	int GetCidByName(const char *pName);
 	int CountConnectedPlayers();

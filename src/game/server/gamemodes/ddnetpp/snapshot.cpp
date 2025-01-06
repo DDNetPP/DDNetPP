@@ -1,4 +1,5 @@
 #include <engine/shared/protocol.h>
+#include <game/server/ddpp/enums.h>
 
 #include "ddnetpp.h"
 
@@ -13,10 +14,6 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[SnappingClient];
 	if(!pSnapReceiver)
 		return DDRaceScore;
-
-	// DDNet++ score mod
-	if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
-		return pPlayer->m_MinigameScore;
 
 	if(pSnapReceiver->IsInstagibMinigame())
 	{
@@ -88,5 +85,26 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 		}
 	}
 
+	// TODO: watafak is this? can we please delete it?
+	//       fully instagib mode servers should be deprecated
+	//       and ddnet-insta should be used instead
+	//       in ddnet++ there should only be minigames
+	//       if you want to host a server that is only about one minigame
+	//       then you need a regular ddrace lobby and a minigame join tile
+	//       or some auto join config
+	//       but then all the things like snapping score should be done by
+	//       the minigame and not by the config that activates the minigame on spawn
+	//
+	//       if you want to mess with the global score type
+	//       use sv_display_score
+	if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
+		return pPlayer->m_MinigameScore;
+
+	// this is a bit cursed
+	// it is used for 1vs1 for now
+	// but ideally it would also be used for survival where SCORE_BLOCK sounds a bit wrong
+	CMinigame *pMinigame = GameServer()->GetMinigame(pSnapReceiver->GetCid());
+	if(pMinigame && pMinigame->ScoreType() == SCORE_BLOCK)
+		return pPlayer->m_MinigameScore;
 	return DDRaceScore;
 }

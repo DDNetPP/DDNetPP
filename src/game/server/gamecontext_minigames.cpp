@@ -9,12 +9,18 @@
 
 EScore CGameContext::MinigameScoreType(int ClientId)
 {
-	for(CMinigame *pMinigame : m_vMinigames)
-	{
-		if(pMinigame->IsActive(ClientId))
-			return pMinigame->ScoreType();
-	}
+	CMinigame *pMinigame = GetMinigame(ClientId);
+	if(pMinigame)
+		pMinigame->ScoreType();
 	return SCORE_BLOCK;
+}
+
+CMinigame *CGameContext::GetMinigame(int ClientId)
+{
+	for(CMinigame *pMinigame : m_vMinigames)
+		if(pMinigame->IsActive(ClientId))
+			return pMinigame;
+	return nullptr;
 }
 
 bool CGameContext::IsMinigaming(int ClientId)
