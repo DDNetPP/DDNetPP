@@ -83,6 +83,20 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 	pGameState->m_pPlayer2->KillCharacter();
 }
 
+void COneVsOneBlock::PostSpawn(CCharacter *pChr)
+{
+	if(!pChr)
+		return;
+	CPlayer *pPlayer = pChr->GetPlayer();
+	if(!pPlayer)
+		return;
+	if(!IsActive(pPlayer->GetCid()))
+		return;
+
+	pChr->Freeze(3);
+}
+
+
 // called before OnCountdownEnd()
 void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 {
