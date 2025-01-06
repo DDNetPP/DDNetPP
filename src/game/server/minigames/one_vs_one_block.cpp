@@ -32,7 +32,8 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME)
 	{
 		pKiller->m_MinigameScore++;
-		pKiller->KillCharacter();
+		if(pKiller->GetCharacter())
+			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_GAME);
 	}
 	PrintScoreBroadcast(pState);
 }
@@ -79,8 +80,12 @@ void COneVsOneBlock::OnCountdownEnd(CGameState *pGameState)
 	pGameState->m_State = CGameState::EState::RUNNING;
 	PrintScoreBroadcast(pGameState);
 
-	pGameState->m_pPlayer1->KillCharacter();
-	pGameState->m_pPlayer2->KillCharacter();
+	CPlayer *apPlayers[] = {pGameState->m_pPlayer1, pGameState->m_pPlayer2};
+	for(CPlayer *pPlayer : apPlayers)
+	{
+		if(pPlayer->GetCharacter())
+			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_GAME);
+	}
 }
 
 bool COneVsOneBlock::AllowSelfKill(int ClientId)
@@ -223,9 +228,9 @@ void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
 				SendChatTarget(pPlayer->GetCid(), "[1vs1] teleportation request aborted because of game end.");
 				pPlayer->GetCharacter()->m_TeleRequest.Abort();
 			}
+			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_GAME);
 		}
 
-		pPlayer->KillCharacter();
 		m_aRestorePos[pPlayer->GetCid()] = true;
 	}
 }

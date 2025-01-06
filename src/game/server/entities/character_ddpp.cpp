@@ -148,6 +148,9 @@ void CCharacter::DDPPDDRacePostCoreTick()
 	// teleporting over freeze does not freeze
 	m_TeleRequest.Tick();
 
+	if(!IsAlive())
+		return;
+
 	if(!isFreezed)
 		m_FirstFreezeTick = 0;
 }
