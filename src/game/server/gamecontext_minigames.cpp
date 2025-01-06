@@ -9,15 +9,37 @@
 
 EScore CGameContext::MinigameScoreType(int ClientId)
 {
-	for(auto &Minigame : m_vMinigames)
+	for(CMinigame *pMinigame : m_vMinigames)
 	{
-		if(!Minigame)
-			continue;
-
-		if(Minigame->IsActive(ClientId))
-			return Minigame->ScoreType();
+		if(pMinigame->IsActive(ClientId))
+			return pMinigame->ScoreType();
 	}
 	return SCORE_BLOCK;
+}
+
+bool CGameContext::IsMinigaming(int ClientId)
+{
+	CPlayer *pPlayer = m_apPlayers[ClientId];
+	if(!pPlayer)
+		return false;
+
+	if(pPlayer->m_Account.m_JailTime)
+		return true;
+
+	// TODO: move these to minigame components
+	if(pPlayer->m_IsInstaArena_gdm)
+		return true;
+	if(pPlayer->m_IsInstaArena_idm)
+		return true;
+	if(pPlayer->m_IsBlockDeathmatch)
+		return true;
+
+	for(CMinigame *pMinigame : m_vMinigames)
+	{
+		if(pMinigame->IsActive(ClientId))
+			return true;
+	}
+	return false;
 }
 
 int CGameContext::IsMinigame(int playerId) //if you update this function please also update the '/minigames' chat command

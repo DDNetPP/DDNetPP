@@ -169,7 +169,11 @@ public:
 	//usefull everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
+	// deprecated use IsMinigaming() instead
 	int IsMinigame(int playerId);
+
+	// also returns true for jail
+	bool IsMinigaming(int ClientId);
 	EScore MinigameScoreType(int ClientId);
 	bool IsDDPPgametype(const char *pGametype);
 	int GetCidByName(const char *pName);
