@@ -406,7 +406,9 @@ void CPlayer::Snap(int SnappingClient)
 			// In older versions the SPECTATORS TEAM was also used if the own player is in PAUSE_PAUSED or if any player is in PAUSE_SPEC.
 			pPlayerInfo->m_Team = (m_Paused != PAUSE_PAUSED || m_ClientId != SnappingClient) && m_Paused < PAUSE_SPEC ? m_Team : TEAM_SPECTATORS;
 		}
-		DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
+
+		// ddnet++
+		GameServer()->m_pController->SnapPlayer6(SnappingClient, this, pClientInfo, pPlayerInfo);
 	}
 	else
 	{
@@ -423,7 +425,9 @@ void CPlayer::Snap(int SnappingClient)
 		// Times are in milliseconds for 0.7
 		pPlayerInfo->m_Score = m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1;
 		pPlayerInfo->m_Latency = Latency;
-		DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
+
+		// ddnet++
+		pPlayerInfo->m_PlayerFlags = GameServer()->m_pController->SnapPlayerFlags7(SnappingClient, this, pPlayerInfo->m_PlayerFlags);
 	}
 
 	if(m_ClientId == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))

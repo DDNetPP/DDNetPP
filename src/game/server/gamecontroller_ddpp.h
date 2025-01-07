@@ -52,8 +52,38 @@ public:
 	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; };
 
 	/*
+		Function: SnapPlayerFlags7
+			Set custom player flags for 0.7 connections.
+
+		Arguments:
+			SnappingClient - Client Id of the player that will receive the snapshot
+			pPlayer - CPlayer that is being snapped
+			PlayerFlags7 - the flags that were already set for that player by ddnet
+
+		Returns:
+			return the new flags value that should be snapped to the SnappingClient
+	*/
+	virtual int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) { return PlayerFlags7; };
+
+	/*
+		Function: SnapPlayer6
+			Alter snap values for 0.6 snapshots.
+			For 0.7 use `SnapPlayerFlags7()` and `SnapPlayerScore()`
+
+			Be careful with setting `pPlayerInfo->m_Score` to not overwrite
+			what `SnapPlayerScore()` tries to set.
+
+		Arguments:
+			SnappingClient - Client Id of the player that will receive the snapshot
+			pPlayer - CPlayer that is being snapped
+			pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
+			pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
+	*/
+	virtual void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo){};
+
+	/*
 		Function: SnapPlayerScore
-			Warning its value could be overwritten by `CPlayer::DDPPSnapChangePlayerInfo()`
+			Warning its value could be overwritten by `SnapPlayer6()`
 
 		Arguments:
 			SnappingClient - Client Id of the player that will receive the snapshot

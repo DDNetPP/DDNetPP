@@ -57,8 +57,6 @@ public:
 		returns true if changed skin
 	*/
 	bool DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo);
-	void DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo);
-	void DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo);
 
 	int m_Language;
 	int Language() { return m_Language; }

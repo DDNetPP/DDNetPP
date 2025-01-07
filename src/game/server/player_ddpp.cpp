@@ -571,27 +571,6 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 	return true;
 }
 
-void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo)
-{
-	if(!pSnapping)
-		return;
-
-	// hide players in the captcha room from the scoreboard
-	// this is 0.6 only so 0.7 players see all players at all times (too lazy to fix)
-	if(m_PendingCaptcha)
-		pPlayerInfo->m_Team = TEAM_BLUE;
-
-	// score should be set in IGameController::SnapPlayerScore()
-}
-
-void CPlayer::DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo)
-{
-	if(!pSnapping)
-		return;
-
-	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, (CNetObj_PlayerInfo *)pPlayerInfo);
-}
-
 void CPlayer::OnDisconnectDDPP()
 {
 	if(m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
