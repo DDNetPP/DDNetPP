@@ -109,6 +109,33 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	return DDRaceScore;
 }
 
+int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
+{
+	if(SnappingClient < 0 || SnappingClient >= MAX_CLIENTS)
+		return 0;
+
+	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[SnappingClient];
+	if(!pSnapReceiver)
+		return CGameControllerDDRace::SnapScoreLimit(SnappingClient);
+
+	if(pSnapReceiver->IsInstagibMinigame())
+	{
+		if(pSnapReceiver->m_IsInstaMode_fng)
+		{
+			if(pSnapReceiver->m_IsInstaMode_idm)
+				return g_Config.m_SvRifleScorelimit;
+			else if(pSnapReceiver->m_IsInstaMode_gdm)
+				return g_Config.m_SvGrenadeScorelimit;
+		}
+	}
+
+	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
+	if(pMinigame)
+		return pMinigame->ScoreLimit(pSnapReceiver);
+
+	return CGameControllerDDRace::SnapScoreLimit(SnappingClient);
+}
+
 // SnappingClient - Client Id of the player that will receive the snapshot
 // pPlayer - CPlayer that is being snapped
 // pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.

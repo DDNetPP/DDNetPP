@@ -670,7 +670,7 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_RoundStartTick = m_RoundStartTick;
 	pGameInfoObj->m_WarmupTimer = m_Warmup;
 
-	pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
+	pGameInfoObj->m_ScoreLimit = SnapScoreLimit(SnappingClient);
 	// pGameInfoObj->m_TimeLimit = g_Config.m_SvTimelimit;
 
 	pGameInfoObj->m_RoundNum = 0;
@@ -700,22 +700,6 @@ void IGameController::Snap(int SnappingClient)
 			pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_RACETIME;
 		}
 	}
-
-	// TODO: cache this string compare
-	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
-		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
-	else if(pPlayer && pPlayer->IsInstagibMinigame())
-	{
-		if(pPlayer->m_IsInstaMode_fng)
-		{
-			if(pPlayer->m_IsInstaMode_idm)
-				pGameInfoObj->m_ScoreLimit = g_Config.m_SvRifleScorelimit;
-			else if(pPlayer->m_IsInstaMode_gdm)
-				pGameInfoObj->m_ScoreLimit = g_Config.m_SvGrenadeScorelimit;
-		}
-	}
-	else
-		pGameInfoObj->m_ScoreLimit = 0;
 
 	CNetObj_GameInfoEx *pGameInfoEx = Server()->SnapNewItem<CNetObj_GameInfoEx>(0);
 	if(!pGameInfoEx)

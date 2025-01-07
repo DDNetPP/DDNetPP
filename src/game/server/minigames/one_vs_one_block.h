@@ -23,6 +23,7 @@ public:
 	void PostSpawn(CCharacter *pChr) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 	// bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) override;
+	int ScoreLimit(CPlayer *pPlayer) override;
 
 	// score is counted in CPlayer::m_MinigameScore
 	class CGameState

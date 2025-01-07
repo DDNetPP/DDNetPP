@@ -274,6 +274,15 @@ void COneVsOneBlock::OnGameAbort(CGameState *pGameState, CPlayer *pAbortingPlaye
 	OnRoundWin(pGameState, pWinner, pAbortingPlayer, aBuf);
 }
 
+int COneVsOneBlock::ScoreLimit(CPlayer *pPlayer)
+{
+	if(!pPlayer)
+		return 10;
+	if(!pPlayer->m_pBlockOneVsOneState)
+		return 10;
+	return pPlayer->m_pBlockOneVsOneState->ScoreLimit();
+}
+
 void COneVsOneBlock::DoWincheck(CGameState *pGameState)
 {
 	// Can not win a game twice

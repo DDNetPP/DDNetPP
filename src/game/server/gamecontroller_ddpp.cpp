@@ -1,3 +1,4 @@
+#include <engine/shared/config.h>
 #include <game/server/score.h>
 
 #include "gamecontroller.h"
@@ -11,4 +12,9 @@ int IGameController::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int D
 	}
 
 	return DDRaceScore;
+}
+
+int IGameController::SnapScoreLimit(int SnappingClient)
+{
+	return g_Config.m_SvScorelimit;
 }

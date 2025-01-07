@@ -121,6 +121,9 @@ public:
 	// and return EScore::SCORE_TIME
 	virtual EScore ScoreType() { return EScore::SCORE_BLOCK; }
 
+	// will be included in the snapshot
+	virtual int ScoreLimit(CPlayer *pPlayer) { return 0; }
+
 	// Presist player position when joining the minigame
 	// to be later able to load it again
 	virtual void SavePosition(CPlayer *pPlayer);

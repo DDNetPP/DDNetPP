@@ -94,6 +94,7 @@ public:
 			return the new score value that will be included in the snapshot
 	*/
 	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore);
+	virtual int SnapScoreLimit(int SnappingClient);
 
 	/*
 		Function: PrintJoinMessage
