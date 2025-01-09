@@ -3,8 +3,12 @@
 
 #include "dummybase.h"
 
-#define V3_OFFSET_X 0 * 32 //was 277
-#define V3_OFFSET_Y 0 * 32 //was 48
+#define V3_OFFSET_X -11 * 32
+// ChillBlock5 v014 and earlier needs 0
+// before that it was 277
+
+#define V3_OFFSET_Y 0 * 32
+// before that it was 48
 
 class CDummyBlmapV3Arena : public CDummyBase
 {
