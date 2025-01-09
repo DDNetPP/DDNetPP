@@ -14,8 +14,8 @@ class CDummyBlmapV3Arena : public CDummyBase
 {
 public:
 	CDummyBlmapV3Arena(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual ~CDummyBlmapV3Arena(){};
+	void OnTick() override;
+	~CDummyBlmapV3Arena() override = default;
 	const char *ModeStr() override { return "BlmapV3 area"; }
 };
 

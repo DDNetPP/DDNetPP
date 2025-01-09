@@ -359,5 +359,33 @@ void CDummyBlmapV3Arena::OnTick()
 		{
 			Left();
 		}
+
+		/*************************************************
+		*                                                *
+		*      ChillBlock5 v015 extensions around v3     *
+		*                                                *
+		**************************************************/
+
+		// 3 tile freze pit on the floor
+		// right side of v3 arena
+		if(GetPos().x > 396 * 32 && GetPos().x < 402 * 32)
+		{
+			// TODO: this is not very skilled :D
+			Left();
+
+			if(GetPos().y > 80 * 32)
+				Jump();
+		}
+
+		// 3 tile freze pit on the floor
+		// left side of v3 arena
+		if(GetPos().x > 364 * 32 && GetPos().x < 370 * 32)
+		{
+			// TODO: this is not very skilled :D
+			Right();
+
+			if(GetPos().y > 80 * 32)
+				Jump();
+		}
 	}
 }
