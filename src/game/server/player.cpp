@@ -76,7 +76,8 @@ void CPlayer::Reset()
 		m_TimerType = (g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER_AND_BROADCAST) ? TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
 
 	m_DefEmote = EMOTE_NORMAL;
-	m_Afk = !m_IsDummy;
+	m_Afk = !m_IsDummy; // ddnet++ ddnet wants true here
+	m_ForceAfkTime = 0;
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_aTimeoutCode[0] = '\0';
@@ -768,7 +769,15 @@ void CPlayer::UpdatePlaytime()
 
 void CPlayer::AfkTimer()
 {
-	SetAfk(g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime);
+	if(m_ForceAfkTime == 0 || m_ForceAfkTime < time_get())
+	{
+		m_ForceAfkTime = 0;
+		SetAfk(g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime);
+	}
+	else
+	{
+		m_LastPlaytime = time_get() - time_freq() * g_Config.m_SvMaxAfkTime - 1;
+	}
 }
 
 void CPlayer::SetAfk(bool Afk)
@@ -795,6 +804,12 @@ void CPlayer::SetInitialAfk(bool Afk)
 		m_LastPlaytime = time_get() - time_freq() * g_Config.m_SvMaxAfkTime - 1;
 	else
 		m_LastPlaytime = time_get();
+}
+
+void CPlayer::ForceAfk()
+{
+	m_ForceAfkTime = time_get() + time_freq();
+	SetInitialAfk(true);
 }
 
 int CPlayer::GetDefaultEmote() const
