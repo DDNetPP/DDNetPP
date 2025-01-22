@@ -273,6 +273,15 @@ const char *CGameControllerDDNetPP::CommandByVoteMsg(const CNetMsg_Cl_CallVote *
 // return true to drop the vote
 bool CGameControllerDDNetPP::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId)
 {
+	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "Invalid client id");
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+
+	if(g_Config.m_SvRequireLoginToVote && !pPlayer->IsLoggedIn())
+	{
+		GameServer()->SendChatTarget(ClientId, "You need to be logged in to vote. Use the /login chat command.");
+		return true;
+	}
+
 	if(GameServer()->m_VotingBlockedUntil == -1 || (GameServer()->m_VotingBlockedUntil > time_get()))
 	{
 		if(str_comp(CommandByVoteMsg(pMsg), "unblock_votes"))
