@@ -319,5 +319,12 @@ bool CGameControllerDDNetPP::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int C
 		GameServer()->VotedYes(pChr, pPlayer);
 	else if(pMsg->m_Vote == -1) //vote no (f4)
 		GameServer()->VotedNo(pChr);
+
+	if(g_Config.m_SvRequireLoginToVote && !pPlayer->IsLoggedIn())
+	{
+		GameServer()->SendChatTarget(ClientId, "You need to be logged in to vote. Use the /login chat command.");
+		return true;
+	}
+
 	return false;
 }
