@@ -307,3 +307,17 @@ bool CGameControllerDDNetPP::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMs
 	}
 	return false;
 }
+
+// return true to drop the vote
+bool CGameControllerDDNetPP::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId)
+{
+	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "Invalid client id");
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(pMsg->m_Vote == 1) //vote yes (f3)
+		GameServer()->VotedYes(pChr, pPlayer);
+	else if(pMsg->m_Vote == -1) //vote no (f4)
+		GameServer()->VotedNo(pChr);
+	return false;
+}

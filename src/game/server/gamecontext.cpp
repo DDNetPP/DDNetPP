@@ -2606,16 +2606,14 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 
 void CGameContext::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId)
 {
-	// ddnet++
-	CPlayer *pPlayer = m_apPlayers[ClientId];
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if(pMsg->m_Vote == 1) //vote yes (f3)
-		VotedYes(pChr, pPlayer);
-	else if(pMsg->m_Vote == -1) //vote no (f4)
-		VotedNo(pChr);
+	// ddnet-insta
+	if(m_pController->OnVoteNetMessage(pMsg, ClientId))
+		return;
 
 	if(!m_VoteCloseTime)
 		return;
+
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 
 	if(g_Config.m_SvSpamprotection && pPlayer->m_LastVoteTry && pPlayer->m_LastVoteTry + Server()->TickSpeed() * 3 > Server()->Tick())
 		return;

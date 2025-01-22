@@ -32,6 +32,10 @@ public:
 			hooks into CGameContext::OnCallVoteNetMessage()
 			before any spam protection check
 
+			This is being called when a player creates a new vote
+
+			See also `OnVoteNetMessage()`
+
 		Returns:
 			return true to not run the rest of CGameContext::OnCallVoteNetMessage()
 	*/
@@ -39,6 +43,20 @@ public:
 	{
 		return false;
 	}
+
+	/*
+		Function: OnVoteNetMessage
+			hooks into CGameContext::OnVoteNetMessage()
+			before any spam protection check
+
+			This is being called when a player votes yes or no.
+
+			See also `OnCallVoteNetMessage()`
+
+		Returns:
+			return true to not run the rest of CGameContext::OnVoteNetMessage()
+	*/
+	virtual bool OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId) { return false; }
 
 	/*
 		Function: OnChatMessage
