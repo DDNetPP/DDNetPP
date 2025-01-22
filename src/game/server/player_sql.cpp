@@ -35,7 +35,7 @@ void CPlayer::OnLogin()
 	GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login successful.");
 	GameServer()->RefreshExtraVoteMenu(m_ClientId);
 
-	if(g_Config.m_SvRequireLogin && g_Config.m_SvAccountStuff)
+	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccountStuff)
 	{
 		if(GetTeam() == TEAM_SPECTATORS)
 			SetTeam(TEAM_RED);
