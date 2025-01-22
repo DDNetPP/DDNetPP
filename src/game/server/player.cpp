@@ -77,7 +77,6 @@ void CPlayer::Reset()
 
 	m_DefEmote = EMOTE_NORMAL;
 	m_Afk = !m_IsDummy; // ddnet++ ddnet wants true here
-	m_ForceAfkTime = 0;
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_aTimeoutCode[0] = '\0';
@@ -769,15 +768,7 @@ void CPlayer::UpdatePlaytime()
 
 void CPlayer::AfkTimer()
 {
-	if(m_ForceAfkTime == 0 || m_ForceAfkTime < time_get())
-	{
-		m_ForceAfkTime = 0;
-		SetAfk(g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime);
-	}
-	else
-	{
-		m_LastPlaytime = time_get() - time_freq() * g_Config.m_SvMaxAfkTime - 1;
-	}
+	SetAfk(g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime);
 }
 
 void CPlayer::SetAfk(bool Afk)
@@ -804,12 +795,6 @@ void CPlayer::SetInitialAfk(bool Afk)
 		m_LastPlaytime = time_get() - time_freq() * g_Config.m_SvMaxAfkTime - 1;
 	else
 		m_LastPlaytime = time_get();
-}
-
-void CPlayer::ForceAfk()
-{
-	m_ForceAfkTime = time_get() + time_freq();
-	SetInitialAfk(true);
 }
 
 int CPlayer::GetDefaultEmote() const

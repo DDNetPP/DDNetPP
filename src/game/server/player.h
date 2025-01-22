@@ -154,7 +154,6 @@ private:
 	int64_t m_ForcePauseTime;
 	int64_t m_LastPause;
 	bool m_Afk;
-	int64_t m_ForceAfkTime;
 
 	int m_DefEmote;
 	int m_OverrideEmote;
@@ -222,7 +221,6 @@ public:
 	void AfkTimer();
 	void SetAfk(bool Afk);
 	void SetInitialAfk(bool Afk);
-	void ForceAfk();
 	bool IsAfk() const { return m_Afk; }
 
 	int64_t m_LastPlaytime;
