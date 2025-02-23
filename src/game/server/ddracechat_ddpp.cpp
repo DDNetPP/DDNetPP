@@ -395,20 +395,28 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	// 25.5.2017  RELEASED v.0.0.2
 	// 9.4.2017   RELEASED v.0.0.1
 
+	int PageCounter = 1;
 	int Page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
-	int Pages = 9;
+	int Pages = 10;
 	Page = clamp(Page, 1, Pages);
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "page %d/%d '/changelog <page>'", Page, Pages);
 
-	if(Page == 1)
+	if(Page == PageCounter++)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"=== Changelog (DDNet++ dev) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
+			"* rename chat command '/acc_logout' to '/logout'");
+	}
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.1.1) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* update to ddnet 18.5.1");
 	}
-	else if(Page == 2)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.1.0) ===");
@@ -421,7 +429,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add xp rewards for kills/blocks");
 	}
-	else if(Page == 3)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.7) ===");
@@ -446,7 +454,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/mapsave' staff command");
 	}
-	else if(Page == 4)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.6) ===");
@@ -469,7 +477,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added nobo spawn");
 	}
-	else if(Page == 5)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.5) ===");
@@ -482,7 +490,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added dummymodes for BlmapChill and blmapV5");
 	}
-	else if(Page == 6)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
@@ -501,7 +509,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/blockwave' minigame");
 	}
-	else if(Page == 7)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
@@ -516,7 +524,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added new '/trade' command");
 	}
-	else if(Page == 8)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
@@ -535,7 +543,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved the racer bot");
 	}
-	else if(Page == 9)
+	else if(Page == PageCounter++)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
@@ -546,7 +554,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added VIP+ Spawn");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"+ added '/acc_logout' command");
+			"+ added '/acc_logout' command (now just '/logout')");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/changepassword <old> <new> <new>' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
@@ -3188,7 +3196,7 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientId, "/register <name> <password> <password>");
 	pSelf->SendChatTarget(pResult->m_ClientId, "/login <name> <password>");
 	pSelf->SendChatTarget(pResult->m_ClientId, "*** other commands ***");
-	pSelf->SendChatTarget(pResult->m_ClientId, "/acc_logout");
+	pSelf->SendChatTarget(pResult->m_ClientId, "/logout");
 	pSelf->SendChatTarget(pResult->m_ClientId, "/changepassword");
 	pSelf->SendChatTarget(pResult->m_ClientId, "-------------------");
 	pSelf->SendChatTarget(pResult->m_ClientId, "Accounts are used to save your stats on this server.");

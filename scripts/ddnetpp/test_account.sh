@@ -33,7 +33,7 @@ function test_account() {
 	[[ -f accounts.db-shm ]] && cp accounts.db-shm before_logout.db-shm
 
 	sleep 0.5
-	fifo "say /acc_logout" client1.fifo
+	fifo "say /logout" client1.fifo
 
 	sleep 0.5
 	fifo "player_name client1_alt" client1.fifo
