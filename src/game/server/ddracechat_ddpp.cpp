@@ -748,14 +748,12 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(ClientId);
 	int RegBanned = 0;
 
 	for(int i = 0; i < pSelf->m_NumRegisterBans && !RegBanned; i++)
 	{
-		if(!net_addr_comp(&Addr, &pSelf->m_aRegisterBans[i].m_Addr))
+		if(!net_addr_comp_noport(pAddr, &pSelf->m_aRegisterBans[i].m_Addr))
 			RegBanned = (pSelf->m_aRegisterBans[i].m_Expire - pSelf->Server()->Tick()) / pSelf->Server()->TickSpeed();
 	}
 
@@ -1368,14 +1366,12 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(ClientId);
 	int Banned = 0;
 
 	for(int i = 0; i < pSelf->m_NumLoginBans && !Banned; i++)
 	{
-		if(!net_addr_comp(&Addr, &pSelf->m_aLoginBans[i].m_Addr))
+		if(!net_addr_comp_noport(pAddr, &pSelf->m_aLoginBans[i].m_Addr))
 			Banned = (pSelf->m_aLoginBans[i].m_Expire - pSelf->Server()->Tick()) / pSelf->Server()->TickSpeed();
 	}
 
@@ -2457,8 +2453,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		return;
 	}
 
-	NETADDR OwnAddr;
-	pSelf->Server()->GetClientAddr(pResult->m_ClientId, &OwnAddr);
+	const NETADDR *pOwnAddr = pSelf->Server()->ClientAddr(pResult->m_ClientId);
 	int NumJoins = 0;
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2469,9 +2464,8 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		if(!pSelf->m_apPlayers[i]->m_IsBlockTourning)
 			continue;
 
-		NETADDR Addr;
-		pSelf->Server()->GetClientAddr(i, &Addr);
-		if(!net_addr_comp_noport(&Addr, &OwnAddr))
+		const NETADDR *pAddr = pSelf->Server()->ClientAddr(i);
+		if(!net_addr_comp_noport(pAddr, pOwnAddr))
 		{
 			NumJoins++;
 		}
@@ -2759,12 +2753,10 @@ void CGameContext::ConGift(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->m_apPlayers[GiftId])
 	{
-		char aOwnIp[128];
-		char aGiftIp[128];
-		pSelf->Server()->GetClientAddr(pResult->m_ClientId, aOwnIp, sizeof(aOwnIp));
-		pSelf->Server()->GetClientAddr(GiftId, aGiftIp, sizeof(aGiftIp));
+		const NETADDR *pOwnAddr = pSelf->Server()->ClientAddr(pResult->m_ClientId);
+		const NETADDR *pReceiverAddr = pSelf->Server()->ClientAddr(GiftId);
 
-		if(!str_comp_nocase(aOwnIp, aGiftIp))
+		if(!net_addr_comp_noport(pOwnAddr, pReceiverAddr))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "[GIFT] You can't give money to your dummy.");
 		}
@@ -5384,12 +5376,10 @@ void CGameContext::ConGangsterBag(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientId, "You can only trade with other gangsters.");
 			return;
 		}
-		char aOwnIp[128];
-		char aBroIp[128];
-		pSelf->Server()->GetClientAddr(pResult->m_ClientId, aOwnIp, sizeof(aOwnIp));
-		pSelf->Server()->GetClientAddr(BroId, aBroIp, sizeof(aBroIp));
+		const NETADDR *pOwnAddr = pSelf->Server()->ClientAddr(pResult->m_ClientId);
+		const NETADDR *pBroAddr = pSelf->Server()->ClientAddr(BroId);
 
-		if(!str_comp_nocase(aOwnIp, aBroIp)) //send dummy money -> police traces ip -> dummy escape time
+		if(!net_addr_comp_noport(pOwnAddr, pBroAddr)) //send dummy money -> police traces ip -> dummy escape time
 		{
 			//bro
 			pSelf->m_apPlayers[BroId]->m_GangsterBagMoney += pPlayer->m_GangsterBagMoney;
@@ -8106,10 +8096,9 @@ void CGameContext::ConIp(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(ClientId, &Addr);
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(ClientId);
 	char aAddrStr[NETADDR_MAXSTRSIZE];
-	net_addr_str(&Addr, aAddrStr, sizeof(aAddrStr), true);
+	net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), true);
 	char aBuf[32];
 	str_format(aBuf, sizeof(aBuf), "your ip: %s", aAddrStr);
 	pSelf->SendChatTarget(pResult->m_ClientId, aBuf);

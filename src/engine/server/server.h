@@ -134,13 +134,13 @@ public:
 	public:
 		enum
 		{
-			STATE_EMPTY = 0,
+			STATE_REDIRECTED = -1,
+			STATE_EMPTY,
 			STATE_PREAUTH,
 			STATE_AUTH,
 			STATE_CONNECTING,
 			STATE_READY,
 			STATE_INGAME,
-			STATE_REDIRECTED,
 
 			STATE_BOT,
 
@@ -184,12 +184,23 @@ public:
 		int m_Authed;
 		int m_AuthKey;
 		int m_AuthTries;
+		bool m_AuthHidden;
 		int m_NextMapChunk;
 		int m_Flags;
 		bool m_ShowIps;
 		bool m_DebugDummy;
+		NETADDR m_DebugDummyAddr;
+		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrString;
+		std::array<char, NETADDR_MAXSTRSIZE> m_aDebugDummyAddrStringNoPort;
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
+		enum
+		{
+			MAPLIST_UNINITIALIZED = -1,
+			MAPLIST_DISABLED = -2,
+			MAPLIST_DONE = -3,
+		};
+		int m_MaplistEntryToSend;
 
 		bool m_HasPersistentData;
 		void *m_pPersistentData;
@@ -223,6 +234,11 @@ public:
 			if(m_IsClientDummy && !g_Config.m_SvShowClientDummysInMaster) // ddnet++
 				return false;
 			return m_State != STATE_EMPTY && !m_DebugDummy;
+		}
+
+		int ConsoleAccessLevel() const
+		{
+			return m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : m_Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER;
 		}
 	};
 
@@ -331,10 +347,12 @@ public:
 	void SetRconCid(int ClientId) override;
 	int GetAuthedState(int ClientId) const override;
 	const char *GetAuthName(int ClientId) const override;
+	bool HasAuthHidden(int ClientId) const override;
 	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pMapSha256, int *pMapCrc) override;
 	bool GetClientInfo(int ClientId, CClientInfo *pInfo) const override;
 	void SetClientDDNetVersion(int ClientId, int DDNetVersion) override;
-	void GetClientAddr(int ClientId, char *pAddrStr, int Size) const override;
+	const NETADDR *ClientAddr(int ClientId) const override;
+	const std::array<char, NETADDR_MAXSTRSIZE> &ClientAddrStringImpl(int ClientId, bool IncludePort) const override;
 	const char *ClientName(int ClientId) const override;
 	const char *ClientClan(int ClientId) const override;
 	int ClientCountry(int ClientId) const override;
@@ -368,9 +386,24 @@ public:
 
 	void SendRconCmdAdd(const IConsole::CCommandInfo *pCommandInfo, int ClientId);
 	void SendRconCmdRem(const IConsole::CCommandInfo *pCommandInfo, int ClientId);
-	int GetConsoleAccessLevel(int ClientId);
+	void SendRconCmdGroupStart(int ClientId);
+	void SendRconCmdGroupEnd(int ClientId);
 	int NumRconCommands(int ClientId);
-	void UpdateClientRconCommands();
+	void UpdateClientRconCommands(int ClientId);
+
+	class CMaplistEntry
+	{
+	public:
+		char m_aName[128];
+
+		CMaplistEntry() = default;
+		CMaplistEntry(const char *pName);
+		bool operator<(const CMaplistEntry &Other) const;
+	};
+	std::vector<CMaplistEntry> m_vMaplistEntries;
+	void SendMaplistGroupStart(int ClientId);
+	void SendMaplistGroupEnd(int ClientId);
+	void UpdateClientMaplistEntries(int ClientId);
 
 	bool CheckReservedSlotAuth(int ClientId, const char *pPassword);
 	void ProcessClientPacket(CNetChunk *pPacket);
@@ -435,6 +468,7 @@ public:
 	static void ConMapReload(IConsole::IResult *pResult, void *pUser);
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
 	static void ConShowIps(IConsole::IResult *pResult, void *pUser);
+	static void ConHideAuthStatus(IConsole::IResult *pResult, void *pUser);
 
 	static void ConAuthAdd(IConsole::IResult *pResult, void *pUser);
 	static void ConAuthAddHashed(IConsole::IResult *pResult, void *pUser);
@@ -448,6 +482,7 @@ public:
 	static void ConDumpSqlServers(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConReloadAnnouncement(IConsole::IResult *pResult, void *pUserData);
+	static void ConReloadMaplist(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainMaxclientsperipUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -479,10 +514,12 @@ public:
 
 	// DDRace
 
-	void GetClientAddr(int ClientId, NETADDR *pAddr) const override;
 	int m_aPrevStates[MAX_CLIENTS];
 	const char *GetAnnouncementLine() override;
 	void ReadAnnouncementsFile();
+
+	static int MaplistEntryCallback(const char *pFilename, int IsDir, int DirType, void *pUser);
+	void InitMaplist();
 
 	int *GetIdMap(int ClientId) override;
 

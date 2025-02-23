@@ -383,7 +383,24 @@ void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int Pause
 
 void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 {
-	ToggleSpecPause(pResult, pUserData, g_Config.m_SvPauseable ? CPlayer::PAUSE_SPEC : CPlayer::PAUSE_PAUSED);
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!pPlayer)
+		return;
+
+	int PauseType = g_Config.m_SvPauseable ? CPlayer::PAUSE_SPEC : CPlayer::PAUSE_PAUSED;
+
+	if(pPlayer->GetCharacter())
+	{
+		CGameTeams &Teams = pSelf->m_pController->Teams();
+		if(Teams.IsPractice(Teams.m_Core.Team(pResult->m_ClientId)))
+			PauseType = CPlayer::PAUSE_SPEC;
+	}
+
+	ToggleSpecPause(pResult, pUserData, PauseType);
 }
 
 void CGameContext::ConToggleSpecVoted(IConsole::IResult *pResult, void *pUserData)
@@ -715,6 +732,69 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConUnPractice(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!pPlayer)
+		return;
+
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientId, false))
+		return;
+
+	CGameTeams &Teams = pSelf->m_pController->Teams();
+
+	int Team = Teams.m_Core.Team(pResult->m_ClientId);
+
+	if(g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO && Team == TEAM_FLOCK)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Practice mode can't be disabled for team 0");
+		return;
+	}
+
+	if(!Teams.IsPractice(Team))
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Team isn't in practice mode");
+		return;
+	}
+
+	if(Teams.GetSaving(Team))
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Practice mode can't be disabled while team save or load is in progress");
+		return;
+	}
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(Teams.m_Core.Team(i) == Team)
+		{
+			CPlayer *pPlayer2 = pSelf->m_apPlayers[i];
+			if(pPlayer2 && pPlayer2->m_VotedForPractice)
+				pPlayer2->m_VotedForPractice = false;
+		}
+	}
+
+	// send before kill, in case team isn't locked
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "'%s' disabled practice mode for your team", pSelf->Server()->ClientName(pResult->m_ClientId));
+	pSelf->SendChatTeam(Team, aBuf);
+
+	Teams.KillCharacterOrTeam(pResult->m_ClientId, Team);
+	Teams.SetPractice(Team, false);
+}
+
 void CGameContext::ConPracticeCmdList(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -861,6 +941,62 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	Teams.SwapTeamCharacters(pPlayer, pSwapPlayer, Team);
+}
+
+void CGameContext::ConCancelSwap(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!pPlayer)
+		return;
+
+	if(!g_Config.m_SvSwap)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Swap is disabled on this server.");
+		return;
+	}
+
+	if(g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Swap is not available on forced solo servers.");
+		return;
+	}
+
+	CGameTeams &Teams = pSelf->m_pController->Teams();
+
+	int Team = Teams.m_Core.Team(pResult->m_ClientId);
+
+	if(Team < TEAM_FLOCK || Team >= TEAM_SUPER)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"Join a team to use swap feature, which means you can swap positions with each other.");
+		return;
+	}
+
+	bool SwapPending = pPlayer->m_SwapTargetsClientId != -1 && !pSelf->Server()->ClientSlotEmpty(pPlayer->m_SwapTargetsClientId);
+
+	if(!SwapPending)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"chatresp",
+			"You do not have a pending swap request.");
+		return;
+	}
+
+	Teams.CancelTeamSwap(pPlayer, Team);
 }
 
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
@@ -1075,14 +1211,14 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		pPlayer->GetCharacter()->m_LastStartWarning = Server()->Tick();
 	}
 
-	if(pPlayer->GetCharacter() == 0)
+	if(pPlayer->GetCharacter() == nullptr)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"You can't change teams while you are dead/a spectator.");
 	}
 	else
 	{
-		if(Team < 0 || Team >= MAX_CLIENTS)
+		if(Team < 0 || Team >= TEAM_SUPER)
 			Team = m_pController->Teams().GetFirstEmptyTeam();
 
 		if(pPlayer->m_Last_Team + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
@@ -1109,6 +1245,13 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		}
 		else
 		{
+			if(PracticeByDefault())
+			{
+				// joined an empty team
+				if(m_pController->Teams().Count(Team) == 1)
+					m_pController->Teams().SetPractice(Team, true);
+			}
+
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "'%s' joined team %d",
 				Server()->ClientName(pPlayer->GetCid()),

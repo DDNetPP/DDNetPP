@@ -969,13 +969,11 @@ bool CGameContext::IsHooked(int HookedId, int power)
 	return false;
 }
 
-bool CGameContext::IsSameIp(int Id1, int Id2) const
+bool CGameContext::IsSameIp(int ClientId1, int ClientId2) const
 {
-	char aIp1[64];
-	char aIp2[64];
-	Server()->GetClientAddr(Id1, aIp1, sizeof(aIp1));
-	Server()->GetClientAddr(Id2, aIp2, sizeof(aIp2));
-	return !str_comp_nocase(aIp1, aIp2);
+	return !net_addr_comp_noport(
+		Server()->ClientAddr(ClientId1),
+		Server()->ClientAddr(ClientId2));
 }
 
 char CGameContext::BoolToChar(bool b)
@@ -2705,12 +2703,10 @@ bool CGameContext::CheckIpJailed(int ClientId)
 {
 	if(!m_apPlayers[ClientId])
 		return false;
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	for(int i = 0; i < m_NumJailIps; i++)
 	{
-		if(!net_addr_comp(&Addr, &m_aJailIps[i]))
+		if(!net_addr_comp_noport(pAddr, &m_aJailIps[i]))
 		{
 			SendChatTarget(ClientId, "[JAIL] you have been jailed for 2 minutes.");
 			m_apPlayers[ClientId]->JailPlayer(120);
@@ -2724,13 +2720,11 @@ void CGameContext::SetIpJailed(int ClientId)
 {
 	char aBuf[128];
 	int Found = 0;
-	NETADDR NoPortAddr;
-	Server()->GetClientAddr(ClientId, &NoPortAddr);
-	NoPortAddr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	// find a matching Mute for this ip, update expiration time if found
 	for(int i = 0; i < m_NumJailIps; i++)
 	{
-		if(net_addr_comp(&m_aJailIps[i], &NoPortAddr) == 0)
+		if(net_addr_comp_noport(&m_aJailIps[i], pAddr) == 0)
 		{
 			Found = 1;
 			break;
@@ -2740,7 +2734,7 @@ void CGameContext::SetIpJailed(int ClientId)
 	{
 		if(m_NumJailIps < MAX_MUTES)
 		{
-			m_aJailIps[m_NumJailIps] = NoPortAddr;
+			m_aJailIps[m_NumJailIps] = *pAddr;
 			m_NumJailIps++;
 			Found = 1;
 		}

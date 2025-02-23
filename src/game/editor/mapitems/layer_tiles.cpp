@@ -35,6 +35,7 @@ CLayerTiles::CLayerTiles(CEditor *pEditor, int w, int h) :
 	m_Switch = 0;
 	m_Tune = 0;
 	m_AutoMapperConfig = -1;
+	m_AutoMapperReference = -1;
 	m_Seed = 0;
 	m_AutoAutoMap = false;
 
@@ -57,6 +58,7 @@ CLayerTiles::CLayerTiles(const CLayerTiles &Other) :
 	m_ColorEnvOffset = Other.m_ColorEnvOffset;
 
 	m_AutoMapperConfig = Other.m_AutoMapperConfig;
+	m_AutoMapperReference = Other.m_AutoMapperReference;
 	m_Seed = Other.m_Seed;
 	m_AutoAutoMap = Other.m_AutoAutoMap;
 	m_Tele = Other.m_Tele;
@@ -115,7 +117,7 @@ void CLayerTiles::PrepareForSave()
 void CLayerTiles::ExtractTiles(int TilemapItemVersion, const CTile *pSavedTiles, size_t SavedTilesSize) const
 {
 	const size_t DestSize = (size_t)m_Width * m_Height;
-	if(TilemapItemVersion >= CMapItemLayerTilemap::TILE_SKIP_MIN_VERSION)
+	if(TilemapItemVersion >= CMapItemLayerTilemap::VERSION_TEEWORLDS_TILESKIP)
 		CMap::ExtractTiles(m_pTiles, DestSize, pSavedTiles, SavedTilesSize);
 	else if(SavedTilesSize >= DestSize)
 		mem_copy(m_pTiles, pSavedTiles, DestSize * sizeof(CTile));
@@ -233,12 +235,12 @@ bool CLayerTiles::IsEmpty(const std::shared_ptr<CLayerTiles> &pLayer)
 			{
 				if(pLayer->m_Game)
 				{
-					if(m_pEditor->m_AllowPlaceUnusedTiles || IsValidGameTile(Index))
+					if(m_pEditor->IsAllowPlaceUnusedTiles() || IsValidGameTile(Index))
 						return false;
 				}
 				else if(pLayer->m_Front)
 				{
-					if(m_pEditor->m_AllowPlaceUnusedTiles || IsValidFrontTile(Index))
+					if(m_pEditor->IsAllowPlaceUnusedTiles() || IsValidFrontTile(Index))
 						return false;
 				}
 				else
@@ -548,7 +550,7 @@ void CLayerTiles::BrushFlipX()
 	if(m_Tele || m_Speedup || m_Tune)
 		return;
 
-	bool Rotate = !(m_Game || m_Front || m_Switch) || m_pEditor->m_AllowPlaceUnusedTiles;
+	bool Rotate = !(m_Game || m_Front || m_Switch) || m_pEditor->IsAllowPlaceUnusedTiles();
 	for(int y = 0; y < m_Height; y++)
 		for(int x = 0; x < m_Width; x++)
 			if(!Rotate && !IsRotatableTile(m_pTiles[y * m_Width + x].m_Index))
@@ -564,7 +566,7 @@ void CLayerTiles::BrushFlipY()
 	if(m_Tele || m_Speedup || m_Tune)
 		return;
 
-	bool Rotate = !(m_Game || m_Front || m_Switch) || m_pEditor->m_AllowPlaceUnusedTiles;
+	bool Rotate = !(m_Game || m_Front || m_Switch) || m_pEditor->IsAllowPlaceUnusedTiles();
 	for(int y = 0; y < m_Height; y++)
 		for(int x = 0; x < m_Width; x++)
 			if(!Rotate && !IsRotatableTile(m_pTiles[y * m_Width + x].m_Index))
@@ -585,7 +587,7 @@ void CLayerTiles::BrushRotate(float Amount)
 		CTile *pTempData = new CTile[m_Width * m_Height];
 		mem_copy(pTempData, m_pTiles, (size_t)m_Width * m_Height * sizeof(CTile));
 		CTile *pDst = m_pTiles;
-		bool Rotate = !(m_Game || m_Front) || m_pEditor->m_AllowPlaceUnusedTiles;
+		bool Rotate = !(m_Game || m_Front) || m_pEditor->IsAllowPlaceUnusedTiles();
 		for(int x = 0; x < m_Width; ++x)
 			for(int y = m_Height - 1; y >= 0; --y, ++pDst)
 			{
@@ -951,7 +953,7 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 			static int s_AutoMapperButton = 0;
 			if(m_pEditor->DoButton_Editor(&s_AutoMapperButton, "Automap", 0, &Button, 0, "Run the automapper."))
 			{
-				m_pEditor->m_Map.m_vpImages[m_Image]->m_AutoMapper.Proceed(this, m_AutoMapperConfig, m_Seed);
+				m_pEditor->m_Map.m_vpImages[m_Image]->m_AutoMapper.Proceed(this, m_pEditor->m_Map.m_pGameLayer.get(), m_AutoMapperReference, m_AutoMapperConfig, m_Seed);
 				// record undo
 				m_pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionTileChanges>(m_pEditor, m_pEditor->m_SelectedGroup, m_pEditor->m_vSelectedLayers[0], "Auto map", m_TilesHistory));
 				ClearHistory();
@@ -972,6 +974,7 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 		{"Color Env", m_ColorEnv + 1, PROPTYPE_ENVELOPE, 0, 0},
 		{"Color TO", m_ColorEnvOffset, PROPTYPE_INT, -1000000, 1000000},
 		{"Auto Rule", m_AutoMapperConfig, PROPTYPE_AUTOMAPPER, m_Image, 0},
+		{"Reference", m_AutoMapperReference, PROPTYPE_AUTOMAPPER_REFERENCE, 0, 0},
 		{"Seed", m_Seed, PROPTYPE_INT, 0, 1000000000},
 		{nullptr},
 	};
@@ -981,10 +984,12 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 		aProps[(int)ETilesProp::PROP_IMAGE].m_pName = nullptr;
 		aProps[(int)ETilesProp::PROP_COLOR].m_pName = nullptr;
 		aProps[(int)ETilesProp::PROP_AUTOMAPPER].m_pName = nullptr;
+		aProps[(int)ETilesProp::PROP_AUTOMAPPER_REFERENCE].m_pName = nullptr;
 	}
 	if(m_Image == -1)
 	{
 		aProps[(int)ETilesProp::PROP_AUTOMAPPER].m_pName = nullptr;
+		aProps[(int)ETilesProp::PROP_AUTOMAPPER_REFERENCE].m_pName = nullptr;
 		aProps[(int)ETilesProp::PROP_SEED].m_pName = nullptr;
 	}
 
@@ -1081,6 +1086,10 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 			m_AutoMapperConfig = NewVal % m_pEditor->m_Map.m_vpImages[m_Image]->m_AutoMapper.ConfigNamesNum();
 		else
 			m_AutoMapperConfig = -1;
+	}
+	else if(Prop == ETilesProp::PROP_AUTOMAPPER_REFERENCE)
+	{
+		m_AutoMapperReference = NewVal;
 	}
 
 	s_Tracker.End(Prop, State);
@@ -1287,7 +1296,7 @@ void CLayerTiles::FlagModified(int x, int y, int w, int h)
 	m_pEditor->m_Map.OnModify();
 	if(m_Seed != 0 && m_AutoMapperConfig != -1 && m_AutoAutoMap && m_Image >= 0)
 	{
-		m_pEditor->m_Map.m_vpImages[m_Image]->m_AutoMapper.ProceedLocalized(this, m_AutoMapperConfig, m_Seed, x, y, w, h);
+		m_pEditor->m_Map.m_vpImages[m_Image]->m_AutoMapper.ProceedLocalized(this, m_pEditor->m_Map.m_pGameLayer.get(), m_AutoMapperReference, m_AutoMapperConfig, m_Seed, x, y, w, h);
 	}
 }
 

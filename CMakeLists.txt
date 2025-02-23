@@ -1514,6 +1514,7 @@ set(EXPECTED_DATA
   mapres/generic_clear.png
   mapres/generic_deathtiles.png
   mapres/generic_lamps.png
+  mapres/generic_shadows_0.7.png
   mapres/generic_unhookable.png
   mapres/generic_unhookable_0.7.png
   mapres/grass_doodads.png
@@ -2303,6 +2304,7 @@ if(CLIENT)
     graphics_threaded.h
     input.cpp
     input.h
+    keynames.cpp
     keynames.h
     notifications.cpp
     notifications.h
@@ -2680,7 +2682,7 @@ if(SERVER)
     antibot_null.cpp
   )
 
-  set_src(ENGINE_SERVER GLOB_RECURSE src/engine/server
+  set_src(ENGINE_SERVER_WITHOUT_MAIN GLOB_RECURSE src/engine/server
     antibot.cpp
     antibot.h
     authmanager.cpp
@@ -2708,6 +2710,9 @@ if(SERVER)
     upnp.cpp
     upnp.h
   )
+
+  list(REMOVE_ITEM ENGINE_SERVER_WITHOUT_MAIN "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp")
+
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
     captcha.cpp
     captcha.h
@@ -2903,7 +2908,7 @@ if(SERVER)
     "src/game/generated/server_data.h"
     "src/game/generated/wordlist.h"
   )
-  set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
+  set(SERVER_SRC ${ENGINE_SERVER_WITHOUT_MAIN} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
   if(TARGET_OS STREQUAL "windows")
     set(SERVER_ICON "other/icons/DDNetPP.rc")
   else()
@@ -2961,12 +2966,26 @@ if(SERVER)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_LINK -rdynamic)
   # twbl end
 
+  add_library(server-without-main OBJECT
+      ${DEPS}
+      ${SERVER_SRC}
+      $<TARGET_OBJECTS:engine-shared>
+      $<TARGET_OBJECTS:game-shared>
+      $<TARGET_OBJECTS:rust-bridge-shared>
+  )
+  set_property(TARGET server-without-main
+      PROPERTY OUTPUT_NAME ${SERVER_EXECUTABLE}
+  )
+  target_link_libraries(server-without-main ${LIBS_SERVER})
+  list(APPEND TARGETS_OWN server-without-main)
+  list(APPEND TARGETS_LINK server-without-main)
 
   # Target
   if(TARGET_OS STREQUAL "android")
     add_library(game-server SHARED
       ${DEPS}
-      ${SERVER_SRC}
+      $<TARGET_OBJECTS:server-without-main>
+      "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp"
       ${SERVER_ICON}
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
@@ -2975,8 +2994,9 @@ if(SERVER)
   else()
     add_executable(game-server
       ${DEPS}
-      ${SERVER_SRC}
+      "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp"
       ${SERVER_ICON}
+      $<TARGET_OBJECTS:server-without-main>
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
       $<TARGET_OBJECTS:rust-bridge-shared>
@@ -2986,7 +3006,6 @@ if(SERVER)
       PROPERTY OUTPUT_NAME ${SERVER_EXECUTABLE}
   )
   target_link_libraries(game-server ${LIBS_SERVER})
-  target_include_directories(game-server PRIVATE ${PNG_INCLUDE_DIRS})
   list(APPEND TARGETS_OWN game-server)
   list(APPEND TARGETS_LINK game-server)
 
@@ -3129,6 +3148,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     datafile.cpp
     editor.cpp
     fs.cpp
+    gameworld.cpp
     git_revision.cpp
     hash.cpp
     huffman.cpp
@@ -3150,6 +3170,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     secure_random.cpp
     serverbrowser.cpp
     serverinfo.cpp
+    shell_execute.cpp
     snapshot.cpp
     str.cpp
     strip_path_and_extension.cpp
@@ -3172,30 +3193,20 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     src/engine/client/serverbrowser_ping_cache.cpp
     src/engine/client/serverbrowser_ping_cache.h
     src/engine/client/sqlite.cpp
-    src/engine/server/databases/connection.cpp
-    src/engine/server/databases/connection.h
-    src/engine/server/databases/sqlite.cpp
-    src/engine/server/databases/mysql.cpp
-    src/engine/server/name_ban.cpp
-    src/engine/server/name_ban.h
-    src/engine/server/sql_string_helpers.cpp
-    src/engine/server/sql_string_helpers.h
-    src/game/server/teehistorian.cpp
-    src/game/server/teehistorian.h
-    src/game/server/scoreworker.cpp
-    src/game/server/scoreworker.h
   )
 
   set(TARGET_TESTRUNNER testrunner)
   add_executable(${TARGET_TESTRUNNER} EXCLUDE_FROM_ALL
     ${TESTS}
     ${TESTS_EXTRA}
+    $<TARGET_OBJECTS:server-without-main>
     $<TARGET_OBJECTS:engine-gfx>
     $<TARGET_OBJECTS:engine-shared>
     $<TARGET_OBJECTS:game-shared>
+    $<TARGET_OBJECTS:rust-bridge-shared>
     ${DEPS}
   )
-  target_link_libraries(${TARGET_TESTRUNNER} ${MYSQL_LIBRARIES} ${PNG_LIBRARIES} ${GTEST_LIBRARIES} ${LIBS})
+  target_link_libraries(${TARGET_TESTRUNNER} ${PNG_LIBRARIES} ${GTEST_LIBRARIES} ${LIBS_SERVER})
   target_include_directories(${TARGET_TESTRUNNER} SYSTEM PRIVATE ${GTEST_INCLUDE_DIRS})
 
   list(APPEND TARGETS_OWN ${TARGET_TESTRUNNER})

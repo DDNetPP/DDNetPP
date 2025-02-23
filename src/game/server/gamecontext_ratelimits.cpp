@@ -2,6 +2,7 @@
 
 #include <engine/shared/config.h>
 
+#include "base/system.h"
 #include "gamecontext.h"
 
 void CGameContext::IncrementWrongRconAttempts()
@@ -11,16 +12,14 @@ void CGameContext::IncrementWrongRconAttempts()
 
 void CGameContext::RegisterBanCheck(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	char aBuf[128];
 	int Found = 0;
 	int Regs = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumRegisterBans; i++)
 	{
-		if(net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aRegisterBans[i].m_Addr, pAddr) == 0)
 		{
 			m_aRegisterBans[i].m_LastAttempt = time_get();
 			Regs = ++m_aRegisterBans[i].m_NumAttempts;
@@ -34,7 +33,7 @@ void CGameContext::RegisterBanCheck(int ClientId)
 		if(m_NumRegisterBans < MAX_REGISTER_BANS)
 		{
 			m_aRegisterBans[m_NumRegisterBans].m_LastAttempt = time_get();
-			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = *pAddr;
 			Regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
 			m_NumRegisterBans++;
 			Found = 1;
@@ -43,7 +42,7 @@ void CGameContext::RegisterBanCheck(int ClientId)
 
 	if(Regs >= g_Config.m_SvMaxRegisterPerIp)
 	{
-		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
+		RegisterBan(pAddr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
@@ -60,16 +59,14 @@ void CGameContext::RegisterBanCheck(int ClientId)
 	}
 }
 
-void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+void CGameContext::RegisterBan(const NETADDR *pAddr, int Secs, const char *pDisplayName)
 {
 	char aBuf[128];
 	int Found = 0;
-	NETADDR NoPortAddr = *Addr;
-	NoPortAddr.port = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumRegisterBans; i++)
 	{
-		if(net_addr_comp(&m_aRegisterBans[i].m_Addr, &NoPortAddr) == 0)
+		if(net_addr_comp_noport(&m_aRegisterBans[i].m_Addr, pAddr) == 0)
 		{
 			m_aRegisterBans[i].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			Found = 1;
@@ -81,7 +78,7 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	{
 		if(m_NumRegisterBans < MAX_REGISTER_BANS)
 		{
-			m_aRegisterBans[m_NumRegisterBans].m_Addr = NoPortAddr;
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = *pAddr;
 			m_aRegisterBans[m_NumRegisterBans].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			m_NumRegisterBans++;
 			Found = 1;
@@ -105,13 +102,11 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 
 void CGameContext::CheckDeleteLoginBanEntry(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumLoginBans; i++)
 	{
-		if(net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aLoginBans[i].m_Addr, pAddr) == 0)
 		{
 			int64_t BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
@@ -134,13 +129,11 @@ void CGameContext::CheckDeleteLoginBanEntry(int ClientId)
 
 void CGameContext::CheckDeleteRegisterBanEntry(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumRegisterBans; i++)
 	{
-		if(net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aRegisterBans[i].m_Addr, pAddr) == 0)
 		{
 			int64_t BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
@@ -162,13 +155,11 @@ void CGameContext::CheckDeleteRegisterBanEntry(int ClientId)
 
 void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
 	{
-		if(net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aNameChangeMutes[i].m_Addr, pAddr) == 0)
 		{
 			int64_t BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
@@ -190,9 +181,7 @@ void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientId)
 
 void CGameContext::LoginBanCheck(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	char aBuf[128];
 	int Found = 0;
 	int atts = 0;
@@ -200,7 +189,7 @@ void CGameContext::LoginBanCheck(int ClientId)
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumLoginBans; i++)
 	{
-		if(net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aLoginBans[i].m_Addr, pAddr) == 0)
 		{
 			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
@@ -217,7 +206,7 @@ void CGameContext::LoginBanCheck(int ClientId)
 		{
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
 			m_aLoginBans[m_NumLoginBans].m_Expire = 0;
-			m_aLoginBans[m_NumLoginBans].m_Addr = Addr;
+			m_aLoginBans[m_NumLoginBans].m_Addr = *pAddr;
 			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
 			m_NumLoginBans++;
 			Found = 1;
@@ -226,9 +215,9 @@ void CGameContext::LoginBanCheck(int ClientId)
 	}
 
 	if(atts >= g_Config.m_SvMaxLoginPerIp)
-		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
+		LoginBan(pAddr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	else if(atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
-		LoginBan(&Addr, 60, Server()->ClientName(ClientId));
+		LoginBan(pAddr, 60, Server()->ClientName(ClientId));
 
 	if(Found)
 	{
@@ -245,16 +234,14 @@ void CGameContext::LoginBanCheck(int ClientId)
 	}
 }
 
-void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+void CGameContext::LoginBan(const NETADDR *pAddr, int Secs, const char *pDisplayName)
 {
 	char aBuf[128];
 	int Found = 0;
-	NETADDR NoPortAddr = *Addr;
-	NoPortAddr.port = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumLoginBans; i++)
 	{
-		if(net_addr_comp(&m_aLoginBans[i].m_Addr, &NoPortAddr) == 0)
+		if(net_addr_comp_noport(&m_aLoginBans[i].m_Addr, pAddr) == 0)
 		{
 			m_aLoginBans[i].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			Found = 1;
@@ -266,7 +253,7 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 	{
 		if(m_NumLoginBans < MAX_LOGIN_BANS)
 		{
-			m_aLoginBans[m_NumLoginBans].m_Addr = NoPortAddr;
+			m_aLoginBans[m_NumLoginBans].m_Addr = *pAddr;
 			m_aLoginBans[m_NumLoginBans].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			m_NumLoginBans++;
 			Found = 1;
@@ -293,9 +280,7 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 {
 	int64_t MuteTime = NameChangeMuteTime(ClientId);
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	char aBuf[128];
 	int Found = 0;
 	int Changes = 0;
@@ -303,7 +288,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
 	{
-		if(net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		if(net_addr_comp_noport(&m_aNameChangeMutes[i].m_Addr, pAddr) == 0)
 		{
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAME_CHANGE_DELAY) < time_get())
 			{
@@ -321,7 +306,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 	{
 		if(m_NumNameChangeMutes < MAX_REGISTER_BANS)
 		{
-			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = Addr;
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = *pAddr;
 			Changes = m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 1;
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_LastAttempt = time_get();
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = 0;
@@ -333,7 +318,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 	if(Changes >= g_Config.m_SvMaxNameChangesPerIp)
 	{
 		if(!MuteTime)
-			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
+			NameChangeMute(pAddr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
@@ -349,25 +334,21 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 
 int64_t CGameContext::NameChangeMuteTime(int ClientId)
 {
-	NETADDR Addr;
-	Server()->GetClientAddr(ClientId, &Addr);
-	Addr.port = 0;
+	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
-		if(!net_addr_comp(&Addr, &m_aNameChangeMutes[i].m_Addr))
+		if(!net_addr_comp_noport(pAddr, &m_aNameChangeMutes[i].m_Addr))
 			return m_aNameChangeMutes[i].m_Expire ? (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed() : 0;
 	return 0;
 }
 
-void CGameContext::NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName)
+void CGameContext::NameChangeMute(const NETADDR *pAddr, int Secs, const char *pDisplayName)
 {
 	char aBuf[128];
 	int Found = 0;
-	NETADDR NoPortAddr = *Addr;
-	NoPortAddr.port = 0;
 	// find a matching Mute for this ip, update expiration time if found
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
 	{
-		if(net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &NoPortAddr) == 0)
+		if(net_addr_comp_noport(&m_aNameChangeMutes[i].m_Addr, pAddr) == 0)
 		{
 			m_aNameChangeMutes[i].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			Found = 1;
@@ -378,7 +359,7 @@ void CGameContext::NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayN
 	{
 		if(m_NumNameChangeMutes < MAX_MUTES)
 		{
-			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = NoPortAddr;
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = *pAddr;
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();
 			m_NumNameChangeMutes++;
 			Found = 1;

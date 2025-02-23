@@ -492,8 +492,8 @@ protected:
 	void RenderServerInfo(CUIRect MainView);
 	void RenderServerInfoMotd(CUIRect Motd);
 	void RenderServerControl(CUIRect MainView);
-	bool RenderServerControlKick(CUIRect MainView, bool FilterSpectators);
-	bool RenderServerControlServer(CUIRect MainView);
+	bool RenderServerControlKick(CUIRect MainView, bool FilterSpectators, bool UpdateScroll);
+	bool RenderServerControlServer(CUIRect MainView, bool UpdateScroll);
 	void RenderIngameHint();
 
 	// found in menus_browser.cpp
@@ -599,6 +599,7 @@ protected:
 	void OnConfigSave(IConfigManager *pConfigManager);
 
 	// found in menus_settings.cpp
+	void RenderLanguageSettings(CUIRect MainView);
 	bool RenderLanguageSelection(CUIRect MainView);
 	void RenderThemeSelection(CUIRect MainView);
 	void RenderSettingsGeneral(CUIRect MainView);
@@ -669,7 +670,7 @@ public:
 	bool IsActive() const { return m_MenuActive; }
 	void SetActive(bool Active);
 
-	void RunServer();
+	void RunServer(const char **ppArguments = nullptr, const size_t NumArguments = 0);
 	void KillServer();
 	bool IsServerRunning() const;
 

@@ -115,12 +115,12 @@ void CProjectile::Tick()
 	vec2 ColPos;
 	vec2 NewPos;
 	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos);
-	CCharacter *pOwnerChar = 0;
+	CCharacter *pOwnerChar = nullptr;
 
 	if(m_Owner >= 0)
 		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
-	CCharacter *pTargetChr = 0;
+	CCharacter *pTargetChr = nullptr;
 
 	if(IsDDPPVanillaProjectile(Collide, PrevPos, CurPos, ColPos, NewPos, pOwnerChar, Pt, Ct))
 		return;
@@ -320,7 +320,7 @@ void CProjectile::Snap(int SnappingClient)
 			return;
 	}
 
-	CCharacter *pOwnerChar = 0;
+	CCharacter *pOwnerChar = nullptr;
 	CClientMask TeamMask = CClientMask().set();
 
 	if(m_Owner >= 0)

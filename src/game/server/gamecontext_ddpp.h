@@ -751,9 +751,9 @@ private:
 	int m_NumLoginBans;
 	int m_NumNameChangeMutes;
 	int m_NumJailIps;
-	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
-	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
-	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void RegisterBan(const NETADDR *pAddr, int Secs, const char *pDisplayName);
+	void LoginBan(const NETADDR *pAddr, int Secs, const char *pDisplayName);
+	void NameChangeMute(const NETADDR *pAddr, int Secs, const char *pDisplayName);
 	int64_t NameChangeMuteTime(int ClientId);
 
 	void ListSpamfilters();

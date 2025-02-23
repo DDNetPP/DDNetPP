@@ -762,10 +762,9 @@ void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(Victim, &Addr);
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->RegisterBan(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->RegisterBan(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -839,10 +838,9 @@ void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(Victim, &Addr);
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->LoginBan(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->LoginBan(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -916,10 +914,9 @@ void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserDa
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
 
-	NETADDR Addr;
-	pSelf->Server()->GetClientAddr(Victim, &Addr);
+	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->NameChangeMute(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->NameChangeMute(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 

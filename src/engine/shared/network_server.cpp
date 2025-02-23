@@ -254,9 +254,7 @@ int CNetServer::TryAcceptClient(NETADDR &Addr, SECURITY_TOKEN SecurityToken, boo
 
 	if(g_Config.m_Debug)
 	{
-		char aAddrStr[NETADDR_MAXSTRSIZE];
-		net_addr_str(&Addr, aAddrStr, sizeof(aAddrStr), true);
-		dbg_msg("security", "client accepted %s", aAddrStr);
+		dbg_msg("security", "client accepted %s", m_aSlots[Slot].m_Connection.PeerAddressString(true).data());
 	}
 
 	if(VanillaAuth)
@@ -346,7 +344,7 @@ void CNetServer::OnPreConnMsg(NETADDR &Addr, CNetPacketConstruct &Packet)
 			}
 
 			// simulate accept
-			SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, NULL, 0, NET_SECURITY_TOKEN_UNSUPPORTED);
+			SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, nullptr, 0, NET_SECURITY_TOKEN_UNSUPPORTED);
 
 			// Begin vanilla compatible token handshake
 			// The idea is to pack a security token in the gametick
@@ -422,7 +420,7 @@ void CNetServer::OnPreConnMsg(NETADDR &Addr, CNetPacketConstruct &Packet)
 		else
 		{
 			// accept client directly
-			SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, NULL, 0, NET_SECURITY_TOKEN_UNSUPPORTED);
+			SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, nullptr, 0, NET_SECURITY_TOKEN_UNSUPPORTED);
 
 			TryAcceptClient(Addr, NET_SECURITY_TOKEN_UNSUPPORTED);
 		}

@@ -690,15 +690,14 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// Proccess IP ADDR...
-	char aIp[32];
-	Server()->GetClientAddr(GetCid(), aIp, sizeof(aIp));
+	const char *pIp = Server()->ClientAddrString(GetCid(), false);
 
-	if(str_comp(aIp, m_Account.m_aIp_1) && str_comp(aIp, m_Account.m_aIp_2) && str_comp(aIp, m_Account.m_aIp_3))
+	if(str_comp(pIp, m_Account.m_aIp_1) && str_comp(pIp, m_Account.m_aIp_2) && str_comp(pIp, m_Account.m_aIp_3))
 	{
 		//dbg_msg("save", "updated ip '%s'", aIp);
 		str_format(m_Account.m_aIp_3, sizeof(m_Account.m_aIp_3), "%s", m_Account.m_aIp_2);
 		str_format(m_Account.m_aIp_2, sizeof(m_Account.m_aIp_2), "%s", m_Account.m_aIp_1);
-		str_format(m_Account.m_aIp_1, sizeof(m_Account.m_aIp_1), "%s", aIp);
+		str_format(m_Account.m_aIp_1, sizeof(m_Account.m_aIp_1), "%s", pIp);
 	}
 
 	// Proccess IngameName Data...

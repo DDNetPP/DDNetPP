@@ -597,11 +597,6 @@ void IGameController::DoWarmup(int Seconds)
 		m_Warmup = Seconds * Server()->TickSpeed();
 }
 
-bool IGameController::IsForceBalanced()
-{
-	return false;
-}
-
 bool IGameController::CanBeMovedOnBalance(int ClientId)
 {
 	return true;
@@ -677,7 +672,7 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_RoundCurrent = m_RoundCount + 1;
 
 	CCharacter *pChr;
-	CPlayer *pPlayer = SnappingClient != SERVER_DEMO_CLIENT ? GameServer()->m_apPlayers[SnappingClient] : 0;
+	CPlayer *pPlayer = SnappingClient != SERVER_DEMO_CLIENT ? GameServer()->m_apPlayers[SnappingClient] : nullptr;
 	CPlayer *pPlayer2;
 
 	if(pPlayer && (pPlayer->m_TimerType == CPlayer::TIMERTYPE_GAMETIMER || pPlayer->m_TimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) && pPlayer->GetClientVersion() >= VERSION_DDNET_GAMETICK)
@@ -734,7 +729,7 @@ void IGameController::Snap(int SnappingClient)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	}
 
-	pGameInfoEx->m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE;
+	pGameInfoEx->m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE | GAMEINFOFLAG2_DDRACE_TEAM;
 	if(g_Config.m_SvNoWeakHook)
 		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;
 	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;

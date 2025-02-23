@@ -47,6 +47,16 @@
 
 using namespace FontIcons;
 
+float fxt2f(int t)
+{
+	return t / 1000.0f;
+}
+
+int f2fxt(float t)
+{
+	return static_cast<int>(t * 1000.0f);
+}
+
 static const char *VANILLA_IMAGES[] = {
 	"bg_cloud1",
 	"bg_cloud2",
@@ -959,7 +969,7 @@ bool CEditor::CallbackCustomEntities(const char *pFileName, int StorageType, voi
 	}
 
 	pEditor->m_SelectEntitiesImage = aBuf;
-	pEditor->m_AllowPlaceUnusedTiles = -1;
+	pEditor->m_AllowPlaceUnusedTiles = EUnusedEntities::ALLOWED_IMPLICIT;
 	pEditor->m_PreventUnusedTilesWasWarned = false;
 
 	pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
@@ -1081,8 +1091,17 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 	}
 
 	// handle shortcut for unused button
-	if(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_U) && ModPressed)
-		m_AllowPlaceUnusedTiles = !m_AllowPlaceUnusedTiles;
+	if(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_U) && ModPressed && m_AllowPlaceUnusedTiles != EUnusedEntities::ALLOWED_IMPLICIT)
+	{
+		if(m_AllowPlaceUnusedTiles == EUnusedEntities::ALLOWED_EXPLICIT)
+		{
+			m_AllowPlaceUnusedTiles = EUnusedEntities::NOT_ALLOWED;
+		}
+		else
+		{
+			m_AllowPlaceUnusedTiles = EUnusedEntities::ALLOWED_EXPLICIT;
+		}
+	}
 
 	CUIRect TB_Top, TB_Bottom;
 	CUIRect Button;
@@ -2833,34 +2852,56 @@ void CEditor::DoQuadEnvelopes(const std::vector<CQuad> &vQuads, IGraphics::CText
 	Graphics()->TextureClear();
 	Graphics()->LinesBegin();
 	Graphics()->SetColor(80.0f / 255, 150.0f / 255, 230.f / 255, 0.5f);
+	IGraphics::CLineItem aLineItems[128];
+	size_t NumLineItems = 0;
 	for(size_t j = 0; j < Num; j++)
 	{
-		if(!apEnvelope[j])
+		if(!apEnvelope[j] || apEnvelope[j]->m_vPoints.empty())
 			continue;
 
 		// QuadParams
 		const CPoint *pPivotPoint = &vQuads[j].m_aPoints[4];
-		for(size_t i = 0; i < apEnvelope[j]->m_vPoints.size() - 1; i++)
+		const vec2 PivotPoint = vec2(fx2f(pPivotPoint->x), fx2f(pPivotPoint->y));
+
+		const float StartTime = fxt2f(apEnvelope[j]->m_vPoints[0].m_Time);
+		const float EndTime = fxt2f(apEnvelope[j]->m_vPoints[apEnvelope[j]->m_vPoints.size() - 1].m_Time);
+		const float TimeRange = EndTime - StartTime;
+		const int Steps = clamp(round_to_int(TimeRange * 10.0f), 250, 2500);
+		const float StepTime = TimeRange / static_cast<float>(Steps);
+
+		ColorRGBA Result = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
+		apEnvelope[j]->Eval(StartTime, Result, 2);
+		vec2 Pos0 = PivotPoint + vec2(Result.r, Result.g);
+		float PrevTime = StartTime;
+		for(int Step = 1; Step <= Steps; Step++)
 		{
-			ColorRGBA Result = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-			apEnvelope[j]->Eval(apEnvelope[j]->m_vPoints[i].m_Time / 1000.0f + 0.000001f, Result, 2);
-			vec2 Pos0 = vec2(fx2f(pPivotPoint->x) + Result.r, fx2f(pPivotPoint->y) + Result.g);
-
-			const int Steps = 15;
-			for(int n = 1; n <= Steps; n++)
+			float CurrentTime = StartTime + Step * StepTime;
+			if(CurrentTime >= EndTime)
 			{
-				const float Time = mix(apEnvelope[j]->m_vPoints[i].m_Time, apEnvelope[j]->m_vPoints[i + 1].m_Time, (float)n / Steps);
-				Result = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-				apEnvelope[j]->Eval(Time / 1000.0f - 0.000001f, Result, 2);
-
-				vec2 Pos1 = vec2(fx2f(pPivotPoint->x) + Result.r, fx2f(pPivotPoint->y) + Result.g);
-
-				IGraphics::CLineItem Line = IGraphics::CLineItem(Pos0.x, Pos0.y, Pos1.x, Pos1.y);
-				Graphics()->LinesDraw(&Line, 1);
-
-				Pos0 = Pos1;
+				CurrentTime = EndTime - 0.001f;
+				if(CurrentTime <= PrevTime)
+					break;
 			}
+			Result = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
+			apEnvelope[j]->Eval(CurrentTime, Result, 2);
+
+			const vec2 Pos1 = PivotPoint + vec2(Result.r, Result.g);
+
+			aLineItems[NumLineItems] = IGraphics::CLineItem(Pos0.x, Pos0.y, Pos1.x, Pos1.y);
+			NumLineItems++;
+			if(NumLineItems == std::size(aLineItems))
+			{
+				Graphics()->LinesDraw(aLineItems, NumLineItems);
+				NumLineItems = 0;
+			}
+
+			Pos0 = Pos1;
+			PrevTime = CurrentTime;
 		}
+	}
+	if(NumLineItems)
+	{
+		Graphics()->LinesDraw(aLineItems, NumLineItems);
 	}
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	Graphics()->LinesEnd();
@@ -3764,6 +3805,12 @@ void CEditor::DoColorPickerButton(const void *pId, const CUIRect *pRect, ColorRG
 	}
 }
 
+bool CEditor::IsAllowPlaceUnusedTiles() const
+{
+	// explicit allow and implicit allow
+	return m_AllowPlaceUnusedTiles != EUnusedEntities::NOT_ALLOWED;
+}
+
 void CEditor::RenderLayers(CUIRect LayersBox)
 {
 	const float RowHeight = 12.0f;
@@ -4219,7 +4266,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 							}
 						}
 
-						Ui()->DoPopupMenu(&s_LayerPopupContext, Ui()->MouseX(), Ui()->MouseY(), 120, 270, &s_LayerPopupContext, PopupLayer);
+						Ui()->DoPopupMenu(&s_LayerPopupContext, Ui()->MouseX(), Ui()->MouseY(), 120, 280, &s_LayerPopupContext, PopupLayer);
 					}
 
 					SetOperation(OP_NONE);
@@ -4382,7 +4429,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 	LayersBox.HSplitTop(RowHeight + 1.0f, &AddGroupButton, &LayersBox);
 	if(s_ScrollRegion.AddRect(AddGroupButton))
 	{
-		AddGroupButton.HSplitTop(RowHeight, &AddGroupButton, 0);
+		AddGroupButton.HSplitTop(RowHeight, &AddGroupButton, nullptr);
 		if(DoButton_Editor(&m_QuickActionAddGroup, m_QuickActionAddGroup.Label(), 0, &AddGroupButton, IGraphics::CORNER_R, m_QuickActionAddGroup.Description()))
 		{
 			m_QuickActionAddGroup.Call();
@@ -4404,7 +4451,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 
 		const char *pActionText = TotalCollapsed == m_Map.m_vpGroups.size() ? "Expand all" : "Collapse all";
 
-		CollapseAllButton.HSplitTop(RowHeight, &CollapseAllButton, 0);
+		CollapseAllButton.HSplitTop(RowHeight, &CollapseAllButton, nullptr);
 		static int s_CollapseAllButton = 0;
 		if(DoButton_Editor(&s_CollapseAllButton, pActionText, 0, &CollapseAllButton, IGraphics::CORNER_R, "Expand or collapse all groups."))
 		{
@@ -4476,8 +4523,7 @@ bool CEditor::ReplaceImage(const char *pFileName, int StorageType, bool CheckDup
 	}
 
 	std::shared_ptr<CEditorImage> pImg = m_Map.m_vpImages[m_SelectedImage];
-	Graphics()->UnloadTexture(&(pImg->m_Texture));
-	pImg->Free();
+	pImg->CEditorImage::Free();
 	pImg->m_Width = ImgInfo.m_Width;
 	pImg->m_Height = ImgInfo.m_Height;
 	pImg->m_Format = ImgInfo.m_Format;
@@ -6081,16 +6127,6 @@ void CEditor::ResetZoomEnvelope(const std::shared_ptr<CEnvelope> &pEnvelope, int
 	}
 }
 
-float fxt2f(int t)
-{
-	return t / 1000.0f;
-}
-
-int f2fxt(float t)
-{
-	return static_cast<int>(t * 1000.0f);
-}
-
 float CEditor::ScreenToEnvelopeX(const CUIRect &View, float x) const
 {
 	return (x - View.x - View.w * m_OffsetEnvelopeX) / View.w * m_ZoomEnvelopeX.GetValue();
@@ -6817,27 +6853,48 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 				else
 					Graphics()->SetColor(aColors[c].r * 0.5f, aColors[c].g * 0.5f, aColors[c].b * 0.5f, 1);
 
-				int Steps = static_cast<int>(((EndX - StartX) / Ui()->Screen()->w) * Graphics()->ScreenWidth());
-				float StepTime = (EndTime - StartTime) / static_cast<float>(Steps);
-				float StepSize = (EndX - StartX) / static_cast<float>(Steps);
+				const int Steps = static_cast<int>(((EndX - StartX) / Ui()->Screen()->w) * Graphics()->ScreenWidth());
+				const float StepTime = (EndTime - StartTime) / static_cast<float>(Steps);
+				const float StepSize = (EndX - StartX) / static_cast<float>(Steps);
+
+				IGraphics::CLineItem aLineItems[128];
+				size_t NumLineItems = 0;
 
 				ColorRGBA Channels = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
 				pEnvelope->Eval(StartTime, Channels, c + 1);
+				float PrevTime = StartTime;
+				float PrevX = StartX;
 				float PrevY = EnvelopeToScreenY(View, Channels[c]);
-				for(int i = 1; i < Steps; i++)
+				for(int Step = 1; Step <= Steps; Step++)
 				{
+					float CurrentTime = StartTime + Step * StepTime;
+					if(CurrentTime >= EndTime)
+					{
+						CurrentTime = EndTime - 0.001f;
+						if(CurrentTime <= PrevTime)
+							break;
+					}
+
 					Channels = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-					pEnvelope->Eval(StartTime + i * StepTime, Channels, c + 1);
-					float CurrentY = EnvelopeToScreenY(View, Channels[c]);
+					pEnvelope->Eval(CurrentTime, Channels, c + 1);
+					const float CurrentX = StartX + Step * StepSize;
+					const float CurrentY = EnvelopeToScreenY(View, Channels[c]);
 
-					IGraphics::CLineItem LineItem(
-						StartX + (i - 1) * StepSize,
-						PrevY,
-						StartX + i * StepSize,
-						CurrentY);
-					Graphics()->LinesDraw(&LineItem, 1);
+					aLineItems[NumLineItems] = IGraphics::CLineItem(PrevX, PrevY, CurrentX, CurrentY);
+					NumLineItems++;
+					if(NumLineItems == std::size(aLineItems))
+					{
+						Graphics()->LinesDraw(aLineItems, NumLineItems);
+						NumLineItems = 0;
+					}
 
+					PrevTime = CurrentTime;
+					PrevX = CurrentX;
 					PrevY = CurrentY;
+				}
+				if(NumLineItems)
+				{
+					Graphics()->LinesDraw(aLineItems, NumLineItems);
 				}
 			}
 			Graphics()->LinesEnd();
@@ -7837,7 +7894,7 @@ void CEditor::RenderMenubar(CUIRect MenuBar)
 	if(DoButton_Ex(&s_FileButton, "File", 0, &FileButton, 0, nullptr, IGraphics::CORNER_T, EditorFontSizes::MENU, TEXTALIGN_ML))
 	{
 		static SPopupMenuId s_PopupMenuFileId;
-		Ui()->DoPopupMenu(&s_PopupMenuFileId, FileButton.x, FileButton.y + FileButton.h - 1.0f, 120.0f, 174.0f, this, PopupMenuFile, PopupProperties);
+		Ui()->DoPopupMenu(&s_PopupMenuFileId, FileButton.x, FileButton.y + FileButton.h - 1.0f, 120.0f, 188.0f, this, PopupMenuFile, PopupProperties);
 	}
 
 	MenuBar.VSplitLeft(5.0f, nullptr, &MenuBar);
@@ -7859,7 +7916,7 @@ void CEditor::RenderMenubar(CUIRect MenuBar)
 	if(DoButton_Ex(&s_SettingsButton, "Settings", 0, &SettingsButton, 0, nullptr, IGraphics::CORNER_T, EditorFontSizes::MENU, TEXTALIGN_ML))
 	{
 		static SPopupMenuId s_PopupMenuEntitiesId;
-		Ui()->DoPopupMenu(&s_PopupMenuEntitiesId, SettingsButton.x, SettingsButton.y + SettingsButton.h - 1.0f, 210.0f, 120.0f, this, PopupMenuSettings, PopupProperties);
+		Ui()->DoPopupMenu(&s_PopupMenuEntitiesId, SettingsButton.x, SettingsButton.y + SettingsButton.h - 1.0f, 220.0f, 134.0f, this, PopupMenuSettings, PopupProperties);
 	}
 
 	CUIRect ChangedIndicator, Info, Help, Close;
@@ -8404,6 +8461,126 @@ void CEditor::RenderMousePointer()
 		char aLabel[8];
 		str_format(aLabel, sizeof(aLabel), "#%06X", m_PipetteColor.PackAlphaLast(false));
 		Ui()->DoLabel(&Label, aLabel, 10.0f, TEXTALIGN_MC);
+	}
+}
+
+void CEditor::RenderGameEntities(const std::shared_ptr<CLayerTiles> &pTiles)
+{
+	const CGameClient *pGameClient = (CGameClient *)Kernel()->RequestInterface<IGameClient>();
+	const float TileSize = 32.f;
+
+	for(int y = 0; y < pTiles->m_Height; y++)
+	{
+		for(int x = 0; x < pTiles->m_Width; x++)
+		{
+			const unsigned char Index = pTiles->m_pTiles[y * pTiles->m_Width + x].m_Index - ENTITY_OFFSET;
+			if(!((Index >= ENTITY_FLAGSTAND_RED && Index <= ENTITY_WEAPON_LASER) ||
+				   (Index >= ENTITY_ARMOR_SHOTGUN && Index <= ENTITY_ARMOR_LASER)))
+				continue;
+
+			const bool DDNetOrCustomEntities = std::find_if(std::begin(gs_apModEntitiesNames), std::end(gs_apModEntitiesNames),
+								   [&](const char *pEntitiesName) { return str_comp_nocase(m_SelectEntitiesImage.c_str(), pEntitiesName) == 0 &&
+													   str_comp_nocase(pEntitiesName, "ddnet") != 0; }) == std::end(gs_apModEntitiesNames);
+
+			vec2 Pos(x * TileSize, y * TileSize);
+			vec2 Scale;
+			int VisualSize;
+
+			if(Index == ENTITY_FLAGSTAND_RED)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpriteFlagRed);
+				Scale = vec2(42, 84);
+				VisualSize = 1;
+				Pos.y -= (Scale.y / 2.f) * 0.75f;
+			}
+			else if(Index == ENTITY_FLAGSTAND_BLUE)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpriteFlagBlue);
+				Scale = vec2(42, 84);
+				VisualSize = 1;
+				Pos.y -= (Scale.y / 2.f) * 0.75f;
+			}
+			else if(Index == ENTITY_ARMOR_1)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupArmor);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_HEALTH, Scale.x, Scale.y);
+				VisualSize = 64;
+			}
+			else if(Index == ENTITY_HEALTH_1)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupHealth);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_HEALTH, Scale.x, Scale.y);
+				VisualSize = 64;
+			}
+			else if(Index == ENTITY_WEAPON_SHOTGUN)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_aSpritePickupWeapons[WEAPON_SHOTGUN]);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_SHOTGUN, Scale.x, Scale.y);
+				VisualSize = g_pData->m_Weapons.m_aId[WEAPON_SHOTGUN].m_VisualSize;
+			}
+			else if(Index == ENTITY_WEAPON_GRENADE)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_aSpritePickupWeapons[WEAPON_GRENADE]);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_GRENADE, Scale.x, Scale.y);
+				VisualSize = g_pData->m_Weapons.m_aId[WEAPON_GRENADE].m_VisualSize;
+			}
+			else if(Index == ENTITY_WEAPON_LASER)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_aSpritePickupWeapons[WEAPON_LASER]);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_LASER, Scale.x, Scale.y);
+				VisualSize = g_pData->m_Weapons.m_aId[WEAPON_LASER].m_VisualSize;
+			}
+			else if(Index == ENTITY_POWERUP_NINJA)
+			{
+				Graphics()->TextureSet(pGameClient->m_GameSkin.m_aSpritePickupWeapons[WEAPON_NINJA]);
+				RenderTools()->GetSpriteScale(SPRITE_PICKUP_NINJA, Scale.x, Scale.y);
+				VisualSize = 128;
+				Pos.x -= 10.0f;
+			}
+			else if(DDNetOrCustomEntities)
+			{
+				if(Index == ENTITY_ARMOR_SHOTGUN)
+				{
+					Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupArmorShotgun);
+					RenderTools()->GetSpriteScale(SPRITE_PICKUP_ARMOR_SHOTGUN, Scale.x, Scale.y);
+					VisualSize = 64;
+				}
+				else if(Index == ENTITY_ARMOR_GRENADE)
+				{
+					Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupArmorGrenade);
+					RenderTools()->GetSpriteScale(SPRITE_PICKUP_ARMOR_GRENADE, Scale.x, Scale.y);
+					VisualSize = 64;
+				}
+				else if(Index == ENTITY_ARMOR_NINJA)
+				{
+					Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupArmorNinja);
+					RenderTools()->GetSpriteScale(SPRITE_PICKUP_ARMOR_NINJA, Scale.x, Scale.y);
+					VisualSize = 64;
+				}
+				else if(Index == ENTITY_ARMOR_LASER)
+				{
+					Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupArmorLaser);
+					RenderTools()->GetSpriteScale(SPRITE_PICKUP_ARMOR_LASER, Scale.x, Scale.y);
+					VisualSize = 64;
+				}
+				else
+					continue;
+			}
+			else
+				continue;
+
+			if(Index != ENTITY_FLAGSTAND_RED && Index != ENTITY_FLAGSTAND_BLUE)
+			{
+				Pos += direction(Client()->GlobalTime() * 2.0f + x + y) * 2.5f;
+			}
+			Scale *= VisualSize;
+			Pos -= vec2((Scale.x - TileSize) / 2.f, (Scale.y - TileSize) / 2.f);
+
+			Graphics()->QuadsBegin();
+			IGraphics::CQuadItem Quad(Pos.x, Pos.y, Scale.x, Scale.y);
+			Graphics()->QuadsDrawTL(&Quad, 1);
+			Graphics()->QuadsEnd();
+		}
 	}
 }
 
