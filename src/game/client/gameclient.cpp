@@ -760,6 +760,9 @@ void CGameClient::UpdatePositions()
 
 void CGameClient::OnRender()
 {
+	const ColorRGBA ClearColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClOverlayEntities ? g_Config.m_ClBackgroundEntitiesColor : g_Config.m_ClBackgroundColor));
+	Graphics()->Clear(ClearColor.r, ClearColor.g, ClearColor.b);
+
 	// check if multi view got activated
 	if(!m_MultiView.m_IsInit && m_MultiViewActivated)
 	{
@@ -3275,7 +3278,7 @@ void CGameClient::UpdateSpectatorCursor()
 	}
 
 	const CSnapState::CCharacterInfo CharInfo = m_Snap.m_aCharacters[CursorOwnerId];
-	if(!CharInfo.m_HasExtendedData || !m_aClients[CursorOwnerId].m_Active || (!g_Config.m_Debug && m_aClients[CursorOwnerId].m_Paused))
+	if(!CharInfo.m_HasExtendedDisplayInfo || !m_aClients[CursorOwnerId].m_Active || (!g_Config.m_Debug && m_aClients[CursorOwnerId].m_Paused))
 	{
 		// hide cursor when the spectating player is paused
 		m_CursorInfo.m_Available = false;
