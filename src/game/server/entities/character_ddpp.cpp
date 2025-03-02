@@ -647,13 +647,13 @@ void CCharacter::DDPPPostCoreTick()
 	if(!m_Alive)
 		return;
 
-	if(m_Core.m_updateFlagVel == FLAG_RED)
+	if(m_Core.m_updateFlagVel == CLIENT_ID_FLAG_RED)
 	{
-		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_Vel = m_Core.m_UFlagVel;
+		GameServer()->m_pController->m_apFlags[FLAG_RED]->m_Vel = m_Core.m_UFlagVel;
 	}
-	else if(m_Core.m_updateFlagVel == FLAG_BLUE)
+	else if(m_Core.m_updateFlagVel == CLIENT_ID_FLAG_BLUE)
 	{
-		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
+		GameServer()->m_pController->m_apFlags[FLAG_BLUE]->m_Vel = m_Core.m_UFlagVel;
 	}
 	if(m_Core.m_DDNetPP.m_LastHookedPlayer != m_OldLastHookedPlayer)
 	{
