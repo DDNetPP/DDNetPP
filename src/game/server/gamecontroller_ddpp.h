@@ -137,6 +137,21 @@ public:
 	// returns 1 if the player has the blue flag
 	virtual int HasFlag(CCharacter *pChr) { return -1; };
 
+	/*
+		Function: GetCarriedFlag
+			Returns the type of flag the given player is currently carrying.
+			Flag refers here to a CTF gametype flag which is either red, blue or none.
+
+		Arguments:
+			pPlayer - player to check
+
+		Returns:
+			FLAG_NONE -1
+			FLAG_RED  0
+			FLAG_BLUE 2
+	*/
+	virtual int GetCarriedFlag(CPlayer *pPlayer) { return FLAG_NONE; };
+
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER
 };

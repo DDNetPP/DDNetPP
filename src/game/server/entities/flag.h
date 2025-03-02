@@ -8,12 +8,6 @@
 #include <game/server/entities/character.h>
 #include <game/server/entity.h>
 
-enum
-{
-	FLAG_RED = MAX_CLIENTS,
-	FLAG_BLUE
-};
-
 class CFlag : public CEntity
 {
 	CCharacter *m_pCarryingCharacter;

@@ -318,3 +318,15 @@ int CGameControllerDDNetPP::HasFlag(CCharacter *pChr)
 	}
 	return -1;
 }
+
+int CGameControllerDDNetPP::GetCarriedFlag(CPlayer *pPlayer)
+{
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return FLAG_NONE;
+
+	for(int FlagIndex = FLAG_RED; FlagIndex < NUM_FLAGS; FlagIndex++)
+		if(m_apFlags[FlagIndex] && m_apFlags[FlagIndex]->GetCarrier() == pChr)
+			return FlagIndex;
+	return FLAG_NONE;
+}

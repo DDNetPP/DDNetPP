@@ -9,7 +9,8 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 
-#include <game/server/entities/flag.h> // ddnet++
+// #include <game/server/entities/flag.h> // ddnet++
+#include <game/server/ddpp/enums.h> // ddnet++
 
 #include <limits>
 
@@ -727,7 +728,7 @@ void CCharacterCore::SetHookedPlayer(int HookedPlayer)
 				pCharCore->m_AttachedPlayers.erase(m_Id);
 			}
 		}
-		if(HookedPlayer != -1 && HookedPlayer != FLAG_RED && HookedPlayer != FLAG_BLUE && m_Id != -1 && m_pWorld)
+		if(HookedPlayer != -1 && HookedPlayer != CLIENT_ID_FLAG_RED && HookedPlayer != CLIENT_ID_FLAG_BLUE && m_Id != -1 && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[HookedPlayer];
 			if(pCharCore)

@@ -50,7 +50,9 @@ public:
 	void DropFlag(int FlagId, int Dir = 1) override;
 	void ChangeFlagOwner(int FlagId, int ClientId) override;
 	bool CharacterDropFlag(CCharacter *pChr) override;
+	// DEPRECATED! use GetCarriedFlag instead
 	int HasFlag(CCharacter *pChr) override;
+	int GetCarriedFlag(CPlayer *pPlayer) override;
 
 	// snapshot.cpp
 	int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore) override;

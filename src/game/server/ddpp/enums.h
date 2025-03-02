@@ -1,6 +1,32 @@
 #ifndef GAME_SERVER_DDPP_ENUMS_H
 #define GAME_SERVER_DDPP_ENUMS_H
 
+#include <engine/shared/protocol.h>
+
+enum
+{
+	// magic value to represent absence of a flag
+	FLAG_NONE = -1,
+
+	// index in the IGameController::m_apFlags array
+	FLAG_RED = 0,
+
+	// index in the IGameController::m_apFlags array
+	FLAG_BLUE = 1,
+
+	// size of the IGameController::m_apFlags array
+	NUM_FLAGS = 2
+};
+
+enum
+{
+	// fake client id used for hooking flags
+	CLIENT_ID_FLAG_RED = MAX_CLIENTS,
+
+	// fake client id used for hooking flags
+	CLIENT_ID_FLAG_BLUE
+};
+
 enum
 {
 	// used to respawn players on round end/start

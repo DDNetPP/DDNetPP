@@ -1,13 +1,12 @@
 /* DDNet++ gamecore */
 
-#include "gamecore.h"
-
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
-
+#include <game/collision.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/entities/flag.h>
 
-#include <game/collision.h>
+#include "gamecore.h"
 
 void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId)
 {
@@ -19,7 +18,7 @@ void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, i
 
 void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore) const
 {
-	if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
+	if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE || m_HookedPlayer == CLIENT_ID_FLAG_RED)
 		pObjCore->m_HookedPlayer = -1;
 	else
 		pObjCore->m_HookedPlayer = m_HookedPlayer;
@@ -27,7 +26,7 @@ void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore) const
 
 void CCharacterCore::DDPPRead(const CNetObj_CharacterCore *pObjCore)
 {
-	if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
+	if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE || m_HookedPlayer == CLIENT_ID_FLAG_RED)
 	{
 		// pass
 	}
@@ -51,13 +50,13 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 	// 		if(Flag.m_AtStand)
 	// 			continue;
 
-	// 		if(Flag.m_CarrierId == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
+	// 		if(Flag.m_CarrierId == -1 && m_HookedPlayer != CLIENT_ID_FLAG_RED && m_HookedPlayer != CLIENT_ID_FLAG_BLUE)
 	// 		{
 	// 			if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[0]) < Distance*/)
 	// 			{
 	// 				m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
 	// 				m_HookState = HOOK_GRABBED;
-	// 				m_HookedPlayer = FlagId == TEAM_RED ? FLAG_RED : FLAG_BLUE;
+	// 				m_HookedPlayer = FlagId == FLAG_RED ? CLIENT_ID_FLAG_RED : CLIENT_ID_FLAG_BLUE;
 	// 			}
 	// 		}
 	// 		else
@@ -69,7 +68,7 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 	// 				Flag.m_Pos.x / 32, Flag.m_Pos.y / 32,
 	// 				ClosestPoint.x / 32, ClosestPoint.y / 32,
 	// 				Flag.m_CarrierId,
-	// 				(m_HookedPlayer == FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
+	// 				(m_HookedPlayer == CLIENT_ID_FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
 	// 	}
 	// }
 }
@@ -77,10 +76,10 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 bool CCharacterCore::HookFlag()
 {
 	int FlagId = -1;
-	if(m_HookedPlayer == FLAG_RED)
-		FlagId = TEAM_RED;
-	if(m_HookedPlayer == FLAG_BLUE)
-		FlagId = TEAM_BLUE;
+	if(m_HookedPlayer == CLIENT_ID_FLAG_RED)
+		FlagId = FLAG_RED;
+	if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
+		FlagId = FLAG_BLUE;
 	if(FlagId == -1)
 		return false;
 
@@ -116,7 +115,7 @@ void CCharacterCore::DDPPTick()
 		// TODO: do not call this 3 times
 		HookFlag();
 
-		if(m_HookedPlayer == FLAG_RED)
+		if(m_HookedPlayer == CLIENT_ID_FLAG_RED)
 		{
 			if(m_DDNetPP.m_aFlags[0].m_AtStand)
 			{
@@ -125,7 +124,7 @@ void CCharacterCore::DDPPTick()
 				m_HookPos = m_Pos;
 			}
 		}
-		if(m_HookedPlayer == FLAG_BLUE)
+		if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
 		{
 			if(m_DDNetPP.m_aFlags[1].m_AtStand)
 			{
@@ -136,14 +135,14 @@ void CCharacterCore::DDPPTick()
 		}
 	}
 
-	if(m_DDNetPP.m_LastHookedPlayer != FLAG_BLUE && m_DDNetPP.m_LastHookedPlayer != FLAG_RED && m_DDNetPP.m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_DDNetPP.m_LastHookedPlayer])
+	if(m_DDNetPP.m_LastHookedPlayer != CLIENT_ID_FLAG_BLUE && m_DDNetPP.m_LastHookedPlayer != CLIENT_ID_FLAG_RED && m_DDNetPP.m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_DDNetPP.m_LastHookedPlayer])
 	{
 		m_DDNetPP.m_LastHookedPlayer = -1;
 	}
 
 	if(m_pWorld)
 	{
-		if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
+		if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE || m_HookedPlayer == CLIENT_ID_FLAG_RED)
 		{
 			float Distance;
 			vec2 FlagVel;
@@ -151,18 +150,18 @@ void CCharacterCore::DDPPTick()
 			vec2 FPos;
 			vec2 Temp;
 
-			if(m_HookedPlayer == FLAG_RED)
+			if(m_HookedPlayer == CLIENT_ID_FLAG_RED)
 			{
-				m_updateFlagVel = FLAG_RED;
+				m_updateFlagVel = CLIENT_ID_FLAG_RED;
 				Temp = m_DDNetPP.m_aFlags[0].m_Vel;
 				FlagVel = m_DDNetPP.m_aFlags[0].m_Vel;
 				FPos = m_DDNetPP.m_aFlags[0].m_Pos;
 				Distance = distance(m_Pos, m_DDNetPP.m_aFlags[0].m_Pos);
 				Dir = normalize(m_Pos - m_DDNetPP.m_aFlags[0].m_Pos);
 			}
-			if(m_HookedPlayer == FLAG_BLUE)
+			if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
 			{
-				m_updateFlagVel = FLAG_BLUE;
+				m_updateFlagVel = CLIENT_ID_FLAG_BLUE;
 				Temp = m_DDNetPP.m_aFlags[1].m_Vel;
 				FlagVel = m_DDNetPP.m_aFlags[1].m_Vel;
 				FPos = m_DDNetPP.m_aFlags[1].m_Pos;
