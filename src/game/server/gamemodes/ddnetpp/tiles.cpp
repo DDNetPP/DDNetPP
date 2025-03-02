@@ -1,7 +1,7 @@
+#include <base/system.h>
 #include <game/mapitems.h>
 #include <game/server/gamemodes/DDRace.h>
 
-#include "base/system.h"
 #include "ddnetpp.h"
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)

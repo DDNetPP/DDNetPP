@@ -1,18 +1,15 @@
 /* CPlayer related sql ddnet++ methods */
 
-#include "base/system.h"
-#include "game/generated/protocol.h"
-#include "gamemodes/DDRace.h"
+#include <base/system.h>
 #include <engine/shared/config.h>
+#include <game/generated/protocol.h>
+#include <game/mapitems.h>
 
 #include <fstream>
 #include <limits>
 
 #include "gamecontext.h"
-
 #include "player.h"
-
-#include <game/mapitems.h>
 
 void CPlayer::OnLogin()
 {

@@ -1,7 +1,8 @@
 /* DDNet++ shop */
 
+#include <game/generated/protocol.h>
+
 #include "../gamecontext.h"
-#include "game/generated/protocol.h"
 
 #include "shop.h"
 

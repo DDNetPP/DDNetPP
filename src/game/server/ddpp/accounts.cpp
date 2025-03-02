@@ -1,10 +1,10 @@
 // ddnet++ accounts
 #include <base/system.h>
 #include <engine/server/databases/connection.h>
+#include <engine/server/databases/connection_pool.h>
+#include <engine/shared/config.h>
 
 #include "../gamecontext.h"
-#include "engine/server/databases/connection_pool.h"
-#include "engine/shared/config.h"
 
 #include "accounts.h"
 

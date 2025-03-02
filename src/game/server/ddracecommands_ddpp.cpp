@@ -3,6 +3,7 @@
 */
 #include <base/ddpp_logs.h>
 #include <base/system.h>
+#include <base/vmath.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
@@ -14,7 +15,6 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
-#include "base/vmath.h"
 #include "gamecontext.h"
 
 bool CheckClientId(int ClientId);

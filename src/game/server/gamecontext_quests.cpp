@@ -1,8 +1,8 @@
 // gamecontext scoped quests ddnet++ methods
 
+#include <base/system.h>
 #include <engine/shared/config.h>
 
-#include "base/system.h"
 #include "gamecontext.h"
 
 void CGameContext::QuestReset(int ClientId)
