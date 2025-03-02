@@ -1,3 +1,4 @@
+#include <base/log.h>
 #include <base/ddpp_logs.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
@@ -175,10 +176,17 @@ void CGameControllerDDNetPP::FlagTick()
 				//Speedups
 				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos)))
 				{
-					int Force, MaxSpeed = 0;
+					int Force, Type, MaxSpeed = 0;
 					vec2 Direction, TempVel = pFlag->m_Vel;
 					float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
-					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos), &Direction, &Force, &MaxSpeed);
+					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos), &Direction, &Force, &MaxSpeed, &Type);
+
+					if(Type == TILE_SPEED_BOOST)
+					{
+						// missing changes from this commit
+						// https://github.com/ddnet/ddnet/commit/09eb4e62010af13a9b68189b56e882de24c164e6
+						log_error("ddnet++", "warning new speedup not supported yet.");
+					}
 
 					if(Force == 255 && MaxSpeed)
 					{
