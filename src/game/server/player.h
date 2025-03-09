@@ -120,7 +120,6 @@ public:
 	int m_PreviousDieTick;
 	std::optional<int> m_Score;
 	int m_JoinTick;
-	bool m_ForceBalanced;
 	int m_LastActionTick;
 	int m_TeamChangeTick;
 

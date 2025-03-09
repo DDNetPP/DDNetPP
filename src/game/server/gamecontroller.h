@@ -67,9 +67,6 @@ protected:
 	int m_RoundCount;
 
 	int m_GameFlags;
-	int m_UnbalancedTick;
-	bool m_ForceBalanced;
-	//bool m_disarm = false;
 
 public:
 	const char *m_pGameType;
@@ -99,7 +96,7 @@ public:
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
 
 	virtual void HandleCharacterTiles(class CCharacter *pChr, int MapIndex);
-	virtual void SetArmorProgress(CCharacter *pCharacer, int Progress){};
+	virtual void SetArmorProgress(CCharacter *pCharacter, int Progress){};
 
 	/*
 		Function: OnEntity
@@ -130,8 +127,6 @@ public:
 	/*
 
 	*/
-	virtual bool CanBeMovedOnBalance(int ClientId);
-
 	virtual void Tick();
 
 	virtual void Snap(int SnappingClient);
