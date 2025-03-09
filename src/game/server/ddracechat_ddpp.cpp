@@ -709,12 +709,12 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Accounts are turned off.");
 		return;
 	}
-	if(g_Config.m_SvAccountStuff == 2) //filebased
+	if(g_Config.m_SvAccounts == 2) //filebased
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] SQLite accounts are turned off. (try '/register2')");
 		return;
@@ -819,7 +819,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "Account stuff is turned off.");
 		return;
@@ -877,7 +877,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "Account stuff is turned off.");
 		return;
@@ -1012,7 +1012,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "[SQL] Account stuff is turned off.");
 		return;
@@ -1349,12 +1349,12 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
-	if(g_Config.m_SvAccountStuff == 2) //filebased
+	if(g_Config.m_SvAccounts == 2) //filebased
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] SQLite accounts are turned off. (try '/login2')");
 		return;
@@ -1508,13 +1508,13 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
 	/*
-	if (g_Config.m_SvAccountStuff == 2) //filebased
+	if (g_Config.m_SvAccounts == 2) //filebased
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] SQLite accounts are turned off.");
 		return;
@@ -8123,7 +8123,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff != 2)
+	if(g_Config.m_SvAccounts != 2)
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
@@ -8284,7 +8284,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff != 2)
+	if(g_Config.m_SvAccounts != 2)
 	{
 		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
@@ -8431,7 +8431,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(g_Config.m_SvAccountStuff == 0)
+	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "Account stuff is turned off.");
 		return;
@@ -8451,7 +8451,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
-		if(g_Config.m_SvAccountStuff != 2)
+		if(g_Config.m_SvAccounts != 2)
 		{
 			pSelf->SendChatTarget(ClientId, "---- COMMANDS [WARNING FILEBASED SYS IS DEACTIVATED]-----");
 		}

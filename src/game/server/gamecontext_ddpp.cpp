@@ -82,7 +82,7 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_NumLoginBans = 0;
 	m_NumRegisterBans = 0;
 	m_NumNameChangeMutes = 0;
-	m_LastAccountMode = g_Config.m_SvAccountStuff;
+	m_LastAccountMode = g_Config.m_SvAccounts;
 	m_IsServerEmpty = false;
 	m_IsPoliceFarmActive = true;
 	m_TwblCallbackCtx.m_pGameServer = this;
@@ -1595,7 +1595,7 @@ void CGameContext::DDPP_Tick()
 			continue;
 
 		int PlayerId = Player->GetCid();
-		if(m_LastAccountMode != g_Config.m_SvAccountStuff)
+		if(m_LastAccountMode != g_Config.m_SvAccounts)
 		{
 			if(Player->IsLoggedIn())
 			{
@@ -1614,7 +1614,7 @@ void CGameContext::DDPP_Tick()
 		m_InstaGrenadeRoundEndTickTicker--;
 	if(m_InstaRifleRoundEndTickTicker)
 		m_InstaRifleRoundEndTickTicker--;
-	m_LastAccountMode = g_Config.m_SvAccountStuff;
+	m_LastAccountMode = g_Config.m_SvAccounts;
 
 	if(Server()->Tick() % 600 == 0) //slow ddpp sub tick
 		DDPP_SlowTick();

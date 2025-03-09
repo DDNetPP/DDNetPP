@@ -49,7 +49,7 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	if(!pPlayer)
 		return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 
-	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccountStuff)
+	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccounts)
 	{
 		if(!pPlayer->IsLoggedIn())
 		{
@@ -130,7 +130,7 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 		pPlayer->m_PendingJoinMessage = false;
 	}
 
-	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccountStuff)
+	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccounts)
 	{
 		if(!pPlayer->IsLoggedIn())
 		{
