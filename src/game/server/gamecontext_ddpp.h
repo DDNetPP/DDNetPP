@@ -834,6 +834,10 @@ private:
 	//display score
 	static void ConScore(IConsole::IResult *pResult, void *pUserData);
 
+	//hammers
+
+	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
+
 	//spooky ghost
 	static void ConSpookyGhostInfo(IConsole::IResult *pResult, void *pUserData);
 

@@ -1372,3 +1372,23 @@ void CGameContext::ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserDa
 	if(Success)
 		pfnCallback(pResult, pCallbackUserData);
 }
+
+void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
+
+	if(!pChr)
+		return;
+
+	pChr->m_FreezeHammer = !pChr->m_FreezeHammer;
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "'%s' %s freeze hammer!",
+		pSelf->Server()->ClientName(Victim),
+		pChr->m_FreezeHammer ? "got" : "lost");
+
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
+}

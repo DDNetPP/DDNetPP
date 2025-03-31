@@ -541,6 +541,9 @@ void CCharacter::FireWeapon()
 			if(!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
 				pTarget->UnFreeze();
 
+			if(m_FreezeHammer) //ddnet++
+				pTarget->Freeze();
+
 			Antibot()->OnHammerHit(m_pPlayer->GetCid(), pTarget->GetPlayer()->GetCid());
 
 			Hits++;
