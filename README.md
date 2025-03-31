@@ -9,69 +9,11 @@ Download DDNet++ version 0.0.7 for macOS/linux/windows [here on github](https://
 Building
 --------
 
-DDNet++ supports bam4, bam5 and cmake building on macOS, linux and windows.
-Choose between bam or cmake whatever you prefer.
+DDNet++ uses cmake for building on macOS, linux and windows.
 
-If you want more building information feel free to check out the [ddnet](https://github.com/ddnet/ddnet/blob/master/README.md) and [teeworlds](https://github.com/teeworlds/teeworlds/blob/master/readme.md) READMEs.
-Those might include valuable information since DDNet++ is a fork of those repositorys.
+For building instructions and dependencies please check [ddnet](https://github.com/ddnet/ddnet/blob/master/README.md) and [teeworlds](https://github.com/teeworlds/teeworlds/blob/master/readme.md) READMEs.
+But if you have all the dependencies installed this should work.
 
-## bam
-### linux / macOS
-setup bam:
-```
-# it is recommended to add it to your PATH or a bin directory like /usr/bin/local
-cd /tmp
-git clone https://github.com/matricks/bam.git
-cd bam
-./make_unix.sh
-```
-build DDNet++:
-```
-git clone --recursive https://github.com/DDNetPP/DDNetPP.git
-cd DDNetPP
-/tmp/bam server_release
-```
-### windows
-setup bam:
-```
-:: it is recommended to add C:\bam to your PATH
-:: search for enviroment variables in windows and then edit path
-:: append C:\bam to the list and clone the bam src there
-cd C:\
-git clone https://github.com/matricks/bam.git
-cd bam
-make_win32_mingw.bat
-```
-build DDNet++:
-```
-git clone --recursive https://github.com/DDNetPP/DDNetPP.git
-cd DDNetPP
-bam.exe server_release
-```
-## cmake
-### linux
-```
-sudo apt install cmake
-git clone --recursive https://github.com/DDNetPP/DDNetPP.git
-cd DDNetPP
-mkdir build && cd build
-cmake ..
-make
-```
-### macOS
-```
-# if you have no brew already install brew first:
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-# install cmake
-brew install cmake
-git clone --recursive https://github.com/DDNetPP/DDNetPP.git
-cd DDNetPP
-mkdir build && cd build
-cmake ..
-make
-```
-### windows
-Download and install cmake from https://cmake.org/download/
 ```
 git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
