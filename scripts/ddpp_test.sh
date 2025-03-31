@@ -174,7 +174,7 @@ log "connecting clients to server at port $port"
 	sv_map ddnetpp-test;
 	sv_sqlite_file ddnet-server.sqlite;
 	sv_register ipv4;
-	sv_account_stuff 1;
+	sv_accounts 1;
 	sv_database_path accounts.db;
 	sv_allow_block_tourna 1;
 	sv_block_tourna_players 2;

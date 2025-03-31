@@ -234,7 +234,7 @@ public:
 
 	/*
 		m_LastAccountMode
-		keeps track of changes of the sv_account_stuff config
+		keeps track of changes of the sv_accounts config
 		it is used to logout all players
 	*/
 	int m_LastAccountMode;

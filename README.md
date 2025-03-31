@@ -48,6 +48,47 @@ We added all the features missing in ddnet. For example:
 - drop weapons and flags
 - and much more
 
+Database
+--------
+
+DDNet++ is based on ddnet and uses the same database engine. But it uses a separate database for accounts than
+for the ddrace race records. By default it uses sqlite3 but you can also configure it to use mysql (mariadb).
+
+
+Only accounts are stored in the database. So make sure accounts are turned on using the ``sv_accounts 1`` config.
+
+**sqlite3 (default)**
+
+If accounts are enabled ddnet++ works without further configuration out of the box.
+It stores the accounts in a database file determined by the config ``sv_database_path``
+which defaults to **accounts.db**.
+
+**mysql**
+
+You have to enable mysql during compilation for example like this:
+
+```sh
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
+cd DDNetPP
+mkdir build
+cd build
+cmake .. -DMYSQL=ON
+cmake --build .
+```
+
+Then you need a mysql server up and running (only mariadb is tested).
+You also have to prepare a database and a user that has access to it. The [ddnet readme](https://github.com/ddnet/ddnet?tab=readme-ov-file#importing-the-official-ddnet-database) might be helpful if you do not know how that works.
+Here a sample config connecting to the database. Put this into your autoexec_server.cfg
+
+```
+# add_accounts_sqlserver s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]
+
+sv_use_mysql_for_accounts 1
+
+add_accounts_sqlserver r teeworlds record teeworlds "PW2" "127.0.0.1" "3306"
+add_accounts_sqlserver w teeworlds record teeworlds "PW2" "127.0.0.1" "3306"
+```
+
 Bugs
 ----
 
