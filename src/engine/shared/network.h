@@ -49,7 +49,6 @@ CURRENT:
 
 enum
 {
-	NETFLAG_ALLOWSTATELESS = 1,
 	NETSENDFLAG_VITAL = 1,
 	NETSENDFLAG_CONNLESS = 2,
 	NETSENDFLAG_FLUSH = 4,
@@ -58,9 +57,6 @@ enum
 	NETSTATE_OFFLINE = 0,
 	NETSTATE_CONNECTING,
 	NETSTATE_ONLINE,
-
-	NETBANTYPE_SOFT = 1,
-	NETBANTYPE_DROP = 2
 };
 
 enum // todo: move to network_ddpp.h ?
@@ -70,8 +66,6 @@ enum // todo: move to network_ddpp.h ?
 
 enum
 {
-	NET_VERSION = 2,
-
 	NET_MAX_PACKETSIZE = 1400,
 	NET_MAX_PAYLOAD = NET_MAX_PACKETSIZE - 6,
 	NET_MAX_CHUNKHEADERSIZE = 3,
@@ -79,7 +73,6 @@ enum
 	NET_MAX_CLIENTS = 64,
 	NET_MAX_CONSOLE_CLIENTS = 4,
 	NET_MAX_SEQUENCE = 1 << 10,
-	NET_SEQUENCE_MASK = NET_MAX_SEQUENCE - 1,
 
 	NET_CONNSTATE_OFFLINE = 0,
 	NET_CONNSTATE_TOKEN = 1,
@@ -110,8 +103,6 @@ enum
 	NET_CONN_BUFFERSIZE = 1024 * 32,
 
 	NET_CONNLIMIT_IPS = 16,
-
-	NET_ENUM_TERMINATOR,
 
 	NET_TOKENCACHE_ADDRESSEXPIRY = 64,
 	NET_TOKENCACHE_PACKETEXPIRY = 5,
@@ -479,7 +470,6 @@ public:
 	int MaxClients() const { return m_MaxClients; }
 
 	void SendTokenSixup(NETADDR &Addr, SECURITY_TOKEN Token);
-	int SendConnlessSixup(CNetChunk *pChunk, SECURITY_TOKEN ResponseToken);
 
 	//
 	void SetMaxClientsPerIp(int Max);

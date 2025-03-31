@@ -117,7 +117,7 @@ option(PREFER_BUNDLED_LIBS "Prefer bundled libraries over system libraries" ${AU
 option(DEV "Don't generate stuff necessary for packaging" OFF)
 option(VULKAN "Enable the vulkan backend" ${AUTO_VULKAN_BACKEND})
 
-option(EXCEPTION_HANDLING "Enable exception handling (only works with Windows as of now)" OFF)
+option(EXCEPTION_HANDLING "Enable crashdumps (only works with Windows)" OFF)
 option(IPO "Enable interprocedural optimizations" OFF)
 option(FUSE_LD "Linker to use" OFF)
 option(SECURITY_COMPILER_FLAGS "Whether to set security-relevant compiler flags like -D_FORTIFY_SOURCE=2 and -fstack-protector-strong" ON)
@@ -311,7 +311,6 @@ if(NOT MSVC AND NOT HAIKU)
   endif()
 
   if(EXCEPTION_HANDLING)
-    add_cxx_compiler_flag_if_supported(OUR_FLAGS -DCONF_EXCEPTION_HANDLING)
     # use the frame pointer (frame pointer usage is disabled by default in
     # some architectures like x86_64 and for some optimization levels; and it
     # may be impossible to walk the call stack without it)
@@ -345,12 +344,6 @@ if(NOT MSVC AND NOT HAIKU)
   # add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wdouble-promotion) # Many occurrences
   # add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wnull-dereference) # Many occurrences
   # add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wuseless-cast) # TODO: Enable for C++ code except gtest
-endif()
-
-if(MSVC)
-  if(EXCEPTION_HANDLING)
-  add_cxx_compiler_flag_if_supported(OUR_FLAGS /DCONF_EXCEPTION_HANDLING)
-  endif()
 endif()
 
 if(NOT MSVC AND NOT HAIKU AND SECURITY_COMPILER_FLAGS)
@@ -551,7 +544,7 @@ else()
 endif()
 
 if(EXCEPTION_HANDLING)
-  find_package(ExceptionHandling)
+  find_package(Crashdump)
 endif()
 
 if(SECURITY_COMPILER_FLAGS)
@@ -1852,13 +1845,6 @@ foreach(datafile ${DATA})
   file(MAKE_DIRECTORY ${DESTINATION})
   file(COPY ${datafile} DESTINATION ${DESTINATION})
 endforeach()
-set(INTEGRATION_TEST_COPY_FILES
-  lsan.supp
-  memcheck.supp
-  ubsan.supp
-  valgrind.supp
-  scripts/integration_test.sh
-)
 set(COPY_FILES
   ${CURL_COPY_FILES}
   ${FREETYPE_COPY_FILES}
@@ -1870,13 +1856,10 @@ set(COPY_FILES
   ${WEBSOCKETS_COPY_FILES}
   ${DISCORDSDK_COPY_FILES}
   ${VULKAN_COPY_FILES}
-  ${EXCEPTION_HANDLING_COPY_FILES}
+  ${CRASHDUMP_COPY_FILES}
   ${SSP_COPY_FILES}
 )
 file(COPY ${COPY_FILES} DESTINATION .)
-# Don't add integration test files to COPY_FILES since we don't want to add
-# them in cpack.
-file(COPY ${INTEGRATION_TEST_COPY_FILES} DESTINATION .)
 
 set(COPY_DIRS ${SDL2_COPY_DIRS})
 file(COPY ${COPY_DIRS} DESTINATION .)
@@ -1985,6 +1968,7 @@ set_src(BASE GLOB_RECURSE src/base
   bezier.h
   color.cpp
   color.h
+  crashdump.cpp
   ddpp_logs.cpp
   ddpp_logs.h
   detect.h
@@ -2446,6 +2430,7 @@ if(CLIENT)
     sixup_translate_connless.cpp
     sixup_translate_game.cpp
     sixup_translate_snapshot.cpp
+    skin.cpp
     skin.h
     ui.cpp
     ui.h
@@ -2966,25 +2951,25 @@ if(SERVER)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_LINK -rdynamic)
   # twbl end
 
-  add_library(server-without-main OBJECT
+  add_library(game-server-without-main OBJECT
       ${DEPS}
       ${SERVER_SRC}
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
       $<TARGET_OBJECTS:rust-bridge-shared>
   )
-  set_property(TARGET server-without-main
+  set_property(TARGET game-server-without-main
       PROPERTY OUTPUT_NAME ${SERVER_EXECUTABLE}
   )
-  target_link_libraries(server-without-main ${LIBS_SERVER})
-  list(APPEND TARGETS_OWN server-without-main)
-  list(APPEND TARGETS_LINK server-without-main)
+  target_link_libraries(game-server-without-main ${LIBS_SERVER})
+  list(APPEND TARGETS_OWN game-server-without-main)
+  list(APPEND TARGETS_LINK game-server-without-main)
 
   # Target
   if(TARGET_OS STREQUAL "android")
     add_library(game-server SHARED
       ${DEPS}
-      $<TARGET_OBJECTS:server-without-main>
+      $<TARGET_OBJECTS:game-server-without-main>
       "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp"
       ${SERVER_ICON}
       $<TARGET_OBJECTS:engine-shared>
@@ -2996,7 +2981,7 @@ if(SERVER)
       ${DEPS}
       "${PROJECT_SOURCE_DIR}/src/engine/server/main.cpp"
       ${SERVER_ICON}
-      $<TARGET_OBJECTS:server-without-main>
+      $<TARGET_OBJECTS:game-server-without-main>
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
       $<TARGET_OBJECTS:rust-bridge-shared>
@@ -3136,12 +3121,13 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/game/generated/checksum.cpp
 # TESTS
 ########################################################################
 
-if(GTEST_FOUND OR DOWNLOAD_GTEST)
+if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
   set_src(TESTS GLOB src/test
     aio.cpp
     bezier.cpp
     blocklist_driver.cpp
     bytes_be.cpp
+    chunk_header.cpp
     color.cpp
     compression.cpp
     csv.cpp
@@ -3199,7 +3185,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
   add_executable(${TARGET_TESTRUNNER} EXCLUDE_FROM_ALL
     ${TESTS}
     ${TESTS_EXTRA}
-    $<TARGET_OBJECTS:server-without-main>
+    $<TARGET_OBJECTS:game-server-without-main>
     $<TARGET_OBJECTS:engine-gfx>
     $<TARGET_OBJECTS:engine-shared>
     $<TARGET_OBJECTS:game-shared>
@@ -3250,13 +3236,6 @@ add_custom_target(run_rust_tests
   USES_TERMINAL
   DEPENDS rust_test
   VERBATIM
-)
-
-add_custom_target(run_integration_tests
-  COMMAND ${PROJECT_BINARY_DIR}/integration_test.sh ${INTEGRATIONTESTRUNNER_ARGS}
-  COMMENT Running integration tests
-  DEPENDS game-client game-server
-  USES_TERMINAL
 )
 
 ########################################################################
@@ -3772,6 +3751,9 @@ foreach(target ${TARGETS_OWN})
   endif()
   if(ANTIBOT)
     target_compile_definitions(${target} PRIVATE CONF_ANTIBOT)
+  endif()
+  if(EXCEPTION_HANDLING)
+    target_compile_definitions(${target} PRIVATE CONF_CRASHDUMP)
   endif()
   if(HEADLESS_CLIENT)
     target_compile_definitions(${target} PRIVATE CONF_HEADLESS_CLIENT)
