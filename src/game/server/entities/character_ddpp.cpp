@@ -2597,8 +2597,9 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 				IsDDNetPPHit = true;
 			}
 
-			if(m_FreezeHammer)
-				pTarget->Freeze();
+			// ddnet removed freeze hammer
+			// if(m_FreezeHammer)
+			// 	pTarget->Freeze();
 
 			Hits++;
 		}
