@@ -60,6 +60,7 @@ CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, thi
 CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'");
 
 CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
+CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")
 
 //SarKro
 CONSOLE_COMMAND("unfreeze", "v", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
