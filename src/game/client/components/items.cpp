@@ -254,7 +254,6 @@ void CItems::RenderLaser(const CLaserData *pCurrent, bool IsPredicted)
 		ColorOut = g_Config.m_ClLaserShotgunOutlineColor;
 		ColorIn = g_Config.m_ClLaserShotgunInnerColor;
 		break;
-	case LASERTYPE_DRAGGER:
 	case LASERTYPE_DOOR:
 		ColorOut = g_Config.m_ClLaserDoorOutlineColor;
 		ColorIn = g_Config.m_ClLaserDoorInnerColor;
@@ -262,6 +261,10 @@ void CItems::RenderLaser(const CLaserData *pCurrent, bool IsPredicted)
 	case LASERTYPE_FREEZE:
 		ColorOut = g_Config.m_ClLaserFreezeOutlineColor;
 		ColorIn = g_Config.m_ClLaserFreezeInnerColor;
+		break;
+	case LASERTYPE_DRAGGER:
+		ColorOut = g_Config.m_ClLaserGrabberOutlineColor;
+		ColorIn = g_Config.m_ClLaserGrabberInnerColor;
 		break;
 	case LASERTYPE_GUN:
 	case LASERTYPE_PLASMA:
@@ -648,7 +651,7 @@ void CItems::ReconstructSmokeTrail(const CProjectileData *pCurrent, int DestroyT
 		T = minimum(Pt, ((float)(DestroyTick - 1 - pCurrent->m_StartTick) + Client()->PredIntraGameTick(g_Config.m_ClDummy)) / (float)Client()->GameTickSpeed());
 
 	float MinTrailSpan = 0.4f * ((pCurrent->m_Type == WEAPON_GRENADE) ? 0.5f : 0.25f);
-	float Step = maximum(Client()->FrameTimeAvg(), (pCurrent->m_Type == WEAPON_GRENADE) ? 0.02f : 0.01f);
+	float Step = maximum(Client()->FrameTimeAverage(), (pCurrent->m_Type == WEAPON_GRENADE) ? 0.02f : 0.01f);
 	for(int i = 1 + (int)(Gt / Step); i < (int)(T / Step); i++)
 	{
 		float t = Step * (float)i + 0.4f * Step * random_float(-0.5f, 0.5f);
