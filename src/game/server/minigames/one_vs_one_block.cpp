@@ -1,3 +1,4 @@
+#include <base/log.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
@@ -471,6 +472,23 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 
 	CGameState *pGameState = pPlayer->m_pBlockOneVsOneState;
 	dbg_assert(pGameState, "1vs1 without state");
+
+	// GameTick
+	// hack to only tick once per tick per game
+	// and not once per player
+	if(pPlayer == pGameState->m_pPlayer1)
+	{
+		CCharacter *pChr1 = pGameState->m_pPlayer1->GetCharacter();
+		CCharacter *pChr2 = pGameState->m_pPlayer2->GetCharacter();
+		if(pChr1 && pChr1->IsAlive() && pChr2 && pChr2->IsAlive())
+		{
+			if(pChr1->FrozenSinceSeconds() > 5 && pChr2->FrozenSinceSeconds() > 5)
+			{
+				pChr1->Die(pChr1->GetPlayer()->GetCid(), WEAPON_MINIGAME);
+				pChr2->Die(pChr2->GetPlayer()->GetCid(), WEAPON_MINIGAME);
+			}
+		}
+	}
 
 	bool PrintHud = false;
 	if(pGameState->m_State == CGameState::EState::COUNTDOWN)

@@ -41,27 +41,17 @@ void CGameControllerDDNetPP::FlagTick()
 			// update flag position
 			pFlag->m_Pos = pFlag->GetCarrier()->m_Pos;
 
-			if(pFlag->GetCarrier()->m_FirstFreezeTick != 0)
+			if(pFlag->GetCarrier()->FrozenSinceSeconds() > 8)
 			{
-				/*char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",pFlag->GetCarrier()->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
-				GameServer()->SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), aBuf);*/
-
-				if(Server()->Tick() > pFlag->GetCarrier()->m_FirstFreezeTick + Server()->TickSpeed() * 8)
+				if(m_apFlags[0] && m_apFlags[0]->GetCarrier() && m_apFlags[0]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
 				{
-					/*pFlag->GetCarrier()->GetPlayer()->m_Rainbow = false;
-					pFlag->GetCarrier()->GetPlayer()->m_TeeInfos.m_ColorBody = pFlag->GetCarrier()->GetPlayer()->m_ColorBodyOld;
-					pFlag->GetCarrier()->GetPlayer()->m_TeeInfos.m_ColorFeet = pFlag->GetCarrier()->GetPlayer()->m_ColorFeetOld;*/
-					if(m_apFlags[0] && m_apFlags[0]->GetCarrier() && m_apFlags[0]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
-					{
-						DropFlag(0, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //red
-						//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped red flag");
-					}
-					else if(m_apFlags[1] && m_apFlags[1]->GetCarrier() && m_apFlags[1]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
-					{
-						DropFlag(1, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //blue
-						//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped blue flag");
-					}
+					DropFlag(0, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //red
+					//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped red flag");
+				}
+				else if(m_apFlags[1] && m_apFlags[1]->GetCarrier() && m_apFlags[1]->GetCarrier() == pFlag->GetCarrier()->GetPlayer()->GetCharacter())
+				{
+					DropFlag(1, pFlag->GetCarrier()->GetPlayer()->GetCharacter()->GetAimDir()); //blue
+					//SendChatTarget(pFlag->GetCarrier()->GetPlayer()->GetCid(), "you dropped blue flag");
 				}
 			}
 		}

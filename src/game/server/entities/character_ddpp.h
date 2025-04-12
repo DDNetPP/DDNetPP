@@ -232,6 +232,10 @@ public:
 	*/
 	bool FreezeFloat(float Seconds);
 
+	// amount of seconds that character is already frozen
+	// 0 if not frozen at all
+	int FrozenSinceSeconds();
+
 	// drop pickups
 	void DropHealth(int amount = 1);
 	void DropArmor(int amount = 1);

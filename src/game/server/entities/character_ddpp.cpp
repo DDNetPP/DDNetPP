@@ -2929,6 +2929,17 @@ bool CCharacter::FreezeFloat(float Seconds)
 	return false;
 }
 
+int CCharacter::FrozenSinceSeconds()
+{
+	if(!IsAlive())
+		return 0;
+	if(!m_FreezeTime)
+		return 0;
+	if(!m_FirstFreezeTick)
+		return 0;
+	return (Server()->Tick() - m_FirstFreezeTick) / Server()->TickSpeed();
+}
+
 void CCharacter::SetSpawnWeapons()
 {
 	if(m_pPlayer->m_Account.m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->m_IsSurvivaling)
