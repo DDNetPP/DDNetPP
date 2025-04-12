@@ -1,4 +1,5 @@
 // ddnet++ accounts
+#include <base/log.h>
 #include <base/system.h>
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>
@@ -213,9 +214,9 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		"	WHERE Id = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	const CAccountData *pAcc = &pData->m_AccountData;
 	int Index = 1;
@@ -295,10 +296,10 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindInt(Index++, pAcc->m_Id);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "SaveThread failed to execute");
-		return true;
+		return false;
 	}
 	// we expect 1 row if new data was inserted
 	// or we expect 0 rows if nothing changed (can happen on periodic save)
@@ -312,7 +313,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		sizeof(pResult->m_aaMessages[0]),
 		"save Id=%d finished with status=success",
 		pData->m_AccountData.m_Id);
-	return false;
+	return true;
 }
 
 void CAccounts::Login(int ClientId, const char *pUsername, const char *pPassword)
@@ -372,17 +373,17 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		"	WHERE Username = ? AND Password = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	pSqlServer->BindString(1, pData->m_aUsername);
 	pSqlServer->BindString(2, pData->m_aPassword);
 
 	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	if(!End)
 	{
@@ -390,7 +391,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		{
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			pResult->m_Account.m_Id = pSqlServer->GetInt(1);
-			return false;
+			return true;
 		}
 		int Index = 1;
 		pResult->SetVariant(CAccountResult::LOGIN_INFO);
@@ -482,7 +483,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		str_copy(pResult->m_Account.m_aPassword, pData->m_aPassword, sizeof(pResult->m_Account.m_aPassword));
 		str_copy(pResult->m_Account.m_aUsername, pData->m_aUsername, sizeof(pResult->m_Account.m_aUsername));
 	}
-	return false;
+	return true;
 }
 
 void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAdminCommandResult::Variant Type, const char *pQuery)
@@ -506,18 +507,18 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	// 	"	WHERE Id = ?;",
 	// 	sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	pSqlServer->BindInt(1, pData->m_State);
 	pSqlServer->BindInt(2, pData->m_TargetAccountId);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "UpdateAccountStateThread failed to execute");
-		return true;
+		return false;
 	}
 
 	str_format(pResult->m_aaMessages[0],
@@ -525,7 +526,7 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 		"[ACCOUNT] Successfully updated account state (affected %d row%s)",
 		NumUpdated,
 		NumUpdated == 1 ? "" : "s");
-	return false;
+	return true;
 }
 
 void CAccounts::AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword)
@@ -547,21 +548,21 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 		"SELECT ID FROM Accounts WHERE Username = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
-		return true;
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		return false;
 
 	pSqlServer->BindString(1, pData->m_aUsername);
 
 	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
-		return true;
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
+		return false;
 
 	if(End)
 	{
 		str_copy(pResult->m_aaMessages[0],
 			"[SQL] Username not found.",
 			sizeof(pResult->m_aaMessages[0]));
-		return false;
+		return true;
 	}
 
 	str_copy(aBuf,
@@ -570,18 +571,18 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 		"	WHERE Username = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	pSqlServer->BindString(1, pData->m_aPassword);
 	pSqlServer->BindString(2, pData->m_aUsername);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "AdminSetPasswordThread failed to execute");
-		return true;
+		return false;
 	}
 	if(NumUpdated != 1)
 	{
@@ -594,7 +595,7 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 		NumUpdated,
 		NumUpdated == 1 ? "" : "s");
 
-	return false;
+	return true;
 }
 
 void CAccounts::ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
@@ -618,31 +619,31 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 		"	WHERE Username = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
 		dbg_msg("ddnet++", "ERROR: change password failed to prepare!");
-		return true;
+		return false;
 	}
 	pSqlServer->BindString(1, pData->m_aNewPassword);
 	pSqlServer->BindString(2, pData->m_aUsername);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "AdminSetPasswordThread failed to execute");
-		return true;
+		return false;
 	}
 	if(NumUpdated != 1)
 	{
 		dbg_msg("ddnet++", "ERROR: set password affected %d rows", NumUpdated);
 		dbg_assert(false, "AdminSetPasswordThread unexpected amount of rows affected");
-		return true;
+		return false;
 	}
 
 	str_copy(pResult->m_aaMessages[0],
 		"[ACCOUNT] Successfully changed your password.",
 		sizeof(pResult->m_aaMessages[0]));
-	return false;
+	return true;
 }
 
 void CAccounts::ExecuteSql(const char *pQuery)
@@ -656,7 +657,7 @@ void CAccounts::ExecuteSql(const char *pQuery)
 bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
 	if(w != Write::NORMAL)
-		return false;
+		return true;
 
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
@@ -665,19 +666,19 @@ bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGam
 	// 	"ALTER TABLE 'Accounts' ADD ColName VARCHAR(64) DEFAULT ''",
 	// 	sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(pData->m_aString, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(pData->m_aString, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "ExecuteSqlThread failed to execute");
-		return true;
+		return false;
 	}
 	dbg_msg("ddnet++", "execute sql thread affected %d rows", NumUpdated);
-	return false;
+	return true;
 }
 
 void CAccounts::LogoutUsername(const char *pUsername)
@@ -691,11 +692,11 @@ void CAccounts::LogoutUsername(const char *pUsername)
 bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
 	if(w == Write::BACKUP_FIRST)
-		return false;
+		return true;
 	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "LogoutUsernameThread failed to write");
-		return true;
+		return false;
 	}
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
@@ -704,24 +705,24 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 		"UPDATE Accounts SET IsLoggedIn = 0 WHERE Username = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	pSqlServer->BindString(1, pData->m_aString);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "LogoutUsernameThread failed to execute");
-		return true;
+		return false;
 	}
 	if(NumUpdated != 1)
 	{
 		dbg_msg("ddnet++", "ERROR: logout affected %d rows", NumUpdated);
 		dbg_assert(false, "LogoutUsernameThread wrong number of rows affected");
 	}
-	return false;
+	return true;
 }
 
 void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
@@ -737,11 +738,11 @@ void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
 bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
 	if(w == Write::BACKUP_FIRST)
-		return false;
+		return true;
 	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CleanZombieAccountsThread failed to write");
-		return true;
+		return false;
 	}
 	const CSqlCleanZombieAccountsData *pData = dynamic_cast<const CSqlCleanZombieAccountsData *>(pGameData);
 
@@ -750,25 +751,25 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	// 	"UPDATE Accounts SET IsLoggedIn = 0, LastLoginPort = ?;",
 	// 	sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
 	{
 		dbg_assert(false, "CleanZombieAccountsThread failed to prepare statement");
-		return true;
+		return false;
 	}
 	pSqlServer->BindInt(1, pData->m_Port);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "CleanZombieAccountsThread failed to execute");
-		return true;
+		return false;
 	}
 	if(NumUpdated)
 	{
 		dbg_msg("ddnet++", "fixed %d zombie accounts", NumUpdated);
 		dbg_msg("ddnet++", "query: %s port=%d", pData->m_aQuery, pData->m_Port);
 	}
-	return false;
+	return true;
 }
 
 void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
@@ -784,11 +785,11 @@ void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
 bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
 	if(w == Write::BACKUP_FIRST)
-		return false;
+		return true;
 	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "SetLoggedInThread failed to write");
-		return true;
+		return false;
 	}
 	const CSqlSetLoginData *pData = dynamic_cast<const CSqlSetLoginData *>(pGameData);
 
@@ -797,29 +798,36 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"UPDATE Accounts SET IsLoggedIn = ?, LastLoginPort = ? WHERE Id = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	pSqlServer->BindInt(1, pData->m_LoggedIn);
 	pSqlServer->BindInt(2, pData->m_Port);
 	pSqlServer->BindInt(3, pData->m_AccountId);
 
 	int NumUpdated;
-	if(pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		dbg_assert(false, "SetLoggedInThread failed to execute");
-		return true;
+		return false;
 	}
 
 	if(NumUpdated != 1)
 	{
-		dbg_msg("ddnet++", "set logged in affected %d rows", NumUpdated);
+		log_error(
+			"ddnet++",
+			"set logged in affected %d rows. LoggedIn=%d Port=%d AccountId=%d Query: %s",
+			NumUpdated,
+			pData->m_LoggedIn,
+			pData->m_Port,
+			pData->m_AccountId,
+			aBuf);
 		dbg_assert(false, "SetLoggedInThread failed to execute");
-		return true;
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 void CAccounts::Register(int ClientId, const char *pUsername, const char *pPassword)
@@ -837,14 +845,14 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 		"SELECT ID FROM Accounts WHERE Username = ?;",
 		sizeof(aBuf));
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
-		return true;
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		return false;
 
 	pSqlServer->BindString(1, pData->m_aUsername);
 
 	bool End;
-	if(pSqlServer->Step(&End, pError, ErrorSize))
-		return true;
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
+		return false;
 
 	if(!End)
 	{
@@ -877,18 +885,18 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 			"  (?, ?, ?);",
 			sizeof(aBuf));
 
-		if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
-			return true;
+		if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+			return false;
 
 		pSqlServer->BindString(1, pData->m_aUsername);
 		pSqlServer->BindString(2, pData->m_aPassword);
 		pSqlServer->BindString(3, aDate);
 
 		int NumInserted;
-		if(pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize))
+		if(!pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize))
 		{
 			dbg_assert(false, "register did not execute");
-			return true;
+			return false;
 		}
 
 		if(NumInserted != 1)
@@ -909,7 +917,7 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 				sizeof(pResult->m_aaMessages[1]));
 		}
 	}
-	return false;
+	return true;
 }
 
 void CAccounts::CreateDatabase()
@@ -923,7 +931,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CreateTableThread failed to write");
-		return true;
+		return false;
 	}
 	// CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
 
@@ -1030,9 +1038,9 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  AsciiFrame15			VARCHAR(64)		DEFAULT '');",
 		pAutoincrement);
 
-	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
-		return true;
+		return false;
 	}
 	int NumInserted;
 	return pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize);
