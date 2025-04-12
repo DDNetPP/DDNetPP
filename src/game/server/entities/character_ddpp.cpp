@@ -1254,7 +1254,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 		m_TrailProjs.clear();
 	}
 
-	Killer = BlockPointsMain(Killer, FngScore);
+	Killer = BlockPointsMain(Killer, Weapon, FngScore);
 	XpOnKill(Killer);
 	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
@@ -1581,14 +1581,18 @@ void CCharacter::KillSpeed()
 	m_Core.m_Vel.y = 0.0f;
 }
 
-int CCharacter::BlockPointsMain(int Killer, bool FngScore)
+int CCharacter::BlockPointsMain(int Killer, int Weapon, bool FngScore)
 {
-	if(m_FreezeTime <= 0)
+	bool FreezeBlock = m_pPlayer->m_LastToucherId != -1 && m_FreezeTime;
+	bool SpikeKill = m_pPlayer->m_LastToucherId != -1 && Weapon == WEAPON_WORLD;
+
+	if(!FreezeBlock && !SpikeKill)
 		return Killer;
-	if(m_pPlayer->m_LastToucherId == -1)
-		return Killer;
+
 	if(m_pPlayer->m_IsInstaMode_fng && !FngScore)
 		return Killer; // Killer = KilledId --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
+
+	Killer = m_pPlayer->m_LastToucherId; // kill message
 
 	if(m_pPlayer->m_LastToucherId == m_pPlayer->GetCid())
 	{
@@ -1597,7 +1601,6 @@ int CCharacter::BlockPointsMain(int Killer, bool FngScore)
 	}
 
 	char aBuf[128];
-	Killer = m_pPlayer->m_LastToucherId; // kill message
 
 	if(g_Config.m_SvBlockBroadcast == 1) // send kill message broadcast
 	{

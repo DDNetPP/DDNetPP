@@ -136,7 +136,7 @@ public:
 	int m_ci_freezetime;
 
 	//Block
-	int BlockPointsMain(int Killer, bool FngScore = false);
+	int BlockPointsMain(int Killer, int Weapon, bool FngScore = false);
 	void XpOnKill(int Killer);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
