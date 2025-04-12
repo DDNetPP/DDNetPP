@@ -691,13 +691,9 @@ void CAccounts::LogoutUsername(const char *pUsername)
 
 bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w == Write::BACKUP_FIRST)
+	if(w != Write::NORMAL)
 		return true;
-	if(w == Write::NORMAL_FAILED)
-	{
-		dbg_assert(false, "LogoutUsernameThread failed to write");
-		return false;
-	}
+
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
 	char aBuf[512];
@@ -737,13 +733,8 @@ void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
 
 bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w == Write::BACKUP_FIRST)
+	if(w != Write::NORMAL)
 		return true;
-	if(w == Write::NORMAL_FAILED)
-	{
-		dbg_assert(false, "CleanZombieAccountsThread failed to write");
-		return false;
-	}
 	const CSqlCleanZombieAccountsData *pData = dynamic_cast<const CSqlCleanZombieAccountsData *>(pGameData);
 
 	// char aBuf[512];
@@ -784,13 +775,8 @@ void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
 
 bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w == Write::BACKUP_FIRST)
+	if(w != Write::NORMAL)
 		return true;
-	if(w == Write::NORMAL_FAILED)
-	{
-		dbg_assert(false, "SetLoggedInThread failed to write");
-		return false;
-	}
 	const CSqlSetLoginData *pData = dynamic_cast<const CSqlSetLoginData *>(pGameData);
 
 	char aBuf[512];
