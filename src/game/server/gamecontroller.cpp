@@ -511,7 +511,6 @@ void IGameController::StartRound()
 	str_format(aBuf, sizeof(aBuf), "start round type='%s' teamplay='%d'", m_pGameType, m_GameFlags & GAMEFLAG_TEAMS);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-
 	m_aTeamscore[TEAM_RED] = 0; // ddnet++
 	m_aTeamscore[TEAM_BLUE] = 0; // ddnet++
 }
