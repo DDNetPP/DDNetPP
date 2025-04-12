@@ -115,24 +115,6 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 			g_Config.m_SvCaptchaRoom = 0;
 		}
 	}
-	else if(pPlayer->m_IsNoboSpawn)
-	{
-		char aBuf[128];
-		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
-		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
-			GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
-			Eval.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
-			Eval.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
-			Eval.m_Got = true;
-		}
-		else
-		{
-			pPlayer->m_IsNoboSpawn = false;
-			str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
-			GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
-		}
-	}
 	else if(pPlayer->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 	{
 		// TODO: move to minigame
@@ -250,7 +232,31 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 			}
 		}
 		if(!IsMinigameSpawn)
-			EvaluateSpawnType(&Eval, 0, DDTeam); //default
+		{
+			if(pPlayer->m_IsNoboSpawn)
+			{
+				char aBuf[128];
+				if(pPlayer->m_NoboSpawnStop > Server()->Tick())
+				{
+					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+					Eval.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
+					Eval.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
+					Eval.m_Got = true;
+				}
+				else
+				{
+					pPlayer->m_IsNoboSpawn = false;
+					str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
+					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
+					EvaluateSpawnType(&Eval, 0, DDTeam); //default
+				}
+			}
+			else
+			{
+				EvaluateSpawnType(&Eval, 0, DDTeam); //default
+			}
+		}
 	}
 
 	if(Eval.m_Got)
