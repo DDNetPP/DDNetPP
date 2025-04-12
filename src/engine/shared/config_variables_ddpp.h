@@ -208,6 +208,7 @@ MACRO_CONFIG_INT(SvBlockDMarena, sv_block_dm_arena, 1, 1, 2, CFGFLAG_SERVER, "1=
 
 // block 1v1
 MACRO_CONFIG_INT(SvAllowBlockOneVsOne, sv_allow_block_1vs1, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow /1vs1 command")
+MACRO_CONFIG_INT(SvOneVsOneAntiGroundHook, sv_1vs1_anti_ground_hook, 0, 0, 60, CFGFLAG_SERVER, "0=off after how many seconds of ground hooking the player will be frozen in /1vs1 minigame")
 
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame 2=only logged in")

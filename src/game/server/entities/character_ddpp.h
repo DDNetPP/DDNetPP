@@ -219,6 +219,9 @@ public:
 
 	//weapons in kill messages
 
+	int m_FirstHookAttachTick = 0;
+	int HookingSinceSeconds();
+
 	int m_LastHitWeapon;
 	int m_OldLastHookedPlayer;
 	bool m_GotTasered;

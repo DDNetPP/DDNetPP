@@ -5,6 +5,7 @@
 #include <base/system.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/gamecore.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
@@ -676,6 +677,15 @@ CTeleportationRequest &CCharacter::RequestTeleToPos(vec2 Pos)
 	return m_TeleRequest;
 }
 
+int CCharacter::HookingSinceSeconds()
+{
+	if(m_Core.m_HookState != HOOK_GRABBED)
+		return 0;
+	if(m_FirstHookAttachTick == 0)
+		return 0;
+	return (Server()->Tick() - m_FirstHookAttachTick) / Server()->TickSpeed();
+}
+
 void CCharacter::DDPP_Tick()
 {
 	if(g_Config.m_SvOffDDPP)
@@ -685,6 +695,14 @@ void CCharacter::DDPP_Tick()
 	// is used to count how many players are on a moneytile
 	// this tick
 	m_OnMoneytile = MONEYTILE_NONE;
+
+	if(m_Core.m_HookState == HOOK_GRABBED)
+	{
+		if(m_FirstHookAttachTick == 0)
+			m_FirstHookAttachTick = Server()->Tick();
+	}
+	else
+		m_FirstHookAttachTick = 0;
 
 	char aBuf[256];
 	DummyTick();

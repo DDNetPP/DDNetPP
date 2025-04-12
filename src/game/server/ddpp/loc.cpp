@@ -47,6 +47,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
+		if(!str_comp("Frozen by anti ground hook", pStr))
+			return "Замороженный антизаземлитель (Frozen by anti ground hook)"; // TODO: this is deepl.com
 		// TODO: this is only used in /stats for now but this could be used in a lot of places
 		if(!str_comp("not logged in", pStr))
 			return "Игрок не авторизован"; // player is not authorized

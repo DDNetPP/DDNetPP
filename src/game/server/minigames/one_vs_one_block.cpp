@@ -490,6 +490,13 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 		}
 	}
 
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(pChr && pChr->HookingSinceSeconds() > g_Config.m_SvOneVsOneAntiGroundHook)
+	{
+		SendChatTarget(pPlayer->GetCid(), GameServer()->Loc("Frozen by anti ground hook", pPlayer->GetCid()));
+		pChr->Freeze();
+	}
+
 	bool PrintHud = false;
 	if(pGameState->m_State == CGameState::EState::COUNTDOWN)
 	{
