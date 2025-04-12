@@ -1,6 +1,7 @@
 // gamecontext scoped ddnet++ methods
 
 #include <base/ddpp_logs.h>
+#include <base/log.h>
 #include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
@@ -389,6 +390,15 @@ void CGameContext::OnInitDDPP()
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();
 	LoadFNNvalues();
+#ifndef CONF_MYSQL
+	if(g_Config.m_SvUseMysqlForAccounts)
+	{
+		log_error("ddnet++", "ERROR: the server is compiled without mysql support but sv_use_mysql_for_accounts is set to 1");
+		log_error("ddnet++", "       either set sv_use_mysql_for_accounts to 0 in your config");
+		log_error("ddnet++", "       or recompile the server with the cmake flag -DMYSQL=ON");
+		exit(1);
+	}
+#endif
 	m_pAccounts->CreateDatabase();
 	char aBuf[512];
 	str_copy(aBuf,
