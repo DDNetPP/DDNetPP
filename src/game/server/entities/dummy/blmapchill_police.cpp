@@ -1220,7 +1220,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 			CCharacter *pClosestChr = GameWorld()->ClosestCharacterNoRange(GetPos(), m_pCharacter);
 			// if on left side and closes char is not police
 			// make sure that boi is blocked first otherwise he is just in the way
-			if(!IsPolice(pClosestChr) && !IsFrozen(pClosestChr))
+			if(pClosestChr && !IsPolice(pClosestChr) && !IsFrozen(pClosestChr))
 			{
 				AimPos(pClosestChr->GetPos());
 				// push into freeze when both grounded
