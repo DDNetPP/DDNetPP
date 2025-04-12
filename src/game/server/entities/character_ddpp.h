@@ -210,7 +210,8 @@ public:
 	bool ForceFreeze(int Seconds);
 
 	CTeleportationRequest m_TeleRequest;
-	CTeleportationRequest &RequestTeleToTile(int Tile);
+	// Choses random tile if Offset is -1
+	CTeleportationRequest &RequestTeleToTile(int Tile, int Offset = -1);
 	CTeleportationRequest &RequestTeleToPos(vec2 Pos);
 
 	//trading stuff (stock market)

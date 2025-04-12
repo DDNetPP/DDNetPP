@@ -175,7 +175,7 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 
 	for(CCharacter *pChr : apCharacters)
 	{
-		pChr->RequestTeleToTile(TILE_BLOCK_DM_A1)
+		pChr->RequestTeleToTile(TILE_BLOCK_DM_A1, pGameState->m_SpawnCounter++)
 			.DelayInSeconds(3)
 			.OnPreSuccess([=]() {
 				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)

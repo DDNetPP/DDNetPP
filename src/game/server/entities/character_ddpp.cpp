@@ -664,9 +664,9 @@ void CCharacter::DDPPPostCoreTick()
 	GameServer()->Shop()->MotdTick(GetPlayer()->GetCid());
 }
 
-CTeleportationRequest &CCharacter::RequestTeleToTile(int Tile)
+CTeleportationRequest &CCharacter::RequestTeleToTile(int Tile, int Offset)
 {
-	m_TeleRequest.TeleportToTile(this, Tile);
+	m_TeleRequest.TeleportToTile(this, Tile, Offset);
 	return m_TeleRequest;
 }
 

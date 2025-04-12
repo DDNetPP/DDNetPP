@@ -51,7 +51,11 @@ class CTeleportationRequest
 
 public:
 	CTeleportationRequest &TeleportToPos(class CCharacter *pCharacter, vec2 Pos);
-	CTeleportationRequest &TeleportToTile(class CCharacter *pCharacter, int Tile);
+
+	// Teleports *pCharacter* to a tile in the map with index *Tile*
+	// If *Offset* is -1 it will be a random tile otherwise it will be the n'th
+	// occurence of that tile in the map
+	CTeleportationRequest &TeleportToTile(class CCharacter *pCharacter, int Tile, int Offset = -1);
 	void Abort();
 
 	CTeleportationRequest &OnFailure(const FTeleRequestFailure &pfnFailure);

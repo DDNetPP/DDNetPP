@@ -28,9 +28,13 @@ CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharact
 	return *this;
 }
 
-CTeleportationRequest &CTeleportationRequest::TeleportToTile(class CCharacter *pCharacter, int Tile)
+CTeleportationRequest &CTeleportationRequest::TeleportToTile(class CCharacter *pCharacter, int Tile, int Offset)
 {
-	vec2 Pos = pCharacter->Collision()->GetRandomTile(Tile);
+	vec2 Pos;
+	if(Offset == -1)
+		Pos = pCharacter->Collision()->GetRandomTile(Tile);
+	else
+		Pos = pCharacter->Collision()->GetTileAtNum(Tile, Offset);
 	if(Pos == vec2(-1, -1))
 	{
 		// fails on tick to avoid breaking initialization chains
