@@ -236,11 +236,15 @@ void COneVsOneBlock::OnRoundEnd(CGameState *pGameState)
 				SendChatTarget(pPlayer->GetCid(), "[1vs1] teleportation request aborted because of game end.");
 				pPlayer->GetCharacter()->m_TeleRequest.Abort();
 			}
-			pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
-			pPlayer->Respawn();
+			if(pPlayer->m_BlockOneVsOneTeleported)
+			{
+				pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_MINIGAME);
+				pPlayer->Respawn();
+			}
 		}
 
-		m_aRestorePos[pPlayer->GetCid()] = true;
+		if(pPlayer->m_BlockOneVsOneTeleported)
+			m_aRestorePos[pPlayer->GetCid()] = true;
 	}
 }
 
