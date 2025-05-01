@@ -477,6 +477,10 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 	CGameState *pGameState = pPlayer->m_pBlockOneVsOneState;
 	dbg_assert(pGameState, "1vs1 without state");
 
+	// don't tick if the other player disconnected in that tick
+	if(!pGameState->m_pPlayer2)
+		return;
+
 	// GameTick
 	// hack to only tick once per tick per game
 	// and not once per player
