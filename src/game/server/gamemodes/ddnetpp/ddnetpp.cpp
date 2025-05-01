@@ -144,7 +144,10 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+	{
+		pMinigame->ClearSavedPosition(pPlayer);
 		pMinigame->OnPlayerDisconnect(pPlayer, pReason);
+	}
 
 	if(pPlayer->m_PendingJoinMessage)
 		Silent = true;
