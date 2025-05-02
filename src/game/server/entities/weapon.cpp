@@ -45,6 +45,9 @@ CWeapon::~CWeapon()
 
 void CWeapon::Reset()
 {
+	if(m_MarkedForDestroy)
+		return;
+
 	if(m_Owner >= 0)
 	{
 		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
@@ -82,6 +85,7 @@ void CWeapon::IsShieldNear()
 		{
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 			Reset();
+			break;
 		}
 	}
 }
