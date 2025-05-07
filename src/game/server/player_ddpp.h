@@ -273,6 +273,9 @@ public:
 	int m_MsgWeapon;
 	int m_MsgModeSpecial;
 
+	//gun
+	int m_HeartGunActive;
+
 	//spooky ghost
 	int m_SpookyGhostActive;
 

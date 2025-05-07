@@ -1,5 +1,7 @@
 // ddnet++ generic character stuff
 
+#include <cinttypes>
+
 #include <base/ddpp_logs.h>
 #include <base/math_ddpp.h>
 #include <base/system.h>
@@ -16,15 +18,13 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
+#include "character.h"
 #include "flag.h"
+#include "heartgun.h"
 #include "homing_missile.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
-
-#include <cinttypes>
-
-#include "character.h"
 
 CCharacter::~CCharacter()
 {
@@ -2408,6 +2408,21 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			10.0f // speed
 		);
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
+	}
+	else if(m_pPlayer->m_HeartGunActive)
+	{
+		new CHeartGun(
+			GameWorld(),
+			m_pPlayer->GetCid(), //owner
+			ProjStartPos, //pos
+			Direction, //dir
+			false, //freeze
+			false, //explosive
+			false, //unfreeze
+			m_pPlayer->m_InfBloody, //bloody
+			m_pPlayer->m_SpookyGhostActive //spooky
+		);
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask());
 	}
 	else if(m_pPlayer->m_lasergun)
 	{
