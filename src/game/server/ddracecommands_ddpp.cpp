@@ -1392,3 +1392,24 @@ void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 }
+
+void CGameContext::ConHeartGun(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
+
+	if(!pChr)
+		return;
+
+	CPlayer *pPlayer = pChr->GetPlayer();
+
+	pPlayer->m_HeartGunActive = !pPlayer->m_HeartGunActive;
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "You %s heart gun!",
+		pPlayer->m_HeartGunActive ? "got" : "lost");
+
+	pSelf->SendChatTarget(Victim, aBuf);
+}

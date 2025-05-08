@@ -2786,6 +2786,8 @@ if(SERVER)
     entities/flag.h
     entities/gun.cpp
     entities/gun.h
+    entities/heartgun.cpp
+    entities/heartgun.h
     entities/homing_missile.cpp
     entities/homing_missile.h
     entities/laser.cpp
