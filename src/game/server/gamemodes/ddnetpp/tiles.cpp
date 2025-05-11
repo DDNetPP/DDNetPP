@@ -248,4 +248,23 @@ void CGameControllerDDNetPP::HandleCosmeticTiles(CCharacter *pChr)
 			pChr->m_autospreadgun = true;
 		}
 	}
+
+	//heart gun
+	if(((TileIndex == TILE_HEART_GUN) || (FrontTileIndex == TILE_HEART_GUN)))
+	{
+		if(((pChr->m_LastIndexTile == TILE_HEART_GUN) || (pChr->m_LastIndexFrontTile == TILE_HEART_GUN)))
+			return;
+
+		if(pChr->m_Heartgun || pPlayer->m_HeartGunActive)
+		{
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "You lost heart gun!");
+			pChr->m_Heartgun = false;
+			pPlayer->m_HeartGunActive = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "You got heart gun!");
+			pChr->m_Heartgun = true;
+		}
+	}
 }

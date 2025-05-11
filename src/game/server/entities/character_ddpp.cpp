@@ -2409,7 +2409,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		);
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 	}
-	else if(m_pPlayer->m_HeartGunActive)
+	else if(m_Heartgun || m_pPlayer->m_HeartGunActive)
 	{
 		new CHeartGun(
 			GameWorld(),

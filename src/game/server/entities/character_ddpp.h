@@ -350,6 +350,7 @@ public:
 	int m_WaveBloodyStrength;
 	bool m_Atom;
 	bool m_Trail;
+	bool m_Heartgun;
 	bool m_autospreadgun;
 	bool m_ninjasteam;
 	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
