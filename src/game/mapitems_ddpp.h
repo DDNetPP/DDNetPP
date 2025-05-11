@@ -9,7 +9,6 @@ enum
 {
 	ENTITY_WEAPON_GUN = 50,
 	ENTITY_WEAPON_HAMMER,
-	ENTITY_PLANT, // 243
 
 	TILE_MONEY_PLUS = 114,
 	TILE_MONEY_DOUBLE = 115,
@@ -67,8 +66,6 @@ enum
 	TILE_CAPTCHA_SPAWN = 186,
 	TILE_CAPTCHA_VERIFY = 187,
 
-	TILE_SHOP_SPAWN = 255, // entitiy index 64
-
 	// NOT ACTUAL TILES - start
 	CFG_TILE_OFF = 0,
 	CFG_TILE_FREEZE,
@@ -85,7 +82,11 @@ enum
 	TILE_CONFIG_1 = 182,
 	TILE_CONFIG_2 = 183,
 
-	TILE_END_CUSTOM, // pack alle neuen tiles hier dr�ber! (all new tiles on top of this line pls)
+	ENTITY_PLANT = 243,
+	TILE_HEART_GUN,
+	TILE_SHOP_SPAWN = 255,
+
+	TILE_END_CUSTOM = 255, // pack alle neuen tiles hier dr�ber! (all new tiles on top of this line pls)
 
 	// F-DDrace
 	NUM_INDICES = 256,
