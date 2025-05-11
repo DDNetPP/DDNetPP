@@ -9,6 +9,7 @@ enum
 {
 	ENTITY_WEAPON_GUN = 50,
 	ENTITY_WEAPON_HAMMER,
+	ENTITY_PLANT, // 243
 
 	TILE_MONEY_PLUS = 114,
 	TILE_MONEY_DOUBLE = 115,
@@ -82,11 +83,10 @@ enum
 	TILE_CONFIG_1 = 182,
 	TILE_CONFIG_2 = 183,
 
-	ENTITY_PLANT = 243,
-	TILE_HEART_GUN,
+	TILE_HEART_GUN = 244,
 	TILE_SHOP_SPAWN = 255,
 
-	TILE_END_CUSTOM = 255, // pack alle neuen tiles hier dr�ber! (all new tiles on top of this line pls)
+	TILE_END_CUSTOM = 255, // all new tiles on top of this line
 
 	// F-DDrace
 	NUM_INDICES = 256,
