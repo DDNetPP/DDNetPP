@@ -374,13 +374,8 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 	// do seekbar
 	{
-		const float Rounding = 5.0f;
-
-		static int s_SeekBarId = 0;
-		void *pId = &s_SeekBarId;
-		char aBuffer[128];
-
 		// draw seek bar
+		const float Rounding = 5.0f;
 		SeekBar.Draw(ColorRGBA(0, 0, 0, 0.5f), IGraphics::CORNER_ALL, Rounding);
 
 		// draw filled bar
@@ -445,13 +440,15 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		str_time((int64_t)CurrentTick / Client()->GameTickSpeed() * 100, TIME_HOURS, aCurrentTime, sizeof(aCurrentTime));
 		char aTotalTime[32];
 		str_time((int64_t)TotalTicks / Client()->GameTickSpeed() * 100, TIME_HOURS, aTotalTime, sizeof(aTotalTime));
-		str_format(aBuffer, sizeof(aBuffer), "%s / %s", aCurrentTime, aTotalTime);
-		Ui()->DoLabel(&SeekBar, aBuffer, SeekBar.h * 0.70f, TEXTALIGN_MC);
+		char aSeekBarLabel[128];
+		str_format(aSeekBarLabel, sizeof(aSeekBarLabel), "%s / %s", aCurrentTime, aTotalTime);
+		Ui()->DoLabel(&SeekBar, aSeekBarLabel, SeekBar.h * 0.70f, TEXTALIGN_MC);
 
 		// do the logic
 		const bool Inside = Ui()->MouseInside(&SeekBar);
 
-		if(Ui()->CheckActiveItem(pId))
+		static char s_SeekBarId;
+		if(Ui()->CheckActiveItem(&s_SeekBarId))
 		{
 			if(!Ui()->MouseButton(0))
 				Ui()->SetActiveItem(nullptr);
@@ -478,23 +475,23 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 				}
 			}
 		}
-		else if(Ui()->HotItem() == pId)
+		else if(Ui()->HotItem() == &s_SeekBarId)
 		{
 			if(Ui()->MouseButton(0))
 			{
-				Ui()->SetActiveItem(pId);
+				Ui()->SetActiveItem(&s_SeekBarId);
 			}
 		}
 
 		if(Inside && !Ui()->MouseButton(0))
-			Ui()->SetHotItem(pId);
+			Ui()->SetHotItem(&s_SeekBarId);
 
-		if(Ui()->HotItem() == pId)
+		if(Ui()->HotItem() == &s_SeekBarId)
 		{
 			const int HoveredTick = (int)(clamp((Ui()->MouseX() - SeekBar.x - Rounding) / (SeekBar.w - 2 * Rounding), 0.0f, 1.0f) * TotalTicks);
 			static char s_aHoveredTime[32];
 			str_time((int64_t)HoveredTick / Client()->GameTickSpeed() * 100, TIME_HOURS, s_aHoveredTime, sizeof(s_aHoveredTime));
-			GameClient()->m_Tooltips.DoToolTip(pId, &SeekBar, s_aHoveredTime);
+			GameClient()->m_Tooltips.DoToolTip(&s_SeekBarId, &SeekBar, s_aHoveredTime);
 		}
 	}
 
@@ -847,13 +844,19 @@ void CMenus::RenderDemoPlayerSliceSavePopup(CUIRect MainView)
 			m_DemoSliceInput.Set(aNameWithoutExt);
 		}
 
+		static CUi::SMessagePopupContext s_MessagePopupContext;
 		char aDemoName[IO_MAX_PATH_LENGTH];
 		DemoPlayer()->GetDemoName(aDemoName, sizeof(aDemoName));
 		if(str_comp(aDemoName, m_DemoSliceInput.GetString()) == 0)
 		{
-			static CUi::SMessagePopupContext s_MessagePopupContext;
 			s_MessagePopupContext.ErrorColor();
 			str_copy(s_MessagePopupContext.m_aMessage, Localize("Please use a different filename"));
+			Ui()->ShowPopupMessage(Ui()->MouseX(), OkButton.y + OkButton.h + 5.0f, &s_MessagePopupContext);
+		}
+		else if(!str_valid_filename(m_DemoSliceInput.GetString()))
+		{
+			s_MessagePopupContext.ErrorColor();
+			str_copy(s_MessagePopupContext.m_aMessage, Localize("This name cannot be used for files and folders"));
 			Ui()->ShowPopupMessage(Ui()->MouseX(), OkButton.y + OkButton.h + 5.0f, &s_MessagePopupContext);
 		}
 		else

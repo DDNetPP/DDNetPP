@@ -215,6 +215,7 @@ enum
 	TILERENDERFLAG_EXTEND = 4,
 
 	OVERLAYRENDERFLAG_TEXT = 1,
+	OVERLAYRENDERFLAG_EDITOR = 2,
 };
 
 class IEnvelopePointAccess
@@ -224,6 +225,7 @@ public:
 	virtual int NumPoints() const = 0;
 	virtual const CEnvPoint *GetPoint(int Index) const = 0;
 	virtual const CEnvPointBezier *GetBezier(int Index) const = 0;
+	int FindPointIndex(double TimeMillis) const;
 };
 
 class CMapBasedEnvelopePointAccess : public IEnvelopePointAccess

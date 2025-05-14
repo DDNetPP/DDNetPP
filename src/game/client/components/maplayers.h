@@ -125,11 +125,11 @@ class CMapLayers : public CComponent
 		bool m_IsTextured;
 	};
 	std::vector<SQuadLayerVisuals *> m_vpQuadLayerVisuals;
+	std::vector<std::vector<int>> m_vvLayerCount;
+	int m_GameGroup;
 
 	virtual CCamera *GetCurCamera();
 	virtual const char *LoadingTitle() const;
-
-	void LayersOfGroupCount(CMapItemGroup *pGroup, int &TileLayerCount, int &QuadLayerCount, bool &PassedGameLayer);
 
 public:
 	enum
@@ -158,6 +158,10 @@ private:
 
 	int GetLayerType(const CMapItemLayer *pLayer) const;
 	int GetTileLayerAndOverlayCount(const CMapItemLayerTilemap *pLayerTilemap, int LayerType, void **ppTiles = nullptr) const;
+
+	void RenderTilelayerNoTileBuffer(int ImageIndex, int LayerType, void *pTilesData, CMapItemLayerTilemap *pLayerTilemap, const ColorRGBA &Color);
+	void RenderTilelayerWithTileBuffer(int ImageIndex, int LayerType, int TileLayerCounter, const ColorRGBA &Color);
+	ColorRGBA GetDeathBorderColor() const;
 };
 
 #endif

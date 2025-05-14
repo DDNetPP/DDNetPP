@@ -68,13 +68,12 @@ class CHud : public CComponent
 	void RenderTextInfo();
 	void RenderConnectionWarning();
 	void RenderTeambalanceWarning();
-	void RenderVoting();
 
 	void PrepareAmmoHealthAndArmorQuads();
 	void RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter);
 
 	void PreparePlayerStateQuads();
-	void RenderPlayerState(const int ClientId);
+	void RenderPlayerState(int ClientId);
 
 	int m_LastSpectatorCountTick;
 	void RenderSpectatorCount();
@@ -83,6 +82,15 @@ class CHud : public CComponent
 
 	void UpdateMovementInformationTextContainer(STextContainerIndex &TextContainer, float FontSize, float Value, char *pPrevValue, size_t Size);
 	void RenderMovementInformationTextContainer(STextContainerIndex &TextContainer, const ColorRGBA &Color, float X, float Y);
+
+	class CMovementInformation
+	{
+	public:
+		vec2 m_Pos;
+		vec2 m_Speed;
+		float m_Angle = 0.0f;
+	};
+	class CMovementInformation GetMovementInformation(int ClientId) const;
 
 	void RenderGameTimer();
 	void RenderPauseNotification();
@@ -111,7 +119,7 @@ public:
 	// DDRace
 
 	virtual void OnMessage(int MsgType, void *pRawMsg) override;
-	void RenderNinjaBarPos(float x, const float y, const float Width, const float Height, float Progress, float Alpha = 1.0f);
+	void RenderNinjaBarPos(float x, float y, float Width, float Height, float Progress, float Alpha = 1.0f);
 
 private:
 	void RenderRecord();

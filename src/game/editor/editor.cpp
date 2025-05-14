@@ -4269,7 +4269,7 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 							}
 						}
 
-						Ui()->DoPopupMenu(&s_LayerPopupContext, Ui()->MouseX(), Ui()->MouseY(), 120, 280, &s_LayerPopupContext, PopupLayer);
+						Ui()->DoPopupMenu(&s_LayerPopupContext, Ui()->MouseX(), Ui()->MouseY(), 150, 300, &s_LayerPopupContext, PopupLayer);
 					}
 
 					SetOperation(OP_NONE);
@@ -5592,7 +5592,13 @@ void CEditor::RenderFileDialog()
 			if(!str_endswith(m_aFileSaveName, FILETYPE_EXTENSIONS[m_FileDialogFileType]))
 				str_append(m_aFileSaveName, FILETYPE_EXTENSIONS[m_FileDialogFileType]);
 
-			if(m_FileDialogSaveAction && Storage()->FileExists(m_aFileSaveName, StorageType))
+			char aFilename[IO_MAX_PATH_LENGTH];
+			fs_split_file_extension(fs_filename(m_aFileSaveName), aFilename, sizeof(aFilename));
+			if(m_FileDialogSaveAction && !str_valid_filename(aFilename))
+			{
+				ShowFileDialogError("This name cannot be used for files and folders");
+			}
+			else if(m_FileDialogSaveAction && Storage()->FileExists(m_aFileSaveName, StorageType))
 			{
 				if(m_pfnFileDialogFunc == &CallbackSaveMap)
 					m_PopupEventType = POPEVENT_SAVE;
@@ -7913,7 +7919,7 @@ void CEditor::RenderMenubar(CUIRect MenuBar)
 	if(DoButton_Ex(&s_ToolsButton, "Tools", 0, &ToolsButton, BUTTONFLAG_LEFT, nullptr, IGraphics::CORNER_T, EditorFontSizes::MENU, TEXTALIGN_ML))
 	{
 		static SPopupMenuId s_PopupMenuToolsId;
-		Ui()->DoPopupMenu(&s_PopupMenuToolsId, ToolsButton.x, ToolsButton.y + ToolsButton.h - 1.0f, 200.0f, 64.0f, this, PopupMenuTools, PopupProperties);
+		Ui()->DoPopupMenu(&s_PopupMenuToolsId, ToolsButton.x, ToolsButton.y + ToolsButton.h - 1.0f, 200.0f, 78.0f, this, PopupMenuTools, PopupProperties);
 	}
 
 	MenuBar.VSplitLeft(5.0f, nullptr, &MenuBar);
@@ -9390,10 +9396,10 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 
 		if(pLayerTiles->m_HasTele)
 		{
-			int NextFreeTeleNumber = FindNextFreeTeleNumber();
-			int NextFreeCPNumber = FindNextFreeTeleNumber(true);
-
+			int NextFreeTeleNumber = m_Map.m_pTeleLayer->FindNextFreeNumber(false);
+			int NextFreeCPNumber = m_Map.m_pTeleLayer->FindNextFreeNumber(true);
 			std::shared_ptr<CLayerTele> pTeleLayer = std::static_pointer_cast<CLayerTele>(pLayer);
+
 			for(int y = 0; y < pTeleLayer->m_Height; y++)
 			{
 				for(int x = 0; x < pTeleLayer->m_Width; x++)
@@ -9442,9 +9448,9 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 		}
 		else if(pLayerTiles->m_HasSwitch)
 		{
-			int NextFreeNumber = FindNextFreeSwitchNumber();
-
+			int NextFreeNumber = m_Map.m_pSwitchLayer->FindNextFreeNumber();
 			std::shared_ptr<CLayerSwitch> pSwitchLayer = std::static_pointer_cast<CLayerSwitch>(pLayer);
+
 			for(int y = 0; y < pSwitchLayer->m_Height; y++)
 			{
 				for(int x = 0; x < pSwitchLayer->m_Width; x++)
@@ -9487,49 +9493,6 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 			}
 		}
 	}
-}
-
-int CEditor::FindNextFreeSwitchNumber()
-{
-	int Number = -1;
-
-	for(int i = 1; i <= 255; i++)
-	{
-		if(!m_Map.m_pSwitchLayer->ContainsElementWithId(i))
-		{
-			Number = i;
-			break;
-		}
-	}
-	return Number;
-}
-
-int CEditor::FindNextFreeTeleNumber(bool Checkpoint)
-{
-	int Number = -1;
-	for(int i = 1; i <= 255; i++)
-	{
-		if(!m_Map.m_pTeleLayer->ContainsElementWithId(i, Checkpoint))
-		{
-			Number = i;
-			break;
-		}
-	}
-	return Number;
-}
-
-int CEditor::FindNextFreeTuneNumber()
-{
-	int Number = -1;
-	for(int i = 1; i <= 255; i++)
-	{
-		if(!m_Map.m_pTuneLayer->ContainsElementWithId(i))
-		{
-			Number = i;
-			break;
-		}
-	}
-	return Number;
 }
 
 IEditor *CreateEditor() { return new CEditor; }

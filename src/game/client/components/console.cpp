@@ -178,9 +178,6 @@ static int PossibleKeys(const char *pStr, IInput *pInput, IConsole::FPossibleCal
 	return Index;
 }
 
-const ColorRGBA CGameConsole::ms_SearchHighlightColor = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
-const ColorRGBA CGameConsole::ms_SearchSelectedColor = ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f);
-
 CGameConsole::CInstance::CInstance(int Type)
 {
 	m_pHistoryEntry = nullptr;
@@ -1178,6 +1175,10 @@ void CGameConsole::OnRender()
 			if(pConsole->m_MousePress.y >= pConsole->m_BoundingBox.m_Y && pConsole->m_MousePress.y < pConsole->m_BoundingBox.m_Y + pConsole->m_BoundingBox.m_H)
 			{
 				CLineInput::SMouseSelection *pMouseSelection = pConsole->m_Input.GetMouseSelection();
+				if(pMouseSelection->m_Selecting && !pConsole->m_MouseIsPress && pConsole->m_Input.IsActive())
+				{
+					Input()->EnsureScreenKeyboardShown();
+				}
 				pMouseSelection->m_Selecting = pConsole->m_MouseIsPress;
 				pMouseSelection->m_PressMouse = pConsole->m_MousePress;
 				pMouseSelection->m_ReleaseMouse = pConsole->m_MouseRelease;

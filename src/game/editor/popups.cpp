@@ -208,6 +208,15 @@ CUi::EPopupMenuFunctionResult CEditor::PopupMenuTools(void *pContext, CUIRect Vi
 		return CUi::POPUP_CLOSE_CURRENT;
 	}
 
+	static int s_QuadArtButton = 0;
+	View.HSplitTop(2.0f, nullptr, &View);
+	View.HSplitTop(12.0f, &Slot, &View);
+	if(pEditor->DoButton_MenuItem(&s_QuadArtButton, "Add quadart", 0, &Slot, BUTTONFLAG_LEFT, "Generate quadart from image."))
+	{
+		pEditor->InvokeFileDialog(IStorage::TYPE_ALL, FILETYPE_IMG, "Add quadart", "Open", "mapres", false, CallbackAddQuadArt, pEditor);
+		return CUi::POPUP_CLOSE_CURRENT;
+	}
+
 	return CUi::POPUP_KEEP_OPEN;
 }
 
@@ -1938,20 +1947,20 @@ CUi::EPopupMenuFunctionResult CEditor::PopupNewFolder(void *pContext, CUIRect Vi
 	static int s_CreateButton = 0;
 	if(pEditor->DoButton_Editor(&s_CreateButton, "Create", 0, &Button, BUTTONFLAG_LEFT, nullptr) || (Active && pEditor->Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
 	{
-		// create the folder
-		if(!pEditor->m_FileDialogNewFolderNameInput.IsEmpty())
+		char aFolderPath[IO_MAX_PATH_LENGTH];
+		str_format(aFolderPath, sizeof(aFolderPath), "%s/%s", pEditor->m_pFileDialogPath, pEditor->m_FileDialogNewFolderNameInput.GetString());
+		if(!str_valid_filename(pEditor->m_FileDialogNewFolderNameInput.GetString()))
 		{
-			char aBuf[IO_MAX_PATH_LENGTH];
-			str_format(aBuf, sizeof(aBuf), "%s/%s", pEditor->m_pFileDialogPath, pEditor->m_FileDialogNewFolderNameInput.GetString());
-			if(pEditor->Storage()->CreateFolder(aBuf, IStorage::TYPE_SAVE))
-			{
-				pEditor->FilelistPopulate(IStorage::TYPE_SAVE);
-				return CUi::POPUP_CLOSE_CURRENT;
-			}
-			else
-			{
-				pEditor->ShowFileDialogError("Failed to create the folder '%s'.", aBuf);
-			}
+			pEditor->ShowFileDialogError("This name cannot be used for files and folders");
+		}
+		else if(!pEditor->Storage()->CreateFolder(aFolderPath, IStorage::TYPE_SAVE))
+		{
+			pEditor->ShowFileDialogError("Failed to create the folder '%s'.", aFolderPath);
+		}
+		else
+		{
+			pEditor->FilelistPopulate(IStorage::TYPE_SAVE);
+			return CUi::POPUP_CLOSE_CURRENT;
 		}
 	}
 
@@ -2102,20 +2111,25 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		pTitle = "Place border tiles";
 		pMessage = "This is going to overwrite any existing tiles around the edges of the layer.\n\nContinue?";
 	}
-	else if(pEditor->m_PopupEventType == POPEVENT_PIXELART_BIG_IMAGE)
+	else if(pEditor->m_PopupEventType == POPEVENT_TILEART_BIG_IMAGE)
 	{
 		pTitle = "Big image";
 		pMessage = "The selected image is big. Converting it to tileart may take some time.\n\nContinue anyway?";
 	}
-	else if(pEditor->m_PopupEventType == POPEVENT_PIXELART_MANY_COLORS)
+	else if(pEditor->m_PopupEventType == POPEVENT_TILEART_MANY_COLORS)
 	{
 		pTitle = "Many colors";
 		pMessage = "The selected image contains many colors, which will lead to a big mapfile. You may want to consider reducing the number of colors.\n\nContinue anyway?";
 	}
-	else if(pEditor->m_PopupEventType == POPEVENT_PIXELART_TOO_MANY_COLORS)
+	else if(pEditor->m_PopupEventType == POPEVENT_TILEART_TOO_MANY_COLORS)
 	{
 		pTitle = "Too many colors";
 		pMessage = "The client only supports 64 images but more would be needed to add the selected image as tileart.";
+	}
+	else if(pEditor->m_PopupEventType == POPEVENT_QUADART_BIG_IMAGE)
+	{
+		pTitle = "Big image";
+		pMessage = "The selected image is really big. Expect performance issues!\n\nContinue anyway?";
 	}
 	else if(pEditor->m_PopupEventType == POPEVENT_REMOVE_USED_IMAGE)
 	{
@@ -2171,20 +2185,21 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		pEditor->m_PopupEventType != POPEVENT_IMAGEDIV16 &&
 		pEditor->m_PopupEventType != POPEVENT_IMAGE_MAX &&
 		pEditor->m_PopupEventType != POPEVENT_SOUND_MAX &&
-		pEditor->m_PopupEventType != POPEVENT_PIXELART_TOO_MANY_COLORS)
+		pEditor->m_PopupEventType != POPEVENT_TILEART_TOO_MANY_COLORS)
 	{
 		static int s_CancelButton = 0;
 		if(pEditor->DoButton_Editor(&s_CancelButton, "Cancel", 0, &Button, BUTTONFLAG_LEFT, nullptr))
 		{
 			if(pEditor->m_PopupEventType == POPEVENT_LOADDROP)
 				pEditor->m_aFileNamePending[0] = 0;
-			pEditor->m_PopupEventWasActivated = false;
 
-			if(pEditor->m_PopupEventType == POPEVENT_PIXELART_BIG_IMAGE || pEditor->m_PopupEventType == POPEVENT_PIXELART_MANY_COLORS)
-			{
+			else if(pEditor->m_PopupEventType == POPEVENT_TILEART_BIG_IMAGE || pEditor->m_PopupEventType == POPEVENT_TILEART_MANY_COLORS)
 				pEditor->m_TileartImageInfo.Free();
-			}
 
+			else if(pEditor->m_PopupEventType == POPEVENT_QUADART_BIG_IMAGE)
+				pEditor->m_QuadArtImageInfo.Free();
+
+			pEditor->m_PopupEventWasActivated = false;
 			return CUi::POPUP_CLOSE_CURRENT;
 		}
 	}
@@ -2245,13 +2260,17 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		{
 			pEditor->PlaceBorderTiles();
 		}
-		else if(pEditor->m_PopupEventType == POPEVENT_PIXELART_BIG_IMAGE)
+		else if(pEditor->m_PopupEventType == POPEVENT_TILEART_BIG_IMAGE)
 		{
 			pEditor->TileartCheckColors();
 		}
-		else if(pEditor->m_PopupEventType == POPEVENT_PIXELART_MANY_COLORS)
+		else if(pEditor->m_PopupEventType == POPEVENT_TILEART_MANY_COLORS)
 		{
 			pEditor->AddTileart();
+		}
+		else if(pEditor->m_PopupEventType == POPEVENT_QUADART_BIG_IMAGE)
+		{
+			pEditor->AddQuadArt();
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_REMOVE_USED_IMAGE)
 		{
@@ -2483,6 +2502,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSelectConfigAutoMap(void *pContext, 
 
 	static CListBox s_ListBox;
 	s_ListBox.DoStart(ButtonHeight, pAutoMapper->ConfigNamesNum() + 1, 1, 4, s_AutoMapConfigCurrent + 1, &View, false);
+	s_ListBox.SetScrollbarWidth(15.0f);
 	s_ListBox.DoAutoSpacing(ButtonMargin);
 
 	for(int i = 0; i < pAutoMapper->ConfigNamesNum() + 1; i++)
@@ -2514,9 +2534,9 @@ void CEditor::PopupSelectConfigAutoMapInvoke(int Current, float x, float y)
 	s_AutoMapConfigSelected = -100;
 	s_AutoMapConfigCurrent = Current;
 	std::shared_ptr<CLayerTiles> pLayer = std::static_pointer_cast<CLayerTiles>(GetSelectedLayer(0));
-	const int ItemCount = minimum(m_Map.m_vpImages[pLayer->m_Image]->m_AutoMapper.ConfigNamesNum(), 10);
+	const int ItemCount = minimum(m_Map.m_vpImages[pLayer->m_Image]->m_AutoMapper.ConfigNamesNum() + 1, 10); // +1 for None-entry
 	// Width for buttons is 120, 15 is the scrollbar width, 2 is the margin between both.
-	Ui()->DoPopupMenu(&s_PopupSelectConfigAutoMapId, x, y, 120.0f + 15.0f + 2.0f, 26.0f + 14.0f * ItemCount, this, PopupSelectConfigAutoMap);
+	Ui()->DoPopupMenu(&s_PopupSelectConfigAutoMapId, x, y, 120.0f + 15.0f + 2.0f, 10.0f + 12.0f * ItemCount + 2.0f * (ItemCount - 1) + CScrollRegion::HEIGHT_MAGIC_FIX, this, PopupSelectConfigAutoMap);
 }
 
 int CEditor::PopupSelectConfigAutoMapResult()
@@ -2649,7 +2669,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 		if(pEditor->DoButton_Editor(&s_NextFreeTelePid, "F", 0, &FindFreeTeleSlot, BUTTONFLAG_LEFT, "[Ctrl+F] Find next free tele number.") ||
 			(Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
-			int TeleNumber = pEditor->FindNextFreeTeleNumber();
+			int TeleNumber = pEditor->m_Map.m_pTeleLayer->FindNextFreeNumber(false);
 			if(TeleNumber != -1)
 			{
 				pEditor->m_TeleNumber = TeleNumber;
@@ -2661,7 +2681,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 		if(pEditor->DoButton_Editor(&s_NextFreeCheckpointPid, "F", 0, &FindFreeCheckpointSlot, BUTTONFLAG_LEFT, "[Ctrl+F] Find next free checkpoint number.") ||
 			(Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
-			int CheckpointNumber = pEditor->FindNextFreeTeleNumber(true);
+			int CheckpointNumber = pEditor->m_Map.m_pTeleLayer->FindNextFreeNumber(true);
 			if(CheckpointNumber != -1)
 			{
 				pEditor->m_TeleCheckpointNumber = CheckpointNumber;
@@ -2811,7 +2831,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, BUTTONFLAG_LEFT, "[Ctrl+F] Find empty slot.") ||
 			(Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
-			int Number = pEditor->FindNextFreeSwitchNumber();
+			int Number = pEditor->m_Map.m_pSwitchLayer->FindNextFreeNumber();
 			if(Number != -1)
 				pEditor->m_SwitchNum = Number;
 		}
@@ -2911,7 +2931,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTune(void *pContext, CUIRect View, b
 		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, BUTTONFLAG_LEFT, "[Ctrl+F] Find unused zone.") ||
 			(Active && pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
-			int Number = pEditor->FindNextFreeTuneNumber();
+			int Number = pEditor->m_Map.m_pTuneLayer->FindNextFreeNumber();
 			if(Number != -1)
 				pEditor->m_TuningNum = Number;
 		}
@@ -3158,6 +3178,90 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEnvelopeCurvetype(void *pContext, CU
 				return CUi::POPUP_CLOSE_CURRENT;
 			}
 		}
+	}
+
+	return CUi::POPUP_KEEP_OPEN;
+}
+
+CUi::EPopupMenuFunctionResult CEditor::PopupQuadArt(void *pContext, CUIRect View, bool Active)
+{
+	CEditor *pEditor = static_cast<CEditor *>(pContext);
+
+	enum
+	{
+		PROP_IMAGE_PIXELSIZE = 0,
+		PROP_QUAD_PIXELSIZE,
+		PROP_OPTIMIZE,
+		PROP_CENTRALIZE,
+		NUM_PROPS,
+	};
+
+	CProperty aProps[] = {
+		{"Image pixelsize", pEditor->m_QuadArtParameters.m_ImagePixelSize, PROPTYPE_INT, 1, 1024},
+		{"Quad pixelsize", pEditor->m_QuadArtParameters.m_QuadPixelSize, PROPTYPE_INT, 1, 1024},
+		{"Optimize", pEditor->m_QuadArtParameters.m_Optimize, PROPTYPE_BOOL, false, true},
+		{"Centralize", pEditor->m_QuadArtParameters.m_Centralize, PROPTYPE_BOOL, false, true},
+		{nullptr},
+	};
+
+	static int s_aIds[NUM_PROPS] = {0};
+	int NewVal = 0;
+
+	// Title
+	CUIRect Label;
+	View.HSplitTop(20.0f, &Label, &View);
+	pEditor->Ui()->DoLabel(&Label, "Configure Quadart", 20.0f, TEXTALIGN_MC);
+	View.HSplitTop(10.0f, nullptr, &View);
+
+	// Properties
+	int Prop = pEditor->DoProperties(&View, aProps, s_aIds, &NewVal);
+
+	if(Prop == PROP_IMAGE_PIXELSIZE)
+	{
+		pEditor->m_QuadArtParameters.m_ImagePixelSize = NewVal;
+	}
+	else if(Prop == PROP_QUAD_PIXELSIZE)
+	{
+		pEditor->m_QuadArtParameters.m_QuadPixelSize = NewVal;
+	}
+	else if(Prop == PROP_OPTIMIZE)
+	{
+		pEditor->m_QuadArtParameters.m_Optimize = (bool)NewVal;
+	}
+	else if(Prop == PROP_CENTRALIZE)
+	{
+		pEditor->m_QuadArtParameters.m_Centralize = (bool)NewVal;
+	}
+
+	// Buttons
+	CUIRect BottomBar, Left, Right;
+	View.HSplitBottom(20.f, &View, &BottomBar);
+	BottomBar.VSplitLeft(110.f, &Left, &BottomBar);
+
+	static int s_Cancel;
+	if(pEditor->DoButton_Editor(&s_Cancel, "Cancel", 0, &Left, BUTTONFLAG_LEFT, nullptr))
+	{
+		pEditor->m_QuadArtImageInfo.Free();
+		return CUi::POPUP_CLOSE_CURRENT;
+	}
+
+	BottomBar.VSplitRight(110.f, &BottomBar, &Right);
+	static int s_Confirm;
+	constexpr int MaximumQuadThreshold = 100'000;
+	if(pEditor->DoButton_Editor(&s_Confirm, "Confirm", 0, &Right, BUTTONFLAG_LEFT, nullptr))
+	{
+		size_t MaximumQuadNumber = (pEditor->m_QuadArtImageInfo.m_Width / pEditor->m_QuadArtParameters.m_ImagePixelSize) *
+					   (pEditor->m_QuadArtImageInfo.m_Height / pEditor->m_QuadArtParameters.m_ImagePixelSize);
+		if(MaximumQuadNumber > MaximumQuadThreshold)
+		{
+			pEditor->m_PopupEventType = CEditor::POPEVENT_QUADART_BIG_IMAGE;
+			pEditor->m_PopupEventActivated = true;
+		}
+		else
+		{
+			pEditor->AddQuadArt();
+		}
+		return CUi::POPUP_CLOSE_CURRENT;
 	}
 
 	return CUi::POPUP_KEEP_OPEN;

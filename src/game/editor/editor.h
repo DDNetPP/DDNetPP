@@ -38,6 +38,7 @@
 #include "editor_ui.h"
 #include "layer_selector.h"
 #include "map_view.h"
+#include "quadart.h"
 #include "smooth_value.h"
 #include <game/editor/prompt.h>
 #include <game/editor/quick_action.h>
@@ -313,7 +314,7 @@ class CEditor : public IEditor
 	};
 
 	std::shared_ptr<CLayerGroup> m_apSavedBrushes[10];
-	static const ColorRGBA ms_DefaultPropColor;
+	static inline constexpr ColorRGBA ms_DefaultPropColor = ColorRGBA(1, 1, 1, 0.5f);
 
 public:
 	class IInput *Input() const { return m_pInput; }
@@ -612,9 +613,10 @@ public:
 		POPEVENT_IMAGE_MAX,
 		POPEVENT_SOUND_MAX,
 		POPEVENT_PLACE_BORDER_TILES,
-		POPEVENT_PIXELART_BIG_IMAGE,
-		POPEVENT_PIXELART_MANY_COLORS,
-		POPEVENT_PIXELART_TOO_MANY_COLORS,
+		POPEVENT_TILEART_BIG_IMAGE,
+		POPEVENT_TILEART_MANY_COLORS,
+		POPEVENT_TILEART_TOO_MANY_COLORS,
+		POPEVENT_QUADART_BIG_IMAGE,
 		POPEVENT_REMOVE_USED_IMAGE,
 		POPEVENT_REMOVE_USED_SOUND,
 		POPEVENT_RESTART_SERVER,
@@ -721,7 +723,7 @@ public:
 			return true;
 		if(str_comp(pRhs->m_aFilename, "..") == 0)
 			return false;
-		if(pLhs->m_IsLink || pRhs->m_IsLink)
+		if(pLhs->m_IsLink != pRhs->m_IsLink)
 			return pLhs->m_IsLink;
 		if(pLhs->m_IsDir != pRhs->m_IsDir)
 			return pLhs->m_IsDir;
@@ -734,7 +736,7 @@ public:
 			return true;
 		if(str_comp(pRhs->m_aFilename, "..") == 0)
 			return false;
-		if(pLhs->m_IsLink || pRhs->m_IsLink)
+		if(pLhs->m_IsLink != pRhs->m_IsLink)
 			return pLhs->m_IsLink;
 		if(pLhs->m_IsDir != pRhs->m_IsDir)
 			return pLhs->m_IsDir;
@@ -863,9 +865,13 @@ public:
 	CMapSettingsBackend::CContext m_MapSettingsCommandContext;
 
 	CImageInfo m_TileartImageInfo;
-	char m_aTileartFilename[IO_MAX_PATH_LENGTH];
 	void AddTileart(bool IgnoreHistory = false);
+	char m_aTileartFilename[IO_MAX_PATH_LENGTH];
 	void TileartCheckColors();
+
+	CImageInfo m_QuadArtImageInfo;
+	CQuadArtParameters m_QuadArtParameters;
+	void AddQuadArt(bool IgnoreHistory = false);
 
 	void PlaceBorderTiles();
 
@@ -932,12 +938,14 @@ public:
 	static CUi::EPopupMenuFunctionResult PopupAnimateSettings(void *pContext, CUIRect View, bool Active);
 	int m_PopupEnvelopeSelectedPoint = -1;
 	static CUi::EPopupMenuFunctionResult PopupEnvelopeCurvetype(void *pContext, CUIRect View, bool Active);
+	static CUi::EPopupMenuFunctionResult PopupQuadArt(void *pContext, CUIRect View, bool Active);
 
 	static bool CallbackOpenMap(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackAppendMap(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackSaveMap(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackSaveCopyMap(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackAddTileart(const char *pFilepath, int StorageType, void *pUser);
+	static bool CallbackAddQuadArt(const char *pFilepath, int StorageType, void *pUser);
 	static bool CallbackSaveImage(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackSaveSound(const char *pFileName, int StorageType, void *pUser);
 	static bool CallbackCustomEntities(const char *pFileName, int StorageType, void *pUser);
@@ -1193,9 +1201,6 @@ public:
 	unsigned char m_ViewSwitch;
 
 	void AdjustBrushSpecialTiles(bool UseNextFree, int Adjust = 0);
-	int FindNextFreeSwitchNumber();
-	int FindNextFreeTeleNumber(bool Checkpoint = false);
-	int FindNextFreeTuneNumber();
 
 	// Undo/Redo
 	CEditorHistory m_EditorHistory;

@@ -22,6 +22,35 @@
 
 using namespace std::chrono_literals;
 
+int IEnvelopePointAccess::FindPointIndex(double TimeMillis) const
+{
+	// binary search for the interval around TimeMillis
+	int Low = 0;
+	int High = NumPoints() - 2;
+	int FoundIndex = -1;
+
+	while(Low <= High)
+	{
+		int Mid = Low + (High - Low) / 2;
+		const CEnvPoint *pMid = GetPoint(Mid);
+		const CEnvPoint *pNext = GetPoint(Mid + 1);
+		if(TimeMillis >= pMid->m_Time && TimeMillis < pNext->m_Time)
+		{
+			FoundIndex = Mid;
+			break;
+		}
+		else if(TimeMillis < pMid->m_Time)
+		{
+			High = Mid - 1;
+		}
+		else
+		{
+			Low = Mid + 1;
+		}
+	}
+	return FoundIndex;
+}
+
 CMapBasedEnvelopePointAccess::CMapBasedEnvelopePointAccess(CDataFileReader *pReader)
 {
 	bool FoundBezierEnvelope = false;
@@ -241,84 +270,83 @@ void CRenderTools::RenderEvalEnvelope(const IEnvelopePointAccess *pPoints, std::
 		TimeNanos = decltype(TimeNanos)::zero();
 
 	const double TimeMillis = TimeNanos.count() / (double)std::chrono::nanoseconds(1ms).count();
-	for(int i = 0; i < NumPoints - 1; i++)
+
+	int FoundIndex = pPoints->FindPointIndex(TimeMillis);
+	if(FoundIndex == -1)
 	{
-		const CEnvPoint *pCurrentPoint = pPoints->GetPoint(i);
-		const CEnvPoint *pNextPoint = pPoints->GetPoint(i + 1);
-		if(TimeMillis >= pCurrentPoint->m_Time && TimeMillis < pNextPoint->m_Time)
+		for(size_t c = 0; c < Channels; c++)
 		{
-			const float Delta = pNextPoint->m_Time - pCurrentPoint->m_Time;
-			float a = (float)(TimeMillis - pCurrentPoint->m_Time) / Delta;
-
-			switch(pCurrentPoint->m_Curvetype)
-			{
-			case CURVETYPE_STEP:
-				a = 0.0f;
-				break;
-
-			case CURVETYPE_SLOW:
-				a = a * a * a;
-				break;
-
-			case CURVETYPE_FAST:
-				a = 1.0f - a;
-				a = 1.0f - a * a * a;
-				break;
-
-			case CURVETYPE_SMOOTH:
-				a = -2.0f * a * a * a + 3.0f * a * a; // second hermite basis
-				break;
-
-			case CURVETYPE_BEZIER:
-			{
-				const CEnvPointBezier *pCurrentPointBezier = pPoints->GetBezier(i);
-				const CEnvPointBezier *pNextPointBezier = pPoints->GetBezier(i + 1);
-				if(pCurrentPointBezier == nullptr || pNextPointBezier == nullptr)
-					break; // fallback to linear
-				for(size_t c = 0; c < Channels; c++)
-				{
-					// monotonic 2d cubic bezier curve
-					const vec2 p0 = vec2(pCurrentPoint->m_Time, fx2f(pCurrentPoint->m_aValues[c]));
-					const vec2 p3 = vec2(pNextPoint->m_Time, fx2f(pNextPoint->m_aValues[c]));
-
-					const vec2 OutTang = vec2(pCurrentPointBezier->m_aOutTangentDeltaX[c], fx2f(pCurrentPointBezier->m_aOutTangentDeltaY[c]));
-					const vec2 InTang = vec2(pNextPointBezier->m_aInTangentDeltaX[c], fx2f(pNextPointBezier->m_aInTangentDeltaY[c]));
-
-					vec2 p1 = p0 + OutTang;
-					vec2 p2 = p3 + InTang;
-
-					// validate bezier curve
-					p1.x = clamp(p1.x, p0.x, p3.x);
-					p2.x = clamp(p2.x, p0.x, p3.x);
-
-					// solve x(a) = time for a
-					a = clamp(SolveBezier(TimeMillis, p0.x, p1.x, p2.x, p3.x), 0.0f, 1.0f);
-
-					// value = y(t)
-					Result[c] = bezier(p0.y, p1.y, p2.y, p3.y, a);
-				}
-				return;
-			}
-
-			case CURVETYPE_LINEAR: [[fallthrough]];
-			default:
-				break;
-			}
-
-			for(size_t c = 0; c < Channels; c++)
-			{
-				const float v0 = fx2f(pCurrentPoint->m_aValues[c]);
-				const float v1 = fx2f(pNextPoint->m_aValues[c]);
-				Result[c] = v0 + (v1 - v0) * a;
-			}
-
-			return;
+			Result[c] = fx2f(pLastPoint->m_aValues[c]);
 		}
+		return;
+	}
+
+	const CEnvPoint *pCurrentPoint = pPoints->GetPoint(FoundIndex);
+	const CEnvPoint *pNextPoint = pPoints->GetPoint(FoundIndex + 1);
+
+	const float Delta = pNextPoint->m_Time - pCurrentPoint->m_Time;
+	float a = (float)(TimeMillis - pCurrentPoint->m_Time) / Delta;
+
+	switch(pCurrentPoint->m_Curvetype)
+	{
+	case CURVETYPE_STEP:
+		a = 0.0f;
+		break;
+
+	case CURVETYPE_SLOW:
+		a = a * a * a;
+		break;
+
+	case CURVETYPE_FAST:
+		a = 1.0f - a;
+		a = 1.0f - a * a * a;
+		break;
+
+	case CURVETYPE_SMOOTH:
+		a = -2.0f * a * a * a + 3.0f * a * a; // second hermite basis
+		break;
+
+	case CURVETYPE_BEZIER:
+	{
+		const CEnvPointBezier *pCurrentPointBezier = pPoints->GetBezier(FoundIndex);
+		const CEnvPointBezier *pNextPointBezier = pPoints->GetBezier(FoundIndex + 1);
+		if(pCurrentPointBezier == nullptr || pNextPointBezier == nullptr)
+			break; // fallback to linear
+		for(size_t c = 0; c < Channels; c++)
+		{
+			// monotonic 2d cubic bezier curve
+			const vec2 p0 = vec2(pCurrentPoint->m_Time, fx2f(pCurrentPoint->m_aValues[c]));
+			const vec2 p3 = vec2(pNextPoint->m_Time, fx2f(pNextPoint->m_aValues[c]));
+
+			const vec2 OutTang = vec2(pCurrentPointBezier->m_aOutTangentDeltaX[c], fx2f(pCurrentPointBezier->m_aOutTangentDeltaY[c]));
+			const vec2 InTang = vec2(pNextPointBezier->m_aInTangentDeltaX[c], fx2f(pNextPointBezier->m_aInTangentDeltaY[c]));
+
+			vec2 p1 = p0 + OutTang;
+			vec2 p2 = p3 + InTang;
+
+			// validate bezier curve
+			p1.x = clamp(p1.x, p0.x, p3.x);
+			p2.x = clamp(p2.x, p0.x, p3.x);
+
+			// solve x(a) = time for a
+			a = clamp(SolveBezier(TimeMillis, p0.x, p1.x, p2.x, p3.x), 0.0f, 1.0f);
+
+			// value = y(t)
+			Result[c] = bezier(p0.y, p1.y, p2.y, p3.y, a);
+		}
+		return;
+	}
+
+	case CURVETYPE_LINEAR: [[fallthrough]];
+	default:
+		break;
 	}
 
 	for(size_t c = 0; c < Channels; c++)
 	{
-		Result[c] = fx2f(pLastPoint->m_aValues[c]);
+		const float v0 = fx2f(pCurrentPoint->m_aValues[c]);
+		const float v1 = fx2f(pNextPoint->m_aValues[c]);
+		Result[c] = v0 + (v1 - v0) * a;
 	}
 }
 
@@ -817,26 +845,46 @@ void CRenderTools::RenderSpeedupOverlay(CSpeedupTile *pSpeedup, int w, int h, fl
 
 			int Force = (int)pSpeedup[c].m_Force;
 			int MaxSpeed = (int)pSpeedup[c].m_MaxSpeed;
-			if(Force)
+			int Type = (int)pSpeedup[c].m_Type;
+			int Angle = (int)pSpeedup[c].m_Angle;
+			if((Force && Type == TILE_SPEED_BOOST_OLD) || ((Force || MaxSpeed) && Type == TILE_SPEED_BOOST) || (OverlayRenderFlag & OVERLAYRENDERFLAG_EDITOR && (Type || Force || MaxSpeed || Angle)))
 			{
-				// draw arrow
-				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPEEDUP_ARROW].m_Id);
-				Graphics()->QuadsBegin();
-				Graphics()->SetColor(1.0f, 1.0f, 1.0f, Alpha);
-				SelectSprite(SPRITE_SPEEDUP_ARROW);
-				Graphics()->QuadsSetRotation(pSpeedup[c].m_Angle * (pi / 180.0f));
-				DrawSprite(mx * Scale + 16, my * Scale + 16, 35.0f);
-				Graphics()->QuadsEnd();
-
-				// draw force and max speed
-				if(OverlayRenderFlag & OVERLAYRENDERFLAG_TEXT)
+				if(IsValidSpeedupTile(Type))
 				{
-					str_format(aBuf, sizeof(aBuf), "%d", Force);
-					TextRender()->Text(mx * Scale, (my + 0.5f + ToCenterOffset / 2) * Scale, Size * Scale / 2.f, aBuf);
-					if(MaxSpeed)
+					// draw arrow
+					Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPEEDUP_ARROW].m_Id);
+					Graphics()->QuadsBegin();
+					Graphics()->SetColor(1.0f, 1.0f, 1.0f, Alpha);
+					SelectSprite(SPRITE_SPEEDUP_ARROW);
+					Graphics()->QuadsSetRotation(pSpeedup[c].m_Angle * (pi / 180.0f));
+					DrawSprite(mx * Scale + 16, my * Scale + 16, 35.0f);
+					Graphics()->QuadsEnd();
+
+					// draw force and max speed
+					if(OverlayRenderFlag & OVERLAYRENDERFLAG_TEXT)
 					{
+						str_format(aBuf, sizeof(aBuf), "%d", Force);
+						TextRender()->Text(mx * Scale, (my + 0.5f + ToCenterOffset / 2) * Scale, Size * Scale / 2.f, aBuf);
+						if(MaxSpeed)
+						{
+							str_format(aBuf, sizeof(aBuf), "%d", MaxSpeed);
+							TextRender()->Text(mx * Scale, (my + ToCenterOffset / 2) * Scale, Size * Scale / 2.f, aBuf);
+						}
+					}
+				}
+				else
+				{
+					// draw all three values
+					if(OverlayRenderFlag & OVERLAYRENDERFLAG_TEXT)
+					{
+						float LineSpacing = Size * Scale / 3.f;
+						float BaseY = (my + ToCenterOffset) * Scale;
+						str_format(aBuf, sizeof(aBuf), "%d", Force);
+						TextRender()->Text(mx * Scale, BaseY, LineSpacing, aBuf);
 						str_format(aBuf, sizeof(aBuf), "%d", MaxSpeed);
-						TextRender()->Text(mx * Scale, (my + ToCenterOffset / 2) * Scale, Size * Scale / 2.f, aBuf);
+						TextRender()->Text(mx * Scale, BaseY + LineSpacing, LineSpacing, aBuf);
+						str_format(aBuf, sizeof(aBuf), "%d", Angle);
+						TextRender()->Text(mx * Scale, BaseY + 2 * LineSpacing, LineSpacing, aBuf);
 					}
 				}
 			}
