@@ -2732,7 +2732,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
 		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;*/
 
-	if(!m_ReloadTimer && !IsDDNetPPHit)
+	if(!m_ReloadTimer)
 	{
 		float FireDelay;
 		if(!m_TuneZone)
