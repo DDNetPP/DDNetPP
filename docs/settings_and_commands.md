@@ -139,7 +139,7 @@
 + `sv_max_login_per_ip` failed login attempts before getting rate limited (after 3 for 1min anyways)
 + `sv_max_namechanges_per_ip` how many times one ip can change the name (hourly) before the msg gets hidden
 + `sv_hide_rename_msg` show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)
-+ `sv_show_connection_msg` 0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)") // superusefull agianst reconnect trolls 
++ `sv_show_connection_msg` 0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)
 + `sv_auto_anti_reconnect_flood` delay join/leave messages if too many connections happend (see also sv_show_connection_msg)
 + `sv_rcon_attempt_report` after how many failed rcon attempts in a row should it be reported
 + `sv_captcha_room` needs captcha spawn and verify tile in the map
