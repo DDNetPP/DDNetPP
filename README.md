@@ -48,6 +48,8 @@ We added all the features missing in ddnet. For example:
 - drop weapons and flags
 - and much more
 
+DDNet++ also has a lot of configs and commands. Make sure to check out [settings_and_commands.md](./docs/settings_and_commands.md) for more details.
+
 Database
 --------
 
