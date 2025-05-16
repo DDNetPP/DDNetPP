@@ -33,7 +33,10 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
 	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
-		pKiller->m_MinigameScore++;
+		if(pPlayer->GetCharacter() && pPlayer->GetCharacter()->m_FreezeTime)
+			SendChat(pState, "[1vs1] draw");
+		else
+			pKiller->m_MinigameScore++;
 		if(pKiller->GetCharacter())
 		{
 			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_MINIGAME);
@@ -341,8 +344,7 @@ vec2 COneVsOneBlock::GetNextArenaSpawn(CGameState *pGameState)
 
 	if(Spawn == vec2(-1, -1))
 	{
-		SendChatTarget(pGameState->m_pPlayer1->GetCid(), "[1vs1] no block arena found.");
-		SendChatTarget(pGameState->m_pPlayer2->GetCid(), "[1vs1] no block arena found.");
+		SendChat(pGameState, "[1vs1] no block arena found.");
 		OnRoundEnd(pGameState);
 	}
 	return Spawn;
@@ -492,6 +494,7 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 		{
 			if(pChr1->FrozenSinceSeconds() > 5 && pChr2->FrozenSinceSeconds() > 5)
 			{
+				SendChat(pGameState, "[1vs1] draw");
 				pChr1->Die(pChr1->GetPlayer()->GetCid(), WEAPON_MINIGAME);
 				pChr2->Die(pChr2->GetPlayer()->GetCid(), WEAPON_MINIGAME);
 			}
@@ -539,6 +542,14 @@ void COneVsOneBlock::PlayerSlowTick(CPlayer *pPlayer)
 		GameServer()->SendChatTarget(ClientId, aBuf);
 		pPlayer->m_BlockOneVsOneRequestedId = -1;
 	}
+}
+
+void COneVsOneBlock::SendChat(CGameState *pGameState, const char *pMessage)
+{
+	dbg_assert(pGameState, "missing gamestate");
+
+	SendChatTarget(pGameState->m_pPlayer1->GetCid(), pMessage);
+	SendChatTarget(pGameState->m_pPlayer2->GetCid(), pMessage);
 }
 
 CPlayer *COneVsOneBlock::GetInviteSender(const CPlayer *pPlayer)
