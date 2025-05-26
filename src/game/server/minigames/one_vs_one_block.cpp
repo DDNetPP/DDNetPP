@@ -33,7 +33,7 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
 	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
-		if(pPlayer->GetCharacter() && pPlayer->GetCharacter()->m_FreezeTime)
+		if(pKiller->GetCharacter() && pKiller->GetCharacter()->m_FreezeTime)
 			SendChat(pState, "[1vs1] draw");
 		else
 			pKiller->m_MinigameScore++;
@@ -502,7 +502,15 @@ void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
 	}
 
 	CCharacter *pChr = pPlayer->GetCharacter();
-	if(pChr && pChr->HookingSinceSeconds() > g_Config.m_SvOneVsOneAntiGroundHook && pChr->Core()->HookedPlayer() == -1)
+	CCharacter *pOtherChr = pGameState->OtherPlayer(pPlayer)->GetCharacter();
+
+	if(pChr && pChr->IsAlive() && pChr->FrozenSinceSeconds() > 10 && pOtherChr->FrozenSinceSeconds() == 0)
+	{
+		// SendChat(pGameState, "[1vs1] force killed after 10s freeze");
+		pChr->Die(pPlayer->GetCid(), WEAPON_WORLD);
+	}
+
+	if(pChr && pChr->IsAlive() && pChr->HookingSinceSeconds() > g_Config.m_SvOneVsOneAntiGroundHook && pChr->Core()->HookedPlayer() == -1)
 	{
 		SendChatTarget(pPlayer->GetCid(), GameServer()->Loc("Frozen by anti ground hook", pPlayer->GetCid()));
 		pChr->Freeze();
