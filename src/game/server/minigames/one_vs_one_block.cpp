@@ -33,7 +33,13 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	CPlayer *pKiller = pState->OtherPlayer(pPlayer);
 	if(pState->IsRunning() && Killer == pKiller->GetCid() && Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
-		if(pKiller->GetCharacter() && pKiller->GetCharacter()->m_FreezeTime)
+		// only count a draw if the other player is frozen and also in a freeze tile
+		// checking the "in freeze" state is important
+		// because it can happen that both tees hit a freeze roof and fall down
+		// but only one would fall into freeze on the floor and the other one would unfreeze eventually
+		// in that case the player who will fall into the freeze floor should not be able to
+		// trigger a draw by selfkilling before the other one unfreezes
+		if(pKiller->GetCharacter() && pKiller->GetCharacter()->m_FreezeTime && pKiller->GetCharacter()->Core()->m_IsInFreeze)
 			SendChat(pState, "[1vs1] draw");
 		else
 			pKiller->m_MinigameScore++;
