@@ -43,7 +43,7 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 			SendChat(pState, "[1vs1] draw");
 		else
 			pKiller->m_MinigameScore++;
-		if(pKiller->GetCharacter())
+		if(pKiller->GetCharacter() && pKiller->GetCharacter()->IsAlive())
 		{
 			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_MINIGAME);
 			pKiller->Respawn();
