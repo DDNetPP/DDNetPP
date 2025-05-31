@@ -131,6 +131,20 @@ void CHeartGun::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
+	CCharacter *pOwnerChar = nullptr;
+	if(m_Owner >= 0)
+		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+	if(!pOwnerChar)
+		return;
+
+	CClientMask TeamMask = CClientMask().set();
+
+	if(pOwnerChar && pOwnerChar->IsAlive())
+		TeamMask = pOwnerChar->TeamMask();
+
+	if(SnappingClient != SERVER_DEMO_CLIENT && !TeamMask.test(SnappingClient))
+		return;
+
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	bool Sixup = Server()->IsSixup(SnappingClient);
 	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup), GetId(), m_Pos, POWERUP_HEALTH, 0, 0);
