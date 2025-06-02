@@ -270,7 +270,7 @@ void COneVsOneBlock::OnGameAbort(CGameState *pGameState, CPlayer *pAbortingPlaye
 		return;
 
 	int Score1 = pGameState->m_pPlayer1->m_MinigameScore;
-	int Score2 = pGameState->m_pPlayer1->m_MinigameScore;
+	int Score2 = pGameState->m_pPlayer2->m_MinigameScore;
 
 	// if nobody did a score yet the game has no winner
 	if(!Score1 && !Score2)
