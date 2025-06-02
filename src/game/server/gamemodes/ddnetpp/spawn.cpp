@@ -5,6 +5,10 @@
 
 bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam)
 {
+	// spectators can't spawn
+	if(Team == TEAM_SPECTATORS)
+		return false;
+
 	CSpawnEval Eval;
 	CCharacter *pChr = pPlayer->GetCharacter();
 
