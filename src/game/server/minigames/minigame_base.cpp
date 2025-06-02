@@ -79,6 +79,8 @@ void CMinigame::ClearSavedPosition(CPlayer *pPlayer)
 	// wipe ddnet++ state
 	delete m_apSavedPositionsDDPP[pPlayer->GetCid()];
 	m_apSavedPositionsDDPP[pPlayer->GetCid()] = nullptr;
+
+	m_aRestorePos[pPlayer->GetCid()] = false;
 }
 
 void CMinigame::SavePosition(CPlayer *pPlayer)
