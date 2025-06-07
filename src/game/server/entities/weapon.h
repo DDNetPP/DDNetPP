@@ -1,15 +1,19 @@
 #ifndef GAME_SERVER_ENTITIES_WEAPON_H
 #define GAME_SERVER_ENTITIES_WEAPON_H
 
+#include <base/vmath.h>
+#include <game/server/entity.h>
+#include <game/server/gameworld.h>
+
 class CWeapon : public CEntity
 {
 public:
-	CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack = false, bool SpreadGun = false);
-	~CWeapon();
+	CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int DDRaceTeam, int Direction, int Bullets, bool Jetpack = false, bool SpreadGun = false);
+	~CWeapon() override;
 
-	virtual void Reset() override;
-	virtual void Tick() override;
-	virtual void Snap(int SnappingClient) override;
+	void Reset() override;
+	void Tick() override;
+	void Snap(int SnappingClient) override;
 
 	int IsCharacterNear();
 
@@ -20,8 +24,8 @@ public:
 private:
 	vec2 m_Vel;
 
+	int m_DDRaceTeam;
 	int m_Owner;
-	int m_ResponsibleTeam;
 	int m_Type;
 	int m_Lifetime;
 	int m_Bullets;

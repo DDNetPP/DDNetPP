@@ -533,8 +533,8 @@ void CCharacter::DropWeapon(int WeaponId)
 		m_Core.m_aWeapons[WeaponId].m_Got = false;
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponId, 300, m_pPlayer->GetCid(),
-			GetAimDir(), Team(), m_Core.m_aWeapons[WeaponId].m_Ammo, HasJetPack, HasSpreadGun);
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponId, 300, m_pPlayer->GetCid(), Team(),
+			GetAimDir(), m_Core.m_aWeapons[WeaponId].m_Ammo, HasJetPack, HasSpreadGun);
 		DroppedWeapons.push_back(Weapon);
 	}
 

@@ -1,7 +1,10 @@
 #include <base/log.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
+#include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
+#include <game/server/gamecontroller.h>
+#include <game/server/player.h>
 #include <game/server/teams.h>
 
 #include <cmath>
@@ -9,17 +12,17 @@
 #include "pickup.h"
 #include "weapon.h"
 
-CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack, bool SpreadGun) :
+CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int DDRaceTeam, int Direction, int Bullets, bool Jetpack, bool SpreadGun) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_WEAPON)
 {
 	m_Type = Weapon;
 	m_Lifetime = Server()->TickSpeed() * Lifetime;
-	m_ResponsibleTeam = ResponsibleTeam;
 	m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
 	m_Jetpack = Jetpack;
 	m_SpreadGun = SpreadGun;
 	m_Bullets = Bullets;
 	m_Owner = Owner;
+	m_DDRaceTeam = DDRaceTeam;
 
 	m_Vel = vec2(5 * Direction, -5);
 
@@ -98,7 +101,7 @@ int CWeapon::IsCharacterNear()
 	for(int i = 0; i < Num; ++i)
 	{
 		CCharacter *pChr = apEnts[i];
-		if(pChr && pChr->IsAlive())
+		if(pChr && pChr->IsAlive() && pChr->Team() == m_DDRaceTeam)
 			return pChr->GetPlayer()->GetCid();
 	}
 
@@ -299,6 +302,10 @@ void CWeapon::Tick()
 void CWeapon::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
+		return;
+
+	CCharacter *pSnappingChar = GameServer()->GetPlayerChar(SnappingClient);
+	if(pSnappingChar && pSnappingChar->Team() != m_DDRaceTeam)
 		return;
 
 	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetId(), sizeof(CNetObj_Pickup)));
