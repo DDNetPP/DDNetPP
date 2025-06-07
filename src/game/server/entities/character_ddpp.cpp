@@ -548,7 +548,7 @@ void CCharacter::CosmeticTick()
 		if(m_AtomProjs.empty())
 		{
 			for(int i = 0; i < NUM_ATOMS; i++)
-				m_AtomProjs.push_back(new CStableProjectile(GameWorld(), i % 2 ? WEAPON_GRENADE : WEAPON_SHOTGUN));
+				m_AtomProjs.push_back(new CStableProjectile(GameWorld(), m_pPlayer->GetCid(), i % 2 ? WEAPON_GRENADE : WEAPON_SHOTGUN));
 			m_AtomPosition = 0;
 		}
 		if(++m_AtomPosition >= 60)
@@ -571,7 +571,7 @@ void CCharacter::CosmeticTick()
 		if(m_TrailProjs.empty())
 		{
 			for(int i = 0; i < NUM_TRAILS; i++)
-				m_TrailProjs.push_back(new CStableProjectile(GameWorld(), WEAPON_SHOTGUN));
+				m_TrailProjs.push_back(new CStableProjectile(GameWorld(), m_pPlayer->GetCid(), WEAPON_SHOTGUN));
 			m_TrailHistory.clear();
 			m_TrailHistory.emplace_front(m_Pos, 0.0f);
 			m_TrailHistory.emplace_front(m_Pos, NUM_TRAILS * TRAIL_DIST);

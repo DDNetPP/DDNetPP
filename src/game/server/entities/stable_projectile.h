@@ -5,6 +5,7 @@
 
 class CStableProjectile : public CEntity
 {
+	int m_OwnerId;
 	int m_Type;
 	vec2 m_LastResetPos;
 	int m_LastResetTick;
@@ -15,7 +16,7 @@ class CStableProjectile : public CEntity
 	void CalculateVel();
 
 public:
-	CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos = vec2());
+	CStableProjectile(CGameWorld *pGameWorld, int OwnerId, int Type, vec2 Pos = vec2());
 
 	virtual void Reset() override;
 	virtual void TickDeferred() override;

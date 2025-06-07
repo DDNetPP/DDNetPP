@@ -2,8 +2,8 @@
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
 
-CMeteor::CMeteor(CGameWorld *pGameWorld, vec2 Pos) :
-	CStableProjectile(pGameWorld, WEAPON_SHOTGUN, Pos)
+CMeteor::CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos) :
+	CStableProjectile(pGameWorld, WEAPON_SHOTGUN, OwnerId, Pos)
 {
 	m_Vel = vec2(0.1f, 0.1f);
 }

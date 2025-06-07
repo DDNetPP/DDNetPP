@@ -1,9 +1,10 @@
 #include "stable_projectile.h"
 #include <game/server/gamecontext.h>
 
-CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos) :
+CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int OwnerId, int Type, vec2 Pos) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
+	m_OwnerId = OwnerId;
 	m_Type = Type;
 
 	m_Pos = Pos;
@@ -90,6 +91,17 @@ void CStableProjectile::CalculateVel()
 void CStableProjectile::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
+		return;
+
+	CCharacter *pOwnerChar = nullptr;
+	if(m_OwnerId >= 0)
+		pOwnerChar = GameServer()->GetPlayerChar(m_OwnerId);
+
+	CClientMask TeamMask = CClientMask().set();
+	if(pOwnerChar && pOwnerChar->IsAlive())
+		TeamMask = pOwnerChar->TeamMask();
+
+	if(SnappingClient != SERVER_DEMO_CLIENT && !TeamMask.test(SnappingClient))
 		return;
 
 	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, GetId(), sizeof(CNetObj_Projectile)));

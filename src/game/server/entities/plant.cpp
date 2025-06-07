@@ -110,31 +110,31 @@ void CPlant::Tick()
 
 		if(m_GrowState == 1)
 		{
-			m_apPlantProj[0] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 10));
+			m_apPlantProj[0] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 10));
 		}
 		else if(m_GrowState == 2)
 		{
-			m_apPlantProj[1] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 28));
+			m_apPlantProj[1] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 28));
 		}
 		else if(m_GrowState == 3)
 		{
-			m_apPlantProj[2] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 45));
+			m_apPlantProj[2] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 45));
 		}
 		else if(m_GrowState == 4)
 		{
-			m_apPlantProj[3] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 56));
+			m_apPlantProj[3] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 56));
 		}
 		else if(m_GrowState == 5)
 		{
-			m_apPlantProj[4] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 63));
-			m_apPlantProj[5] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x - 5, m_Pos.y - 65));
-			m_apPlantProj[6] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + 8, m_Pos.y - 65));
+			m_apPlantProj[4] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 63));
+			m_apPlantProj[5] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x - 5, m_Pos.y - 65));
+			m_apPlantProj[6] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + 8, m_Pos.y - 65));
 		}
 		else if(m_GrowState == 6)
 		{
-			m_apPlantProj[7] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 68));
-			m_apPlantProj[8] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x - 8, m_Pos.y - 72));
-			m_apPlantProj[9] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + 10, m_Pos.y - 73));
+			m_apPlantProj[7] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 68));
+			m_apPlantProj[8] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x - 8, m_Pos.y - 72));
+			m_apPlantProj[9] = new CStableProjectile(&GameServer()->m_World, -1, WEAPON_SHOTGUN, vec2(m_Pos.x + 10, m_Pos.y - 73));
 		}
 	}
 }
