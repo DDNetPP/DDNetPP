@@ -12,60 +12,38 @@
 #include "player.h"
 #include "score.h"
 
-#include <optional>
-
-bool CheckClientId(int ClientId);
-
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(pSelf->DDPPCredits())
 		return;
 
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"DDNet is run by the DDNet staff (DDNet.org/staff)");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Great maps and many ideas from the great community");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Help and code by eeeee, HMH, east, CookieMichal, Learath2,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Savander, laxa, Tobii, BeaR, Wohoo, nuborn, timakro, Shiki,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"trml, Soreu, hi_leute_gll, Lady Saavik, Chairn, heinrich5991,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"swick, oy, necropotame, Ryozuki, Redix, d3fault, marcelherd,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"BannZay, ACTom, SiuFuWong, PathosEthosLogos, TsFreddie,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Jupeyy, noby, ChillerDragon, ZombieToad, weez15, z6zzz,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Piepow, QingGo, RafaelFF, sctt, jao, daverck, fokkonaut,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Bojidar, FallenKN, ardadem, archimede67, sirius1242, Aerll,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"trafilaw, Zwelf, Patiga, Konsti, ElXreno, MikiGamer,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Fireball, Banana090, axblk, yangfl, Kaffeine, Zodiac,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"c0d3d3v, GiuCcc, Ravie, Robyt3, simpygirl, sjrc6, Cellegen,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"srdante, Nouaa, Voxel, luk51, Vy0x2, Avolicious, louis,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Marmare314, hus3h, ArijanJ, tarunsamanta2k20, Possseidon,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"M0REKZ, Teero, furo, dobrykafe, Moiman, JSaurusRex,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Steinchen, ewancg, gerdoe-jr, BlaiZephyr, KebsCS, bencie,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"DynamoFox, MilkeeyCat, iMilchshake, SchrodingerZhu,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"catseyenebulous, Rei-Tw, Matodor, Emilcha, art0007i, SollyBunny,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"0xfaulty & others");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Based on DDRace by the DDRace developers,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"which is a mod of Teeworlds by the Teeworlds developers.");
+	static constexpr const char *CREDITS[] = {
+		"DDNet is run by the DDNet staff (DDNet.org/staff)",
+		"Great maps and many ideas from the great community",
+		"Help and code by eeeee, HMH, east, CookieMichal, Learath2,",
+		"Savander, laxa, Tobii, BeaR, Wohoo, nuborn, timakro, Shiki,",
+		"trml, Soreu, hi_leute_gll, Lady Saavik, Chairn, heinrich5991,",
+		"swick, oy, necropotame, Ryozuki, Redix, d3fault, marcelherd,",
+		"BannZay, ACTom, SiuFuWong, PathosEthosLogos, TsFreddie,",
+		"Jupeyy, noby, ChillerDragon, ZombieToad, weez15, z6zzz,",
+		"Piepow, QingGo, RafaelFF, sctt, jao, daverck, fokkonaut,",
+		"Bojidar, FallenKN, ardadem, archimede67, sirius1242, Aerll,",
+		"trafilaw, Zwelf, Patiga, Konsti, ElXreno, MikiGamer,",
+		"Fireball, Banana090, axblk, yangfl, Kaffeine, Zodiac,",
+		"c0d3d3v, GiuCcc, Ravie, Robyt3, simpygirl, sjrc6, Cellegen,",
+		"srdante, Nouaa, Voxel, luk51, Vy0x2, Avolicious, louis,",
+		"Marmare314, hus3h, ArijanJ, tarunsamanta2k20, Possseidon,",
+		"M0REKZ, Teero, furo, dobrykafe, Moiman, JSaurusRex,",
+		"Steinchen, ewancg, gerdoe-jr, BlaiZephyr, KebsCS, bencie,",
+		"DynamoFox, MilkeeyCat, iMilchshake, SchrodingerZhu,",
+		"catseyenebulous, Rei-Tw, Matodor, Emilcha, art0007i, SollyBunny,",
+		"0xfaulty & others",
+		"Based on DDRace by the DDRace developers,",
+		"which is a mod of Teeworlds by the Teeworlds developers.",
+	};
+	for(const char *pLine : CREDITS)
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", pLine);
 }
 
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
@@ -306,7 +284,7 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
+static void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
 {
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
@@ -346,7 +324,7 @@ void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
 	}
 }
 
-void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int PauseType)
+static void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int PauseType)
 {
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
@@ -917,7 +895,7 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	{
 		CCharacter *pChr = pPlayer->GetCharacter();
 		CCharacter *pSwapChr = pSwapPlayer->GetCharacter();
-		if(!pChr || !pSwapChr || pChr->m_DDRaceState != DDRACE_STARTED || pSwapChr->m_DDRaceState != DDRACE_STARTED)
+		if(!pChr || !pSwapChr || pChr->m_DDRaceState != ERaceState::STARTED || pSwapChr->m_DDRaceState != ERaceState::STARTED)
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You and other player need to have started the map");
 			return;
@@ -1611,7 +1589,7 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 
 		int Duration = 1;
 		if(pResult->NumArguments() > 1)
-			Duration = clamp(pResult->GetInteger(1), 1, 86400);
+			Duration = std::clamp(pResult->GetInteger(1), 1, 86400);
 
 		pPlayer->OverrideDefaultEmote(EmoteType, pSelf->Server()->Tick() + Duration * pSelf->Server()->TickSpeed());
 	}
@@ -1715,11 +1693,6 @@ void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_SpecTeam = !pPlayer->m_SpecTeam;
 }
 
-bool CheckClientId(int ClientId)
-{
-	return ClientId >= 0 && ClientId < MAX_CLIENTS;
-}
-
 void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -1752,7 +1725,7 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
-	if(pChr->m_DDRaceState != DDRACE_STARTED)
+	if(pChr->m_DDRaceState != ERaceState::STARTED)
 		return;
 
 	char aBufTime[32];
@@ -1775,7 +1748,7 @@ void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
-	if(pChr->m_DDRaceState != DDRACE_STARTED)
+	if(pChr->m_DDRaceState != ERaceState::STARTED)
 		return;
 
 	char aBufTime[32];
@@ -2487,7 +2460,7 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	int CurrTime = (pSelf->Server()->Tick() - pChr->m_StartTime) / pSelf->Server()->TickSpeed();
-	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == DDRACE_STARTED)
+	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == ERaceState::STARTED)
 	{
 		pPlayer->KillCharacter(WEAPON_SELF);
 	}

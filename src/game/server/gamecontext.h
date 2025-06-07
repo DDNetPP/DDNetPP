@@ -270,7 +270,7 @@ public:
 
 	void SnapSwitchers(int SnappingClient);
 	bool SnapLaserObject(const CSnapContext &Context, int SnapId, const vec2 &To, const vec2 &From, int StartTick, int Owner = -1, int LaserType = -1, int Subtype = -1, int SwitchNumber = -1) const;
-	bool SnapPickup(const CSnapContext &Context, int SnapId, const vec2 &Pos, int Type, int SubType, int SwitchNumber) const;
+	bool SnapPickup(const CSnapContext &Context, int SnapId, const vec2 &Pos, int Type, int SubType, int SwitchNumber, int Flags) const;
 
 	enum
 	{
@@ -391,7 +391,7 @@ public:
 
 private:
 	// starting 1 to make 0 the special value "no client id"
-	uint32_t NextUniqueClientId = 1;
+	uint32_t m_NextUniqueClientId = 1;
 	bool m_VoteWillPass;
 	CScore *m_pScore;
 
@@ -620,9 +620,15 @@ public:
 	inline bool IsSpecVote() const { return m_VoteType == VOTE_TYPE_SPECTATE; }
 
 	void SendRecord(int ClientId);
+	void SendFinish(int ClientId, float Time, float PreviousBestTime);
 	void OnSetAuthed(int ClientId, int Level) override;
 
 	void ResetTuning();
 };
+
+static inline bool CheckClientId(int ClientId)
+{
+	return ClientId >= 0 && ClientId < MAX_CLIENTS;
+}
 
 #endif

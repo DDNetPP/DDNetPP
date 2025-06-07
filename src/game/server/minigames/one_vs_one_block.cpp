@@ -11,6 +11,7 @@
 #include <game/server/player.h>
 #include <game/server/teams.h>
 
+#include "game/race_state.h"
 #include "one_vs_one_block.h"
 
 bool COneVsOneBlock::IsActive(int ClientId)
@@ -60,7 +61,7 @@ void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
 	if(pChr)
 	{
 		// force join team
-		pChr->m_DDRaceState = DDRACE_NONE;
+		pChr->m_DDRaceState = ERaceState::NONE;
 	}
 
 	if(!pGameState->m_DDRaceTeam)

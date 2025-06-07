@@ -11,6 +11,7 @@
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/minigame_base.h>
 
+#include "game/race_state.h"
 #include "gamecontext.h"
 #include "player.h"
 
@@ -414,7 +415,7 @@ void CPlayer::PlayerHumanLevelTick()
 			bool ChattedFor20TicksAndStopped =
 				m_InputTracker.TicksSpentChatting() > 20 && ((m_PlayerFlags & PLAYERFLAG_CHATTING) == 0);
 
-			if(GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
+			if(GetCharacter()->m_DDRaceState == ERaceState::FINISHED ||
 				m_Account.m_BlockPoints > 5 ||
 				ChattedFor20TicksAndStopped ||
 				IsLoggedIn())
@@ -655,7 +656,7 @@ float CPlayer::TaserFreezeTime()
 	if(pChr)
 		LastUse = pChr->m_LastTaserUse;
 
-	int Strength = clamp((int)((Server()->Tick() - LastUse) * 2 / Server()->TickSpeed()),
+	int Strength = std::clamp((int)((Server()->Tick() - LastUse) * 2 / Server()->TickSpeed()),
 		0,
 		m_Account.m_TaserLevel);
 

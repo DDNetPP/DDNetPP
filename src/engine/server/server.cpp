@@ -149,7 +149,7 @@ void CServerBan::ConBanExt(IConsole::IResult *pResult, void *pUser)
 	CServerBan *pThis = static_cast<CServerBan *>(pUser);
 
 	const char *pStr = pResult->GetString(0);
-	int Minutes = pResult->NumArguments() > 1 ? clamp(pResult->GetInteger(1), 0, 525600) : 10;
+	int Minutes = pResult->NumArguments() > 1 ? std::clamp(pResult->GetInteger(1), 0, 525600) : 10;
 	const char *pReason = pResult->NumArguments() > 2 ? pResult->GetString(2) : "Follow the server rules. Type /rules into the chat.";
 
 	if(str_isallnum(pStr))
@@ -1156,11 +1156,10 @@ int CServer::NewClientCallback(int ClientId, void *pUser, bool Sixup)
 	pThis->m_aClients[ClientId].m_DDNetVersionSettled = false;
 	mem_zero(&pThis->m_aClients[ClientId].m_Addr, sizeof(NETADDR));
 	pThis->m_aClients[ClientId].Reset();
+	pThis->m_aClients[ClientId].m_Sixup = Sixup;
 
 	pThis->GameServer()->TeehistorianRecordPlayerJoin(ClientId, Sixup);
 	pThis->Antibot()->OnEngineClientJoin(ClientId);
-
-	pThis->m_aClients[ClientId].m_Sixup = Sixup;
 
 #if defined(CONF_FAMILY_UNIX)
 	pThis->SendConnLoggingCommand(OPEN_SESSION, pThis->ClientAddr(ClientId));
@@ -2881,7 +2880,7 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 	if(m_PreviousDebugDummies == g_Config.m_DbgDummies && !ForceDisconnect)
 		return;
 
-	g_Config.m_DbgDummies = clamp(g_Config.m_DbgDummies, 0, MaxClients());
+	g_Config.m_DbgDummies = std::clamp(g_Config.m_DbgDummies, 0, MaxClients());
 	for(int DummyIndex = 0; DummyIndex < maximum(m_PreviousDebugDummies, g_Config.m_DbgDummies); ++DummyIndex)
 	{
 		const bool AddDummy = !ForceDisconnect && DummyIndex < g_Config.m_DbgDummies;
@@ -3019,7 +3018,7 @@ int CServer::Run()
 	}
 
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
-	m_pRegister = CreateRegister(&g_Config, m_pConsole, m_pEngine, &m_Http, this->Port(), m_NetServer.GetGlobalToken());
+	m_pRegister = CreateRegister(&g_Config, m_pConsole, m_pEngine, &m_Http, g_Config.m_SvRegisterPort > 0 ? g_Config.m_SvRegisterPort : this->Port(), m_NetServer.GetGlobalToken());
 
 	m_NetServer.SetCallbacks(NewClientCallback, NewClientNoAuthCallback, ClientRejoinCallback, DelClientCallback, this);
 
@@ -3311,14 +3310,15 @@ int CServer::Run()
 			}
 
 			// wait for incoming data
-			if(NonActive &&
+			if(NonActive && Config()->m_SvShutdownWhenEmpty)
+			{
+				m_RunServer = STOPPING;
+			}
+			else if(NonActive &&
 				!m_aDemoRecorder[RECORDER_MANUAL].IsRecording() &&
 				!m_aDemoRecorder[RECORDER_AUTO].IsRecording())
 			{
-				if(Config()->m_SvShutdownWhenEmpty)
-					m_RunServer = STOPPING;
-				else
-					PacketWaiting = net_socket_read_wait(m_NetServer.Socket(), 1000000);
+				PacketWaiting = net_socket_read_wait(m_NetServer.Socket(), 1000000);
 			}
 			else
 			{

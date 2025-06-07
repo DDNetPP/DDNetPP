@@ -19,8 +19,8 @@ int CCollision::GetCustTile(int x, int y)
 	if(!m_pTiles)
 		return 0;
 
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
+	int Nx = std::clamp(x / 32, 0, m_Width - 1);
+	int Ny = std::clamp(y / 32, 0, m_Height - 1);
 	int pos = Ny * m_Width + Nx;
 
 	return m_pTiles[pos].m_Index;
@@ -31,8 +31,8 @@ int CCollision::GetCustFTile(int x, int y)
 	if(!m_pFront)
 		return 0;
 
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
+	int Nx = std::clamp(x / 32, 0, m_Width - 1);
+	int Ny = std::clamp(y / 32, 0, m_Height - 1);
 	int pos = Ny * m_Width + Nx;
 
 	return m_pFront[pos].m_Index;

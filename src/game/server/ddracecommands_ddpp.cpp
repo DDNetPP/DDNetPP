@@ -87,7 +87,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // 	char aBuf[128];
 
 // 	if(pResult->NumArguments() == 1)
-// 		Seconds = clamp(pResult->GetInteger(0), -2, 9999);
+// 		Seconds = std::clamp(pResult->GetInteger(0), -2, 9999);
 
 // 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 // 	if(!pChr)
@@ -764,7 +764,7 @@ void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->RegisterBan(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->RegisterBan(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -778,7 +778,7 @@ void CGameContext::ConRegisterBanIp(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "register_bans",
 			"Invalid network address to RegisterBan");
 	}
-	pSelf->RegisterBan(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->RegisterBan(&Addr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pResult->GetString(0));
 }
 
@@ -840,7 +840,7 @@ void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->LoginBan(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->LoginBan(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -854,7 +854,7 @@ void CGameContext::ConLoginBanIp(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "login_ban",
 			"Invalid network address to LoginBan");
 	}
-	pSelf->LoginBan(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->LoginBan(&Addr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pResult->GetString(0));
 }
 
@@ -916,7 +916,7 @@ void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserDa
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->NameChangeMute(pAddr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->NameChangeMute(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -930,7 +930,7 @@ void CGameContext::ConNameChangeMuteIp(IConsole::IResult *pResult, void *pUserDa
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_change_mutes",
 			"Invalid network address to NameChangeMute");
 	}
-	pSelf->NameChangeMute(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->NameChangeMute(&Addr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pResult->GetString(0));
 }
 

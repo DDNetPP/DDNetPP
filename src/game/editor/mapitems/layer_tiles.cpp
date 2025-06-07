@@ -89,10 +89,25 @@ void CLayerTiles::SetTile(int x, int y, CTile Tile)
 
 	if(m_FillGameTile != -1 && m_LiveGameTiles)
 	{
-		std::shared_ptr<CLayerTiles> pGLayer = m_pEditor->m_Map.m_pGameLayer;
+		std::shared_ptr<CLayerTiles> pLayer = m_pEditor->m_Map.m_pGameLayer;
+		if(m_FillGameTile == TILE_TELECHECKIN || m_FillGameTile == TILE_TELECHECKINEVIL)
+		{
+			if(!m_pEditor->m_Map.m_pTeleLayer)
+			{
+				std::shared_ptr<CLayerTele> pLayerTele = std::make_shared<CLayerTele>(m_pEditor, m_Width, m_Height);
+				m_pEditor->m_Map.MakeTeleLayer(pLayerTele);
+				m_pEditor->m_Map.m_pGameGroup->AddLayer(pLayerTele);
+				int GameGroupIndex = std::find(m_pEditor->m_Map.m_vpGroups.begin(), m_pEditor->m_Map.m_vpGroups.end(), m_pEditor->m_Map.m_pGameGroup) - m_pEditor->m_Map.m_vpGroups.begin();
+				int LayerIndex = m_pEditor->m_Map.m_vpGroups[GameGroupIndex]->m_vpLayers.size() - 1;
+				m_pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionAddLayer>(m_pEditor, GameGroupIndex, LayerIndex));
+			}
+
+			pLayer = m_pEditor->m_Map.m_pTeleLayer;
+		}
+
 		bool HasTile = Tile.m_Index != 0;
 		const CTile ResultTile = {(unsigned char)(HasTile ? m_FillGameTile : TILE_AIR)};
-		pGLayer->SetTile(x, y, ResultTile);
+		pLayer->SetTile(x, y, ResultTile);
 	}
 }
 
@@ -333,9 +348,10 @@ int CLayerTiles::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 				}
 				else
 				{
-					CTile Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					if(IsValidTeleTile(Tile.m_Index) && IsTeleTileNumberUsedAny(Tile.m_Index))
 					{
+						pGrabbed->m_pTeleTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
 						pGrabbed->m_pTeleTile[y * pGrabbed->m_Width + x].m_Number = IsTeleTileCheckpoint(Tile.m_Index) ? m_pEditor->m_TeleCheckpointNumber : m_pEditor->m_TeleNumber;
 					}
 				}
@@ -374,9 +390,10 @@ int CLayerTiles::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 				}
 				else
 				{
-					CTile Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					if(IsValidSpeedupTile(Tile.m_Index))
 					{
+						pGrabbed->m_pSpeedupTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
 						pGrabbed->m_pSpeedupTile[y * pGrabbed->m_Width + x].m_Angle = m_pEditor->m_SpeedupAngle;
 						pGrabbed->m_pSpeedupTile[y * pGrabbed->m_Width + x].m_Force = m_pEditor->m_SpeedupForce;
 						pGrabbed->m_pSpeedupTile[y * pGrabbed->m_Width + x].m_MaxSpeed = m_pEditor->m_SpeedupMaxSpeed;
@@ -416,11 +433,13 @@ int CLayerTiles::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 				}
 				else
 				{
-					CTile Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					if(IsValidSwitchTile(Tile.m_Index))
 					{
+						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
 						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_SwitchNum;
 						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Delay = m_pEditor->m_SwitchDelay;
+						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
 					}
 				}
 			}
@@ -455,9 +474,10 @@ int CLayerTiles::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 				}
 				else
 				{
-					CTile Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
+					const CTile &Tile = pGrabbed->m_pTiles[y * pGrabbed->m_Width + x];
 					if(IsValidTuneTile(Tile.m_Index))
 					{
+						pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
 						pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_TuningNum;
 					}
 				}
@@ -1104,7 +1124,7 @@ CUi::EPopupMenuFunctionResult CLayerTiles::RenderProperties(CUIRect *pToolBox)
 	}
 	else if(Prop == ETilesProp::PROP_COLOR_ENV)
 	{
-		int Index = clamp(NewVal - 1, -1, (int)m_pEditor->m_Map.m_vpEnvelopes.size() - 1);
+		int Index = std::clamp(NewVal - 1, -1, (int)m_pEditor->m_Map.m_vpEnvelopes.size() - 1);
 		const int Step = (Index - m_ColorEnv) % 2;
 		if(Step != 0)
 		{

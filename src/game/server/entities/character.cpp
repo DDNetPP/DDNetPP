@@ -194,7 +194,7 @@ void CCharacter::SetSuper(bool Super)
 	{
 		m_TeamBeforeSuper = Team();
 		Teams()->SetCharacterTeam(GetPlayer()->GetCid(), TEAM_SUPER);
-		m_DDRaceState = DDRACE_CHEAT;
+		m_DDRaceState = ERaceState::CHEATED;
 	}
 	else if(!Super && WasSuper)
 	{
@@ -989,7 +989,7 @@ bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_Health >= 10)
 		return false;
-	m_Health = clamp(m_Health + Amount, 0, 10);
+	m_Health = std::clamp(m_Health + Amount, 0, 10);
 	return true;
 }
 
@@ -997,7 +997,7 @@ bool CCharacter::IncreaseArmor(int Amount)
 {
 	if(m_Armor >= 10)
 		return false;
-	m_Armor = clamp(m_Armor + Amount, 0, 10);
+	m_Armor = std::clamp(m_Armor + Amount, 0, 10);
 	return true;
 }
 
@@ -1329,9 +1329,9 @@ void CCharacter::Snap(int SnappingClient)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_INVINCIBLE;
 	if(m_Core.m_EndlessHook)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_ENDLESS_HOOK;
-	if(m_Core.m_CollisionDisabled || !Tuning()->m_PlayerCollision)
+	if(m_Core.m_CollisionDisabled || !GetTuning(m_TuneZone)->m_PlayerCollision)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_COLLISION_DISABLED;
-	if(m_Core.m_HookHitDisabled || !Tuning()->m_PlayerHooking)
+	if(m_Core.m_HookHitDisabled || !GetTuning(m_TuneZone)->m_PlayerHooking)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_HOOK_HIT_DISABLED;
 	if(m_Core.m_EndlessJump)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_ENDLESS_JUMP;
@@ -1469,7 +1469,7 @@ void CCharacter::HandleBroadcast()
 {
 	CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCid());
 
-	if(m_DDRaceState == DDRACE_STARTED && m_pPlayer->GetClientVersion() == VERSION_VANILLA &&
+	if(m_DDRaceState == ERaceState::STARTED && m_pPlayer->GetClientVersion() == VERSION_VANILLA &&
 		m_LastTimeCpBroadcasted != m_LastTimeCp && m_LastTimeCp > -1 &&
 		m_TimeCpBroadcastEndTick > Server()->Tick() && pData->m_BestTime && pData->m_aBestTimeCp[m_LastTimeCp] != 0)
 	{
@@ -1480,7 +1480,7 @@ void CCharacter::HandleBroadcast()
 		m_LastTimeCpBroadcasted = m_LastTimeCp;
 		m_LastBroadcast = Server()->Tick();
 	}
-	else if((m_pPlayer->m_TimerType == CPlayer::TIMERTYPE_BROADCAST || m_pPlayer->m_TimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) && m_DDRaceState == DDRACE_STARTED && m_LastBroadcast + Server()->TickSpeed() * g_Config.m_SvTimeInBroadcastInterval <= Server()->Tick())
+	else if((m_pPlayer->m_TimerType == CPlayer::TIMERTYPE_BROADCAST || m_pPlayer->m_TimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) && m_DDRaceState == ERaceState::STARTED && m_LastBroadcast + Server()->TickSpeed() * g_Config.m_SvTimeInBroadcastInterval <= Server()->Tick())
 	{
 		char aBuf[32];
 		int Time = (int64_t)100 * ((float)(Server()->Tick() - m_StartTime) / ((float)Server()->TickSpeed()));
@@ -1623,7 +1623,7 @@ bool CCharacter::IsSwitchActiveCb(int Number, void *pUser)
 
 void CCharacter::SetTimeCheckpoint(int TimeCheckpoint)
 {
-	if(TimeCheckpoint > -1 && m_DDRaceState == DDRACE_STARTED && m_aCurrentTimeCp[TimeCheckpoint] == 0.0f && m_Time != 0.0f)
+	if(TimeCheckpoint > -1 && m_DDRaceState == ERaceState::STARTED && m_aCurrentTimeCp[TimeCheckpoint] == 0.0f && m_Time != 0.0f)
 	{
 		m_LastTimeCp = TimeCheckpoint;
 		m_aCurrentTimeCp[m_LastTimeCp] = m_Time;
@@ -2024,13 +2024,13 @@ void CCharacter::HandleTiles(int Index)
 		m_LastBonus = false;
 	}
 
-	int z = Collision()->IsTeleport(MapIndex);
-	if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons && z && !Collision()->TeleOuts(z - 1).empty())
+	int TeleNumber = Collision()->IsTeleport(MapIndex);
+	if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons && TeleNumber && !Collision()->TeleOuts(TeleNumber - 1).empty())
 	{
 		if(m_Core.m_Super || m_Core.m_Invincible)
 			return;
-		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(z - 1).size());
-		m_Core.m_Pos = Collision()->TeleOuts(z - 1)[TeleOut];
+		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(TeleNumber - 1).size());
+		m_Core.m_Pos = Collision()->TeleOuts(TeleNumber - 1)[TeleOut];
 		if(!g_Config.m_SvTeleportHoldHook)
 		{
 			ResetHook();
@@ -2039,13 +2039,13 @@ void CCharacter::HandleTiles(int Index)
 			ResetPickups();
 		return;
 	}
-	int evilz = Collision()->IsEvilTeleport(MapIndex);
-	if(evilz && !Collision()->TeleOuts(evilz - 1).empty())
+	int EvilTeleNumber = Collision()->IsEvilTeleport(MapIndex);
+	if(EvilTeleNumber && !Collision()->TeleOuts(EvilTeleNumber - 1).empty())
 	{
 		if(m_Core.m_Super || m_Core.m_Invincible)
 			return;
-		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(evilz - 1).size());
-		m_Core.m_Pos = Collision()->TeleOuts(evilz - 1)[TeleOut];
+		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(EvilTeleNumber - 1).size());
+		m_Core.m_Pos = Collision()->TeleOuts(EvilTeleNumber - 1)[TeleOut];
 		if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons)
 		{
 			m_Core.m_Vel = vec2(0, 0);
@@ -2575,7 +2575,7 @@ void CCharacter::Pause(bool Pause)
 void CCharacter::DDRaceInit()
 {
 	m_Paused = false;
-	m_DDRaceState = DDRACE_NONE;
+	m_DDRaceState = ERaceState::NONE;
 	m_PrevPos = m_Pos;
 	for(bool &Set : m_SetSavePos)
 		Set = false;

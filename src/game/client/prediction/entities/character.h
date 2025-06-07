@@ -7,6 +7,7 @@
 
 #include <game/gamecore.h>
 #include <game/generated/protocol.h>
+#include <game/race_state.h>
 
 enum
 {
@@ -68,6 +69,7 @@ public:
 	bool Freeze();
 	bool UnFreeze();
 	void GiveAllWeapons();
+	void ResetPickups();
 	int Team();
 	bool CanCollide(int ClientId) override;
 	bool SameTeam(int ClientId);
@@ -180,14 +182,6 @@ private:
 
 	int m_LastWeaponSwitchTick;
 	int m_LastTuneZoneTick;
-};
-
-enum
-{
-	DDRACE_NONE = 0,
-	DDRACE_STARTED,
-	DDRACE_CHEAT, // no time and won't start again unless ordered by a mod or death
-	DDRACE_FINISHED
 };
 
 #endif

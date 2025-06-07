@@ -85,6 +85,10 @@
 #include <sys/filio.h>
 #endif
 
+#if defined(CONF_PLATFORM_EMSCRIPTEN)
+#include <emscripten/emscripten.h>
+#endif
+
 static NETSTATS network_stats = {0};
 
 #define VLEN 128
@@ -838,6 +842,11 @@ void *thread_init(void (*threadfunc)(void *), void *u, const char *name)
 #endif
 		pthread_t id;
 		dbg_assert(pthread_create(&id, &attr, thread_run, data) == 0, "pthread_create failure");
+#if defined(CONF_PLATFORM_EMSCRIPTEN)
+		// Return control to the browser's main thread to allow the pthread to be started,
+		// otherwise we deadlock when waiting for a thread immediately after starting it.
+		emscripten_sleep(0);
+#endif
 		return (void *)id;
 	}
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -2087,6 +2096,9 @@ void net_init()
 	WSADATA wsa_data;
 	dbg_assert(WSAStartup(MAKEWORD(1, 1), &wsa_data) == 0, "WSAStartup failure");
 #endif
+#if defined(CONF_WEBSOCKETS)
+	websocket_init();
+#endif
 }
 
 #if defined(CONF_FAMILY_UNIX)
@@ -2341,20 +2353,28 @@ int fs_makedir(const char *path)
 #if defined(CONF_FAMILY_WINDOWS)
 	const std::wstring wide_path = windows_utf8_to_wide(path);
 	if(CreateDirectoryW(wide_path.c_str(), nullptr) != 0)
+	{
 		return 0;
-	if(GetLastError() == ERROR_ALREADY_EXISTS)
+	}
+	const DWORD error = GetLastError();
+	if(error == ERROR_ALREADY_EXISTS)
+	{
 		return 0;
+	}
+	log_error("filesystem", "Failed to create folder '%s' (%ld '%s')", path, error, windows_format_system_message(error).c_str());
 	return -1;
 #else
-#ifdef CONF_PLATFORM_HAIKU
-	struct stat st;
-	if(stat(path, &st) == 0)
+#if defined(CONF_PLATFORM_HAIKU)
+	if(fs_is_dir(path))
+	{
 		return 0;
+	}
 #endif
-	if(mkdir(path, 0755) == 0)
+	if(mkdir(path, 0755) == 0 || errno == EEXIST)
+	{
 		return 0;
-	if(errno == EEXIST)
-		return 0;
+	}
+	log_error("filesystem", "Failed to create folder '%s' (%d '%s')", path, errno, strerror(errno));
 	return -1;
 #endif
 }
@@ -2364,11 +2384,22 @@ int fs_removedir(const char *path)
 #if defined(CONF_FAMILY_WINDOWS)
 	const std::wstring wide_path = windows_utf8_to_wide(path);
 	if(RemoveDirectoryW(wide_path.c_str()) != 0)
+	{
 		return 0;
+	}
+	const DWORD error = GetLastError();
+	if(error == ERROR_FILE_NOT_FOUND)
+	{
+		return 0;
+	}
+	log_error("filesystem", "Failed to remove folder '%s' (%ld '%s')", path, error, windows_format_system_message(error).c_str());
 	return -1;
 #else
-	if(rmdir(path) == 0)
+	if(rmdir(path) == 0 || errno == ENOENT)
+	{
 		return 0;
+	}
+	log_error("filesystem", "Failed to remove folder '%s' (%d '%s')", path, errno, strerror(errno));
 	return -1;
 #endif
 }
@@ -2499,10 +2530,59 @@ int fs_parent_dir(char *path)
 int fs_remove(const char *filename)
 {
 #if defined(CONF_FAMILY_WINDOWS)
+	if(fs_is_dir(filename))
+	{
+		// Not great, but otherwise using this function on a folder would only rename the folder but fail to delete it.
+		return 1;
+	}
 	const std::wstring wide_filename = windows_utf8_to_wide(filename);
-	return DeleteFileW(wide_filename.c_str()) == 0;
+
+	unsigned random_num = secure_rand();
+	std::wstring wide_filename_temp;
+	do
+	{
+		char suffix[64];
+		str_format(suffix, sizeof(suffix), ".%08X.toberemoved", random_num);
+		wide_filename_temp = wide_filename + windows_utf8_to_wide(suffix);
+		++random_num;
+	} while(GetFileAttributesW(wide_filename_temp.c_str()) != INVALID_FILE_ATTRIBUTES);
+
+	// The DeleteFileW function only marks the file for deletion but the deletion may not take effect immediately, which can
+	// cause subsequent operations using this filename to fail until all handles are closed. The MoveFileExW function with the
+	// MOVEFILE_WRITE_THROUGH flag is guaranteed to wait for the file to be moved on disk, so we first rename the file to be
+	// deleted to a random temporary name and then mark that for deletion, to ensure that the filename is usable immediately.
+	if(MoveFileExW(wide_filename.c_str(), wide_filename_temp.c_str(), MOVEFILE_WRITE_THROUGH) == 0)
+	{
+		const DWORD error = GetLastError();
+		if(error == ERROR_FILE_NOT_FOUND)
+		{
+			return 0; // Success: Renaming failed because the original file did not exist.
+		}
+		const std::string filename_temp = windows_wide_to_utf8(wide_filename_temp.c_str()).value_or("(invalid filename)");
+		log_error("filesystem", "Failed to rename file '%s' to '%s' for removal (%ld '%s')", filename, filename_temp.c_str(), error, windows_format_system_message(error).c_str());
+		return 1;
+	}
+	if(DeleteFileW(wide_filename_temp.c_str()) != 0)
+	{
+		return 0; // Success: Marked the renamed file for deletion successfully.
+	}
+	const DWORD error = GetLastError();
+	if(error == ERROR_FILE_NOT_FOUND)
+	{
+		return 0; // Success: Another process deleted the renamed file we were about to delete?!
+	}
+	const std::string filename_temp = windows_wide_to_utf8(wide_filename_temp.c_str()).value_or("(invalid filename)");
+	log_error("filesystem", "Failed to remove file '%s' (%ld '%s')", filename_temp.c_str(), error, windows_format_system_message(error).c_str());
+	// Success: While the temporary could not be deleted, this is also considered success because the original file does not exist anymore.
+	//          Callers of this function expect that the original file does not exist anymore if and only if the function succeeded.
+	return 0;
 #else
-	return unlink(filename) != 0;
+	if(unlink(filename) == 0 || errno == ENOENT)
+	{
+		return 0;
+	}
+	log_error("filesystem", "Failed to remove file '%s' (%d '%s')", filename, errno, strerror(errno));
+	return 1;
 #endif
 }
 
@@ -2511,13 +2591,21 @@ int fs_rename(const char *oldname, const char *newname)
 #if defined(CONF_FAMILY_WINDOWS)
 	const std::wstring wide_oldname = windows_utf8_to_wide(oldname);
 	const std::wstring wide_newname = windows_utf8_to_wide(newname);
-	if(MoveFileExW(wide_oldname.c_str(), wide_newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH) == 0)
-		return 1;
+	if(MoveFileExW(wide_oldname.c_str(), wide_newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED | MOVEFILE_WRITE_THROUGH) != 0)
+	{
+		return 0;
+	}
+	const DWORD error = GetLastError();
+	log_error("filesystem", "Failed to rename file '%s' to '%s' (%ld '%s')", oldname, newname, error, windows_format_system_message(error).c_str());
+	return 1;
 #else
-	if(rename(oldname, newname) != 0)
-		return 1;
+	if(rename(oldname, newname) == 0)
+	{
+		return 0;
+	}
+	log_error("filesystem", "Failed to rename file '%s' to '%s' (%d '%s')", oldname, newname, errno, strerror(errno));
+	return 1;
 #endif
-	return 0;
 }
 
 int fs_file_time(const char *name, time_t *created, time_t *modified)
@@ -2576,52 +2664,50 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 {
 	fd_set readfds;
 	FD_ZERO(&readfds);
-	int sockid = 0;
+
+	int maxfd = -1;
 	if(sock->ipv4sock >= 0)
 	{
 		FD_SET(sock->ipv4sock, &readfds);
-		sockid = sock->ipv4sock;
+		maxfd = sock->ipv4sock;
 	}
 	if(sock->ipv6sock >= 0)
 	{
 		FD_SET(sock->ipv6sock, &readfds);
-		if(sock->ipv6sock > sockid)
-			sockid = sock->ipv6sock;
+		maxfd = std::max(maxfd, sock->ipv6sock);
 	}
 #if defined(CONF_WEBSOCKETS)
 	if(sock->web_ipv4sock >= 0)
 	{
-		int maxfd = websocket_fd_set(sock->web_ipv4sock, &readfds);
-		if(maxfd > sockid)
-		{
-			sockid = maxfd;
-			FD_SET(sockid, &readfds);
-		}
+		maxfd = std::max(maxfd, websocket_fd_set(sock->web_ipv4sock, &readfds));
 	}
 #endif
+	if(maxfd < 0)
+	{
+		return 0;
+	}
 
 	/* don't care about writefds and exceptfds */
 	if(time < 0)
 	{
-		select(sockid + 1, &readfds, nullptr, nullptr, nullptr);
+		select(maxfd + 1, &readfds, nullptr, nullptr, nullptr);
 	}
 	else
 	{
 		struct timeval tv;
 		tv.tv_sec = time / 1000000;
 		tv.tv_usec = time % 1000000;
-		select(sockid + 1, &readfds, nullptr, nullptr, &tv);
+		select(maxfd + 1, &readfds, nullptr, nullptr, &tv);
 	}
 
 	if(sock->ipv4sock >= 0 && FD_ISSET(sock->ipv4sock, &readfds))
 		return 1;
-#if defined(CONF_WEBSOCKETS)
-	if(sock->web_ipv4sock >= 0 && FD_ISSET(sockid, &readfds))
-		return 1;
-#endif
 	if(sock->ipv6sock >= 0 && FD_ISSET(sock->ipv6sock, &readfds))
 		return 1;
-
+#if defined(CONF_WEBSOCKETS)
+	if(sock->web_ipv4sock >= 0 && websocket_fd_get(sock->web_ipv4sock, &readfds))
+		return 1;
+#endif
 	return 0;
 }
 
@@ -2796,6 +2882,7 @@ int str_format_v(char *buffer, int buffer_size, const char *format, va_list args
 	return str_utf8_fix_truncation(buffer);
 }
 
+#if !defined(CONF_DEBUG)
 int str_format_int(char *buffer, size_t buffer_size, int value)
 {
 	buffer[0] = '\0'; // Fix false positive clang-analyzer-core.UndefinedBinaryOperatorResult when using result
@@ -2803,6 +2890,7 @@ int str_format_int(char *buffer, size_t buffer_size, int value)
 	result.ptr[0] = '\0';
 	return result.ptr - buffer;
 }
+#endif
 
 #undef str_format
 int str_format(char *buffer, int buffer_size, const char *format, ...)

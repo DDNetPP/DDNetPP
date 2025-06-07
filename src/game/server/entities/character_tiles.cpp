@@ -12,6 +12,7 @@
 #include <game/server/player.h>
 
 #include "character.h"
+#include "game/race_state.h"
 
 bool CCharacter::IsOnTile(int Tile) const
 {
@@ -273,7 +274,7 @@ void CCharacter::OnTileFinish()
 void CCharacter::OnTileSpecialFinish()
 {
 	char aBuf[256];
-	if(m_DDRaceState == DDRACE_STARTED)
+	if(m_DDRaceState == ERaceState::STARTED)
 	{
 		float Time = (float)(Server()->Tick() - Teams()->GetStartTime(GetPlayer())) / ((float)Server()->TickSpeed());
 		if(Time < 0.000001f)

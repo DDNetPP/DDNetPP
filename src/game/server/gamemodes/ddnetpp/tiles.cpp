@@ -3,6 +3,7 @@
 #include <game/server/gamemodes/DDRace.h>
 
 #include "ddnetpp.h"
+#include "game/race_state.h"
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
 {
@@ -32,7 +33,7 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	int FTile3 = GameServer()->Collision()->GetFrontTileIndex(S3);
 	int FTile4 = GameServer()->Collision()->GetFrontTileIndex(S4);
 
-	const int PlayerDDRaceState = pChr->m_DDRaceState;
+	const ERaceState PlayerDDRaceState = pChr->m_DDRaceState;
 
 	// solo part
 	if(((TileIndex == TILE_SOLO_ENABLE) || (TileFIndex == TILE_SOLO_ENABLE)) && !Teams().m_Core.GetSolo(ClientId))
@@ -61,18 +62,46 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
 }
 
-void CGameControllerDDNetPP::HandleCharacterTilesDDPP(class CCharacter *pChr, int TileIndex, int TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState)
+void CGameControllerDDNetPP::HandleCharacterTilesDDPP(
+	class CCharacter *pChr,
+	int TileIndex,
+	int TileFIndex,
+	int Tile1,
+	int Tile2,
+	int Tile3,
+	int Tile4,
+	int FTile1,
+	int FTile2,
+	int FTile3,
+	int FTile4,
+	ERaceState PlayerDDRaceState)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
 	int ClientId = pPlayer->GetCid();
 
 	// start
-	if(((TileIndex == TILE_START) || (TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GameServer()->GetDDRaceTeam(ClientId) && g_Config.m_SvTeam != 3)))
+	if(
+		(
+			(TileIndex == TILE_START) ||
+			(TileFIndex == TILE_START) ||
+			FTile1 == TILE_START ||
+			FTile2 == TILE_START ||
+			FTile3 == TILE_START ||
+			FTile4 == TILE_START ||
+			Tile1 == TILE_START ||
+			Tile2 == TILE_START ||
+			Tile3 == TILE_START ||
+			Tile4 == TILE_START) &&
+		(PlayerDDRaceState == ERaceState::NONE ||
+			PlayerDDRaceState == ERaceState::FINISHED ||
+			(PlayerDDRaceState == ERaceState::STARTED &&
+				!GameServer()->GetDDRaceTeam(ClientId) &&
+				g_Config.m_SvTeam != 3)))
 	{
 		pChr->OnTileStart();
 	}
 	// finish
-	if(((TileIndex == TILE_FINISH) || (TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == DDRACE_STARTED)
+	if(((TileIndex == TILE_FINISH) || (TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == ERaceState::STARTED)
 	{
 		pChr->OnTileFinish();
 	}

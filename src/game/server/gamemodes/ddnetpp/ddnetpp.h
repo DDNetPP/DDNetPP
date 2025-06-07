@@ -2,6 +2,7 @@
 #define GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 
 #include "../DDRace.h"
+#include "game/race_state.h"
 
 class CGameControllerDDNetPP : public CGameControllerDDRace
 {
@@ -62,7 +63,19 @@ public:
 
 	// tiles.cpp
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
-	void HandleCharacterTilesDDPP(class CCharacter *pChr, int TileIndex, int TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState);
+	void HandleCharacterTilesDDPP(
+		class CCharacter *pChr,
+		int TileIndex,
+		int TileFIndex,
+		int Tile1,
+		int Tile2,
+		int Tile3,
+		int Tile4,
+		int FTile1,
+		int FTile2,
+		int FTile3,
+		int FTile4,
+		ERaceState PlayerDDRaceState);
 	void HandleCosmeticTiles(class CCharacter *pChr);
 
 	// returns true if it killed

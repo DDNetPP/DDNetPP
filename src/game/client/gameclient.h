@@ -251,6 +251,9 @@ private:
 	bool m_GamePaused = false;
 	int m_PrevLocalId = -1;
 
+	// Preserved for spectating when snap data unavailable
+	int m_aLocalStrongWeakId[NUM_DUMMIES];
+
 public:
 	IKernel *Kernel() { return IInterface::Kernel(); }
 	IEngine *Engine() const { return m_pEngine; }
@@ -292,6 +295,7 @@ public:
 		return m_NetObjHandler.NumObjCorrections();
 	}
 	const char *NetobjCorrectedOn() { return m_NetObjHandler.CorrectedObjOn(); }
+	int LocalStrongWeakId(int Dummy) const { return m_aLocalStrongWeakId[Dummy]; }
 
 	bool m_SuppressEvents;
 	bool m_NewTick;
@@ -836,7 +840,8 @@ public:
 		IGraphics::CTextureHandle m_SpriteParticleSnowflake;
 		IGraphics::CTextureHandle m_SpriteParticleSparkle;
 		IGraphics::CTextureHandle m_SpritePulley;
-		IGraphics::CTextureHandle m_aSpriteParticles[3];
+		IGraphics::CTextureHandle m_SpriteHectagon;
+		IGraphics::CTextureHandle m_aSpriteParticles[4];
 	};
 
 	SClientExtrasSkin m_ExtrasSkin;

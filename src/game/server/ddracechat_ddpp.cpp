@@ -398,7 +398,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	int PageCounter = 1;
 	int Page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
 	int Pages = 10;
-	Page = clamp(Page, 1, Pages);
+	Page = std::clamp(Page, 1, Pages);
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "page %d/%d '/changelog <page>'", Page, Pages);
 

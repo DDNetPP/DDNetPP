@@ -338,8 +338,8 @@ int CCollision::GetTile(int x, int y) const
 	if(!m_pTiles)
 		return 0;
 
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
+	int Nx = std::clamp(x / 32, 0, m_Width - 1);
+	int Ny = std::clamp(y / 32, 0, m_Height - 1);
 	int pos = Ny * m_Width + Nx;
 
 	if(m_pTiles[pos].m_Index >= TILE_SOLID && m_pTiles[pos].m_Index <= TILE_NOLASER)
@@ -552,8 +552,8 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 	if(Distance > 0.00001f)
 	{
 		float Fraction = 1.0f / (float)(Max + 1);
-		float ElasticityX = clamp(Elasticity.x, -1.0f, 1.0f);
-		float ElasticityY = clamp(Elasticity.y, -1.0f, 1.0f);
+		float ElasticityX = std::clamp(Elasticity.x, -1.0f, 1.0f);
+		float ElasticityY = std::clamp(Elasticity.y, -1.0f, 1.0f);
 
 		for(int i = 0; i <= Max; i++)
 		{
@@ -814,8 +814,8 @@ int CCollision::GetSwitchDelay(int Index) const
 
 int CCollision::MoverSpeed(int x, int y, vec2 *pSpeed) const
 {
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
+	int Nx = std::clamp(x / 32, 0, m_Width - 1);
+	int Ny = std::clamp(y / 32, 0, m_Height - 1);
 	int Index = m_pTiles[Ny * m_Width + Nx].m_Index;
 
 	if(Index != TILE_CP && Index != TILE_CP_F)
@@ -856,8 +856,8 @@ int CCollision::MoverSpeed(int x, int y, vec2 *pSpeed) const
 
 int CCollision::GetPureMapIndex(float x, float y) const
 {
-	int Nx = clamp(round_to_int(x) / 32, 0, m_Width - 1);
-	int Ny = clamp(round_to_int(y) / 32, 0, m_Height - 1);
+	int Nx = std::clamp(round_to_int(x) / 32, 0, m_Width - 1);
+	int Ny = std::clamp(round_to_int(y) / 32, 0, m_Height - 1);
 	return Ny * m_Width + Nx;
 }
 
@@ -954,8 +954,8 @@ bool CCollision::TileExistsNext(int Index) const
 
 int CCollision::GetMapIndex(vec2 Pos) const
 {
-	int Nx = clamp((int)Pos.x / 32, 0, m_Width - 1);
-	int Ny = clamp((int)Pos.y / 32, 0, m_Height - 1);
+	int Nx = std::clamp((int)Pos.x / 32, 0, m_Width - 1);
+	int Ny = std::clamp((int)Pos.y / 32, 0, m_Height - 1);
 	int Index = Ny * m_Width + Nx;
 
 	if(TileExists(Index))
@@ -971,8 +971,8 @@ std::vector<int> CCollision::GetMapIndices(vec2 PrevPos, vec2 Pos, unsigned MaxI
 	int End(d + 1);
 	if(!d)
 	{
-		int Nx = clamp((int)Pos.x / 32, 0, m_Width - 1);
-		int Ny = clamp((int)Pos.y / 32, 0, m_Height - 1);
+		int Nx = std::clamp((int)Pos.x / 32, 0, m_Width - 1);
+		int Ny = std::clamp((int)Pos.y / 32, 0, m_Height - 1);
 		int Index = Ny * m_Width + Nx;
 
 		if(TileExists(Index))
@@ -990,8 +990,8 @@ std::vector<int> CCollision::GetMapIndices(vec2 PrevPos, vec2 Pos, unsigned MaxI
 		{
 			float a = i / d;
 			vec2 Tmp = mix(PrevPos, Pos, a);
-			int Nx = clamp((int)Tmp.x / 32, 0, m_Width - 1);
-			int Ny = clamp((int)Tmp.y / 32, 0, m_Height - 1);
+			int Nx = std::clamp((int)Tmp.x / 32, 0, m_Width - 1);
+			int Ny = std::clamp((int)Tmp.y / 32, 0, m_Height - 1);
 			int Index = Ny * m_Width + Nx;
 			if(TileExists(Index) && LastIndex != Index)
 			{
@@ -1055,8 +1055,8 @@ int CCollision::GetIndex(vec2 PrevPos, vec2 Pos) const
 
 	if(!Distance)
 	{
-		int Nx = clamp((int)Pos.x / 32, 0, m_Width - 1);
-		int Ny = clamp((int)Pos.y / 32, 0, m_Height - 1);
+		int Nx = std::clamp((int)Pos.x / 32, 0, m_Width - 1);
+		int Ny = std::clamp((int)Pos.y / 32, 0, m_Height - 1);
 
 		if((m_pTele) ||
 			(m_pSpeedup && m_pSpeedup[Ny * m_Width + Nx].m_Force > 0))
@@ -1069,8 +1069,8 @@ int CCollision::GetIndex(vec2 PrevPos, vec2 Pos) const
 	{
 		float a = (float)i / Distance;
 		vec2 Tmp = mix(PrevPos, Pos, a);
-		int Nx = clamp((int)Tmp.x / 32, 0, m_Width - 1);
-		int Ny = clamp((int)Tmp.y / 32, 0, m_Height - 1);
+		int Nx = std::clamp((int)Tmp.x / 32, 0, m_Width - 1);
+		int Ny = std::clamp((int)Tmp.y / 32, 0, m_Height - 1);
 		if((m_pTele) ||
 			(m_pSpeedup && m_pSpeedup[Ny * m_Width + Nx].m_Force > 0))
 		{
@@ -1092,8 +1092,8 @@ int CCollision::GetFrontTile(int x, int y) const
 {
 	if(!m_pFront)
 		return 0;
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
+	int Nx = std::clamp(x / 32, 0, m_Width - 1);
+	int Ny = std::clamp(y / 32, 0, m_Height - 1);
 	if(m_pFront[Ny * m_Width + Nx].m_Index == TILE_DEATH || m_pFront[Ny * m_Width + Nx].m_Index == TILE_NOLASER)
 		return m_pFront[Ny * m_Width + Nx].m_Index;
 	else
@@ -1128,8 +1128,8 @@ int CCollision::Entity(int x, int y, int Layer) const
 
 void CCollision::SetCollisionAt(float x, float y, int Index)
 {
-	int Nx = clamp(round_to_int(x) / 32, 0, m_Width - 1);
-	int Ny = clamp(round_to_int(y) / 32, 0, m_Height - 1);
+	int Nx = std::clamp(round_to_int(x) / 32, 0, m_Width - 1);
+	int Ny = std::clamp(round_to_int(y) / 32, 0, m_Height - 1);
 
 	m_pTiles[Ny * m_Width + Nx].m_Index = Index;
 }
@@ -1138,8 +1138,8 @@ void CCollision::SetDoorCollisionAt(float x, float y, int Type, int Flags, int N
 {
 	if(!m_pDoor)
 		return;
-	int Nx = clamp(round_to_int(x) / 32, 0, m_Width - 1);
-	int Ny = clamp(round_to_int(y) / 32, 0, m_Height - 1);
+	int Nx = std::clamp(round_to_int(x) / 32, 0, m_Width - 1);
+	int Ny = std::clamp(round_to_int(y) / 32, 0, m_Height - 1);
 
 	m_pDoor[Ny * m_Width + Nx].m_Index = Type;
 	m_pDoor[Ny * m_Width + Nx].m_Flags = Flags;
@@ -1199,8 +1199,8 @@ int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2
 	{
 		float a = i / d;
 		vec2 Pos = mix(Pos0, Pos1, a);
-		int Nx = clamp(round_to_int(Pos.x) / 32, 0, m_Width - 1);
-		int Ny = clamp(round_to_int(Pos.y) / 32, 0, m_Height - 1);
+		int Nx = std::clamp(round_to_int(Pos.x) / 32, 0, m_Width - 1);
+		int Ny = std::clamp(round_to_int(Pos.y) / 32, 0, m_Height - 1);
 
 		bool DDNetPPConfigTile = (GetIndex(Nx, Ny) == TILE_CONFIG_1 &&
 						 g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK) ||
