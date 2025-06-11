@@ -3,6 +3,7 @@
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems_ddpp.h>
+#include <game/race_state.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/character.h>
@@ -11,7 +12,6 @@
 #include <game/server/player.h>
 #include <game/server/teams.h>
 
-#include "game/race_state.h"
 #include "one_vs_one_block.h"
 
 bool COneVsOneBlock::IsActive(int ClientId)
@@ -476,6 +476,20 @@ void COneVsOneBlock::PrintScoreBroadcast(CGameState *pGameState)
 		pGameState->m_pPlayer2->m_MinigameScore);
 	GameServer()->SendBroadcast(aBuf, pGameState->m_pPlayer1->GetCid());
 	GameServer()->SendBroadcast(aBuf, pGameState->m_pPlayer2->GetCid());
+
+	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+		if(!(pPlayer->IsPaused() || pPlayer->GetTeam() == TEAM_SPECTATORS))
+			continue;
+		if(pPlayer->m_SpectatorId == SPEC_FREEVIEW)
+			continue;
+		if(!(pPlayer->m_SpectatorId == pGameState->m_pPlayer1->GetCid() || pPlayer->m_SpectatorId == pGameState->m_pPlayer2->GetCid()))
+			continue;
+
+		GameServer()->SendBroadcast(aBuf, pPlayer->GetCid());
+	}
 }
 
 void COneVsOneBlock::PlayerTick(CPlayer *pPlayer)
