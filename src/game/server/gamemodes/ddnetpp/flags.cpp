@@ -92,7 +92,7 @@ void CGameControllerDDNetPP::FlagTick()
 				}
 
 				// only allow flag grabs in team 0
-				if(apCloseCCharacters[i]->IsInDDraceTeam())
+				if(apCloseCCharacters[i]->IsInDDRaceTeam())
 					continue;
 				if(apCloseCCharacters[i]->Core()->m_Solo)
 					continue;

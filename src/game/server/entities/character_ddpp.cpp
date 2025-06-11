@@ -998,7 +998,7 @@ void CCharacter::DDPP_Tick()
 			if(!IsOnTile(TILE_BANK))
 			{
 				GameServer()->SendBroadcast(" ", m_pPlayer->GetCid(), 0);
-				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
+				m_InBank = false; // DDRacePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
 			}
 		}
 		if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
@@ -2826,10 +2826,10 @@ void CCharacter::SendShopMessage(const char *pMsg)
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
 }
 
-bool CCharacter::IsInDDraceTeam()
+bool CCharacter::IsInDDRaceTeam()
 {
-	int DDraceTeam = GameServer()->GetDDRaceTeam(GetPlayer()->GetCid());
-	return DDraceTeam != 0;
+	int DDRaceTeam = GameServer()->GetDDRaceTeam(GetPlayer()->GetCid());
+	return DDRaceTeam != 0;
 }
 
 int CCharacter::GetAimDir() const

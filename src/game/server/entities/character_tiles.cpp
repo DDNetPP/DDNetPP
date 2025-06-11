@@ -341,7 +341,7 @@ void CCharacter::OnTileMoney()
 	m_OnMoneytile = MONEYTILE_NORMAL;
 	if(Server()->Tick() % 50)
 		return;
-	if(IsInDDraceTeam())
+	if(IsInDDRaceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
 		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
@@ -477,7 +477,7 @@ void CCharacter::OnTileMoneyPolice()
 	m_OnMoneytile = MONEYTILE_POLICE;
 	if(Server()->Tick() % 50)
 		return;
-	if(IsInDDraceTeam())
+	if(IsInDDRaceTeam())
 		return;
 	if(!GameServer()->m_IsPoliceFarmActive)
 	{
@@ -604,7 +604,7 @@ void CCharacter::OnTileMoneyDouble()
 		return;
 	if(!m_pPlayer) // seems useless but pleases clang
 		return;
-	if(IsInDDraceTeam())
+	if(IsInDDRaceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
 		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
@@ -717,7 +717,7 @@ void CCharacter::OnTileMoneyPlus()
 {
 	if(!m_pPlayer->m_MoneyTilePlus)
 		return;
-	if(IsInDDraceTeam())
+	if(IsInDDRaceTeam())
 		return;
 	m_pPlayer->m_MoneyTilePlus = false;
 

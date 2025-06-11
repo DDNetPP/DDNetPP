@@ -4236,7 +4236,7 @@ void CServer::RegisterCommands()
 	Console()->Chain("sv_map", ConchainMapUpdate, this);
 	Console()->Chain("sv_sixup", ConchainSixupUpdate, this);
 
-	//DDraceNetwork++ (ChillerDragon) ddpp
+	// DDRaceNetwork++ (ChillerDragon) ddpp
 	// TODO: move all of this to ddnet++ files
 
 	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");

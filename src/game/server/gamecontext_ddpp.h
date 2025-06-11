@@ -648,12 +648,12 @@ public:
 	};
 	std::vector<CVanillaMode> m_VanillaMode;
 
-	struct CDDraceMode // probably doesn't belong here, but whatever
+	struct CDDRaceMode // probably doesn't belong here, but whatever
 	{
 		int m_NumContestants;
 		vec2 m_Center;
 	};
-	std::vector<CDDraceMode> m_DDraceMode;
+	std::vector<CDDRaceMode> m_DDRaceMode;
 
 	struct CBotSpawn1 // probably doesn't belong here, but whatever
 	{

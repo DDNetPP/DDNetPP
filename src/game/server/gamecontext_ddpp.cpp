@@ -556,10 +556,10 @@ bool CGameContext::InitTileDDPP(int Index, int x, int y)
 	}
 	else if(Index == TILE_DDRACE_MODE)
 	{
-		CDDraceMode DDraceMode;
-		DDraceMode.m_Center = vec2(x, y);
-		dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDraceMode.m_Center.x, DDraceMode.m_Center.y);
-		m_DDraceMode.push_back(DDraceMode);
+		CDDRaceMode DDRaceMode;
+		DDRaceMode.m_Center = vec2(x, y);
+		dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDRaceMode.m_Center.x, DDRaceMode.m_Center.y);
+		m_DDRaceMode.push_back(DDRaceMode);
 	}
 	else if(Index == TILE_BOTSPAWN_1)
 	{

@@ -78,7 +78,7 @@ void CGameControllerDDNetPP::PrintJoinMessage(CPlayer *pPlayer)
 // full overwrites ddnet's OnPlayerConnect!
 void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
-	// this code has to be manually kept in sync with CGameControllerDDrace::OnPlayerConnect()
+	// this code has to be manually kept in sync with CGameControllerDDRace::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
 
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)

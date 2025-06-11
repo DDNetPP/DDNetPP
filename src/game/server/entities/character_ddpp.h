@@ -126,7 +126,7 @@ public:
 	int GetAimDir() const;
 	void UnDeep() { m_Core.m_DeepFrozen = false; }
 	// returns false if in team 0 and true otherwise
-	bool IsInDDraceTeam();
+	bool IsInDDRaceTeam();
 
 	//Chillintelligenz
 	void CITick();
