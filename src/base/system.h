@@ -989,11 +989,16 @@ std::string net_error_message();
 int net_would_block();
 
 /**
- * @todo document
+ * Waits for a socket to have data available to receive up the specified timeout duration.
  *
  * @ingroup Network-General
+ *
+ * @param sock Socket to wait on.
+ * @param nanoseconds Timeout duration to wait.
+ *
+ * @return `1` if data was received within the timeout duration, `0` otherwise.
  */
-int net_socket_read_wait(NETSOCKET sock, int time);
+int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds);
 
 /**
  * @defgroup Network-UDP
@@ -2902,8 +2907,6 @@ void crashdump_init_if_available(const char *log_file_path);
  */
 std::chrono::nanoseconds time_get_nanoseconds();
 
-int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds);
-
 /**
  * Fixes the command line arguments to be encoded in UTF-8 on all systems.
  * This is a RAII wrapper for @link cmdline_fix @endlink and @link cmdline_free @endlink.
@@ -3062,11 +3065,5 @@ bool shell_unregister_application(const char *executable, bool *updated);
  */
 void shell_update();
 #endif
-
-template<>
-struct std::hash<NETADDR>
-{
-	size_t operator()(const NETADDR &Addr) const noexcept;
-};
 
 #endif

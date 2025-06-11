@@ -357,7 +357,7 @@ void CGameContext::NameChangeMute(const NETADDR *pAddr, int Secs, const char *pD
 
 	if(!Found) // nothing found so far, find a free slot..
 	{
-		if(m_NumNameChangeMutes < MAX_MUTES)
+		if(m_NumNameChangeMutes < MAX_NAME_CHANGE_MUTES)
 		{
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = *pAddr;
 			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = Server()->Tick() + Secs * Server()->TickSpeed();

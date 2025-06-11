@@ -1066,6 +1066,21 @@ bool NETADDR::operator==(const NETADDR &other) const
 	return net_addr_comp(this, &other) == 0;
 }
 
+bool NETADDR::operator!=(const NETADDR &other) const
+{
+	return net_addr_comp(this, &other) != 0;
+}
+
+bool NETADDR::operator<(const NETADDR &other) const
+{
+	return net_addr_comp(this, &other) < 0;
+}
+
+size_t std::hash<NETADDR>::operator()(const NETADDR &Addr) const noexcept
+{
+	return std::hash<std::string_view>{}(std::string_view((const char *)&Addr, sizeof(Addr)));
+}
+
 int net_addr_comp_noport(const NETADDR *a, const NETADDR *b)
 {
 	NETADDR ta = *a, tb = *b;
@@ -2660,8 +2675,11 @@ void swap_endian(void *data, unsigned elem_size, unsigned num)
 	}
 }
 
-int net_socket_read_wait(NETSOCKET sock, int time)
+int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds)
 {
+	const int64_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>(nanoseconds).count();
+	dbg_assert(microseconds >= 0, "Negative wait duration %" PRId64 " not allowed", microseconds);
+
 	fd_set readfds;
 	FD_ZERO(&readfds);
 
@@ -2687,18 +2705,11 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 		return 0;
 	}
 
-	/* don't care about writefds and exceptfds */
-	if(time < 0)
-	{
-		select(maxfd + 1, &readfds, nullptr, nullptr, nullptr);
-	}
-	else
-	{
-		struct timeval tv;
-		tv.tv_sec = time / 1000000;
-		tv.tv_usec = time % 1000000;
-		select(maxfd + 1, &readfds, nullptr, nullptr, &tv);
-	}
+	struct timeval tv;
+	tv.tv_sec = microseconds / 1000000;
+	tv.tv_usec = microseconds % 1000000;
+	// don't care about writefds and exceptfds
+	select(maxfd + 1, &readfds, nullptr, nullptr, &tv);
 
 	if(sock->ipv4sock >= 0 && FD_ISSET(sock->ipv4sock, &readfds))
 		return 1;
@@ -4875,12 +4886,6 @@ std::chrono::nanoseconds time_get_nanoseconds()
 	return std::chrono::nanoseconds(time_get_impl());
 }
 
-int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds)
-{
-	using namespace std::chrono_literals;
-	return ::net_socket_read_wait(sock, (nanoseconds / std::chrono::nanoseconds(1us).count()).count());
-}
-
 #if defined(CONF_FAMILY_WINDOWS)
 std::wstring windows_utf8_to_wide(const char *str)
 {
@@ -5279,8 +5284,3 @@ void shell_update()
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
 }
 #endif
-
-size_t std::hash<NETADDR>::operator()(const NETADDR &Addr) const noexcept
-{
-	return std::hash<std::string_view>{}(std::string_view((const char *)&Addr, sizeof(Addr)));
-}

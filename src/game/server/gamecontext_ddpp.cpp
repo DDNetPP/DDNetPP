@@ -2742,7 +2742,7 @@ void CGameContext::SetIpJailed(int ClientId)
 	}
 	if(!Found) // nothing found so far, find a free slot..
 	{
-		if(m_NumJailIps < MAX_MUTES)
+		if(m_NumJailIps < MAX_JAILS)
 		{
 			m_aJailIps[m_NumJailIps] = *pAddr;
 			m_NumJailIps++;
@@ -2756,7 +2756,7 @@ void CGameContext::SetIpJailed(int ClientId)
 	}
 	else // no free slot found
 	{
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "name change mute array is full!");
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "jail", "ip jail array is full!");
 	}
 }
 
