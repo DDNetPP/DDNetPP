@@ -764,7 +764,7 @@ void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->RegisterBan(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->RegisterBan(pAddr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
