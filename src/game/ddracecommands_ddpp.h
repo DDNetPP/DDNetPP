@@ -36,25 +36,25 @@ CONSOLE_COMMAND("hammerfightmode", "v", CFGFLAG_SERVER, ConHammerfightMode, this
 CONSOLE_COMMAND("freeze_shotgun", "v", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
 CONSOLE_COMMAND("Damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
 
-CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "");
-CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanId, this, "");
-CONSOLE_COMMAND("register_ban_ip", "si", CFGFLAG_SERVER, ConRegisterBanIp, this, "");
-CONSOLE_COMMAND("unregister_ban", "v", CFGFLAG_SERVER, ConUnRegisterBan, this, "");
-CONSOLE_COMMAND("register_bans", "", CFGFLAG_SERVER, ConRegisterBans, this, "");
+CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'");
+CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanId, this, "Ban a player from the registration system");
+CONSOLE_COMMAND("register_ban_ip", "si", CFGFLAG_SERVER, ConRegisterBanIp, this, "Ban a player ip from the registration system");
+CONSOLE_COMMAND("unregister_ban", "v", CFGFLAG_SERVER, ConUnRegisterBan, this, "Unban a player from the registration system");
+CONSOLE_COMMAND("register_bans", "", CFGFLAG_SERVER, ConRegisterBans, this, "Unban a player ip from the registration system");
 
-CONSOLE_COMMAND("login_ban", "", CFGFLAG_SERVER, ConLoginBan, this, "");
-CONSOLE_COMMAND("login_ban_id", "vi", CFGFLAG_SERVER, ConLoginBanId, this, "");
-CONSOLE_COMMAND("login_ban_ip", "si", CFGFLAG_SERVER, ConLoginBanIp, this, "");
-CONSOLE_COMMAND("unlogin_ban", "v", CFGFLAG_SERVER, ConUnLoginBan, this, "");
-CONSOLE_COMMAND("login_bans", "", CFGFLAG_SERVER, ConLoginBans, this, "");
+CONSOLE_COMMAND("login_ban", "", CFGFLAG_SERVER, ConLoginBan, this, "Use either 'login_ban_id <client_id> <seconds>' or 'login_ban_ip <ip> <seconds>'");
+CONSOLE_COMMAND("login_ban_id", "vi", CFGFLAG_SERVER, ConLoginBanId, this, "Ban a player from the login system");
+CONSOLE_COMMAND("login_ban_ip", "si", CFGFLAG_SERVER, ConLoginBanIp, this, "Ban a player ip from the login system");
+CONSOLE_COMMAND("unlogin_ban", "v", CFGFLAG_SERVER, ConUnLoginBan, this, "Unban a player from the login system");
+CONSOLE_COMMAND("login_bans", "", CFGFLAG_SERVER, ConLoginBans, this, "Unban a player ip from the login system");
 
-CONSOLE_COMMAND("namechange_mute", "", CFGFLAG_SERVER, ConNameChangeMute, this, "");
-CONSOLE_COMMAND("namechange_mute_id", "vi", CFGFLAG_SERVER, ConNameChangeMuteId, this, "");
-CONSOLE_COMMAND("namechange_mute_ip", "si", CFGFLAG_SERVER, ConNameChangeMuteIp, this, "");
-CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, this, "");
-CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "");
+CONSOLE_COMMAND("namechange_mute", "", CFGFLAG_SERVER, ConNameChangeMute, this, "Use either 'namechange_mute_id <client_id> <seconds>' or 'namechange_mute_ip <ip> <seconds>'");
+CONSOLE_COMMAND("namechange_mute_id", "vi", CFGFLAG_SERVER, ConNameChangeMuteId, this, "Mute a player from changing name system by client ID");
+CONSOLE_COMMAND("namechange_mute_ip", "si", CFGFLAG_SERVER, ConNameChangeMuteIp, this, "Mute a player from changing name system by IP address");
+CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, this, "Unmute a player from name change system");
+CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "List all players muted from changing name system");
 
-CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "");
+CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "List all connected dummy");
 
 CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'");
 CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'");
