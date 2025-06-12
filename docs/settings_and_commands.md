@@ -166,11 +166,168 @@
 
 # Rcon commands
 
-TODO
++ `hammer` Gives a hammer to you
++ `old_rainbow` (old) activates rainbow until death
++ `inf_rainbow` activates rainbow until disconnect
++ `old_bloody` (old) activates bloody until death
++ `inf_bloody` activates bloody until disconnect
++ `old_atom` (old) activates atom until death
++ `inf_atom` activates atom until disconnect
++ `old_autospreadgun` activates spread gun until death
++ `inf_autospreadgun` activates spread gun until disconnect
++ `old_trail` (old) activates trail until death
++ `inf_trail` activates trail until disconnect
++ `homing_missile` toggles homing missile activate/deactive (grenade launcher)
++ `disarm` disarm a evil tee to prevent him doing evil stuff :)
++ `dummymode` 0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)
++ `dummy_color` changes the color of a specific dummy
++ `dummy_skin` changes the skin of a specific dummy
++ `force_color` changes the color of a specific player
++ `force_skin` changes the skin of a specific player
++ `heal` heals a tee's Health to 10 hp
++ `force_unjail` unjails player instantly
++ `force_jail` jails player by adminforce
++ `ninjasteam` activates a awesome NINJASTEAM
++ `hammerfightmode` activates hammerfightmode for a player
++ `freeze_shotgun` Gives you a freeze Shotgun
++ `Damage` Makes a player vulnerable
++ `register_ban` Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'
++ `register_ban_id` Ban a player from the registration system
++ `register_ban_ip` Ban a player ip from the registration system
++ `unregister_ban` Unban a player from the registration system
++ `register_bans` Unban a player ip from the registration system
++ `login_ban` Use either 'login_ban_id <client_id> <seconds>' or 'login_ban_ip <ip> <seconds>'
++ `login_ban_id` Ban a player from the login system
++ `login_ban_ip` Ban a player ip from the login system
++ `unlogin_ban` Unban a player from the login system
++ `login_bans` Unban a player ip from the login system
++ `namechange_mute` Use either 'namechange_mute_id <client_id> <seconds>' or 'namechange_mute_ip <ip> <seconds>'
++ `namechange_mute_id` Mute a player from changing name system by client ID
++ `namechange_mute_ip` Mute a player from changing name system by IP address
++ `namechange_unmute` Unmute a player from name change system
++ `namechange_mutes` List all players muted from changing name system
++ `dummies` List all connected dummy
++ `block_votes` disables all votes but 'unblock_votes'
++ `unblock_votes` unlocks votes if they were blocked by 'block_votes'
++ `freezelaser` Gives a player Freeze Laser
++ `freezehammer` Gives a player Freeze Hammer
++ `heartgun` Gives a player heart gun
++ `unfreeze` Unfreezes player v
++ `freeze` Freezes player v for i seconds (infinite by default)
++ `godmode` gives player i godmode (no damage in instagib)
++ `hide_player` makes player invisible
++ `verify_player` manually set a targets player human level to max (force solve captcha)
++ `logs` shows ddnet++ logs (types: mastersrv)
++ `reload_spamfilters` reads spamfilters.txt (see also add_spamfilter)
++ `add_spamfilter` writes to spamfilters.txt (see also list_spamfilters)
++ `list_spamfilters` prints actice spamfilters (see also reload_spamfilters)
++ `sql_add` adds an new column to the table
++ `set_shop_item_price` sets the price of a shop item
++ `set_shop_item_description` sets the description of a shop item
++ `set_shop_item_level` sets the needed level of a shop item
++ `activate_shop_item` activate shop item
++ `deactivate_shop_item` deactivate shop item
++ `deactivate_all_shop_items` deactivates all shop items
++ `activate_all_shop_items` activates all shop items
++ `run_test` WARNING WILL KILL THE SERVER! run integration tests (used in CI)
++ `defer` Run a cmd after the server fully initialized. Run cmds from cfg or cli that would crash if executed too early.
++ `rcon_api_say_id` RCON API command dont use it
++ `rcon_api_alter_table` RCON API command dont use it
 
 # Chat commands
 
-TODO
++ `changepassword` change your account password with '/changepassword <old password> <new password> <new password repeat>'
++ `register` Register an sql account
++ `login` Login an sql account
++ `register2` Register an filebased account
++ `login2` Login an filebased account
++ `logout` Logout from your account
++ `SQL` SQL admistration (using sql id)
++ `SQL_name` SQL admistration (using acc name)
++ `SQL_logout` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
++ `SQL_logout_all` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
++ `acc2` filebased acc sys admistration (using usernames)
++ `acc_info` (admin-cmd) shows deeper information about accounts
++ `stats` shows the stats of the player r
++ `profile` player profiles more help at '/profile help'
++ `ascii` create ascii animations with it
++ `policechat` get more attention in chat with this command
++ `policehelper` '/policehelper help' for more help
++ `jail` police command
++ `jail_code` police command shows jail code of player
++ `report` report players and police will arrest em
++ `taser` everything about taser
++ `wanted` shows a list of wanted players. help the police to catch em
++ `togglespawn` switches the spawnpoint between normal and supermod spawn
++ `show` shows info. partner of '/hide' command.
++ `hide` hides info. partner of '/show' command.
++ `score` changes score of players to time (race), level or block (points)
++ `spawnweapons` toggles using spawnweapons or not
++ `spawnweaponsinfo` shows level of spawn weapons
++ `spookyghostinfo` help for spooky ghost
++ `shop` Shows the list of items that you can '/buy'
++ `buy` Buy something. To see all buyable items check '/shop'
++ `bank` for more info check '/bank'
++ `gangsterbag` only for real gangstazzZ
++ `money` shows your money and last transactions
++ `pay` give i amount of your '/money' to player r
++ `gift` send the player r money more info at '/gift'
++ `trade` trade weapons and other items with players on the server
++ `tr` the unsave short command for trade (warning don't use if you don't know what you are doing)
++ `chidraqul` chidraqul3 (minigame) more info '/chidraqul info'
++ `minigames` show stats and informations about all minigames
++ `pvp_arena` teleports you in the pvp-arena (you can die there)
++ `bomb` join, create and leave bomb games and more. more help at '/bomb help'
++ `insta` play instagib games like gdm or idm
++ `join` join the current event
++ `block` join block deathmatch
++ `balance` battle other players in tee balancing
++ `survival` play infamous survival mod
++ `blockwave` play block agianst bot waves
++ `1vs1` challenge one player to a block duel
++ `leave` leave the current minigame
++ `rainbow` accep/turn-off rainbow
++ `bloody` accep/turn-off bloody
++ `atom` accep/turn-off atom
++ `trail` accep/turn-off trail
++ `spread_gun` accep/turn-off spread_gun
++ `drop_health` cosmetic staff command to drop health
++ `drop_armor` cosmetic staff command to drop armor
++ `give` give extras to others or yourself.
++ `policeinfo` Get all info about police
++ `AccountInfo` shows info on how to register and login
++ `OfferInfo` shows info and stats about cosmetic offers
++ `event` shows running events
++ `viewers` shows your current stalker/fangrills
++ `ip` shows your own ip
++ `changelog` shows info about the different ddnet++ versions
++ `say_srv` says something as server
++ `broadcast_srv` broadcasts something as server
++ `hook` modify your hook with this command
++ `lasertext` write some text in the world (lasertext from fng)
++ `loltext` write some text in the world (lasertext from fng)
++ `market` buy and sell virtual goods in the unregulated free market
++ `captcha` use this command to proof your not a robot
++ `human_level` information about human level
++ `lang` set language
++ `poop` throw shit at the player r. Warning: you lose that shit.
++ `room` supermoderator command '/room help' for help
++ `spawn` teleport to spawn without dieing (costs money)
++ `quest` play little quest and earn rewards.
++ `bounty` blocker hitman command
++ `fng` configurate some fng settings '/fng help' for more help
++ `dcdummy` disconnect dummy by id
++ `166` command for admins TROLL166
++ `420` command for admins TROLL420
++ `tcmd3000` secret test command dont use
++ `flood` anti flood command
++ `admin` command for admins
++ `fnn` command for admins (fake neural network)
++ `a` allows communication between admins only
++ `live` get live stats of player r
++ `regex` test regex patterns
++ `mapsave` save current map status
++ `cc` clear the chat by spamming fake connection messages
 
 # More
 
