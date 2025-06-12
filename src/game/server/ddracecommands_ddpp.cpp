@@ -916,7 +916,7 @@ void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserDa
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->NameChangeMute(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->NameChangeMute(pAddr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
