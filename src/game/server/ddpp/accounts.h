@@ -329,6 +329,7 @@ struct CSqlAccountRequest : ISqlData
 	char m_aUsername[64];
 	char m_aPassword[64];
 	char m_aNewPassword[64];
+	int m_Port;
 };
 
 struct CSqlAdminCommandRequest : ISqlData

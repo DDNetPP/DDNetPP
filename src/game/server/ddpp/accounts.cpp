@@ -158,6 +158,7 @@ void CAccounts::ExecUserThread(
 		Tmp->m_AccountData = *pAccountData;
 	else
 		Tmp->m_AccountData = CAccountData();
+	Tmp->m_Port = g_Config.m_SvPort;
 
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
@@ -474,6 +475,61 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		{
 			pSqlServer->GetString(Index, AsciiFrame, sizeof(AsciiFrame));
 			Index++;
+		}
+
+		str_copy(aBuf,
+			"UPDATE Accounts SET IsLoggedIn = 1, LastLoginPort = ? WHERE Id = ? AND IsLoggedIn = 0;",
+			sizeof(aBuf));
+
+		if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		{
+			return false;
+		}
+		pSqlServer->BindInt(1, pData->m_Port);
+		pSqlServer->BindInt(2, pResult->m_Account.m_Id);
+
+		int NumUpdated;
+		if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+		{
+			return false;
+		}
+
+		if(NumUpdated != 1)
+		{
+			dbg_msg("auth", "Can't set IsLoggedIn, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
+			return true;
+		}
+
+		str_copy(aBuf,
+			"SELECT COUNT(*) FROM Accounts WHERE Id = ? AND IsLoggedIn = 1 AND LastLoginPort = ?;",
+			sizeof(aBuf));
+
+		if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		{
+			return false;
+		}
+		pSqlServer->BindInt(1, pResult->m_Account.m_Id);
+		pSqlServer->BindInt(2, pData->m_Port);
+
+		if(!pSqlServer->Step(&End, pError, ErrorSize))
+		{
+			return false;
+		}
+
+		if(End)
+		{
+			dbg_msg("auth", "Something wrong, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
+			return true;
+		}
+
+		int CheckCount = pSqlServer->GetInt(1);
+		if(CheckCount != 1)
+		{
+			dbg_msg("auth", "Wrong checked count, Id %d, LastLoginPort %d, CheckCount %d", pResult->m_Account.m_Id, pData->m_Port, CheckCount);
+			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
+			return true;
 		}
 	}
 	else
@@ -794,6 +850,18 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 		return false;
+
+	if(g_Config.m_Debug)
+	{
+		dbg_msg(
+			"ddnet++",
+			"Set logged in affected %d rows. LoggedIn=%d Port=%d AccountId=%d Query: %s",
+			NumUpdated,
+			pData->m_LoggedIn,
+			pData->m_Port,
+			pData->m_AccountId,
+			aBuf);
+	}
 
 	if(NumUpdated != 1)
 	{
