@@ -764,7 +764,7 @@ void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->RegisterBan(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->RegisterBan(pAddr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -840,7 +840,7 @@ void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->LoginBan(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->LoginBan(pAddr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
@@ -916,7 +916,7 @@ void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserDa
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
-	pSelf->NameChangeMute(pAddr, std::clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->NameChangeMute(pAddr, std::clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim));
 }
 
