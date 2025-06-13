@@ -2,6 +2,7 @@
     DDNet++ commands
 */
 #include <base/ddpp_logs.h>
+#include <base/log.h>
 #include <base/system.h>
 #include <base/vmath.h>
 #include <engine/server/server.h>
@@ -761,6 +762,11 @@ void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
@@ -792,6 +798,11 @@ void CGameContext::ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData)
 
 	if(Victim < 0 || Victim >= pSelf->m_NumRegisterBans)
 		return;
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	pSelf->m_NumRegisterBans--;
 	pSelf->m_aRegisterBans[Victim] = pSelf->m_aRegisterBans[pSelf->m_NumRegisterBans];
@@ -837,6 +848,11 @@ void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
@@ -868,6 +884,11 @@ void CGameContext::ConUnLoginBan(IConsole::IResult *pResult, void *pUserData)
 
 	if(Victim < 0 || Victim >= pSelf->m_NumLoginBans)
 		return;
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	pSelf->m_NumLoginBans--;
 	pSelf->m_aLoginBans[Victim] = pSelf->m_aLoginBans[pSelf->m_NumLoginBans];
@@ -913,6 +934,11 @@ void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserDa
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	const NETADDR *pAddr = pSelf->Server()->ClientAddr(Victim);
 
@@ -944,6 +970,11 @@ void CGameContext::ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserDa
 
 	if(Victim < 0 || Victim >= pSelf->m_NumNameChangeMutes)
 		return;
+	if(!pSelf->Server()->ClientIngame(Victim))
+	{
+		log_error("rcon", "no player with client id %d connected", Victim);
+		return;
+	}
 
 	pSelf->m_NumNameChangeMutes--;
 	pSelf->m_aNameChangeMutes[Victim] = pSelf->m_aNameChangeMutes[pSelf->m_NumNameChangeMutes];
