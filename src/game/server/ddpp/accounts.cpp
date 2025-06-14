@@ -297,10 +297,8 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
-	{
-		dbg_assert(false, "SaveThread failed to execute");
 		return false;
-	}
+
 	// we expect 1 row if new data was inserted
 	// or we expect 0 rows if nothing changed (can happen on periodic save)
 	if(NumUpdated > 1)
@@ -517,7 +515,7 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "UpdateAccountStateThread failed to execute");
+		log_error("sql-thread", "UpdateAccountStateThread failed to execute");
 		return false;
 	}
 
@@ -581,7 +579,7 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "AdminSetPasswordThread failed to execute");
+		log_error("sql-thread", "AdminSetPasswordThread failed to execute error=%s", pError);
 		return false;
 	}
 	if(NumUpdated != 1)
@@ -630,7 +628,7 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "AdminSetPasswordThread failed to execute");
+		log_error("sql-thread", "AdminSetPasswordThread failed to execute error=%s", pError);
 		return false;
 	}
 	if(NumUpdated != 1)
@@ -674,7 +672,7 @@ bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGam
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "ExecuteSqlThread failed to execute");
+		log_error("sql-thread", "ExecuteSqlThread failed to execute pError=%s", pError);
 		return false;
 	}
 	dbg_msg("ddnet++", "execute sql thread affected %d rows", NumUpdated);
@@ -710,7 +708,7 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "LogoutUsernameThread failed to execute");
+		log_error("sql-thread", "LogoutUsernameThread failed to execute pError=%s", pError);
 		return false;
 	}
 	if(NumUpdated != 1)
@@ -752,7 +750,7 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
-		dbg_assert(false, "CleanZombieAccountsThread failed to execute");
+		log_error("sql-thread", "CleanZombieAccountsThread failed to execute error=%s", pError);
 		return false;
 	}
 	if(NumUpdated)
@@ -794,10 +792,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
-	{
-		dbg_assert(false, "SetLoggedInThread failed to execute");
 		return false;
-	}
 
 	if(NumUpdated != 1)
 	{
@@ -881,7 +876,7 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 		int NumInserted;
 		if(!pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize))
 		{
-			dbg_assert(false, "register did not execute");
+			log_error("sql-thread", "RegisterThread did not execute error=%s", pError);
 			return false;
 		}
 
