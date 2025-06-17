@@ -31,7 +31,7 @@ void CGameContext::RefreshExtraVoteMenu(int ClientId)
 	pPlayer->m_SendExtraVoteMenuIndex = -1;
 
 	CNetMsg_Sv_VoteClearOptions VoteClearOptionsMsg;
-	Server()->SendPackMsg(&VoteClearOptionsMsg, MSGFLAG_VITAL, -1);
+	Server()->SendPackMsg(&VoteClearOptionsMsg, MSGFLAG_VITAL, ClientId);
 }
 
 bool CGameContext::SendExtraVoteMenuEntry(int ClientId)
