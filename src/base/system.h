@@ -1013,8 +1013,8 @@ int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds);
  *
  * @param sock Socket whose type should be determined.
  *
- * @return The socket type, a bitset of `NETTYPE_IPV4`, `NETTYPE_IPV6` and `NETTYPE_WEBSOCKET_IPV4`,
- *         or `NETTYPE_INVALID` if the socket is invalid.
+ * @return The socket type, a bitset of `NETTYPE_IPV4`, `NETTYPE_IPV6`, `NETTYPE_WEBSOCKET_IPV4`
+ *         and `NETTYPE_WEBSOCKET_IPV6`, or `NETTYPE_INVALID` if the socket is invalid.
  */
 int net_socket_type(NETSOCKET sock);
 
@@ -2166,6 +2166,18 @@ const char *fs_filename(const char *path);
 void fs_split_file_extension(const char *filename, char *name, size_t name_size, char *extension = nullptr, size_t extension_size = 0);
 
 /**
+ * Normalizes the given path: replaces backslashes with regular slashes
+ * and removes trailing slashes.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path Path to normalize.
+ *
+ * @remark The strings are treated as null-terminated strings.
+ */
+void fs_normalize_path(char *path);
+
+/**
  * Get the parent directory of a directory.
  *
  * @ingroup Filesystem
@@ -2638,33 +2650,6 @@ void cmdline_fix(int *argc, const char ***argv);
  */
 void cmdline_free(int argc, const char **argv);
 
-#if defined(CONF_FAMILY_WINDOWS)
-/**
- * A handle for a process.
- *
- * @ingroup Shell
- */
-typedef void *PROCESS;
-/**
- * A handle that denotes an invalid process.
- *
- * @ingroup Shell
- */
-constexpr PROCESS INVALID_PROCESS = nullptr;
-#else
-/**
- * A handle for a process.
- *
- * @ingroup Shell
- */
-typedef pid_t PROCESS;
-/**
- * A handle that denotes an invalid process.
- *
- * @ingroup Shell
- */
-constexpr PROCESS INVALID_PROCESS = 0;
-#endif
 #if !defined(CONF_PLATFORM_ANDROID)
 /**
  * Determines the initial window state when using @link shell_execute @endlink

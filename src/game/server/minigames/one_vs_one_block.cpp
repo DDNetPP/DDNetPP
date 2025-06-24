@@ -11,6 +11,7 @@
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
+#include <game/team_state.h>
 
 #include "one_vs_one_block.h"
 
@@ -69,7 +70,7 @@ void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
 
 	const char *pError = nullptr;
 	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, false);
-	Controller()->Teams().ChangeTeamState(pGameState->m_DDRaceTeam, CGameTeams::TEAMSTATE_OPEN);
+	Controller()->Teams().ChangeTeamState(pGameState->m_DDRaceTeam, ETeamState::OPEN);
 	pError = Controller()->Teams().SetCharacterTeam(pPlayer->GetCid(), pGameState->m_DDRaceTeam);
 	if(pError)
 	{

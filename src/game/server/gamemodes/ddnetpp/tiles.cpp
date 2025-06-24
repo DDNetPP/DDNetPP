@@ -1,4 +1,5 @@
 #include <base/system.h>
+#include <engine/shared/config.h>
 #include <game/mapitems.h>
 #include <game/server/gamemodes/DDRace.h>
 

@@ -1,3 +1,4 @@
+#include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <game/server/ddpp/enums.h>
 
