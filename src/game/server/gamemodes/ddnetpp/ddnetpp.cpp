@@ -62,6 +62,21 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 	return CGameControllerDDRace::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
+int CGameControllerDDNetPP::GetAutoTeam(int NotThisId)
+{
+	if(NotThisId < 0 || NotThisId > MAX_CLIENTS)
+		return CGameControllerDDRace::GetAutoTeam(NotThisId);
+
+	CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisId];
+	if(!pPlayer)
+		return CGameControllerDDRace::GetAutoTeam(NotThisId);
+
+	if(GameServer()->m_insta_survival_gamestate)
+		return TEAM_SPECTATORS;
+
+	return CGameControllerDDRace::GetAutoTeam(NotThisId);
+}
+
 void CGameControllerDDNetPP::PrintJoinMessage(CPlayer *pPlayer)
 {
 	if(!pPlayer->m_PendingJoinMessage)

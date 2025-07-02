@@ -20,6 +20,7 @@ public:
 
 	void Tick() override;
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;
+	int GetAutoTeam(int NotThisId) override;
 	void PrintJoinMessage(CPlayer *pPlayer) override;
 	void OnPlayerConnect(class CPlayer *pPlayer) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;

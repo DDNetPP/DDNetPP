@@ -1867,7 +1867,7 @@ void CGameContext::OnClientConnected(int ClientId, void *pData)
 	}
 
 	// Check which team the player should be on
-	const int StartTeam = (Spec || g_Config.m_SvTournamentMode || m_insta_survival_gamestate) ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientId);
+	const int StartTeam = (Spec || g_Config.m_SvTournamentMode) ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientId);
 
 	if(m_apPlayers[ClientId])
 		delete m_apPlayers[ClientId];
