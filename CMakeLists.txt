@@ -2983,7 +2983,7 @@ if(SERVER)
     ${TWBL_SRC}
     ${GAME_GENERATED_SHARED})
 
-  target_compile_options(twbl_bottick PRIVATE -std=gnu++17)
+  target_compile_options(twbl_bottick PRIVATE -std=gnu++20)
   target_compile_definitions(twbl_bottick PRIVATE TWBL_SHARED_OBJECT=1)
 
   target_include_directories(twbl_bottick PRIVATE src)
