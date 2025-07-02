@@ -97,8 +97,6 @@ static const char *FILETYPE_EXTENSIONS[CEditor::NUM_FILETYPES] = {
 	".png",
 	".opus"};
 
-const void *CEditor::ms_pUiGotContext;
-
 void CEditor::EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels, void *pUser)
 {
 	CEditor *pThis = (CEditor *)pUser;
@@ -192,7 +190,7 @@ int CEditor::DoButton_Editor_Common(const void *pId, const char *pText, int Chec
 	if(Ui()->MouseInside(pRect))
 	{
 		if(Flags & BUTTONFLAG_RIGHT)
-			ms_pUiGotContext = pId;
+			m_pUiGotContext = pId;
 	}
 
 	UpdateTooltip(pId, pRect, pToolTip);
@@ -279,7 +277,7 @@ int CEditor::DoButton_DraggableEx(const void *pId, const char *pText, int Checke
 	if(Ui()->MouseInside(pRect))
 	{
 		if(Flags & BUTTONFLAG_RIGHT)
-			ms_pUiGotContext = pId;
+			m_pUiGotContext = pId;
 	}
 
 	UpdateTooltip(pId, pRect, pToolTip);
@@ -798,7 +796,9 @@ bool CEditor::CallbackOpenMap(const char *pFileName, int StorageType, void *pUse
 	{
 		pEditor->m_ValidSaveFilename = StorageType == IStorage::TYPE_SAVE && (pEditor->m_pFileDialogPath == pEditor->m_aFileDialogCurrentFolder || (pEditor->m_pFileDialogPath == pEditor->m_aFileDialogCurrentLink && str_comp(pEditor->m_aFileDialogCurrentLink, "themes") == 0));
 		if(pEditor->m_Dialog == DIALOG_FILE)
-			pEditor->m_Dialog = DIALOG_NONE;
+		{
+			pEditor->OnDialogClose();
+		}
 		return true;
 	}
 	else
@@ -813,7 +813,7 @@ bool CEditor::CallbackAppendMap(const char *pFileName, int StorageType, void *pU
 	CEditor *pEditor = (CEditor *)pUser;
 	if(pEditor->Append(pFileName, StorageType))
 	{
-		pEditor->m_Dialog = DIALOG_NONE;
+		pEditor->OnDialogClose();
 		return true;
 	}
 	else
@@ -858,7 +858,7 @@ bool CEditor::CallbackSaveMap(const char *pFileName, int StorageType, void *pUse
 			return false;
 	}
 
-	pEditor->m_Dialog = DIALOG_NONE;
+	pEditor->OnDialogClose();
 	return true;
 }
 
@@ -877,7 +877,7 @@ bool CEditor::CallbackSaveCopyMap(const char *pFileName, int StorageType, void *
 
 	if(pEditor->Save(pFileName))
 	{
-		pEditor->m_Dialog = DIALOG_NONE;
+		pEditor->OnDialogClose();
 		return true;
 	}
 	else
@@ -905,7 +905,7 @@ bool CEditor::CallbackSaveImage(const char *pFileName, int StorageType, void *pU
 
 	if(CImageLoader::SavePng(pEditor->Storage()->OpenFile(pFileName, IOFLAG_WRITE, StorageType), pFileName, *pImg))
 	{
-		pEditor->m_Dialog = DIALOG_NONE;
+		pEditor->OnDialogClose();
 		return true;
 	}
 	else
@@ -936,7 +936,6 @@ bool CEditor::CallbackSaveSound(const char *pFileName, int StorageType, void *pU
 		io_write(File, pSound->m_pData, pSound->m_DataSize);
 		io_close(File);
 		pEditor->OnDialogClose();
-		pEditor->m_Dialog = DIALOG_NONE;
 		return true;
 	}
 	pEditor->ShowFileDialogError("Failed to open file '%s'.", pFileName);
@@ -970,7 +969,7 @@ bool CEditor::CallbackCustomEntities(const char *pFileName, int StorageType, voi
 	pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
 	pEditor->m_EntitiesTexture = pEditor->Graphics()->LoadTextureRawMove(ImgInfo, pEditor->GetTextureUsageFlag());
 
-	pEditor->m_Dialog = DIALOG_NONE;
+	pEditor->OnDialogClose();
 	return true;
 }
 
@@ -1540,7 +1539,7 @@ void CEditor::DoSoundSource(int LayerIndex, CSoundSource *pSource, int Index)
 	}
 	else if(Ui()->HotItem() == pId)
 	{
-		ms_pUiGotContext = pId;
+		m_pUiGotContext = pId;
 
 		Graphics()->SetColor(1, 1, 1, 1);
 		str_copy(m_aTooltip, "Left mouse button to move. Hold alt to ignore grid.");
@@ -2311,7 +2310,7 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 	}
 	else if(Ui()->HotItem() == pId)
 	{
-		ms_pUiGotContext = pId;
+		m_pUiGotContext = pId;
 
 		Graphics()->SetColor(1, 1, 1, 1);
 		str_copy(m_aTooltip, "Left mouse button to move. Hold shift to move pivot. Hold alt to ignore grid. Shift+right click to delete.");
@@ -2549,7 +2548,7 @@ void CEditor::DoQuadPoint(int LayerIndex, const std::shared_ptr<CLayerQuads> &pL
 	}
 	else if(Ui()->HotItem() == pId)
 	{
-		ms_pUiGotContext = pId;
+		m_pUiGotContext = pId;
 
 		Graphics()->SetColor(1, 1, 1, 1);
 		str_copy(m_aTooltip, "Left mouse button to move. Hold shift to move the texture. Hold alt to ignore grid.");
@@ -2922,12 +2921,12 @@ void CEditor::DoQuadEnvelopes(const std::vector<CQuad> &vQuads, IGraphics::CText
 
 			// Set Colours
 			float Alpha = (m_SelectedQuadEnvelope == vQuads[j].m_PosEnv && IsEnvPointSelected(i)) ? 0.65f : 0.35f;
-			IGraphics::CColorVertex aArray[4] = {
+			IGraphics::CColorVertex aArray[] = {
 				IGraphics::CColorVertex(0, vQuads[j].m_aColors[0].r, vQuads[j].m_aColors[0].g, vQuads[j].m_aColors[0].b, Alpha),
 				IGraphics::CColorVertex(1, vQuads[j].m_aColors[1].r, vQuads[j].m_aColors[1].g, vQuads[j].m_aColors[1].b, Alpha),
 				IGraphics::CColorVertex(2, vQuads[j].m_aColors[2].r, vQuads[j].m_aColors[2].g, vQuads[j].m_aColors[2].b, Alpha),
 				IGraphics::CColorVertex(3, vQuads[j].m_aColors[3].r, vQuads[j].m_aColors[3].g, vQuads[j].m_aColors[3].b, Alpha)};
-			Graphics()->SetColorVertex(aArray, 4);
+			Graphics()->SetColorVertex(aArray, std::size(aArray));
 
 			// Rotation
 			CPoint aRotated[4];
@@ -3037,7 +3036,7 @@ void CEditor::DoQuadEnvPoint(const CQuad *pQuad, int QIndex, int PIndex)
 	}
 	else if(Ui()->HotItem() == pId && m_CurrentQuadIndex == QIndex)
 	{
-		ms_pUiGotContext = pId;
+		m_pUiGotContext = pId;
 
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		str_copy(m_aTooltip, "Left mouse button to move. Hold ctrl to rotate. Hold alt to ignore grid.");
@@ -3467,18 +3466,12 @@ void CEditor::DoMapEditor(CUIRect View)
 						m_pBrush->m_ParallaxX = pGroup->m_ParallaxX;
 						m_pBrush->m_ParallaxY = pGroup->m_ParallaxY;
 						m_pBrush->Render();
-						float w, h;
-						m_pBrush->GetSize(&w, &h);
 
-						IGraphics::CLineItem Array[4] = {
-							IGraphics::CLineItem(0, 0, w, 0),
-							IGraphics::CLineItem(w, 0, w, h),
-							IGraphics::CLineItem(w, h, 0, h),
-							IGraphics::CLineItem(0, h, 0, 0)};
-						Graphics()->TextureClear();
-						Graphics()->LinesBegin();
-						Graphics()->LinesDraw(Array, 4);
-						Graphics()->LinesEnd();
+						CUIRect BorderRect;
+						BorderRect.x = 0.0f;
+						BorderRect.y = 0.0f;
+						m_pBrush->GetSize(&BorderRect.w, &BorderRect.h);
+						BorderRect.DrawOutline(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 					}
 				}
 			}
@@ -3655,24 +3648,12 @@ void CEditor::DoMapEditor(CUIRect View)
 		std::shared_ptr<CLayerGroup> pGameGroup = m_Map.m_pGameGroup;
 		pGameGroup->MapScreen();
 
-		Graphics()->TextureClear();
-		Graphics()->LinesBegin();
-
-		CUIRect r;
-		r.x = GetSelectedGroup()->m_ClipX;
-		r.y = GetSelectedGroup()->m_ClipY;
-		r.w = GetSelectedGroup()->m_ClipW;
-		r.h = GetSelectedGroup()->m_ClipH;
-
-		IGraphics::CLineItem Array[4] = {
-			IGraphics::CLineItem(r.x, r.y, r.x + r.w, r.y),
-			IGraphics::CLineItem(r.x + r.w, r.y, r.x + r.w, r.y + r.h),
-			IGraphics::CLineItem(r.x + r.w, r.y + r.h, r.x, r.y + r.h),
-			IGraphics::CLineItem(r.x, r.y + r.h, r.x, r.y)};
-		Graphics()->SetColor(1, 0, 0, 1);
-		Graphics()->LinesDraw(Array, 4);
-
-		Graphics()->LinesEnd();
+		CUIRect ClipRect;
+		ClipRect.x = GetSelectedGroup()->m_ClipX;
+		ClipRect.y = GetSelectedGroup()->m_ClipY;
+		ClipRect.w = GetSelectedGroup()->m_ClipW;
+		ClipRect.h = GetSelectedGroup()->m_ClipH;
+		ClipRect.DrawOutline(ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	if(!m_ShowPicker)
@@ -4552,7 +4533,7 @@ bool CEditor::ReplaceImage(const char *pFileName, int StorageType, bool CheckDup
 		if(!str_comp(m_Map.m_vpImages[i]->m_aName, pImg->m_aName))
 			m_SelectedImage = i;
 	}
-	m_Dialog = DIALOG_NONE;
+	OnDialogClose();
 	return true;
 }
 
@@ -4621,7 +4602,7 @@ bool CEditor::AddImage(const char *pFileName, int StorageType, void *pUser)
 				break;
 			}
 	}
-	pEditor->m_Dialog = DIALOG_NONE;
+	pEditor->OnDialogClose();
 	return true;
 }
 
@@ -4685,7 +4666,6 @@ bool CEditor::AddSound(const char *pFileName, int StorageType, void *pUser)
 	}
 
 	pEditor->OnDialogClose();
-	pEditor->m_Dialog = DIALOG_NONE;
 	return true;
 }
 
@@ -4742,7 +4722,6 @@ bool CEditor::ReplaceSound(const char *pFileName, int StorageType, bool CheckDup
 	pSound->m_DataSize = DataSize;
 
 	OnDialogClose();
-	m_Dialog = DIALOG_NONE;
 	return true;
 }
 
@@ -4754,24 +4733,23 @@ bool CEditor::ReplaceSoundCallback(const char *pFileName, int StorageType, void 
 bool CEditor::IsAssetUsed(int FileType, int Index, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
-	for(int g = 0; g < (int)pEditor->m_Map.m_vpGroups.size(); g++)
+	for(const auto &pGroup : pEditor->m_Map.m_vpGroups)
 	{
-		for(int i = 0; i < (int)pEditor->m_Map.m_vpGroups[g]->m_vpLayers.size(); i++)
+		for(const auto &pLayer : pGroup->m_vpLayers)
 		{
-			int LayerType = pEditor->m_Map.m_vpGroups[g]->m_vpLayers[i]->m_Type;
 			if(FileType == FILETYPE_IMG)
 			{
-				if(LayerType == LAYERTYPE_TILES)
+				if(pLayer->m_Type == LAYERTYPE_TILES)
 				{
-					std::shared_ptr<CLayerTiles> pTiles = std::static_pointer_cast<CLayerTiles>(pEditor->m_Map.m_vpGroups[g]->m_vpLayers[i]);
+					std::shared_ptr<CLayerTiles> pTiles = std::static_pointer_cast<CLayerTiles>(pLayer);
 					if(pTiles->m_Image == Index)
 					{
 						return true;
 					}
 				}
-				else if(LayerType == LAYERTYPE_QUADS)
+				else if(pLayer->m_Type == LAYERTYPE_QUADS)
 				{
-					std::shared_ptr<CLayerQuads> pQuads = std::static_pointer_cast<CLayerQuads>(pEditor->m_Map.m_vpGroups[g]->m_vpLayers[i]);
+					std::shared_ptr<CLayerQuads> pQuads = std::static_pointer_cast<CLayerQuads>(pLayer);
 					if(pQuads->m_Image == Index)
 					{
 						return true;
@@ -4780,10 +4758,10 @@ bool CEditor::IsAssetUsed(int FileType, int Index, void *pUser)
 			}
 			else if(FileType == FILETYPE_SOUND)
 			{
-				if(LayerType == LAYERTYPE_SOUNDS)
+				if(pLayer->m_Type == LAYERTYPE_SOUNDS)
 				{
-					std::shared_ptr<CLayerSounds> pSounds = std::static_pointer_cast<CLayerSounds>(pEditor->m_Map.m_vpGroups[g]->m_vpLayers[i]);
-					if(pSounds->m_Sound == pEditor->m_SelectedImage)
+					std::shared_ptr<CLayerSounds> pSounds = std::static_pointer_cast<CLayerSounds>(pLayer);
+					if(pSounds->m_Sound == Index)
 					{
 						return true;
 					}
@@ -5624,7 +5602,6 @@ void CEditor::RenderFileDialog()
 	if(DoButton_Editor(&s_CancelButton, "Cancel", 0, &Button, BUTTONFLAG_LEFT, nullptr) || (s_ListBox.Active() && Ui()->ConsumeHotkey(CUi::HOTKEY_ESCAPE)))
 	{
 		OnDialogClose();
-		m_Dialog = DIALOG_NONE;
 	}
 
 	ButtonBar.VSplitRight(ButtonSpacing, &ButtonBar, nullptr);
@@ -5989,7 +5966,7 @@ void CEditor::RenderTooltip(CUIRect TooltipRect)
 		return;
 
 	char aBuf[256];
-	if(ms_pUiGotContext && ms_pUiGotContext == Ui()->HotItem())
+	if(m_pUiGotContext && m_pUiGotContext == Ui()->HotItem())
 		str_format(aBuf, sizeof(aBuf), "%s Right click for context menu.", m_aTooltip);
 	else
 		str_copy(aBuf, m_aTooltip);
@@ -6984,11 +6961,12 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 				float b1 = fx2f(pEnvelope->m_vPoints[i + 1].m_aValues[2]);
 				float a1 = fx2f(pEnvelope->m_vPoints[i + 1].m_aValues[3]);
 
-				IGraphics::CColorVertex Array[4] = {IGraphics::CColorVertex(0, r0, g0, b0, a0),
+				IGraphics::CColorVertex aArray[] = {
+					IGraphics::CColorVertex(0, r0, g0, b0, a0),
 					IGraphics::CColorVertex(1, r1, g1, b1, a1),
 					IGraphics::CColorVertex(2, r1, g1, b1, a1),
 					IGraphics::CColorVertex(3, r0, g0, b0, a0)};
-				Graphics()->SetColorVertex(Array, 4);
+				Graphics()->SetColorVertex(aArray, std::size(aArray));
 
 				float x0 = EnvelopeToScreenX(View, fxt2f(pEnvelope->m_vPoints[i].m_Time));
 				float x1 = EnvelopeToScreenX(View, fxt2f(pEnvelope->m_vPoints[i + 1].m_Time));
@@ -7223,7 +7201,7 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 							m_ShowEnvelopePreview = SHOWENV_SELECTED;
 							Graphics()->SetColor(1, 1, 1, 1);
 							str_copy(m_aTooltip, "Envelope point. Left mouse to drag. Hold ctrl to be more precise. Hold shift to alter time. Shift+right click to delete.");
-							ms_pUiGotContext = pId;
+							m_pUiGotContext = pId;
 						}
 						else
 							Graphics()->SetColor(aColors[c].r, aColors[c].g, aColors[c].b, 1.0f);
@@ -7358,7 +7336,7 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 								m_ShowEnvelopePreview = SHOWENV_SELECTED;
 								Graphics()->SetColor(1, 1, 1, 1);
 								str_copy(m_aTooltip, "Bezier out-tangent. Left mouse to drag. Hold ctrl to be more precise. Shift+right click to reset.");
-								ms_pUiGotContext = pId;
+								m_pUiGotContext = pId;
 							}
 							else
 								Graphics()->SetColor(aColors[c].r, aColors[c].g, aColors[c].b, 1.0f);
@@ -7491,7 +7469,7 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 								m_ShowEnvelopePreview = SHOWENV_SELECTED;
 								Graphics()->SetColor(1, 1, 1, 1);
 								str_copy(m_aTooltip, "Bezier in-tangent. Left mouse to drag. Hold ctrl to be more precise. Shift+right click to reset.");
-								ms_pUiGotContext = pId;
+								m_pUiGotContext = pId;
 							}
 							else
 								Graphics()->SetColor(aColors[c].r, aColors[c].g, aColors[c].b, 1.0f);
@@ -7644,15 +7622,13 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		// handle box selection
 		if(s_Operation == EEnvelopeEditorOp::OP_BOX_SELECT)
 		{
-			IGraphics::CLineItem aLines[4] = {
-				{s_MouseXStart, s_MouseYStart, Ui()->MouseX(), s_MouseYStart},
-				{s_MouseXStart, s_MouseYStart, s_MouseXStart, Ui()->MouseY()},
-				{s_MouseXStart, Ui()->MouseY(), Ui()->MouseX(), Ui()->MouseY()},
-				{Ui()->MouseX(), s_MouseYStart, Ui()->MouseX(), Ui()->MouseY()}};
 			Ui()->ClipEnable(&View);
-			Graphics()->LinesBegin();
-			Graphics()->LinesDraw(aLines, std::size(aLines));
-			Graphics()->LinesEnd();
+			CUIRect SelectionRect;
+			SelectionRect.x = s_MouseXStart;
+			SelectionRect.y = s_MouseYStart;
+			SelectionRect.w = Ui()->MouseX() - s_MouseXStart;
+			SelectionRect.h = Ui()->MouseY() - s_MouseYStart;
+			SelectionRect.DrawOutline(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 			Ui()->ClipDisable();
 
 			if(!Ui()->MouseButton(0))
@@ -8443,7 +8419,7 @@ void CEditor::RenderMousePointer()
 	{
 		Graphics()->QuadsSetRotation(pi / 2.0f);
 	}
-	if(ms_pUiGotContext == Ui()->HotItem())
+	if(m_pUiGotContext == Ui()->HotItem())
 	{
 		Graphics()->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
 	}
@@ -8953,6 +8929,42 @@ void CEditor::OnMouseMove(vec2 MousePos)
 	Ui()->MapScreen();
 }
 
+void CEditor::MouseAxisLock(vec2 &CursorRel)
+{
+	if(Input()->AltIsPressed())
+	{
+		const vec2 CurrentWorldPos = vec2(Ui()->MouseWorldX(), Ui()->MouseWorldY()) / 32.0f;
+
+		if(m_MouseAxisLockState == EAxisLock::Start)
+		{
+			m_MouseAxisInitialPos = CurrentWorldPos;
+			m_MouseAxisLockState = EAxisLock::None;
+			return; // delta would be 0, calculate it in next frame
+		}
+
+		const vec2 Delta = CurrentWorldPos - m_MouseAxisInitialPos;
+
+		// lock to axis if moved mouse by 1 block
+		if(m_MouseAxisLockState == EAxisLock::None && (std::abs(Delta.x) > 1.0f || std::abs(Delta.y) > 1.0f))
+		{
+			m_MouseAxisLockState = (std::abs(Delta.x) > std::abs(Delta.y)) ? EAxisLock::Horizontal : EAxisLock::Vertical;
+		}
+
+		if(m_MouseAxisLockState == EAxisLock::Horizontal)
+		{
+			CursorRel.y = 0;
+		}
+		else if(m_MouseAxisLockState == EAxisLock::Vertical)
+		{
+			CursorRel.x = 0;
+		}
+	}
+	else
+	{
+		m_MouseAxisLockState = EAxisLock::Start;
+	}
+}
+
 void CEditor::HandleAutosave()
 {
 	const float Time = Client()->GlobalTime();
@@ -9085,6 +9097,7 @@ void CEditor::OnUpdate()
 	if(CursorType != IInput::CURSOR_NONE)
 	{
 		Ui()->ConvertMouseMove(&CursorRel.x, &CursorRel.y, CursorType);
+		MouseAxisLock(CursorRel);
 		Ui()->OnCursorMove(CursorRel.x, CursorRel.y);
 	}
 
@@ -9124,7 +9137,7 @@ void CEditor::OnRender()
 	else
 		m_AnimateTime = 0;
 
-	ms_pUiGotContext = nullptr;
+	m_pUiGotContext = nullptr;
 	Ui()->StartCheck();
 
 	Ui()->Update(m_MouseWorldPos);
@@ -9172,6 +9185,7 @@ void CEditor::OnClose()
 
 void CEditor::OnDialogClose()
 {
+	m_Dialog = DIALOG_NONE;
 	Graphics()->UnloadTexture(&m_FilePreviewImage);
 	Sound()->UnloadSample(m_FilePreviewSound);
 	m_FilePreviewSound = -1;

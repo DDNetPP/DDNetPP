@@ -1717,8 +1717,17 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					return;
 				}
 
+				int NumConnectedClients = 0;
+				for(int i = 0; i < MaxClients(); ++i)
+				{
+					if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+					{
+						NumConnectedClients++;
+					}
+				}
+
 				// reserved slot
-				if(ClientId >= MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
+				if(NumConnectedClients > MaxClients() - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientId, pPassword))
 				{
 					m_NetServer.Drop(ClientId, "This server is full");
 					return;
@@ -1906,7 +1915,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if(!aPreInputClients[Id])
 							continue;
 
-						SendPackMsg(&PreInput, MSGFLAG_VITAL | MSGFLAG_NORECORD, Id);
+						SendPackMsg(&PreInput, MSGFLAG_FLUSH | MSGFLAG_NORECORD, Id);
 					}
 				}
 			}
@@ -2757,14 +2766,13 @@ void CServer::PumpNetwork(bool PacketWaiting)
 						CUnpacker Unpacker;
 						Unpacker.Reset((unsigned char *)Packet.m_pData + sizeof(SERVERBROWSE_GETINFO), Packet.m_DataSize - sizeof(SERVERBROWSE_GETINFO));
 						int SrvBrwsToken = Unpacker.GetInt();
-						if(Unpacker.Error())
+						if(Unpacker.Error() || SrvBrwsToken < 0)
 						{
 							continue;
 						}
 
 						CPacker Packer;
 						GetServerInfoSixup(&Packer, SrvBrwsToken, RateLimitServerInfoConnless());
-
 						CNetBase::SendPacketConnlessWithToken7(m_NetServer.Socket(), &Packet.m_Address, Packer.Data(), Packer.Size(), ResponseToken, m_NetServer.GetToken(Packet.m_Address));
 					}
 					else if(Type != -1)
@@ -3932,9 +3940,9 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 
 	CMysqlConfig Config;
 	bool Write;
-	if(str_comp_nocase(pResult->GetString(0), "w") == 0)
+	if(str_comp_nocase(pResult->GetString(0), "r") == 0)
 		Write = false;
-	else if(str_comp_nocase(pResult->GetString(0), "r") == 0)
+	else if(str_comp_nocase(pResult->GetString(0), "w") == 0)
 		Write = true;
 	else
 	{

@@ -2481,6 +2481,7 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == ERaceState::STARTED)
 	{
 		pPlayer->KillCharacter(WEAPON_SELF);
+		pPlayer->Respawn();
 	}
 }
 

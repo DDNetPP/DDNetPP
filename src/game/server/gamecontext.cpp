@@ -1868,13 +1868,7 @@ void CGameContext::OnClientConnected(int ClientId, void *pData)
 
 	// Check which team the player should be on
 	const int StartTeam = (Spec || g_Config.m_SvTournamentMode) ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientId);
-
-	if(m_apPlayers[ClientId])
-		delete m_apPlayers[ClientId];
-	m_apPlayers[ClientId] = new(ClientId) CPlayer(this, m_NextUniqueClientId, ClientId, StartTeam);
-	m_apPlayers[ClientId]->SetInitialAfk(Afk);
-	m_apPlayers[ClientId]->m_LastWhisperTo = LastWhisperTo;
-	m_NextUniqueClientId += 1;
+	CreatePlayer(ClientId, StartTeam, Afk, LastWhisperTo);
 
 	SendMotd(ClientId);
 	SendSettings(ClientId);
@@ -4407,6 +4401,17 @@ void CGameContext::CreateAllEntities(bool Initial)
 		}
 	}
 	dbg_msg("Game Layer", "Found Shop Tiles (%d)", ShopTiles);
+}
+
+CPlayer *CGameContext::CreatePlayer(int ClientId, int StartTeam, bool Afk, int LastWhisperTo)
+{
+	if(m_apPlayers[ClientId])
+		delete m_apPlayers[ClientId];
+	m_apPlayers[ClientId] = new(ClientId) CPlayer(this, m_NextUniqueClientId, ClientId, StartTeam);
+	m_apPlayers[ClientId]->SetInitialAfk(Afk);
+	m_apPlayers[ClientId]->m_LastWhisperTo = LastWhisperTo;
+	m_NextUniqueClientId += 1;
+	return m_apPlayers[ClientId];
 }
 
 void CGameContext::DeleteTempfile()

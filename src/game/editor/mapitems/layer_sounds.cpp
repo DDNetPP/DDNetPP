@@ -112,16 +112,7 @@ CSoundSource *CLayerSounds::NewSource(int x, int y)
 
 void CLayerSounds::BrushSelecting(CUIRect Rect)
 {
-	// draw selection rectangle
-	IGraphics::CLineItem Array[4] = {
-		IGraphics::CLineItem(Rect.x, Rect.y, Rect.x + Rect.w, Rect.y),
-		IGraphics::CLineItem(Rect.x + Rect.w, Rect.y, Rect.x + Rect.w, Rect.y + Rect.h),
-		IGraphics::CLineItem(Rect.x + Rect.w, Rect.y + Rect.h, Rect.x, Rect.y + Rect.h),
-		IGraphics::CLineItem(Rect.x, Rect.y + Rect.h, Rect.x, Rect.y)};
-	Graphics()->TextureClear();
-	Graphics()->LinesBegin();
-	Graphics()->LinesDraw(Array, 4);
-	Graphics()->LinesEnd();
+	Rect.DrawOutline(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 int CLayerSounds::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
@@ -133,17 +124,16 @@ int CLayerSounds::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 
 	for(const auto &Source : m_vSources)
 	{
-		float px = fx2f(Source.m_Position.x);
-		float py = fx2f(Source.m_Position.y);
+		float SourceX = fx2f(Source.m_Position.x);
+		float SourceY = fx2f(Source.m_Position.y);
 
-		if(px > Rect.x && px < Rect.x + Rect.w && py > Rect.y && py < Rect.y + Rect.h)
+		if(SourceX > Rect.x && SourceX < Rect.x + Rect.w && SourceY > Rect.y && SourceY < Rect.y + Rect.h)
 		{
-			CSoundSource n = Source;
+			CSoundSource NewSource = Source;
+			NewSource.m_Position.x -= f2fx(Rect.x);
+			NewSource.m_Position.y -= f2fx(Rect.y);
 
-			n.m_Position.x -= f2fx(Rect.x);
-			n.m_Position.y -= f2fx(Rect.y);
-
-			pGrabbed->m_vSources.push_back(n);
+			pGrabbed->m_vSources.push_back(NewSource);
 		}
 	}
 
@@ -156,13 +146,12 @@ void CLayerSounds::BrushPlace(std::shared_ptr<CLayer> pBrush, vec2 WorldPos)
 	std::vector<CSoundSource> vAddedSources;
 	for(const auto &Source : pSoundLayer->m_vSources)
 	{
-		CSoundSource n = Source;
+		CSoundSource NewSource = Source;
+		NewSource.m_Position.x += f2fx(WorldPos.x);
+		NewSource.m_Position.y += f2fx(WorldPos.y);
 
-		n.m_Position.x += f2fx(WorldPos.x);
-		n.m_Position.y += f2fx(WorldPos.y);
-
-		m_vSources.push_back(n);
-		vAddedSources.push_back(n);
+		m_vSources.push_back(NewSource);
+		vAddedSources.push_back(NewSource);
 	}
 	m_pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionSoundPlace>(m_pEditor, m_pEditor->m_SelectedGroup, m_pEditor->m_vSelectedLayers[0], vAddedSources));
 	m_pEditor->m_Map.OnModify();

@@ -268,6 +268,7 @@ public:
 	char m_aaZoneLeaveMsg[NUM_TUNEZONES][256];
 
 	void CreateAllEntities(bool Initial);
+	CPlayer *CreatePlayer(int ClientId, int StartTeam, bool Afk, int LastWhisperTo);
 
 	char m_aDeleteTempfile[128];
 	void DeleteTempfile();
