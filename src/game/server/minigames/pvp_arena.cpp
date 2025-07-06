@@ -54,17 +54,17 @@ void CPvpArena::Join(CPlayer *pPlayer)
 
 	pChr->RequestTeleToTile(TILE_PVP_ARENA_SPAWN)
 		.DelayInSeconds(4)
-		.OnPreSuccess([=]() {
+		.OnPreSuccess([=, this]() {
 			SavePosition(pChr->GetPlayer());
 		})
-		.OnPostSuccess([=]() {
+		.OnPostSuccess([=, this]() {
 			pPlayer->m_Account.m_PvpArenaTickets--;
 			pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			pChr->m_IsPvpArenaing = true;
 			pChr->m_isDmg = true;
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
 		})
-		.OnFailure([=](const char *pShort, const char *pLong) {
+		.OnFailure([=, this](const char *pShort, const char *pLong) {
 			char aError[512];
 			str_format(aError, sizeof(aError), "[PVP] %s", pLong);
 			SendChatTarget(pChr->GetPlayer()->GetCid(), aError);
@@ -95,7 +95,7 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 
 	pChr->RequestTeleToPos(OldPos)
 		.DelayInSeconds(6)
-		.OnPostSuccess([=]() {
+		.OnPostSuccess([=, this]() {
 			ClearSavedPosition(pPlayer);
 
 			pPlayer->m_Account.m_PvpArenaTickets++;
@@ -106,7 +106,7 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Successfully teleported out of arena.");
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] You got your ticket back because you have survived.");
 		})
-		.OnFailure([=](const char *pShort, const char *pLong) {
+		.OnFailure([=, this](const char *pShort, const char *pLong) {
 			char aError[512];
 			str_format(aError, sizeof(aError), "[PVP] %s", pLong);
 			SendChatTarget(pChr->GetPlayer()->GetCid(), aError);
