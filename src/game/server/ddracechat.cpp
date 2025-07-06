@@ -1171,7 +1171,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		}
 	}
 
-	if(m_VoteCloseTime && m_VoteCreator == ClientId && (IsKickVote() || IsSpecVote()))
+	if(IsRunningKickOrSpecVote(ClientId))
 	{
 		Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1204,7 +1204,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		if(Team < 0 || Team >= TEAM_SUPER)
 			Team = m_pController->Teams().GetFirstEmptyTeam();
 
-		if(pPlayer->m_Last_Team + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
+		if(pPlayer->m_LastDDRaceTeamChange + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 				"You can\'t change teams that fast!");
@@ -1240,7 +1240,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 				Server()->ClientName(pPlayer->GetCid()),
 				Team);
 			SendChat(-1, TEAM_ALL, aBuf);
-			pPlayer->m_Last_Team = Server()->Tick();
+			pPlayer->m_LastDDRaceTeamChange = Server()->Tick();
 
 			if(m_pController->Teams().IsPractice(Team))
 				SendChatTarget(pPlayer->GetCid(), "Practice mode enabled for your team, happy practicing!");
