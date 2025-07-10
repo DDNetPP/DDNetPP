@@ -519,7 +519,6 @@ public:
 	// other
 
 	EDisplayScore m_DisplayScore;
-	bool m_ScoreFixForDDNet;
 	int m_AllowTimeScore;
 	/*
 		m_MinigameScore

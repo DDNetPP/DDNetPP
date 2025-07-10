@@ -20,10 +20,7 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	{
 		if(pPlayer->IsInstagibMinigame())
 		{
-			if(pPlayer->m_ScoreFixForDDNet)
-				return pPlayer->m_InstaScore * 60;
-			else
-				return pPlayer->m_InstaScore;
+			return pPlayer->m_InstaScore;
 		}
 		else
 			return -9999;
@@ -32,10 +29,7 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	{
 		if(pPlayer->m_IsSurvivaling)
 		{
-			if(pSnapReceiver->m_ScoreFixForDDNet)
-				return pPlayer->m_Account.m_SurvivalKills * 60;
-			else
-				return pPlayer->m_Account.m_SurvivalKills;
+			return pPlayer->m_Account.m_SurvivalKills;
 		}
 		else
 			return -9999;
@@ -46,43 +40,25 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 		{
 			if(pPlayer->IsLoggedIn())
 			{
-				if(pSnapReceiver->m_ScoreFixForDDNet)
-					return pPlayer->GetLevel() * 60;
-				else
-					return pPlayer->GetLevel();
+				return pPlayer->GetLevel();
 			}
-			else if(pSnapReceiver->m_ScoreFixForDDNet)
-				return -9999;
-			else
-				return 0;
+			return 0;
 		}
 		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::BLOCK)
 		{
 			if(pPlayer->IsLoggedIn())
 			{
-				if(pSnapReceiver->m_ScoreFixForDDNet)
-					return pPlayer->m_Account.m_BlockPoints * 60;
-				else
-					return pPlayer->m_Account.m_BlockPoints;
+				return pPlayer->m_Account.m_BlockPoints;
 			}
-			else if(pSnapReceiver->m_ScoreFixForDDNet)
-				return -9999;
-			else
-				return 0;
+			return 0;
 		}
 		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::CURRENT_SPREE)
 		{
-			if(pSnapReceiver->m_ScoreFixForDDNet)
-				return pPlayer->m_KillStreak * 60;
-			else
-				return pPlayer->m_KillStreak;
+			return pPlayer->m_KillStreak;
 		}
 		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::KING_OF_THE_HILL)
 		{
-			if(pSnapReceiver->m_ScoreFixForDDNet)
-				return pPlayer->m_KingOfTheHillScore * 60;
-			else
-				return pPlayer->m_KingOfTheHillScore;
+			return pPlayer->m_KingOfTheHillScore;
 		}
 	}
 
