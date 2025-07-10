@@ -118,8 +118,8 @@ public:
 
 	// If your minigame is race based
 	// you probably want to overwrite this method
-	// and return EScore::SCORE_TIME
-	virtual EScore ScoreType() { return EScore::SCORE_BLOCK; }
+	// and return EDisplayScore::TIME
+	virtual EDisplayScore ScoreType() { return EDisplayScore::BLOCK; }
 
 	// will be included in the snapshot
 	virtual int ScoreLimit(CPlayer *pPlayer) { return 0; }

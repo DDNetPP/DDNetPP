@@ -518,7 +518,7 @@ public:
 
 	// other
 
-	EScore m_DisplayScore;
+	EDisplayScore m_DisplayScore;
 	bool m_ScoreFixForDDNet;
 	int m_AllowTimeScore;
 	/*

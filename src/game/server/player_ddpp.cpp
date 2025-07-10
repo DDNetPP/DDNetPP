@@ -152,7 +152,7 @@ void CPlayer::ResetDDPP()
 	m_autospreadgun_offer = false;
 	//Block points
 	m_LastToucherId = -1;
-	m_DisplayScore = (EScore)g_Config.m_SvDisplayScore;
+	m_DisplayScore = GameServer()->m_DisplayScore;
 	m_Language = LANG_EN;
 	if(!str_comp_nocase("ru", g_Config.m_SvLanguage))
 		m_Language = LANG_RU;

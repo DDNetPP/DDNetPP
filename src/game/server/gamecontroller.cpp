@@ -5,6 +5,7 @@
 #include <engine/shared/protocolglue.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/score.h>
 #include <game/teamscore.h>
 
@@ -722,10 +723,10 @@ void IGameController::Snap(int SnappingClient)
 	{
 		if(GameServer()->IsMinigaming(pPlayer->GetCid()) && !pPlayer->m_IsJailed)
 		{
-			if(GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
+			if(GameServer()->MinigameScoreType(SnappingClient) == EDisplayScore::TIME)
 				pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 		}
-		else if(pPlayer->m_DisplayScore == SCORE_TIME)
+		else if(pPlayer->m_DisplayScore == EDisplayScore::TIME)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	}
 

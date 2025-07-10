@@ -3,16 +3,14 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
-#include <cstring>
-
 #include "gamecontext.h"
 
-EScore CGameContext::MinigameScoreType(int ClientId)
+EDisplayScore CGameContext::MinigameScoreType(int ClientId)
 {
 	CMinigame *pMinigame = GetMinigame(ClientId);
 	if(pMinigame)
 		pMinigame->ScoreType();
-	return SCORE_BLOCK;
+	return EDisplayScore::BLOCK;
 }
 
 CMinigame *CGameContext::GetMinigame(int ClientId)

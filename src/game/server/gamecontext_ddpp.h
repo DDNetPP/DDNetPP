@@ -174,7 +174,10 @@ public:
 
 	// also returns true for jail
 	bool IsMinigaming(int ClientId);
-	EScore MinigameScoreType(int ClientId);
+	EDisplayScore MinigameScoreType(int ClientId);
+
+	// set by the config sv_display_score
+	EDisplayScore m_DisplayScore = EDisplayScore::TIME;
 
 	// returns the currently active minigame or nullptr
 	//

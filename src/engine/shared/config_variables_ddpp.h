@@ -117,7 +117,8 @@ MACRO_CONFIG_STR(SvChatDiscordWebhook, sv_chat_discord_webhook, 512, "", CFGFLAG
 //Server/Config side
 MACRO_CONFIG_INT(SvInstagibMode, sv_insta, 0, 0, 4, CFGFLAG_SERVER, "0=ddrace 1=gdm 2=undefined 3=idm 4=undefined") //undefined were LMSgrenade and LMSrifle but got removed because it was unfinished and only confused the real vanilla survival
 MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count from 0 on reconnect in scoreboard 1=load sql scores in scoreboard")
-MACRO_CONFIG_INT(SvDisplayScore, sv_display_score, 0, 0, 4, CFGFLAG_SERVER, "0=time (default) 1=level 2=block 3=current spree 4=hill")
+MACRO_CONFIG_STR(SvDisplayScore, sv_display_score, 512, "time", CFGFLAG_SERVER, "values: time, level, block, current_spree, king_of_the_hill")
+
 MACRO_CONFIG_STR(SvLanguage, sv_language, 16, "en", CFGFLAG_SERVER, "en, ru")
 // TODO: add chain here that blocks standard gametypes like CTF,DM,LTS and so on
 MACRO_CONFIG_STR(SvGameTypeName, sv_game_type_name, 16, "DDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 0")

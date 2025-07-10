@@ -587,38 +587,26 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
 
-	if(!str_comp_nocase(pResult->GetString(0), "time"))
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!pPlayer)
+		return;
+
+	if(pResult->NumArguments() == 0)
 	{
-		pPlayer->m_DisplayScore = SCORE_TIME;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'time'.");
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "Your current display score type is %s.", display_score_to_str(pPlayer->m_DisplayScore));
+		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientId, "You can change it to any of these: " DISPLAY_SCORE_VALUES);
+		return;
 	}
-	else if(!str_comp_nocase(pResult->GetString(0), "level"))
-	{
-		pPlayer->m_DisplayScore = SCORE_LEVEL;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'level'.");
-	}
-	else if(!str_comp_nocase(pResult->GetString(0), "block"))
-	{
-		pPlayer->m_DisplayScore = SCORE_BLOCK;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'block' (block points).");
-	}
-	else if(!str_comp_nocase(pResult->GetString(0), "current_spree"))
-	{
-		pPlayer->m_DisplayScore = SCORE_CURRENT_SPREE;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'current_spree'.");
-	}
-	else if(!str_comp_nocase(pResult->GetString(0), "hill"))
-	{
-		pPlayer->m_DisplayScore = SCORE_KING_OF_THE_HILL;
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] Changed displayed score to 'hill'.");
-	}
+
+	if(str_to_display_score(pResult->GetString(0), &pPlayer->m_DisplayScore))
+		pSelf->SendChatTarget(pResult->m_ClientId, "Updated display score.");
 	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[SCORE] You can choose what the player score will display:");
-		pSelf->SendChatTarget(pResult->m_ClientId, "time, level, block, current_spree, hill");
-	}
+		pSelf->SendChatTarget(pResult->m_ClientId, "Invalid score name pick one of those: " DISPLAY_SCORE_VALUES);
 }
 
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)

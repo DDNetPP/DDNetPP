@@ -2737,6 +2737,7 @@ if(SERVER)
     ddpp/accounts.h
     ddpp/ascii_table.h
     ddpp/dummymode.h
+    ddpp/enums.cpp
     ddpp/enums.h
     ddpp/http.cpp
     ddpp/letters.cpp

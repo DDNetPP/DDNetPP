@@ -45,19 +45,30 @@ enum
 // 	WEAPON_WORLD = -1, // death tiles etc
 // };
 
-enum EScore
+enum class EDisplayScore
 {
-	SCORE_TIME = 0,
-	SCORE_LEVEL = 1,
-	SCORE_BLOCK = 2,
-	SCORE_CURRENT_SPREE = 3,
-	SCORE_KING_OF_THE_HILL = 4,
+	TIME,
+	LEVEL,
+	BLOCK,
+	CURRENT_SPREE,
+	KING_OF_THE_HILL,
+
+	NUM_SCORES,
 };
+
+#define DISPLAY_SCORE_VALUES "time, level, block, current_spree, king_of_the_hill"
 
 enum class EDummyTest
 {
 	NONE,
 	BLMAPCHILL_POLICE,
 };
+
+// writes based on the input pInputText the output pDisplayScore
+// returns true on match
+// returns false on no match
+bool str_to_display_score(const char *pInputText, EDisplayScore *pDisplayScore);
+
+const char *display_score_to_str(EDisplayScore Score);
 
 #endif
