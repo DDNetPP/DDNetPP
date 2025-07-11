@@ -89,9 +89,8 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_TwblCallbackCtx.m_pGameServer = this;
 	m_vDeferQueue.resize(0);
 
-	// https://github.com/ddnet-insta/ddnet-insta/issues/341
-	if(!str_to_display_score(g_Config.m_SvDisplayScore, &m_DisplayScore))
-		log_warn("ddnet++", "'%s' is not a valid display score pick one of those: " DISPLAY_SCORE_VALUES, g_Config.m_SvDisplayScore);
+	// default value, since we can't parse config at this point
+	m_DisplayScore = EDisplayScore::TIME;
 }
 
 void CGameContext::DestructDDPP()

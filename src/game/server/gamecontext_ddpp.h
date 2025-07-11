@@ -177,7 +177,7 @@ public:
 	EDisplayScore MinigameScoreType(int ClientId);
 
 	// set by the config sv_display_score
-	EDisplayScore m_DisplayScore = EDisplayScore::TIME;
+	EDisplayScore m_DisplayScore;
 
 	// returns the currently active minigame or nullptr
 	//
