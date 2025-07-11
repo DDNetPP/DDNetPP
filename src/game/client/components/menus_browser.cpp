@@ -133,7 +133,10 @@ void CMenus::RenderServerbrowserServerList(CUIRect View, bool &WasListboxItemAct
 		COL_FRIENDS,
 		COL_PLAYERS,
 		COL_PING,
+	};
 
+	enum
+	{
 		UI_ELEM_LOCK_ICON = 0,
 		UI_ELEM_FAVORITE_ICON,
 		UI_ELEM_NAME_1,
@@ -1389,6 +1392,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 	m_pRemoveFriend = nullptr;
 	for(auto &vFriends : m_avFriends)
 		vFriends.clear();
+	m_avFriends[FRIEND_OFF].reserve(GameClient()->Friends()->NumFriends());
 	for(int FriendIndex = 0; FriendIndex < GameClient()->Friends()->NumFriends(); ++FriendIndex)
 	{
 		m_avFriends[FRIEND_OFF].emplace_back(GameClient()->Friends()->GetFriend(FriendIndex));

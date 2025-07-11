@@ -863,7 +863,7 @@ int CTouchControls::NextActiveAction(int Action) const
 		return ACTION_FIRE;
 	default:
 		dbg_assert(false, "Action invalid for NextActiveAction");
-		return NUM_ACTIONS;
+		dbg_break();
 	}
 }
 
@@ -1370,6 +1370,7 @@ std::optional<CTouchControls::CTouchButton> CTouchControls::ParseButton(const js
 		return {};
 	}
 	std::vector<CButtonVisibility> vParsedVisibilities;
+	vParsedVisibilities.reserve(Visibilities.u.array.length);
 	for(unsigned VisibilityIndex = 0; VisibilityIndex < Visibilities.u.array.length; ++VisibilityIndex)
 	{
 		const json_value &Visibility = Visibilities[VisibilityIndex];
