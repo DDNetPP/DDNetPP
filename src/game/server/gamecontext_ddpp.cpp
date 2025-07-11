@@ -1554,6 +1554,9 @@ void CGameContext::DDPP_Tick()
 	if(g_Config.m_SvOffDDPP)
 		return;
 
+	if(g_Config.m_SvServerInfoExpireRate != 0 && Server()->Tick() % (Server()->TickSpeed() * g_Config.m_SvServerInfoExpireRate) == 0)
+		Server()->ExpireServerInfo();
+
 	if(m_iBroadcastDelay > 0)
 		m_iBroadcastDelay--;
 
