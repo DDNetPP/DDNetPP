@@ -49,6 +49,9 @@ class CGameContext : public IGameServer
 	bool m_IsReconnectFloodDetected = false;
 
 public:
+	const char *ServerInfoClientScoreKind() override;
+	int ServerInfoClientScoreValue(int ClientId) override;
+
 	// Sets the server in join/leave spam alert mode
 	// this should be called when a high amount of reconnects is detected
 	// and again if it stopped
@@ -989,6 +992,7 @@ private:
 	static void ConActivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
 	void RegisterDDNetPPCommands();
 

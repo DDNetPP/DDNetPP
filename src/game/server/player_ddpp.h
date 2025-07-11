@@ -518,6 +518,13 @@ public:
 
 	// other
 
+	// the score value that will be shown in the scoreboard
+	// or master server
+	// ReceivingClientId might be -1 if it is used for the master server
+	// otherwise it is the id of the other in game player that will see the score in his
+	// scoreboard
+	int GetScoreValue(int ReceivingClientId);
+
 	EDisplayScore m_DisplayScore;
 	int m_AllowTimeScore;
 	/*

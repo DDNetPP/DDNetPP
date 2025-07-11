@@ -221,6 +221,25 @@ int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CP
 	return HadFlag;
 }
 
+int CGameControllerDDNetPP::ServerInfoClientScoreValue(CPlayer *pPlayer)
+{
+	return pPlayer->GetScoreValue(-1);
+}
+
+const char *CGameControllerDDNetPP::ServerInfoClientScoreKind()
+{
+	switch(GameServer()->m_DisplayScore)
+	{
+	case EDisplayScore::TIME: return "time";
+	case EDisplayScore::LEVEL: return "points";
+	case EDisplayScore::BLOCK: return "points";
+	case EDisplayScore::CURRENT_SPREE: return "points";
+	case EDisplayScore::KING_OF_THE_HILL: return "points";
+	case EDisplayScore::NUM_SCORES: return "points";
+	}
+	return "time";
+}
+
 void CGameControllerDDNetPP::DetectReconnectFlood()
 {
 	int Threshold = 0;

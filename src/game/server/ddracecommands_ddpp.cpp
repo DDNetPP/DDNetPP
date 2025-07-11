@@ -30,6 +30,7 @@ void CGameContext::RegisterDDNetPPCommands()
 #include <game/ddracecommands_ddpp.h>
 #undef CONSOLE_COMMAND
 	Console()->Chain("sv_captcha_room", ConchainCaptchaRoom, this);
+	Console()->Chain("sv_display_score", ConchainDisplayScore, this);
 }
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
@@ -1402,6 +1403,37 @@ void CGameContext::ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserDa
 	}
 	if(Success)
 		pfnCallback(pResult, pCallbackUserData);
+}
+
+void CGameContext::ConchainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	if(pResult->NumArguments() == 0)
+	{
+		pfnCallback(pResult, pCallbackUserData);
+		return;
+	}
+
+	if(!str_to_display_score(pResult->GetString(0), &pSelf->m_DisplayScore))
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid display score pick one of those: " DISPLAY_SCORE_VALUES, pResult->GetString(0));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet-insta", aBuf);
+		return;
+	}
+
+	pfnCallback(pResult, pCallbackUserData);
+
+	for(CPlayer *pPlayer : pSelf->m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		pPlayer->m_DisplayScore = pSelf->m_DisplayScore;
+	}
+
+	pSelf->Server()->ExpireServerInfo();
 }
 
 void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)

@@ -115,6 +115,35 @@ public:
 	virtual int SnapScoreLimit(int SnappingClient);
 
 	/*
+		Function: ServerInfoClientScoreValue
+			This method determines the value that should be used as score
+			in the master server for a given player.
+			See also `SnapPlayerScore()` for the value that will be displayed
+			in the in game scoreboard.
+			See also `ServerInfoClientScoreKind()` to determine the master server
+			type (points/time).
+
+		Arguments:
+			pPlayer - CPlayer that is being sent to the master server
+
+		Returns:
+			return score to be shown in the master server info
+	*/
+	virtual int ServerInfoClientScoreValue(CPlayer *pPlayer);
+
+	/*
+		Function: ServerInfoClientScoreKind
+			This method detemines the value of the key
+			"client_score_kind" in the master server info.
+			Officially supported values are "points" and "time".
+			See also `ServerInfoClientScoreValue` to find the matching value.
+
+		Returns:
+			return either "points" or "time" depending on the score type in the master
+	*/
+	virtual const char *ServerInfoClientScoreKind() { return "time"; }
+
+	/*
 		Function: PrintJoinMessage
 			prints the chat message "entered and %s joined the game"
 			this can be called on join

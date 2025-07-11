@@ -8,12 +8,14 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
+#include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
+#include <game/server/gamecontroller.h>
 #include <game/server/minigames/balance.h>
 #include <game/server/minigames/block_tournament.h>
 #include <game/server/minigames/blockwave.h>
@@ -127,6 +129,22 @@ void CGameContext::DestructDDPP()
 		delete Minigame;
 		Minigame = nullptr;
 	}
+}
+
+const char *CGameContext::ServerInfoClientScoreKind()
+{
+	if(!m_pController)
+		return "time";
+	return m_pController->ServerInfoClientScoreKind();
+}
+
+int CGameContext::ServerInfoClientScoreValue(int ClientId)
+{
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+		return 0;
+	if(!m_pController)
+		return 0;
+	return m_pController->ServerInfoClientScoreValue(m_apPlayers[ClientId]);
 }
 
 void CGameContext::RunDeferredCommands()

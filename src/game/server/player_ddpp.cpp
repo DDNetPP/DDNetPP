@@ -5,6 +5,7 @@
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/ddpp/dummymode.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/entities/dummy/minigame_balance.h>
@@ -666,6 +667,73 @@ float CPlayer::TaserFreezeTime()
 	dbg_msg("taser", "return time=%.2f", Time);
 
 	return Time;
+}
+
+int CPlayer::GetScoreValue(int ReceivingClientId)
+{
+	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[ReceivingClientId];
+	if(pSnapReceiver)
+	{
+		if(pSnapReceiver->IsInstagibMinigame())
+		{
+			if(IsInstagibMinigame())
+				return m_InstaScore;
+			else
+				return -9999;
+		}
+		if(pSnapReceiver->m_IsSurvivaling)
+		{
+			if(m_IsSurvivaling)
+				return m_Account.m_SurvivalKills;
+			else
+				return -9999;
+		}
+
+		// this is a bit cursed
+		// it is used for 1vs1 for now
+		// but ideally it would also be used for survival where BLOCK sounds a bit wrong
+		CMinigame *pMinigame = GameServer()->GetMinigame(pSnapReceiver->GetCid());
+		if(pMinigame && pMinigame->ScoreType() == EDisplayScore::BLOCK)
+			return m_MinigameScore;
+	}
+
+	int DDRaceScore;
+	// This is the time sent to the player while ingame (do not confuse to the one reported to the master server).
+	// Due to clients expecting this as a negative value, we have to make sure it's negative.
+	// Special numbers:
+	// -9999: means no time and isn't displayed in the scoreboard.
+	if(m_Score.has_value())
+	{
+		// shift the time by a second if the player actually took 9999
+		// seconds to finish the map.
+		if(m_Score.value() == 9999)
+			DDRaceScore = -10000;
+		else
+			DDRaceScore = -m_Score.value();
+	}
+	else
+	{
+		DDRaceScore = -9999;
+	}
+
+	// send 0 if times of others are not shown
+	if(ReceivingClientId != m_ClientId && g_Config.m_SvHideScore)
+		DDRaceScore = -9999;
+
+	EDisplayScore DisplayScore = GameServer()->m_DisplayScore;
+	if(pSnapReceiver)
+		DisplayScore = pSnapReceiver->m_DisplayScore;
+
+	switch(DisplayScore)
+	{
+	case EDisplayScore::TIME: return DDRaceScore;
+	case EDisplayScore::LEVEL: return IsLoggedIn() ? GetLevel() : 0;
+	case EDisplayScore::BLOCK: return IsLoggedIn() ? m_Account.m_BlockPoints : 0;
+	case EDisplayScore::CURRENT_SPREE: return m_KillStreak;
+	case EDisplayScore::KING_OF_THE_HILL: return m_KingOfTheHillScore;
+	case EDisplayScore::NUM_SCORES: return 0;
+	}
+	return 0;
 }
 
 void CPlayer::Save(int SetLoggedIn)

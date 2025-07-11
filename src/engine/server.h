@@ -316,7 +316,8 @@ public:
 	virtual void OnStartBlockTournament() = 0;
 	virtual void LogoutAllPlayers() = 0;
 	//virtual void OnDDPPshutdown() = 0;
-
+	virtual const char *ServerInfoClientScoreKind() = 0;
+	virtual int ServerInfoClientScoreValue(int ClientId) = 0;
 	// DDNet++ end
 
 	// `pPersistentData` may be null if this is the first time `IGameServer`
