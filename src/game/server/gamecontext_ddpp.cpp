@@ -91,6 +91,9 @@ void CGameContext::ConstructDDPP(int Resetting)
 
 	// default value, since we can't parse config at this point
 	m_DisplayScore = EDisplayScore::TIME;
+	if(!Resetting)
+		if(!str_to_display_score(Config()->m_SvDisplayScore, &m_DisplayScore))
+			log_warn("ddnet++", "'%s' is not a valid display score pick one of those: " DISPLAY_SCORE_VALUES, g_Config.m_SvDisplayScore);
 }
 
 void CGameContext::DestructDDPP()
