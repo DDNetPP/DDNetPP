@@ -1641,6 +1641,21 @@ void CGameContext::DDPP_Tick()
 	ModifyTileWorkerResultTick();
 }
 
+IGameController *CGameContext::GameController() const
+{
+	return m_pController;
+}
+
+CPlayer *CGameContext::GetPlayer(int ClientId) const
+{
+	return m_apPlayers[ClientId];
+}
+
+bool CGameContext::DisplayScoreAsTime() const
+{
+	return m_DisplayScore == EDisplayScore::TIME;
+}
+
 void CGameContext::LogoutAllPlayers()
 {
 	dbg_msg("ddnet++", "loggin out all players (not working yet...)");

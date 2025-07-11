@@ -66,6 +66,9 @@ public:
 
 	void ConstructDDPP(int Resetting);
 
+	virtual IGameController *GameController() const override;
+	virtual CPlayer *GetPlayer(int ClientId) const override;
+	virtual bool DisplayScoreAsTime() const override;
 	virtual void LogoutAllPlayers() override;
 	virtual void OnStartBlockTournament() override;
 	//virtual void OnDDPPshutdown();

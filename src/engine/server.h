@@ -316,6 +316,9 @@ public:
 	virtual void OnStartBlockTournament() = 0;
 	virtual void LogoutAllPlayers() = 0;
 	//virtual void OnDDPPshutdown() = 0;
+	virtual class IGameController *GameController() const = 0;
+	virtual class CPlayer *GetPlayer(int ClientId) const = 0;
+	virtual bool DisplayScoreAsTime() const = 0;
 
 	// DDNet++ end
 
