@@ -989,6 +989,7 @@ private:
 	static void ConActivateAllShopItems(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConChainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
 	void RegisterDDNetPPCommands();
 

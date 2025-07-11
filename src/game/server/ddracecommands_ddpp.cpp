@@ -30,6 +30,7 @@ void CGameContext::RegisterDDNetPPCommands()
 #include <game/ddracecommands_ddpp.h>
 #undef CONSOLE_COMMAND
 	Console()->Chain("sv_captcha_room", ConchainCaptchaRoom, this);
+	Console()->Chain("sv_display_score", ConChainDisplayScore, this);
 }
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
@@ -1374,6 +1375,26 @@ void CGameContext::ConAddSpamfilter(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->AddSpamfilter(pResult->GetString(0));
+}
+
+void CGameContext::ConChainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	pfnCallback(pResult, pCallbackUserData);
+
+	CGameContext *pThis = static_cast<CGameContext *>(pUserData);
+	CServer *pServer = static_cast<CServer *>(pThis->Server());
+
+	bool Success = true;
+	if(pResult->NumArguments())
+	{
+		str_clean_whitespaces(pThis->Config()->m_SvDisplayScore);
+		Success = str_to_display_score(pThis->Config()->m_SvDisplayScore, &pThis->m_DisplayScore);
+	}
+
+	if(Success)
+		pServer->UpdateServerInfo(true);
+	else
+		log_warn("ddnet++", "'%s' is not a valid display score pick one of those: " DISPLAY_SCORE_VALUES, g_Config.m_SvDisplayScore);
 }
 
 void CGameContext::ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
