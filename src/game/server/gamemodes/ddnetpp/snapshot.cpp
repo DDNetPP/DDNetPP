@@ -4,19 +4,30 @@
 
 #include "ddnetpp.h"
 
-// SnappingClient - Client Id of the player that will receive the snapshot
+// SnappingClient - Client Id of the player that will receive the snapshot, if -1 is provided, snap is treated like for master-server
 // pPlayer - CPlayer that is being snapped
 // DDRaceScore - Current value of the score set by the ddnet code
 int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore)
 {
-	if(SnappingClient < 0 || SnappingClient >= MAX_CLIENTS)
+	EDisplayScore DisplayScore = GameServer()->m_DisplayScore;
+	bool MasterSnap = SnappingClient == -1;
+
+	if(!MasterSnap && (SnappingClient < 0 || SnappingClient >= MAX_CLIENTS))
 		return DDRaceScore;
 
-	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[SnappingClient];
-	if(!pSnapReceiver)
+	if(!pPlayer)
 		return DDRaceScore;
 
-	if(pSnapReceiver->IsInstagibMinigame())
+	CPlayer *pSnapReceiver = nullptr;
+	if(!MasterSnap)
+	{
+		pSnapReceiver = GameServer()->m_apPlayers[SnappingClient];
+		if(!pSnapReceiver)
+			return DDRaceScore;
+		DisplayScore = pSnapReceiver->m_DisplayScore;
+	}
+
+	if(!MasterSnap && pSnapReceiver->IsInstagibMinigame())
 	{
 		if(pPlayer->IsInstagibMinigame())
 		{
@@ -25,7 +36,7 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 		else
 			return -9999;
 	}
-	if(pSnapReceiver->m_IsSurvivaling)
+	if(!MasterSnap && pSnapReceiver->m_IsSurvivaling)
 	{
 		if(pPlayer->m_IsSurvivaling)
 		{
@@ -34,9 +45,9 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 		else
 			return -9999;
 	}
-	else if(pSnapReceiver->m_DisplayScore != EDisplayScore::TIME)
+	else if(DisplayScore != EDisplayScore::TIME)
 	{
-		if(pSnapReceiver->m_DisplayScore == EDisplayScore::LEVEL)
+		if(DisplayScore == EDisplayScore::LEVEL)
 		{
 			if(pPlayer->IsLoggedIn())
 			{
@@ -44,7 +55,7 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 			}
 			return 0;
 		}
-		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::BLOCK)
+		else if(DisplayScore == EDisplayScore::BLOCK)
 		{
 			if(pPlayer->IsLoggedIn())
 			{
@@ -52,11 +63,11 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 			}
 			return 0;
 		}
-		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::CURRENT_SPREE)
+		else if(DisplayScore == EDisplayScore::CURRENT_SPREE)
 		{
 			return pPlayer->m_KillStreak;
 		}
-		else if(pSnapReceiver->m_DisplayScore == EDisplayScore::KING_OF_THE_HILL)
+		else if(DisplayScore == EDisplayScore::KING_OF_THE_HILL)
 		{
 			return pPlayer->m_KingOfTheHillScore;
 		}
@@ -80,9 +91,12 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	// this is a bit cursed
 	// it is used for 1vs1 for now
 	// but ideally it would also be used for survival where SCORE_BLOCK sounds a bit wrong
-	CMinigame *pMinigame = GameServer()->GetMinigame(pSnapReceiver->GetCid());
-	if(pMinigame && pMinigame->ScoreType() == EDisplayScore::BLOCK)
-		return pPlayer->m_MinigameScore;
+	if(!MasterSnap)
+	{
+		CMinigame *pMinigame = GameServer()->GetMinigame(pSnapReceiver->GetCid());
+		if(pMinigame && pMinigame->ScoreType() == EDisplayScore::BLOCK)
+			return pPlayer->m_MinigameScore;
+	}
 	return DDRaceScore;
 }
 
