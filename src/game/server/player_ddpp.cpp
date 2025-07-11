@@ -2,6 +2,7 @@
 
 #include <base/system.h>
 #include <engine/shared/config.h>
+#include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/ddpp/dummymode.h>
@@ -671,7 +672,9 @@ float CPlayer::TaserFreezeTime()
 
 int CPlayer::GetScoreValue(int ReceivingClientId)
 {
-	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[ReceivingClientId];
+	CPlayer *pSnapReceiver = nullptr;
+	if(ReceivingClientId >= 0 && ReceivingClientId < MAX_CLIENTS)
+		pSnapReceiver = GameServer()->m_apPlayers[ReceivingClientId];
 	if(pSnapReceiver)
 	{
 		if(pSnapReceiver->IsInstagibMinigame())
