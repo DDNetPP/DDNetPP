@@ -189,15 +189,15 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 	{
 		pChr->RequestTeleToTile(TILE_BLOCK_DM_A1, pGameState->m_SpawnCounter++)
 			.DelayInSeconds(3)
-			.OnPreSuccess([=]() {
+			.OnPreSuccess([=, this]() {
 				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)
 					SavePosition(pChr->GetPlayer());
 			})
-			.OnPostSuccess([=]() {
+			.OnPostSuccess([=, this]() {
 				if(pChr->GetPlayer()->m_pBlockOneVsOneState == pGameState)
 					OnTeleportSuccess(pGameState, pChr->GetPlayer());
 			})
-			.OnFailure([=](const char *pShort, const char *pLong) {
+			.OnFailure([=, this](const char *pShort, const char *pLong) {
 				char aError[512];
 				str_format(aError, sizeof(aError), "[1vs1] game aborted '%s' failed to teleport (%s)", Server()->ClientName(pChr->GetPlayer()->GetCid()), pShort);
 				SendChatTarget(pPlayer1->GetCid(), aError);
