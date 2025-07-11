@@ -707,12 +707,21 @@ int CPlayer::GetScoreValue(int ReceivingClientId)
 	// -9999: means no time and isn't displayed in the scoreboard.
 	if(m_Score.has_value())
 	{
-		// shift the time by a second if the player actually took 9999
-		// seconds to finish the map.
-		if(m_Score.value() == 9999)
-			DDRaceScore = -10000;
+		// in snaps the score is negative
+		if(pSnapReceiver)
+		{
+			// shift the time by a second if the player actually took 9999
+			// seconds to finish the map.
+			if(m_Score.value() == 9999)
+				DDRaceScore = -10000;
+			else
+				DDRaceScore = -m_Score.value();
+		}
+		// in the master server the score is postivie
 		else
-			DDRaceScore = -m_Score.value();
+		{
+			DDRaceScore = m_Score.value();
+		}
 	}
 	else
 	{
