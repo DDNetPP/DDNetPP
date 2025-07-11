@@ -41,6 +41,7 @@
 #include <base/ddpp_logs.h>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
+#include <game/server/gamecontroller.h>
 #include <thread>
 #include <vector>
 #include <zlib.h>
@@ -2648,7 +2649,7 @@ void CServer::UpdateRegisterServerInfo()
 	JsonWriter.WriteStrValue(GameServer()->Version());
 
 	JsonWriter.WriteAttribute("client_score_kind");
-	JsonWriter.WriteStrValue("time"); // "points" or "time"
+	JsonWriter.WriteStrValue(GameServer()->DisplayScoreAsTime() ? "time" : "points"); // "points" or "time"
 
 	JsonWriter.WriteAttribute("requires_login");
 	JsonWriter.WriteBoolValue(false);
@@ -2672,7 +2673,7 @@ void CServer::UpdateRegisterServerInfo()
 			JsonWriter.WriteIntValue(m_aClients[i].m_Country); // ISO 3166-1 numeric
 
 			JsonWriter.WriteAttribute("score");
-			JsonWriter.WriteIntValue(m_aClients[i].m_Score.value_or(-9999));
+			JsonWriter.WriteIntValue(GameServer()->GameController()->SnapPlayerScore(-1, GameServer()->GetPlayer(i), m_aClients[i].m_Score.value_or(-9999)));
 
 			JsonWriter.WriteAttribute("is_player");
 			JsonWriter.WriteBoolValue(GameServer()->IsClientPlayer(i));
