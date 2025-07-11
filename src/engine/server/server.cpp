@@ -2637,7 +2637,7 @@ void CServer::UpdateRegisterServerInfo()
 	JsonWriter.WriteStrValue(GameServer()->Version());
 
 	JsonWriter.WriteAttribute("client_score_kind");
-	JsonWriter.WriteStrValue("time"); // "points" or "time"
+	JsonWriter.WriteStrValue(GameServer()->ServerInfoClientScoreKind()); // "points" or "time"
 
 	JsonWriter.WriteAttribute("requires_login");
 	JsonWriter.WriteBoolValue(false);
@@ -2661,7 +2661,7 @@ void CServer::UpdateRegisterServerInfo()
 			JsonWriter.WriteIntValue(m_aClients[i].m_Country); // ISO 3166-1 numeric
 
 			JsonWriter.WriteAttribute("score");
-			JsonWriter.WriteIntValue(m_aClients[i].m_Score.value_or(-9999));
+			JsonWriter.WriteIntValue(GameServer()->ServerInfoClientScoreValue(i)); // ddnet++
 
 			JsonWriter.WriteAttribute("is_player");
 			JsonWriter.WriteBoolValue(GameServer()->IsClientPlayer(i));
