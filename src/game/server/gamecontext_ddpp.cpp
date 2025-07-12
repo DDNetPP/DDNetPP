@@ -144,6 +144,9 @@ int CGameContext::ServerInfoClientScoreValue(int ClientId)
 		return 0;
 	if(!m_pController)
 		return 0;
+	// can happen during map change
+	if(!m_apPlayers[ClientId])
+		return 0;
 	return m_pController->ServerInfoClientScoreValue(m_apPlayers[ClientId]);
 }
 

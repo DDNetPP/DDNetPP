@@ -223,6 +223,9 @@ int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CP
 
 int CGameControllerDDNetPP::ServerInfoClientScoreValue(CPlayer *pPlayer)
 {
+	// can happen during map change smh
+	if(!pPlayer)
+		return 0;
 	return pPlayer->GetScoreValue(-1);
 }
 
