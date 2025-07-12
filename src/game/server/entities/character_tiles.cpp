@@ -177,12 +177,12 @@ void CCharacter::OnTileShop()
 		{
 			if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+				GameServer()->SendBroadcast(GameServer()->Loc("~ S H O P ~", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 			}
 		}
 		else // no flag --> print always
 		{
-			GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+			GameServer()->SendBroadcast(GameServer()->Loc("~ S H O P ~", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 		}
 	}
 	if(m_EnteredShop)

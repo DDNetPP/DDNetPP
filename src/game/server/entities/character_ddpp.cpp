@@ -1129,19 +1129,34 @@ void CCharacter::DDPP_FlagTick()
 		{
 			if(!m_pPlayer->m_xpmsg)
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+				GameServer()->SendBroadcast(GameServer()->Loc("~ S H O P ~", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 			}
 			else if(m_survivexpvalue == 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+				str_format(
+					aBuf,
+					sizeof(aBuf),
+					"~ %s ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip",
+					GameServer()->Loc("S H O P", m_pPlayer->GetCid()),
+					m_pPlayer->GetXP(),
+					m_pPlayer->GetNeededXP(),
+					VIPBonus);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 				m_pPlayer->GiveXP(1);
 			}
 			else if(m_survivexpvalue > 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+				str_format(
+					aBuf,
+					sizeof(aBuf),
+					"~ %s ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival",
+					GameServer()->Loc("S H O P", m_pPlayer->GetCid()),
+					m_pPlayer->GetXP(),
+					m_pPlayer->GetNeededXP(),
+					VIPBonus,
+					m_survivexpvalue);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 				m_pPlayer->GiveXP(1); //flag
 				m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -1150,19 +1165,32 @@ void CCharacter::DDPP_FlagTick()
 			{
 				if(!m_pPlayer->m_xpmsg)
 				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
+					GameServer()->SendBroadcast(GameServer()->Loc("~ S H O P ~", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 				}
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+					str_format(
+						aBuf,
+						sizeof(aBuf),
+						"~ %s ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag",
+						GameServer()->Loc("S H O P", m_pPlayer->GetCid()),
+						m_pPlayer->GetXP(),
+						m_pPlayer->GetNeededXP());
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+					str_format(
+						aBuf,
+						sizeof(aBuf),
+						"~ %s ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival",
+						GameServer()->Loc("S H O P", m_pPlayer->GetCid()),
+						m_pPlayer->GetXP(),
+						m_pPlayer->GetNeededXP(),
+						m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival

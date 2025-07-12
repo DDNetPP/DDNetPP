@@ -29,6 +29,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Деньги";
 		if(!str_comp("S H O P", pStr))
 			return "Магазин Ашота";
+		if(!str_comp("~ S H O P ~", pStr))
+			return "~ Магазин Ашота ~";
 		if(!str_comp("usage", pStr))
 			return "Используй";
 		if(!str_comp("itemname", pStr))
@@ -47,11 +49,32 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			return "Срок";
 		if(!str_comp("stats", pStr))
 			return "статистика";
+		if(!str_comp("Are you sure you want to buy this item?", pStr))
+			return "Вы действительно хотите купить этот предмет?";
+		if(!str_comp("If you want to buy an item press f3.", pStr))
+			return "Если вы хоите купить предмет нажмите f3.";
+		if(!str_comp(
+			   "Welcome to the shop! If you need help, use '/shop help'.\n\n"
+			   "By shooting to the right you go one site forward,\n"
+			   "and by shooting left you go one site backwards.\n\n"
+			   "If you need more help, visit '/shop help'.",
+			   pStr))
+			return "Приветствую тебя в шопе! Если тебе что то не понятно, используй '/shop help'.\n\n"
+			       "Стреляя вправо, вы продвигаетесь на один участок вперед.,\n"
+			       "и, нажимая влево, вы перемещаетесь на одну позицию назад.\n\n"
+			       "Если тебе нужно больше помощи, используй '/shop help'.";
 		if(!str_comp("Frozen by anti ground hook", pStr))
 			return "Замороженный антизаземлитель (Frozen by anti ground hook)"; // TODO: this is deepl.com
-		// TODO: this is only used in /stats for now but this could be used in a lot of places
-		if(!str_comp("not logged in", pStr))
-			return "Игрок не авторизован"; // player is not authorized
+		if(pStr[0] == 'n')
+		{
+			// TODO: this is only used in /stats for now but this could be used in a lot of places
+			if(!str_comp("not logged in", pStr))
+				return "Игрок не авторизован"; // player is not authorized
+			if(!str_comp("no", pStr))
+				return "нет";
+		}
+		if(!str_comp("yes", pStr))
+			return "да";
 		if(pStr[0] == '\'')
 		{
 			if(!str_comp("'%s' is on a killing spree with %d kills!", pStr))

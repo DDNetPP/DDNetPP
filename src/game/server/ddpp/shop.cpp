@@ -701,15 +701,19 @@ void CShop::ConfirmPurchase(int ClientId)
 		return;
 
 	char aBuf[256];
-	str_copy(aBuf,
+	str_format(aBuf,
+		sizeof(aBuf),
 		"***************************\n"
-		"        ~  S H O P  ~      \n"
+		"        ~  %s  ~      \n" // S H O P
 		"***************************\n\n"
-		"Are you sure you want to buy this item?\n\n"
-		"f3 - yes\n"
-		"f4 - no\n\n"
+		"%s\n\n" // Are you sure you want to buy this item?
+		"f3 - %s\n" // yes
+		"f4 - %s\n\n" // no
 		"***************************\n",
-		sizeof(aBuf));
+		GameServer()->Loc("S H O P", ClientId),
+		GameServer()->Loc("Are you sure you want to buy this item?", ClientId),
+		GameServer()->Loc("yes", ClientId),
+		GameServer()->Loc("no", ClientId));
 
 	m_pGameContext->AbuseMotd(aBuf, ClientId);
 	m_PurchaseState[ClientId] = 2;
@@ -727,10 +731,11 @@ void CShop::PurchaseEnd(int ClientId, bool IsCancel)
 		str_copy(aResult, "You canceled the purchase.", sizeof(aResult));
 		str_format(aBuf, sizeof(aBuf),
 			"***************************\n"
-			"        ~  S H O P  ~      \n"
+			"        ~  %s  ~           \n" // S H O P
 			"***************************\n\n"
 			"%s\n\n"
 			"***************************\n",
+			GameServer()->Loc("S H O P", ClientId),
 			aResult);
 
 		m_pGameContext->AbuseMotd(aBuf, ClientId);
@@ -821,18 +826,23 @@ void CShop::ShopWindow(int Dir, int ClientId)
 
 	if(m_Page[ClientId] == 0)
 	{
-		str_copy(aMotd,
+		str_format(aMotd,
+			sizeof(aMotd),
 			"***************************\n"
-			"        ~  S H O P  ~      \n"
+			"        ~  %s  ~           \n" // S H O P
 			"***************************\n\n"
-			"Welcome to the shop! If you need help, use '/shop help'.\n\n"
-			"By shooting to the right you go one site forward,\n"
-			"and by shooting left you go one site backwards.\n\n"
-			"If you need more help, visit '/shop help'."
+			"%s"
 			"\n\n"
 			"***************************\n"
-			"If you want to buy an item press f3.",
-			sizeof(aMotd));
+			"%s", // If you want to buy an item press f3.
+			GameServer()->Loc("S H O P", ClientId),
+			GameServer()->Loc(
+				"Welcome to the shop! If you need help, use '/shop help'.\n\n"
+				"By shooting to the right you go one site forward,\n"
+				"and by shooting left you go one site backwards.\n\n"
+				"If you need more help, visit '/shop help'.",
+				ClientId),
+			GameServer()->Loc("If you want to buy an item press f3.", ClientId));
 		m_pGameContext->AbuseMotd(aMotd, ClientId);
 		return;
 	}
@@ -844,23 +854,27 @@ void CShop::ShopWindow(int Dir, int ClientId)
 		if(++ItemIndex != m_Page[ClientId])
 			continue;
 
-		str_format(aMotd, sizeof(aMotd),
+		str_format(
+			aMotd,
+			sizeof(aMotd),
 			"***************************\n"
-			"        ~  S H O P  ~      \n"
+			"        ~  %s  ~           \n" // S H O P
 			"***************************\n\n"
-			"%s\n\n"
+			"%s\n\n" // title
 			"Needed level: %s\n"
 			"Price: %s\n"
 			"Time: %s\n\n"
-			"%s\n\n"
+			"%s\n\n" // description
 			"***************************\n"
-			"If you want to buy an item press f3.\n\n\n"
+			"%s\n\n\n" // If you want to buy an item press f3.
 			"              ~ %d/%d ~              ",
+			GameServer()->Loc("S H O P", ClientId),
 			Item->Title(),
 			Item->NeededLevelStr(ClientId),
 			Item->PriceStr(ClientId),
 			Item->OwnUntilLong(),
 			Item->Description(),
+			GameServer()->Loc("If you want to buy an item press f3.", ClientId),
 			m_Page[ClientId], MaxShopPages);
 	}
 	m_pGameContext->AbuseMotd(aMotd, ClientId);
