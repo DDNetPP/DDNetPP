@@ -7,9 +7,11 @@ class CDummyAdventure : public CDummyBase
 {
 public:
 	CDummyAdventure(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual ~CDummyAdventure(){};
+	void OnTick() override;
+	~CDummyAdventure() override = default;
 	const char *ModeStr() override { return "Adventure"; }
+
+	bool m_IsAimbot = false;
 };
 
 #endif

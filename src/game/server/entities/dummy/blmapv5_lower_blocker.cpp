@@ -20,9 +20,9 @@ CDummyBlmapV5LowerBlocker::CDummyBlmapV5LowerBlocker(class CPlayer *pPlayer) :
 
 void CDummyBlmapV5LowerBlocker::OnDeath()
 {
-	m_angry = 0;
-	m_rj_failed = false;
-	m_panic_hook = false;
+	m_Angry = 0;
+	m_RjFailed = false;
+	m_PanicHook = false;
 }
 
 void CDummyBlmapV5LowerBlocker::OnTick()
@@ -128,15 +128,15 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 
 		if(GetPos().x + OffsetX > 22 * 32 && GetVel().x < 7.1f)
 		{
-			m_rj_failed = true;
+			m_RjFailed = true;
 		}
 
-		if(m_rj_failed)
+		if(m_RjFailed)
 		{
 			Left();
 			if(GetPos().x + OffsetX < 18 * 32)
 			{
-				m_rj_failed = false;
+				m_RjFailed = false;
 			}
 		}
 	}
@@ -144,7 +144,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 	{
 		if(GetPos().x + OffsetX > 15 * 32 && GetPos().x + OffsetX < 22 * 32) //never stay still over the middle freeze
 		{
-			m_panic_hook = true;
+			m_PanicHook = true;
 			if(GetPos().x + OffsetX > 19 * 32)
 			{
 				Right();
@@ -171,13 +171,13 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 			AimX(pChr->GetPos().x - GetPos().x);
 			AimY(pChr->GetPos().y - GetPos().y);
 
-			if((pChr->GetPos().y > GetPos().y + 64 || (m_panic_hook && pChr->GetPos().y < GetPos().y)) && //hook enemys up in freeze or hook enemys down to get speed up and avoid falkling in freeze
+			if((pChr->GetPos().y > GetPos().y + 64 || (m_PanicHook && pChr->GetPos().y < GetPos().y)) && //hook enemys up in freeze or hook enemys down to get speed up and avoid falkling in freeze
 				!(GetPos().y < 88 * 32 && GetVel().y < -0.1f)) //but dont do it when the bot is looking but to do a roof nade
 			{
 				Hook(1);
 			}
 
-			if(m_angry)
+			if(m_Angry)
 			{
 				if(pChr->GetPos().x + OffsetX - 60 > GetPos().x + OffsetX)
 				{
@@ -205,13 +205,13 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 
 				if(IsGrounded())
 				{
-					int rand_val = rand() % 7;
+					int RandVal = rand() % 7;
 
-					if(rand_val == 1)
+					if(RandVal == 1)
 					{
 						Jump();
 					}
-					else if(rand_val == 2 || rand_val == 4 || rand_val == 6)
+					else if(RandVal == 2 || RandVal == 4 || RandVal == 6)
 					{
 						if(distance(pChr->GetPos(), GetPos()) < 60)
 						{
@@ -222,14 +222,14 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 			}
 		}
 
-		m_panic_hook = false;
+		m_PanicHook = false;
 
 		//angry checker
-		if(m_angry)
+		if(m_Angry)
 		{
 			if(m_pCharacter->m_FreezeTime == 0)
 			{
-				m_angry--;
+				m_Angry--;
 			}
 			if(Server()->Tick() % 10 == 0) //angry emotes machen
 			{
@@ -238,9 +238,9 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 		}
 		if(GetVel().y < -1.2f && GetPos().y < 88 * 32)
 		{
-			if(Server()->Tick() % 10 == 0 && m_angry == 0)
+			if(Server()->Tick() % 10 == 0 && m_Angry == 0)
 			{
-				m_angry = Server()->TickSpeed() * 20;
+				m_Angry = Server()->TickSpeed() * 20;
 			}
 		}
 

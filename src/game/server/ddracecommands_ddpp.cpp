@@ -18,8 +18,6 @@
 
 #include "gamecontext.h"
 
-bool CheckClientId(int ClientId);
-
 void CGameContext::RegisterDDNetPPCommands()
 {
 #define CHAT_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);

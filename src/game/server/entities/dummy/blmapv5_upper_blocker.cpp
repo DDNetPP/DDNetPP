@@ -30,14 +30,14 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 	Hook(0);
 	StopMoving();
 	Aim(45, 45);
-	int bot_x = GetPos().x + g_Config.m_SvDummyMapOffsetX * 32;
+	int BotX = GetPos().x + g_Config.m_SvDummyMapOffsetX * 32;
 
 	if(GetPos().y > 38 * 32) //too low
 	{
 		Die();
 	}
 
-	if(bot_x > 16 * 32 && GetPos().y < 27 * 32) //lovley wayblock spot
+	if(BotX > 16 * 32 && GetPos().y < 27 * 32) //lovley wayblock spot
 	{
 	}
 	else //not at lovley wayblock spot
@@ -55,7 +55,7 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 			Left();
 
 			//failed?
-			if(bot_x < 22 * 32)
+			if(BotX < 22 * 32)
 			{
 				m_move_left = false;
 			}
@@ -64,7 +64,7 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 		{
 			Right();
 
-			if(bot_x > 10 * 32 && bot_x < 17 * 32) //jump in tunnel
+			if(BotX > 10 * 32 && BotX < 17 * 32) //jump in tunnel
 			{
 				Jump();
 				if(Server()->Tick() % 20 == 0)
@@ -73,7 +73,7 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 				}
 			}
 
-			if(bot_x > 28 * 32 && IsGrounded())
+			if(BotX > 28 * 32 && IsGrounded())
 			{
 				Jump();
 			}
@@ -82,7 +82,7 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 			{
 				Hook();
 			}
-			if(bot_x > 35 * 32 && GetVel().x == 0.000000f) //hit the rocketjump wall
+			if(BotX > 35 * 32 && GetVel().x == 0.000000f) //hit the rocketjump wall
 			{
 				Jump();
 				if(GetVel().y < -1.1f && m_pCharacter->m_FreezeTime == 0)

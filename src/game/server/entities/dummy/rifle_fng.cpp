@@ -16,8 +16,8 @@ CDummyRifleFng::CDummyRifleFng(class CPlayer *pPlayer) :
 
 void CDummyRifleFng::OnTick()
 {
-	int offset_x = g_Config.m_SvDummyMapOffsetX * 32; //offset for ChillBlock5 -667
-	int offset_y = g_Config.m_SvDummyMapOffsetY * 32;
+	int OffsetX = g_Config.m_SvDummyMapOffsetX * 32; //offset for ChillBlock5 -667
+	int OffsetY = g_Config.m_SvDummyMapOffsetY * 32;
 
 	Hook(0);
 	Jump(0);
@@ -52,9 +52,9 @@ void CDummyRifleFng::OnTick()
 	}
 
 	//don't fall in holes
-	if(GetPos().x + offset_x > 90 * 32 && GetPos().x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+	if(GetPos().x + OffsetX > 90 * 32 && GetPos().x + OffsetX < 180 * 32) //map middle (including 3 fall traps)
 	{
-		if(GetPos().y + offset_y > 73 * 32)
+		if(GetPos().y + OffsetY > 73 * 32)
 		{
 			Jump();
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hopsa");

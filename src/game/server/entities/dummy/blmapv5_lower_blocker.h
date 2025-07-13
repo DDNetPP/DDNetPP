@@ -7,15 +7,15 @@ class CDummyBlmapV5LowerBlocker : public CDummyBase
 {
 public:
 	CDummyBlmapV5LowerBlocker(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual void OnDeath() override;
-	virtual ~CDummyBlmapV5LowerBlocker(){};
+	void OnTick() override;
+	void OnDeath() override;
+	~CDummyBlmapV5LowerBlocker() override = default;
 	const char *ModeStr() override { return "BlmapV5 lower"; }
 
 private:
-	bool m_rj_failed;
-	bool m_panic_hook;
-	int m_angry;
+	int m_Angry = 0;
+	bool m_RjFailed = false;
+	bool m_PanicHook = false;
 };
 
 #endif
