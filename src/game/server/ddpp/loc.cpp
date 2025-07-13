@@ -153,7 +153,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			if(!str_comp("You already have maximum level for spawn rifle.", pStr))
 				return "У вас уже есть максимальный уровень для появления винтовки.";
 			if(!str_comp("You already have maximum level for spawn grenade.", pStr))
-				return "У вас максимальный лвл для появление гранаты";
+				return "У вас уже есть максимальный уровень для появление гранаты.";
 			if(!str_comp("You already have maximum level for spawn shotgun.", pStr))
 				return "У вас уже есть максимальный уровень для появления дробовика.";
 			if(!str_comp("You already own this item.", pStr))
