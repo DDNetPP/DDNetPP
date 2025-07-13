@@ -1031,7 +1031,12 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoId]->GetCid()));
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			"==== '%s' %s ====",
+			pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoId]->GetCid()),
+			pSelf->Loc("Account Info", ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Register date [%s]", pSelf->m_apPlayers[InfoId]->m_Account.m_aRegisterDate);
 		pSelf->SendChatTarget(ClientId, aBuf);
@@ -2636,7 +2641,7 @@ void CGameContext::ConPay(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() != 2)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "Use '/pay <amount> <player>' to send money to other players'");
+		pSelf->SendChatLoc(pResult->m_ClientId, "Use '/pay <amount> <player>' to send money to other players'");
 		return;
 	}
 
@@ -3179,17 +3184,15 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	pSelf->SendChatTarget(pResult->m_ClientId, "~~~ Account Info ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientId, "*** register & login ***");
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "~~~ %s ~~~", pSelf->Loc("Account Info", pResult->m_ClientId));
+	pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 	pSelf->SendChatTarget(pResult->m_ClientId, "/register <name> <password> <password>");
 	pSelf->SendChatTarget(pResult->m_ClientId, "/login <name> <password>");
-	pSelf->SendChatTarget(pResult->m_ClientId, "*** other commands ***");
 	pSelf->SendChatTarget(pResult->m_ClientId, "/logout");
 	pSelf->SendChatTarget(pResult->m_ClientId, "/changepassword");
 	pSelf->SendChatTarget(pResult->m_ClientId, "-------------------");
-	pSelf->SendChatTarget(pResult->m_ClientId, "Accounts are used to save your stats on this server.");
-	//pSelf->SendChatTarget(pResult->m_ClientId, " ");
-	//pSelf->SendChatTarget(pResult->m_ClientId, "Tipp: name and password shoudl be different");
+	pSelf->SendChatLoc(pResult->m_ClientId, "Accounts are used to save your stats on this server.");
 }
 
 void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)

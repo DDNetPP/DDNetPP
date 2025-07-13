@@ -53,8 +53,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			return "Время";
 		if(!str_comp("stats", pStr))
 			return "статистика";
-		if(!str_comp("Are you sure you want to buy this item?", pStr))
-			return "Вы действительно хотите купить этот предмет?";
+		if(!str_comp("Use '/pay <amount> <player>' to send money to other players'", pStr))
+			return "Используй '/pay <количество> <player>' чтобы отправить деньги остальным игрокам";
 		if(!str_comp("If you want to buy an item press f3.", pStr))
 			return "Если вы хоите купить предмет нажмите f3.";
 		if(!str_comp(
@@ -119,6 +119,15 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 				return "[JOIN] Вы уже присоединились к турниру блоков";
 			if(!str_comp("[EVENT] BLOCK IN %d SECONDS\n%d joined (min %d)\n/join to participate", pStr))
 				return "[ИВЕНТ] БЛОК ТУРНИР ЧЕРЕЗ %d\n%d Зашли (мин %d)\nИспользуйте /join";
+		}
+		if(pStr[0] == 'A')
+		{
+			if(!str_comp("Account Info", pStr))
+				return "Информация аккаунта";
+			if(!str_comp("Accounts are used to save your stats on this server.", pStr))
+				return "Аккаунты чтобы сохранить вашу статистику.";
+			if(!str_comp("Are you sure you want to buy this item?", pStr))
+				return "Вы действительно хотите купить этот предмет?";
 		}
 		if(pStr[0] == 'P')
 		{
