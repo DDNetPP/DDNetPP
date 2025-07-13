@@ -315,7 +315,7 @@ bool CShopItemChidraqul::Buy(int ClientId)
 		return false;
 	if(pPlayer->m_BoughtGame)
 	{
-		GameServer()->SendChatTarget(ClientId, "You already own this item.");
+		GameServer()->SendChatLoc(ClientId, "You already own this item.");
 		return false;
 	}
 	pPlayer->m_BoughtGame = true;
@@ -505,7 +505,7 @@ bool CShopItemSpawnShotgun::Buy(int ClientId)
 		return false;
 	if(pPlayer->m_Account.m_SpawnWeaponShotgun >= 5)
 	{
-		GameServer()->SendChatTarget(ClientId, "You already have maximum level for spawn shotgun.");
+		GameServer()->SendChatLoc(ClientId, "You already have maximum level for spawn shotgun.");
 		return false;
 	}
 	if(!CShopItem::Buy(ClientId))
@@ -522,7 +522,7 @@ bool CShopItemSpawnGrenade::Buy(int ClientId)
 		return false;
 	if(pPlayer->m_Account.m_SpawnWeaponGrenade >= 5)
 	{
-		GameServer()->SendChatTarget(ClientId, "You already have maximum level for spawn grenade.");
+		GameServer()->SendChatLoc(ClientId, "You already have maximum level for spawn grenade.");
 		return false;
 	}
 	if(!CShopItem::Buy(ClientId))
@@ -539,7 +539,7 @@ bool CShopItemSpawnRifle::Buy(int ClientId)
 		return false;
 	if(pPlayer->m_Account.m_SpawnWeaponRifle >= 5)
 	{
-		GameServer()->SendChatTarget(ClientId, "You already have maximum level for spawn rifle.");
+		GameServer()->SendChatLoc(ClientId, "You already have maximum level for spawn rifle.");
 		return false;
 	}
 	if(!CShopItem::Buy(ClientId))
@@ -861,17 +861,20 @@ void CShop::ShopWindow(int Dir, int ClientId)
 			"        ~  %s  ~           \n" // S H O P
 			"***************************\n\n"
 			"%s\n\n" // title
-			"Needed level: %s\n"
-			"Price: %s\n"
-			"Time: %s\n\n"
+			"%s: %s\n" // Needed level
+			"%s: %s\n" // Price
+			"%s: %s\n\n" // Time
 			"%s\n\n" // description
 			"***************************\n"
 			"%s\n\n\n" // If you want to buy an item press f3.
 			"              ~ %d/%d ~              ",
 			GameServer()->Loc("S H O P", ClientId),
 			Item->Title(),
+			GameServer()->Loc("Needed level", ClientId),
 			Item->NeededLevelStr(ClientId),
+			GameServer()->Loc("Price", ClientId),
 			Item->PriceStr(ClientId),
+			GameServer()->Loc("Time", ClientId),
 			Item->OwnUntilLong(),
 			Item->Description(),
 			GameServer()->Loc("If you want to buy an item press f3.", ClientId),

@@ -39,6 +39,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			return "Предмет";
 		if(!str_comp("Level", pStr))
 			return "Уровень";
+		if(!str_comp("Needed level", pStr))
+			return "Требуеться лвл";
 		if(!str_comp("Kills", pStr))
 			return "убийств";
 		if(!str_comp("Deaths", pStr))
@@ -47,6 +49,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			return "БЛОК";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
+		if(!str_comp("Time", pStr))
+			return "Время";
 		if(!str_comp("stats", pStr))
 			return "статистика";
 		if(!str_comp("Are you sure you want to buy this item?", pStr))
@@ -137,6 +141,14 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 				return "Вы должны быть живы, чтобы купить этот товар.";
 			if(!str_comp("You already have spooky ghost.", pStr))
 				return "У вас уже есть жуткий призрак.";
+			if(!str_comp("You already have maximum level for spawn rifle.", pStr))
+				return "У вас уже есть максимальный уровень для появления винтовки.";
+			if(!str_comp("You already have maximum level for spawn grenade.", pStr))
+				return "У вас максимальный лвл для появление гранаты";
+			if(!str_comp("You already have maximum level for spawn shotgun.", pStr))
+				return "У вас уже есть максимальный уровень для появления дробовика.";
+			if(!str_comp("You already own this item.", pStr))
+				return "У вас уже имееться этот предмет";
 		}
 	}
 	return pStr;
