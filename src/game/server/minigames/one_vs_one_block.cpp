@@ -153,19 +153,21 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 	CCharacter *pChr1 = pPlayer1->GetCharacter();
 	CCharacter *pChr2 = pPlayer2->GetCharacter();
 	CCharacter *apCharacters[] = {pChr1, pChr2};
-	for(CCharacter *pChr : apCharacters)
+	CPlayer *apPlayers[] = {pPlayer1, pPlayer2};
+	for(CPlayer *pPlayer : apPlayers)
 	{
+		CCharacter *pChr = pPlayer->GetCharacter();
 		if(!pChr || !pChr->IsAlive())
 		{
 			// TODO: can this be annoying? We could also delay the round start until the other player spawned
-			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' died", Server()->ClientName(pChr->GetPlayer()->GetCid()));
+			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' died", Server()->ClientName(pPlayer->GetCid()));
 			SendChatTarget(pPlayer1->GetCid(), aBuf);
 			SendChatTarget(pPlayer2->GetCid(), aBuf);
 			return;
 		}
-		if(pChr->GetPlayer()->GetTeam() != TEAM_RED)
+		if(pPlayer->GetTeam() != TEAM_RED)
 		{
-			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' is not in game", Server()->ClientName(pChr->GetPlayer()->GetCid()));
+			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' is not in game", Server()->ClientName(pPlayer->GetCid()));
 			SendChatTarget(pPlayer1->GetCid(), aBuf);
 			SendChatTarget(pPlayer2->GetCid(), aBuf);
 			return;
