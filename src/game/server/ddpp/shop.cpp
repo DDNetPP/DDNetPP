@@ -556,7 +556,7 @@ bool CShopItemSpookyGhost::Buy(int ClientId)
 		return false;
 	if(pPlayer->m_Account.m_SpookyGhost >= 5)
 	{
-		GameServer()->SendChatTarget(ClientId, "You already have spooky ghost.");
+		GameServer()->SendChatTarget(ClientId, GameServer()->Loc("You already have spooky ghost.", ClientId));
 		return false;
 	}
 	if(!CShopItem::Buy(ClientId))
@@ -573,7 +573,7 @@ bool CShopItemWeapon::Buy(int ClientId)
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 	{
-		GameServer()->SendChatTarget(ClientId, "You have to be alive to buy this item.");
+		GameServer()->SendChatTarget(ClientId, GameServer()->Loc("You have to be alive to buy this item.", ClientId));
 		return false;
 	}
 	if(!CShopItem::Buy(ClientId))
@@ -887,7 +887,7 @@ void CShop::BuyItem(int ClientId, const char *pItemName)
 
 	if((g_Config.m_SvShopState == 1) && !IsInShop(ClientId))
 	{
-		m_pGameContext->SendChatTarget(ClientId, "You have to be in the shop to buy some items.");
+		m_pGameContext->SendChatTarget(ClientId, GameServer()->Loc("You have to be in the shop to buy some items.", ClientId));
 		return;
 	}
 	char aBuf[512];
@@ -901,6 +901,6 @@ void CShop::BuyItem(int ClientId, const char *pItemName)
 		Item->Buy(ClientId);
 		return;
 	}
-	str_format(aBuf, sizeof(aBuf), "No such item '%s' see '/shop' for a full list.", pItemName);
+	str_format(aBuf, sizeof(aBuf), GameServer()->Loc("No such item '%s' see '/shop' for a full list.", ClientId), pItemName);
 	m_pGameContext->SendChatTarget(ClientId, aBuf);
 }

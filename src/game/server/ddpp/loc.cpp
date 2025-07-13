@@ -65,6 +65,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 			       "Если тебе нужно больше помощи, используй '/shop help'.";
 		if(!str_comp("Frozen by anti ground hook", pStr))
 			return "Замороженный антизаземлитель (Frozen by anti ground hook)"; // TODO: this is deepl.com
+		if(!str_comp("No such item '%s' see '/shop' for a full list.", pStr))
+			return "Не найдено предмета '%s' посмотри '/shop' для полного листа.";
 		if(pStr[0] == 'n')
 		{
 			// TODO: this is only used in /stats for now but this could be used in a lot of places
@@ -129,6 +131,12 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 				return "Tебе нужно войти в аккаунт. \nИспользуй '/register' или '/login'";
 			if(!str_comp("You need to be logged in to play. \nGet an account with '/register <name> <pw> <pw>'", pStr))
 				return "Чтобы играть, вам нужно войти в систему. \nИспользуй '/register' или '/login'";
+			if(!str_comp("You have to be in the shop to buy some items.", pStr))
+				return "Тебе надо быть в шопе чтобы покупать предметы.";
+			if(!str_comp("You have to be alive to buy this item.", pStr))
+				return "Вы должны быть живы, чтобы купить этот товар.";
+			if(!str_comp("You already have spooky ghost.", pStr))
+				return "У вас уже есть жуткий призрак.";
 		}
 	}
 	return pStr;
