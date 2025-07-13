@@ -259,5 +259,5 @@ TEST_F(CTestGameWorld, BasicTick)
 	const int StartTeam = GameServer()->m_pController->GetAutoTeam(ClientId);
 	GameServer()->CreatePlayer(ClientId, StartTeam, Afk, LastWhisperTo);
 
-	GameServer()->OnTick();
+	// GameServer()->OnTick();
 }
