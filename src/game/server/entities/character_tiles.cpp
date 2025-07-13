@@ -621,6 +621,8 @@ void CCharacter::OnTileMoneyDouble()
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 		return;
 	}
+	if(!m_pPlayer) // seems useless but pleases clang x2
+		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);

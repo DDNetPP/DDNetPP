@@ -1248,7 +1248,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 					Right();
 			}
 			// release hook on enemy when he is frozen on the left side
-			if(!IsPolice(pClosestChr) && IsFrozen(pClosestChr))
+			if(pClosestChr && !IsPolice(pClosestChr) && IsFrozen(pClosestChr))
 				if(pClosestChr->GetPos().x < RAW(364))
 					if(m_pCharacter->Core()->HookedPlayer() == pClosestChr->GetPlayer()->GetCid())
 						Hook(0);

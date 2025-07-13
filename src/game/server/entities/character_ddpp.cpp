@@ -2099,7 +2099,7 @@ void CCharacter::CIRestart()
 	// GameServer()->Score()->SaveCidata(aBuf);
 }
 
-int CCharacter::CIGetDestDist()
+int CCharacter::CIGetDestDist() const
 {
 	//pythagoras mate u rock c:
 	//a²+b²=c²

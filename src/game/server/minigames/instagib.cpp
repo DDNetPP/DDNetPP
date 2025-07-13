@@ -1,9 +1,9 @@
 // gamecontext scoped instagib ddnet++ methods
 
+#include <base/log.h>
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
-#include <cinttypes>
 #include <cstring>
 
 #include "../gamecontext.h"
@@ -27,7 +27,7 @@ void CInstagib::Leave(CPlayer *pPlayer)
 	m_aRestorePos[pPlayer->GetCid()] = true;
 }
 
-void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
+void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool Fng)
 {
 	if(!pPlayer)
 		return;
@@ -51,8 +51,8 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
 	pPlayer->m_IsInstaMode_gdm = false;
 	pPlayer->m_InstaScore = 0;
 
-	pPlayer->m_IsInstaArena_fng = fng;
-	pPlayer->m_IsInstaMode_fng = fng;
+	pPlayer->m_IsInstaArena_fng = Fng;
+	pPlayer->m_IsInstaMode_fng = Fng;
 	if(Weapon == WEAPON_LASER)
 	{
 		pPlayer->m_IsInstaArena_idm = true;
@@ -74,11 +74,11 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
 	GameServer()->SendChatInsta(aBuf, Weapon);
 }
 
-bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
+bool CGameContext::CanJoinInstaArena(bool Grenade, bool PrivateMatch)
 {
-	int cPlayer = 0;
+	int PlayerCount = 0;
 
-	if(grenade)
+	if(Grenade)
 	{
 		for(auto &Player : m_apPlayers)
 		{
@@ -86,7 +86,7 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 			{
 				if(Player->m_IsInstaArena_gdm)
 				{
-					cPlayer++;
+					PlayerCount++;
 					if(Player->m_Insta1on1_id != -1) //if some1 is in 1on1
 					{
 						return false;
@@ -95,7 +95,7 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 			}
 		}
 
-		if(cPlayer >= g_Config.m_SvGrenadeArenaSlots)
+		if(PlayerCount >= g_Config.m_SvGrenadeArenaSlots)
 		{
 			return false;
 		}
@@ -108,7 +108,7 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 			{
 				if(Player->m_IsInstaArena_idm)
 				{
-					cPlayer++;
+					PlayerCount++;
 					if(Player->m_Insta1on1_id != -1) //if some1 is in 1on1
 					{
 						return false;
@@ -117,13 +117,13 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 			}
 		}
 
-		if(cPlayer >= g_Config.m_SvRifleArenaSlots)
+		if(PlayerCount >= g_Config.m_SvRifleArenaSlots)
 		{
 			return false;
 		}
 	}
 
-	return !cPlayer || !PrivateMatch;
+	return !PlayerCount || !PrivateMatch;
 }
 
 void CGameContext::WinInsta1on1(int WinnerId, int LooserId)
@@ -212,7 +212,7 @@ void CGameContext::LeaveInstagib(int Id)
 		return;
 	}
 
-	bool left = true;
+	bool Left = true;
 
 	if(pPlayer->m_IsInstaArena_fng)
 	{
@@ -226,7 +226,7 @@ void CGameContext::LeaveInstagib(int Id)
 		}
 		else
 		{
-			left = false;
+			Left = false;
 		}
 	}
 	else
@@ -241,11 +241,11 @@ void CGameContext::LeaveInstagib(int Id)
 		}
 		else
 		{
-			left = false;
+			Left = false;
 		}
 	}
 
-	if(left)
+	if(Left)
 	{
 		pPlayer->m_IsInstaArena_gdm = false;
 		pPlayer->m_IsInstaArena_idm = false;
@@ -292,20 +292,20 @@ void CGameContext::SendChatInsta(const char *pMsg, int Weapon)
 	}
 }
 
-void CGameContext::DoInstaScore(int score, int id)
+void CGameContext::DoInstaScore(int Score, int Id)
 {
 #if defined(CONF_DEBUG)
-	dbg_msg("insta", "'%s' scored %d in instagib [score: %d]", Server()->ClientName(id), score, m_apPlayers[id]->m_InstaScore);
+	log_debug("insta", "'%s' scored %d in instagib [score: %d]", Server()->ClientName(Id), Score, m_apPlayers[Id]->m_InstaScore);
 #endif
-	CPlayer *pPlayer = m_apPlayers[id];
+	CPlayer *pPlayer = m_apPlayers[Id];
 	if(!pPlayer)
 		return;
 
-	pPlayer->m_InstaScore += score;
+	pPlayer->m_InstaScore += Score;
 	if(pPlayer->GetCharacter())
 		if(pPlayer->m_ShowInstaScoreBroadcast)
 			pPlayer->GetCharacter()->m_UpdateInstaScoreBoard = true;
-	CheckInstaWin(id);
+	CheckInstaWin(Id);
 }
 
 void CGameContext::CheckInstaWin(int Id)

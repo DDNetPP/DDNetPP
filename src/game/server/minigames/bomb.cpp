@@ -307,12 +307,12 @@ int CGameContext::FindNextBomb()
 		if(GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 		{
 			int Dist = 0;
-			for(int i_comp = 0; i_comp < MAX_CLIENTS; i_comp++)
+			for(int IComp = 0; IComp < MAX_CLIENTS; IComp++)
 			{
-				if(GetPlayerChar(i_comp) && GetPlayerChar(i_comp)->m_IsBombing)
+				if(GetPlayerChar(IComp) && GetPlayerChar(IComp)->m_IsBombing)
 				{
-					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(i_comp)->m_Pos.x;
-					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
+					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(IComp)->m_Pos.x;
+					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(IComp)->m_Pos.y;
 
 					//|a| |b|
 					a = abs(a);

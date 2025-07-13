@@ -131,7 +131,7 @@ public:
 	//Chillintelligenz
 	void CITick();
 	void CIRestart();
-	int CIGetDestDist();
+	int CIGetDestDist() const;
 
 	int m_ci_freezetime;
 
