@@ -42,11 +42,11 @@ gen_configs() {
 # 		echo "+ \`$prefix$cmd\` $desc"
 # 	done < <(grep '^CONSOLE_COMMAND' "$header_file")
 # }
-# 
+#
 # gen_rcon_cmds() {
 # 	gen_console_cmds "" src/game/server/instagib/rcon_commands.h
 # }
-# 
+#
 # gen_chat_cmds() {
 # 	gen_console_cmds "/" src/game/server/instagib/chat_commands.h |
 # 		grep -Ev '(ready|pause|shuffle|swap|drop)'
