@@ -30,6 +30,7 @@
 
 #include <chrono>
 #include <cinttypes>
+#include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 #include <fstream> //acc2 sys
@@ -367,11 +368,21 @@ void CGameContext::ModifyTileWorker(CGameContext *pGameServer)
 	dbg_msg("ddnet++", "stopped worker thread");
 }
 
-const char *CGameContext::Loc(const char *pStr, int ClientId)
+const char *CGameContext::Loc(const char *pStr, int ClientId) const
 {
 	if(m_pLoc)
 		return m_pLoc->DDPPLocalize(pStr, ClientId);
 	return pStr;
+}
+
+void CGameContext::SendChatLoc(int ClientId, const char *pFormat, ...) const
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	char aMsg[2048];
+	str_format_v(aMsg, sizeof(aMsg), Loc(pFormat, ClientId), Args);
+	SendChatTarget(ClientId, aMsg);
+	va_end(Args);
 }
 
 void CGameContext::OnInitDDPP()

@@ -75,7 +75,13 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
-	const char *Loc(const char *pStr, int ClientId);
+	const char *Loc(const char *pStr, int ClientId) const;
+
+	// calls SendChatTarget under the hood
+	// the pFormat string will be translated so make sure
+	// it matches the text in server/ddpp/loc.cpp
+	void SendChatLoc(int ClientId, const char *pFormat, ...) const
+		GNUC_ATTRIBUTE((format(printf, 3, 4)));
 
 	void ShowProfile(int ViewerId, int ViewedId);
 	void ShowAdminWelcome(int ClientId);
@@ -172,6 +178,7 @@ public:
 	//usefull everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
+
 	// deprecated use IsMinigaming() instead
 	int IsMinigame(int playerId);
 

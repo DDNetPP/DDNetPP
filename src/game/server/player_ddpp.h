@@ -59,7 +59,7 @@ public:
 	bool DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo);
 
 	int m_Language;
-	int Language() { return m_Language; }
+	int Language() const { return m_Language; }
 	void SetLanguage(int Lang) { m_Language = Lang; }
 	void SetLanguage(const char *pLang);
 
