@@ -20,7 +20,7 @@ public:
 	vec2 m_StandPos;
 
 	int m_Team;
-	int m_AtStand;
+	bool m_AtStand = true;
 	int m_DropTick;
 	int m_DropFreezeTick;
 	int m_GrabTick;

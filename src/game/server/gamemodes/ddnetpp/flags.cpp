@@ -103,7 +103,7 @@ void CGameControllerDDNetPP::FlagTick()
 					pFlag->m_GrabTick = Server()->Tick();
 				}
 
-				pFlag->m_AtStand = 0;
+				pFlag->m_AtStand = false;
 				pFlag->SetCarrier(apCloseCCharacters[i]);
 				pFlag->GetCarrier()->GetPlayer()->m_ChangeTeamOnFlag = true;
 				/*if (!apCloseCCharacters[i]->GetPlayer()->m_Rainbow){
@@ -287,7 +287,7 @@ void CGameControllerDDNetPP::ChangeFlagOwner(int FlagId, int ClientId)
 		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
 
-	pFlag->m_AtStand = 0;
+	pFlag->m_AtStand = false;
 	pFlag->SetCarrier(pChr);
 	pFlag->GetCarrier()->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
 }

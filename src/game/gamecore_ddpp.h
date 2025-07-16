@@ -17,7 +17,7 @@ public:
 	};
 	CFlagCore m_aFlags[2];
 
-	void SetFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId);
+	void SetFlagPos(int FlagId, vec2 Pos, bool AtStand, vec2 Vel, int CarrierId);
 
 	int m_LastHookedPlayer;
 	int m_LastHookedTick;

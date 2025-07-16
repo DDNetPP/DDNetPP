@@ -8,11 +8,11 @@
 
 #include "gamecore.h"
 
-void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, int Stand, vec2 Vel, int CarrierId)
+void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, bool AtStand, vec2 Vel, int CarrierId)
 {
 	m_aFlags[FlagId].m_Pos = Pos;
 	m_aFlags[FlagId].m_Vel = Vel;
-	m_aFlags[FlagId].m_AtStand = Stand;
+	m_aFlags[FlagId].m_AtStand = AtStand;
 	m_aFlags[FlagId].m_CarrierId = CarrierId;
 }
 
