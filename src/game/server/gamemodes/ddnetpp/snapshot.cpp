@@ -12,7 +12,7 @@ void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
 	CGameControllerDDRace::Snap(SnappingClient);
 	SnapFlags(SnappingClient);
-	FakeSnap(SnappingClient);
+	// FakeSnap(SnappingClient);
 }
 
 void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
@@ -88,7 +88,7 @@ void CGameControllerDDNetPP::FakeSnap(int SnappingClient)
 
 	// We dont send the NETOBJTYPE_PLAYERINFO object, because that would make the client render the tee. We could send it every 2nd snapshot, so the client doesnt
 	// have the SNAP_PREV of it and wont render it aswell, but it seems to me that not having the object at all is also fine
-	int FakeId = 60; // TODO: find a good value for this
+	int FakeId = 60; // TODO: find a good value for this has to match the snapped m_HookedPlayer in character.cpp
 
 	// log_info("ddnet++", "sending fake player to cid=%d", SnappingClient);
 
