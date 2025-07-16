@@ -712,13 +712,13 @@ void CCharacter::DDPP_Tick()
 
 	for(int i = 0; i < 2; i++)
 	{
-		CFlag *Flag = GameServer()->m_pController->m_apFlags[i];
-		if(!Flag)
+		CFlag *pFlag = GameServer()->m_pController->m_apFlags[i];
+		if(!pFlag)
 			continue;
 		int CarryId = -1;
-		if(Flag->GetCarrier())
-			CarryId = Flag->GetCarrier()->GetPlayer()->GetCid();
-		m_Core.m_DDNetPP.SetFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
+		if(pFlag->GetCarrier())
+			CarryId = pFlag->GetCarrier()->GetPlayer()->GetCid();
+		m_Core.m_DDNetPP.SetFlagPos(i, pFlag->m_Pos, pFlag->m_AtStand, pFlag->m_Vel, CarryId);
 	}
 	// do we really have to compute that every tick?
 	m_Core.m_DDNetPP.m_RestrictionData.m_CanEnterRoom = CanEnterRoom();
@@ -872,14 +872,8 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	//hook extras
-	//if (m_pPlayer->m_IsHookRainbow)
-	//{
-
-	//}
-
-	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
-	//survivexp stuff
+	// dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
+	// survivexp stuff
 	if(m_SpawnTick)
 	{
 		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 6000) //100min
@@ -969,13 +963,13 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if(Server()->Tick() % 200 == 0) //ddpp public slow tick
+	if(Server()->Tick() % 200 == 0) // ddpp public slow tick
 	{
 		if(m_pPlayer->m_ShowInstaScoreBroadcast)
 			m_UpdateInstaScoreBoard = true;
 	}
 
-	if(m_UpdateInstaScoreBoard) //gets printed on update or every 200 % whatever modulo ticks
+	if(m_UpdateInstaScoreBoard) // gets printed on update or every 200 % whatever modulo ticks
 	{
 		if(m_pPlayer->m_IsInstaArena_gdm)
 		{
@@ -990,7 +984,7 @@ void CCharacter::DDPP_Tick()
 	}
 	m_UpdateInstaScoreBoard = false;
 
-	//General var resetter by ChillerDragon [ I M P O R T A N T] leave var resetter last --> so it wont influence ddpp tick stuff
+	// General var resetter by ChillerDragon [ I M P O R T A N T] leave var resetter last --> so it wont influence ddpp tick stuff
 	if(Server()->Tick() % 20 == 0)
 	{
 		if(m_InBank)
@@ -1197,7 +1191,7 @@ void CCharacter::DDPP_FlagTick()
 				}
 			}
 		}
-		else //not in bank
+		else // not in bank
 		{
 			if(VIPBonus)
 			{
@@ -1302,9 +1296,9 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 
 	Killer = BlockPointsMain(Killer, Weapon, FngScore);
 	XpOnKill(Killer);
-	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
-	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
-	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
+	BlockSpawnProt(Killer); // idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
+	// BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
+	BlockQuestSubDieFuncDeath(Killer); // only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	KillingSpree(Killer); // previously called BlockKillingSpree()
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	for(auto &Minigame : GameServer()->m_vMinigames)
@@ -1360,7 +1354,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 
 	// TODO: refactor this code and put it in own function
 	// balance battle
-	if(m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) //ingame in a balance battle
+	if(m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) // ingame in a balance battle
 	{
 		if(GameServer()->m_BalanceId1 == m_pPlayer->GetCid())
 		{
@@ -1375,7 +1369,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 				{
 					GameServer()->GetPlayerChar(GameServer()->m_BalanceId2)->Die(GameServer()->m_BalanceId2, WEAPON_SELF);
 				}
-				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1, Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2);
+				// dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1, Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2);
 				GameServer()->StopBalanceBattle();
 			}
 		}
@@ -1392,13 +1386,14 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 				{
 					GameServer()->GetPlayerChar(GameServer()->m_BalanceId1)->Die(GameServer()->m_BalanceId1, WEAPON_SELF);
 				}
-				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2, Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1);
+				// dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2, Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1);
 				GameServer()->StopBalanceBattle();
 			}
 		}
 	}
 
-	//bomb
+	// TODO: remove to bomb minigame
+	// bomb
 	if(m_IsBombing)
 	{
 		GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BOMB] you lost bomb because you died.");
@@ -1451,7 +1446,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCid())
 		Dmg = maximum(1, Dmg / 2);
-	//Block points check for touchers (weapons)
+	// Block points check for touchers (weapons)
 	if(From >= 0)
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
@@ -1467,7 +1462,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	if(GetPlayer()->m_IsDummy && GetPlayer()->m_pDummyMode)
 		GetPlayer()->m_pDummyMode->TakeDamage(Force, Dmg, From, Weapon);
 
-	//zCatch ChillerDragon
+	// zCatch ChillerDragon
 	if(From >= 0)
 	{
 		if(g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaMode_gdm && GameServer()->m_apPlayers[From]->m_IsInstaMode_gdm) || (m_pPlayer->m_IsInstaMode_idm && GameServer()->m_apPlayers[From]->m_IsInstaMode_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
@@ -1825,14 +1820,13 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 		return;
 
 	char aBuf[128];
-	//QUEST
 	if(GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_HAMMER)
 	{
 		if(GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
 		{
 			if(GameServer()->m_apPlayers[Killer]->m_QuestProgressValue < 10)
 			{
-				//GameServer()->SendChatTarget(Killer, "[QUEST] hammer the tee 10 times before blocking him.");
+				// GameServer()->SendChatTarget(Killer, "[QUEST] hammer the tee 10 times before blocking him.");
 			}
 			else
 			{
@@ -1847,7 +1841,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 			if(!m_pPlayer->m_HideQuestWarning)
 			{
 				GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
-				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] your dummy doesn't count."); // send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
 			}
 		}
 		else
