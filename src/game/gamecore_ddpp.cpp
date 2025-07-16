@@ -16,61 +16,46 @@ void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, bool AtStand, vec2 Vel
 	m_aFlags[FlagId].m_CarrierId = CarrierId;
 }
 
-void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore) const
-{
-	if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE || m_HookedPlayer == CLIENT_ID_FLAG_RED)
-		pObjCore->m_HookedPlayer = -1;
-	else
-		pObjCore->m_HookedPlayer = m_HookedPlayer;
-}
-
-void CCharacterCore::DDPPRead(const CNetObj_CharacterCore *pObjCore)
-{
-	if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE || m_HookedPlayer == CLIENT_ID_FLAG_RED)
-	{
-		// pass
-	}
-	else
-		m_HookedPlayer = pObjCore->m_HookedPlayer;
-}
-
 void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 {
-	// TODO: hooking is a bit borked at the moment
+	if(!g_Config.m_SvFlagHooking)
+		return;
 
-	// vec2 ClosestPoint;
-	// for(int FlagId = 0; FlagId < 2; FlagId++)
-	// {
-	// 	CFlagCore &Flag = m_aFlags[FlagId];
+	vec2 ClosestPoint;
+	for(int FlagId = 0; FlagId < 2; FlagId++)
+	{
+		CCharacterCoreDDPP::CFlagCore &Flag = m_DDNetPP.m_aFlags[FlagId];
 
-	// 	if(closest_point_on_line(m_HookPos, NewPos, Flag.m_Pos, ClosestPoint))
-	// 	{
-	// 		if(distance(Flag.m_Pos, ClosestPoint) > CFlag::ms_PhysSize + 2.0f)
-	// 			continue;
-	// 		if(Flag.m_AtStand)
-	// 			continue;
+		if(closest_point_on_line(m_HookPos, NewPos, Flag.m_Pos, ClosestPoint))
+		{
+			if(distance(Flag.m_Pos, ClosestPoint) > CFlag::ms_PhysSize + 2.0f)
+				continue;
+			if(Flag.m_AtStand)
+				continue;
 
-	// 		if(Flag.m_CarrierId == -1 && m_HookedPlayer != CLIENT_ID_FLAG_RED && m_HookedPlayer != CLIENT_ID_FLAG_BLUE)
-	// 		{
-	// 			if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[0]) < Distance*/)
-	// 			{
-	// 				m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-	// 				m_HookState = HOOK_GRABBED;
-	// 				m_HookedPlayer = FlagId == FLAG_RED ? CLIENT_ID_FLAG_RED : CLIENT_ID_FLAG_BLUE;
-	// 			}
-	// 		}
-	// 		else
-	// 			dbg_msg(
-	// 				"flag",
-	// 				"distance=%s %.2f < %.2f flag=(%.2f/%.2f) pos=(%.2f/%.2f) carry=%d hookedPlayer=%s",
-	// 				(distance(Flag.m_Pos, ClosestPoint) < CFlag::ms_PhysSize + 2.0f) ? "close_enough" : "toofar",
-	// 				distance(Flag.m_Pos, ClosestPoint), CFlag::ms_PhysSize + 2.0f,
-	// 				Flag.m_Pos.x / 32, Flag.m_Pos.y / 32,
-	// 				ClosestPoint.x / 32, ClosestPoint.y / 32,
-	// 				Flag.m_CarrierId,
-	// 				(m_HookedPlayer == CLIENT_ID_FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
-	// 	}
-	// }
+			if(Flag.m_CarrierId == -1 && m_HookedPlayer != CLIENT_ID_FLAG_RED && m_HookedPlayer != CLIENT_ID_FLAG_BLUE)
+			{
+				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_aFlagPos[0]) < Distance*/)
+				{
+					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+					m_HookState = HOOK_GRABBED;
+					m_HookedPlayer = FlagId == FLAG_RED ? CLIENT_ID_FLAG_RED : CLIENT_ID_FLAG_BLUE;
+				}
+			}
+			// else
+			// {
+			// 	dbg_msg(
+			// 		"flag",
+			// 		"distance=%s %.2f < %.2f flag=(%.2f/%.2f) pos=(%.2f/%.2f) carry=%d hookedPlayer=%s",
+			// 		(distance(Flag.m_Pos, ClosestPoint) < CFlag::ms_PhysSize + 2.0f) ? "close_enough" : "toofar",
+			// 		distance(Flag.m_Pos, ClosestPoint), CFlag::ms_PhysSize + 2.0f,
+			// 		Flag.m_Pos.x / 32, Flag.m_Pos.y / 32,
+			// 		ClosestPoint.x / 32, ClosestPoint.y / 32,
+			// 		Flag.m_CarrierId,
+			// 		(m_HookedPlayer == CLIENT_ID_FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
+			// }
+		}
+	}
 }
 
 bool CCharacterCore::HookFlag()

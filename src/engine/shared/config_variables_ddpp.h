@@ -65,6 +65,7 @@ MACRO_CONFIG_STR(SvChidraqulDefaultSkin, sv_chidraqul_default_skin, 12, "#", CFG
 MACRO_CONFIG_INT(SvBlockBroadcast, sv_block_broadcast, 0, 0, 1, CFGFLAG_SERVER, "shows all blocks in broadcast")
 MACRO_CONFIG_INT(SvFakeSuper, sv_fake_super, 0, 0, 1, CFGFLAG_SERVER, "0 to deactivate the /fake_super command")
 MACRO_CONFIG_INT(SvFlagSounds, sv_flag_sounds, 0, 0, 1, CFGFLAG_SERVER, "blockflags make annoying sounds this command toggle the publicsounds")
+MACRO_CONFIG_INT(SvFlagHooking, sv_flag_hooking, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "Whether flags are hookable")
 
 MACRO_CONFIG_INT(SvAllowSpawnWeapons, sv_allow_spawn_weapons, 1, 0, 1, CFGFLAG_SERVER, "0 to deactivate spawnweapons")
 MACRO_CONFIG_INT(SvAllowDroppingWeapons, sv_allow_dropping_weapons, 4, 0, 4, CFGFLAG_SERVER, "0=off, 1=all (+spawnweaps), 2=normal weaps+hammer+gun, 3=normal weaps+spawnweaps, 4=normal weaps")

@@ -1204,7 +1204,15 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		pCharacter->m_Tick = Tick;
 		pCharacter->m_Emote = Emote;
 
-		if(pCharacter->m_HookedPlayer != -1 && pCharacter->m_HookedPlayer != FLAG_RED && pCharacter->m_HookedPlayer != FLAG_BLUE)
+		// ddnet++
+		if(pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_RED || pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
+		{
+			// TODO: revist this! for flag hooking!
+			//       who do we want to snap as hooked id?
+			//       To properly predict the FlagPos this should be pointing to a player that matches the flag pos
+			pCharacter->m_HookedPlayer = -1;
+		}
+		else if(pCharacter->m_HookedPlayer != -1)
 		{
 			if(!Server()->Translate(pCharacter->m_HookedPlayer, SnappingClient))
 				pCharacter->m_HookedPlayer = -1;
@@ -1249,6 +1257,16 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		pCharacter->m_Health = Health;
 		pCharacter->m_Armor = Armor;
 		pCharacter->m_TriggeredEvents = m_TriggeredEvents7;
+
+
+		// ddnet++
+		if(pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_RED || pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
+		{
+			// TODO: revist this! for flag hooking!
+			//       who do we want to snap as hooked id?
+			//       To properly predict the FlagPos this should be pointing to a player that matches the flag pos
+			pCharacter->m_HookedPlayer = -1;
+		}
 	}
 }
 

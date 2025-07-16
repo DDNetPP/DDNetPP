@@ -631,7 +631,6 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore) const
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Angle = m_Angle;
-	DDPPWrite(pObjCore);
 }
 
 void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
@@ -650,7 +649,6 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Jumped = pObjCore->m_Jumped;
 	m_Direction = pObjCore->m_Direction;
 	m_Angle = pObjCore->m_Angle;
-	DDPPRead(pObjCore);
 }
 
 void CCharacterCore::ReadDDNet(const CNetObj_DDNetCharacter *pObjDDNet)

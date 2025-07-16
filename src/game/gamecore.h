@@ -281,8 +281,6 @@ private:
 public:
 	CCharacterCoreDDPP m_DDNetPP;
 
-	void DDPPWrite(CNetObj_CharacterCore *pObjCore) const;
-	void DDPPRead(const CNetObj_CharacterCore *pObjCore);
 	void DDPPTickHookFlying(vec2 NewPos);
 	void DDPPTick();
 	bool HookFlag();

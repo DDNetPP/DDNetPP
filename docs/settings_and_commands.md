@@ -25,6 +25,7 @@
 + `sv_block_broadcast` shows all blocks in broadcast
 + `sv_fake_super` 0 to deactivate the /fake_super command
 + `sv_flag_sounds` blockflags make annoying sounds this command toggle the publicsounds
++ `sv_flag_hooking` Whether flags are hookable
 + `sv_allow_spawn_weapons` 0 to deactivate spawnweapons
 + `sv_allow_dropping_weapons` 0=off, 1=all (+spawnweaps), 2=normal weaps+hammer+gun, 3=normal weaps+spawnweaps, 4=normal weaps
 + `sv_show_bots_in_scoreboard` 0=hide, 1=hide minigame bots only, 2=show all bots (it takes some seconds to update)
@@ -38,7 +39,6 @@
 + `sv_nobo_spawn_x` x coord for the nobo spawn
 + `sv_nobo_spawn_y` y coord for the nobo spawn
 + `sv_nobo_spawn_time` how many minutes the nobo spawn lasts 0=off
-+ `sv_super_spawn_ddrace_start` start ddrace time on supermod spawn
 + `sv_poop_msg` 0=off 1=on 2=extreme(coudl fuck server but idk)
 + `sv_allow_bomb` 0=off 1=on
 + `sv_allow_bomb_selfkill` 0=off 1=on suicide in '/bomb' games
@@ -56,7 +56,6 @@
 + `sv_show_client_dummys_in_master` 0=hides clientdummys in master 1=shows clientdummys in master
 + `sv_insta` 0=ddrace 1=gdm 2=undefined 3=idm 4=undefined") //undefined were LMSgrenade and LMSrifle but got removed because it was unfinished and only confused the real vanilla surviv
 + `sv_insta_score` 0=count from 0 on reconnect in scoreboard 1=load sql scores in scoreboard
-+ `sv_display_score` values: time, level, block, current_spree, king_of_the_hill
 + `sv_kills_to_finish` After how much kills a player gets finish (instagib)
 + `sv_ddpp_score` rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)
 + `sv_grenade_arena_slots` extra arena slots for grenade
@@ -150,6 +149,7 @@
 + `sv_ad_string` advertisement shown at adv places xd
 + `sv_database_path` path/to/sqlite3_database.db used to save DDNet++ data like accounts
 + `sv_chat_discord_webhook` If set will post all chat messages there
++ `sv_display_score` values: time, level, block, current_spree, king_of_the_hill
 + `sv_language` en, ru
 + `sv_game_type_name` Displayed in server browser when sv_test_cmds is 0
 + `sv_game_type_name_test` Displayed in server browser when sv_test_cmds is 1
