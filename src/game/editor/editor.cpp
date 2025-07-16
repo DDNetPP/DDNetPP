@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <base/color.h>
+#include <base/log.h>
 #include <base/system.h>
 
 #if defined(CONF_FAMILY_UNIX)
@@ -472,9 +473,13 @@ std::vector<CQuad *> CEditor::GetSelectedQuads()
 	std::vector<CQuad *> vpQuads;
 	if(!pQuadLayer)
 		return vpQuads;
-	vpQuads.resize(m_vSelectedQuads.size());
-	for(int i = 0; i < (int)m_vSelectedQuads.size(); ++i)
-		vpQuads[i] = &pQuadLayer->m_vQuads[m_vSelectedQuads[i]];
+	vpQuads.reserve(m_vSelectedQuads.size());
+	for(const auto &SelectedQuad : m_vSelectedQuads)
+	{
+		if(SelectedQuad >= (int)pQuadLayer->m_vQuads.size())
+			continue;
+		vpQuads.push_back(&pQuadLayer->m_vQuads[SelectedQuad]);
+	}
 	return vpQuads;
 }
 
@@ -3762,9 +3767,8 @@ void CEditor::DoColorPickerButton(const void *pId, const CUIRect *pRect, ColorRG
 		m_pColorPickerPopupActiveId = nullptr;
 		if(m_ColorPickerPopupContext.m_State == EEditState::EDITING)
 		{
-			ColorRGBA c = color_cast<ColorRGBA>(m_ColorPickerPopupContext.m_HsvaColor);
 			m_ColorPickerPopupContext.m_State = EEditState::END;
-			SetColor(c);
+			SetColor(m_ColorPickerPopupContext.m_RgbaColor);
 			m_ColorPickerPopupContext.m_State = EEditState::NONE;
 		}
 	}
@@ -9233,6 +9237,8 @@ bool CEditor::Load(const char *pFileName, int StorageType)
 
 		for(CEditorComponent &Component : m_vComponents)
 			Component.OnMapLoad();
+
+		log_info("editor/load", "Loaded map '%s'", m_aFileName);
 	}
 	else
 	{
