@@ -1,8 +1,56 @@
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <game/server/ddpp/enums.h>
+#include <game/server/entities/flag.h>
+#include <game/server/gamemodes/DDRace.h>
 
 #include "ddnetpp.h"
+
+void CGameControllerDDNetPP::Snap(int SnappingClient)
+{
+	CGameControllerDDRace::Snap(SnappingClient);
+
+	int FlagCarrierRed = FLAG_MISSING;
+	if(m_apFlags[TEAM_RED])
+	{
+		if(m_apFlags[TEAM_RED]->m_AtStand)
+			FlagCarrierRed = FLAG_ATSTAND;
+		else if(m_apFlags[TEAM_RED]->GetCarrier() && m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer())
+			FlagCarrierRed = m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer()->GetCid();
+		else
+			FlagCarrierRed = FLAG_TAKEN;
+	}
+
+	int FlagCarrierBlue = FLAG_MISSING;
+	if(m_apFlags[TEAM_BLUE])
+	{
+		if(m_apFlags[TEAM_BLUE]->m_AtStand)
+			FlagCarrierBlue = FLAG_ATSTAND;
+		else if(m_apFlags[TEAM_BLUE]->GetCarrier() && m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer())
+			FlagCarrierBlue = m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer()->GetCid();
+		else
+			FlagCarrierBlue = FLAG_TAKEN;
+	}
+
+	if(Server()->IsSixup(SnappingClient))
+	{
+		protocol7::CNetObj_GameDataFlag *pGameDataObj = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
+		if(!pGameDataObj)
+			return;
+
+		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
+		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
+	}
+	else
+	{
+		CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
+		if(!pGameDataObj)
+			return;
+
+		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
+		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
+	}
+}
 
 // SnappingClient - Client Id of the player that will receive the snapshot
 // pPlayer - CPlayer that is being snapped

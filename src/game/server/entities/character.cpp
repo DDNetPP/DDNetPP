@@ -1258,7 +1258,6 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		pCharacter->m_Armor = Armor;
 		pCharacter->m_TriggeredEvents = m_TriggeredEvents7;
 
-
 		// ddnet++
 		if(pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_RED || pCharacter->m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
 		{

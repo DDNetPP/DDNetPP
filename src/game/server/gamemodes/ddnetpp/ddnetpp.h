@@ -61,6 +61,7 @@ public:
 	int GetCarriedFlag(CPlayer *pPlayer) override;
 
 	// snapshot.cpp
+	void Snap(int SnappingClient) override;
 	int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore) override;
 	void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) override;
 	int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) override;
