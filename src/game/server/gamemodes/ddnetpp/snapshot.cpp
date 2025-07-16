@@ -1,6 +1,8 @@
+#include <base/log.h>
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <game/server/ddpp/enums.h>
+#include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/DDRace.h>
 
@@ -10,6 +12,7 @@ void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
 	CGameControllerDDRace::Snap(SnappingClient);
 	SnapFlags(SnappingClient);
+	FakeSnap(SnappingClient);
 }
 
 void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
@@ -54,6 +57,54 @@ void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
 		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
 		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
 	}
+}
+
+// snap hacks to improve client prediction
+void CGameControllerDDNetPP::FakeSnap(int SnappingClient)
+{
+	if(SnappingClient < 0 || SnappingClient >= MAX_CLIENTS)
+		return;
+	CPlayer *pPlayer = GameServer()->m_apPlayers[SnappingClient];
+	if(!pPlayer)
+		return;
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+		return;
+
+	// Smooth flag hooking by fokkonaut
+	int Team = -1;
+	if(pChr->Core()->HookedPlayer() == CLIENT_ID_FLAG_BLUE)
+		Team = TEAM_BLUE;
+	else if(pChr->Core()->HookedPlayer() == CLIENT_ID_FLAG_RED)
+		Team = TEAM_RED;
+
+	if(Team == -1)
+		return;
+
+	CFlag *pFlag = GameServer()->m_pController->m_apFlags[Team];
+	if(!pFlag)
+		return;
+
+	// We dont send the NETOBJTYPE_PLAYERINFO object, because that would make the client render the tee. We could send it every 2nd snapshot, so the client doesnt
+	// have the SNAP_PREV of it and wont render it aswell, but it seems to me that not having the object at all is also fine
+	int FakeId = 60; // TODO: find a good value for this
+
+	// log_info("ddnet++", "sending fake player to cid=%d", SnappingClient);
+
+	// Send character at the position of the flag we are currently hooking
+	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, FakeId, sizeof(CNetObj_Character)));
+	if(!pCharacter)
+		return;
+
+	pCharacter->m_X = pFlag->GetPos().x;
+	pCharacter->m_Y = pFlag->GetPos().y;
+
+	// If the flag is getting hooked while close to us, the client predicts the invisible fake tee as if it would be colliding with us
+	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, FakeId, sizeof(CNetObj_DDNetCharacter)));
+	if(!pDDNetCharacter)
+		return;
+	pDDNetCharacter->m_Flags = CHARACTERFLAG_SOLO;
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot

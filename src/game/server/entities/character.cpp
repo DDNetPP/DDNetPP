@@ -1210,6 +1210,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 			// TODO: revist this! for flag hooking!
 			//       who do we want to snap as hooked id?
 			//       To properly predict the FlagPos this should be pointing to a player that matches the flag pos
+			pCharacter->m_HookedPlayer = 60; // TODO: find a good value for that matching the FakeSnap
 			pCharacter->m_HookedPlayer = -1;
 		}
 		else if(pCharacter->m_HookedPlayer != -1)
