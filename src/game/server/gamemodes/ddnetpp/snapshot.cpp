@@ -9,7 +9,11 @@
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
 	CGameControllerDDRace::Snap(SnappingClient);
+	SnapFlags(SnappingClient);
+}
 
+void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
+{
 	int FlagCarrierRed = FLAG_MISSING;
 	if(m_apFlags[TEAM_RED])
 	{
