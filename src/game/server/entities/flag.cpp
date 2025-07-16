@@ -1,8 +1,10 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
-#include "flag.h"
+#include <base/log.h>
 #include <game/server/gamecontext.h>
+
+#include "flag.h"
 
 CFlag::CFlag(CGameWorld *pGameWorld, int Team) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG)
@@ -25,6 +27,9 @@ void CFlag::Reset()
 	m_GrabTick = 0;
 	m_DropFreezeTick = 0;
 	m_DropTick = 0;
+
+	// to debug https://github.com/DDNetPP/DDNetPP/issues/327
+	log_info("ddnet++", "flag reset");
 }
 
 void CFlag::TickPaused()
