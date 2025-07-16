@@ -104,7 +104,7 @@ void CGameControllerDDNetPP::FakeSnap(int SnappingClient)
 	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, FakeId, sizeof(CNetObj_DDNetCharacter)));
 	if(!pDDNetCharacter)
 		return;
-	pDDNetCharacter->m_Flags = CHARACTERFLAG_SOLO;
+	pDDNetCharacter->m_Flags = CHARACTERFLAG_COLLISION_DISABLED;
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot
