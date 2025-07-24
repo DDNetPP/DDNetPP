@@ -361,6 +361,33 @@ void CServer::BotLeave(int BotId, bool Silent)
 	m_NetServer.BotDelete(BotId);
 }
 
+void CServer::ConRedirect(IConsole::IResult *pResult, void *pUser)
+{
+	CServer *pThis = (CServer *)pUser;
+	char aBuf[512];
+
+	int VictimId = pResult->GetVictim();
+	int Port = pResult->GetInteger(1);
+
+	if(VictimId == pResult->m_ClientId)
+	{
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", "You can not redirect your self");
+		return;
+	}
+
+	if(VictimId < 0 || VictimId >= MAX_CLIENTS)
+	{
+		str_format(aBuf, sizeof(aBuf), "Invalid ClientId %d", VictimId);
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "ddnet++", aBuf);
+		return;
+	}
+	if(!pThis->ClientIngame(VictimId))
+	{
+		return;
+	}
+	pThis->RedirectClient(VictimId, Port);
+}
+
 void CServer::ConStartBlockTourna(IConsole::IResult *pResult, void *pUser)
 {
 	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");

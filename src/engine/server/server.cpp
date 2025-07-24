@@ -4284,6 +4284,7 @@ void CServer::RegisterCommands()
 	// DDRaceNetwork++ (ChillerDragon) ddpp
 	// TODO: move all of this to ddnet++ files
 
+	Console()->Register("redirect", "v[victim] i[port]", CFGFLAG_SERVER, ConRedirect, this, "Redirect client to given port use victim \"all\" to redirect all but your self");
 	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");
 	Console()->Register("add_accounts_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]", CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConAddAccountsSqlServer, this, "add a sqlserver");
 	//Console()->Register("ddpp_shutdown", "", CFGFLAG_SERVER, ConDDPPshutdown, this, "Shutdown the server");

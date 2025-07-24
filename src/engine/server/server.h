@@ -76,6 +76,7 @@ public:
 	void DDPPRegisterDatabases();
 	int LoadMapLive(const char *pMapName) override;
 
+	static void ConRedirect(IConsole::IResult *pResult, void *pUser);
 	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
 	static void ConAddAccountsSqlServer(IConsole::IResult *pResult, void *pUser);
 	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
