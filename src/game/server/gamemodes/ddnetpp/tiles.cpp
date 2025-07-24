@@ -1,10 +1,11 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
+#include <game/mapitems_ddpp.h>
+#include <game/race_state.h>
 #include <game/server/gamemodes/DDRace.h>
 
 #include "ddnetpp.h"
-#include "game/race_state.h"
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
 {
@@ -147,6 +148,11 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(
 	if(TileIndex == TILE_BANK || TileFIndex == TILE_BANK)
 	{
 		pChr->OnTileBank();
+	}
+
+	if(TileIndex == TILE_FLAG_STOP || TileFIndex == TILE_FLAG_STOP)
+	{
+		CharacterDropFlag(pChr);
 	}
 }
 
