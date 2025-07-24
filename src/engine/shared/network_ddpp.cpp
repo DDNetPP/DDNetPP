@@ -4,8 +4,6 @@
 
 #include <engine/console.h>
 
-#include "config.h"
-#include "netban.h"
 #include "network.h"
 #include <engine/message.h>
 #include <engine/shared/protocol.h>
@@ -23,10 +21,10 @@ void CNetServer::BotDelete(int BotId)
 
 void CNetConnection::BotConnect()
 {
-	m_State = NET_CONNSTATE_BOT;
+	m_State = EState::BOT;
 }
 
 void CNetConnection::BotDrop()
 {
-	m_State = NET_CONNSTATE_OFFLINE;
+	m_State = EState::OFFLINE;
 }

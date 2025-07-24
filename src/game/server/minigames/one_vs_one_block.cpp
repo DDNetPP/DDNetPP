@@ -486,9 +486,9 @@ void COneVsOneBlock::PrintScoreBroadcast(CGameState *pGameState)
 			continue;
 		if(!(pPlayer->IsPaused() || pPlayer->GetTeam() == TEAM_SPECTATORS))
 			continue;
-		if(pPlayer->m_SpectatorId == SPEC_FREEVIEW)
+		if(pPlayer->SpectatorId() == SPEC_FREEVIEW)
 			continue;
-		if(!(pPlayer->m_SpectatorId == pGameState->m_pPlayer1->GetCid() || pPlayer->m_SpectatorId == pGameState->m_pPlayer2->GetCid()))
+		if(!(pPlayer->SpectatorId() == pGameState->m_pPlayer1->GetCid() || pPlayer->SpectatorId() == pGameState->m_pPlayer2->GetCid()))
 			continue;
 
 		GameServer()->SendBroadcast(aBuf, pPlayer->GetCid());

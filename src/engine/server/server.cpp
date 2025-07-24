@@ -3211,6 +3211,7 @@ int CServer::Run()
 						{
 							GameServer()->OnClientPredictedEarlyInput(c, Input.m_aData);
 							ClientHadInput = true;
+							break;
 						}
 					}
 					if(!ClientHadInput)

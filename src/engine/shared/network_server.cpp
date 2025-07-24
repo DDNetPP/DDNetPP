@@ -108,7 +108,7 @@ void CNetServer::Update()
 	for(int i = 0; i < MaxClients(); i++)
 	{
 		m_aSlots[i].m_Connection.Update();
-		if(m_aSlots[i].m_Connection.State() == NET_CONNSTATE_ERROR &&
+		if(m_aSlots[i].m_Connection.State() == CNetConnection::EState::ERROR &&
 			(!m_aSlots[i].m_Connection.m_TimeoutProtected ||
 				!m_aSlots[i].m_Connection.m_TimeoutSituation))
 		{
@@ -154,8 +154,8 @@ int CNetServer::NumClientsWithAddr(NETADDR Addr)
 	int FoundAddr = 0;
 	for(int i = 0; i < MaxClients(); ++i)
 	{
-		if(m_aSlots[i].m_Connection.State() == NET_CONNSTATE_OFFLINE ||
-			(m_aSlots[i].m_Connection.State() == NET_CONNSTATE_ERROR &&
+		if(m_aSlots[i].m_Connection.State() == CNetConnection::EState::OFFLINE ||
+			(m_aSlots[i].m_Connection.State() == CNetConnection::EState::ERROR &&
 				(!m_aSlots[i].m_Connection.m_TimeoutProtected ||
 					!m_aSlots[i].m_Connection.m_TimeoutSituation)))
 			continue;
@@ -228,7 +228,7 @@ int CNetServer::TryAcceptClient(NETADDR &Addr, SECURITY_TOKEN SecurityToken, boo
 	int Slot = -1;
 	for(int i = 0; i < MaxClients(); i++)
 	{
-		if(m_aSlots[i].m_Connection.State() == NET_CONNSTATE_OFFLINE)
+		if(m_aSlots[i].m_Connection.State() == CNetConnection::EState::OFFLINE)
 		{
 			Slot = i;
 			break;
@@ -515,9 +515,9 @@ int CNetServer::OnSixupCtrlMsg(NETADDR &Addr, CNetChunk *pChunk, int ControlMsg,
 
 	ResponseToken = ToSecurityToken(Packet.m_aChunkData + 1);
 
-	if(ControlMsg == 5)
+	if(ControlMsg == NET_CTRLMSG_TOKEN)
 	{
-		if(m_RecvUnpacker.m_Data.m_DataSize >= 512)
+		if(m_RecvUnpacker.m_Data.m_DataSize >= (int)NET_TOKENREQUEST_DATASIZE)
 		{
 			SendTokenSixup(Addr, ResponseToken);
 			return 0;
@@ -548,8 +548,8 @@ int CNetServer::GetClientSlot(const NETADDR &Addr)
 {
 	for(int i = 0; i < MaxClients(); i++)
 	{
-		if(m_aSlots[i].m_Connection.State() != NET_CONNSTATE_OFFLINE &&
-			m_aSlots[i].m_Connection.State() != NET_CONNSTATE_ERROR &&
+		if(m_aSlots[i].m_Connection.State() != CNetConnection::EState::OFFLINE &&
+			m_aSlots[i].m_Connection.State() != CNetConnection::EState::ERROR &&
 			net_addr_comp(m_aSlots[i].m_Connection.PeerAddress(), &Addr) == 0)
 		{
 			return i;
@@ -692,7 +692,7 @@ int CNetServer::Send(CNetChunk *pChunk)
 	}
 	else
 	{
-		if(m_aSlots[pChunk->m_ClientId].m_Connection.State() == NET_CONNSTATE_BOT)
+		if(m_aSlots[pChunk->m_ClientId].m_Connection.State() == CNetConnection::EState::BOT)
 			return -1;
 
 		int Flags = 0;
@@ -719,11 +719,10 @@ int CNetServer::Send(CNetChunk *pChunk)
 
 void CNetServer::SendTokenSixup(NETADDR &Addr, SECURITY_TOKEN Token)
 {
-	SECURITY_TOKEN MyToken = GetToken(Addr);
-	unsigned char aBuf[512] = {};
-	WriteSecurityToken(aBuf, MyToken);
-	int Size = (Token == NET_SECURITY_TOKEN_UNKNOWN) ? 512 : 4;
-	CNetBase::SendControlMsg(m_Socket, &Addr, 0, 5, aBuf, Size, Token, true);
+	unsigned char aRequestTokenBuf[NET_TOKENREQUEST_DATASIZE] = {};
+	WriteSecurityToken(aRequestTokenBuf, GetToken(Addr));
+	const int Size = Token == NET_SECURITY_TOKEN_UNKNOWN ? sizeof(aRequestTokenBuf) : sizeof(SECURITY_TOKEN);
+	CNetBase::SendControlMsg(m_Socket, &Addr, 0, NET_CTRLMSG_TOKEN, aRequestTokenBuf, Size, Token, true);
 }
 
 void CNetServer::SetMaxClientsPerIp(int Max)
@@ -733,7 +732,7 @@ void CNetServer::SetMaxClientsPerIp(int Max)
 
 bool CNetServer::SetTimedOut(int ClientId, int OrigId)
 {
-	if(m_aSlots[ClientId].m_Connection.State() != NET_CONNSTATE_ERROR)
+	if(m_aSlots[ClientId].m_Connection.State() != CNetConnection::EState::ERROR)
 		return false;
 
 	m_aSlots[ClientId].m_Connection.SetTimedOut(ClientAddr(OrigId), m_aSlots[OrigId].m_Connection.SeqSequence(), m_aSlots[OrigId].m_Connection.AckSequence(), m_aSlots[OrigId].m_Connection.SecurityToken(), m_aSlots[OrigId].m_Connection.ResendBuffer(), m_aSlots[OrigId].m_Connection.m_Sixup);

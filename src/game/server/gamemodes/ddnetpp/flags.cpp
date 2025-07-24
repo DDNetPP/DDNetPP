@@ -121,7 +121,7 @@ void CGameControllerDDNetPP::FlagTick()
 						if(!pPlayer)
 							continue;
 
-						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorId != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorId] && GameServer()->m_apPlayers[pPlayer->m_SpectatorId]->GetTeam() == Fi)
+						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->SpectatorId() != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->SpectatorId()] && GameServer()->m_apPlayers[pPlayer->SpectatorId()]->GetTeam() == Fi)
 							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
 						else if(pPlayer->GetTeam() == Fi)
 							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);

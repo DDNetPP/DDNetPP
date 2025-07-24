@@ -6421,7 +6421,7 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 
 		int viewers = 0;
 		for(auto &Player : pSelf->m_apPlayers)
-			if(Player && Player->m_SpectatorId == LiveId)
+			if(Player && Player->SpectatorId() == LiveId)
 				viewers++;
 		if(viewers)
 		{
@@ -8057,7 +8057,7 @@ void CGameContext::ConViewers(IConsole::IResult *pResult, void *pUserData)
 
 	for(auto &Player : pSelf->m_apPlayers)
 	{
-		if(Player && Player->m_SpectatorId == pResult->m_ClientId)
+		if(Player && Player->SpectatorId() == pResult->m_ClientId)
 		{
 			viewers++;
 			if(viewers == 1)

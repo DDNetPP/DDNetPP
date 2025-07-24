@@ -19,6 +19,11 @@
 
 // This file can be included several times.
 
+#ifndef UUID
+// This helps IDEs properly syntax highlight the uses of the macro below.
+#define UUID(Id, Name)
+#endif
+
 UUID(NETMSG_DDNETPP, "ddnet-plus-plus@zillyhuhn.com")
 
 UUID(NETMSG_WHATIS, "what-is@ddnet.tw")

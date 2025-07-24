@@ -139,13 +139,13 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	if(SnapChar && SnapChar->IsAlive() && (m_Layer == LAYER_SWITCH && !GameServer()->Switchers()[m_Number].m_aStatus[SnapChar->Team()]) && (!Tick))
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorId != -1 && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorId) && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorId)->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->SpectatorId() != -1 && GameServer()->GetPlayerChar(SnapPlayer->SpectatorId()) && GameServer()->GetPlayerChar(SnapPlayer->SpectatorId())->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
 		return;
 
 	if(SnapPlayer && SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar && SnapChar->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorId == -1 && SnapChar && SnapChar->Team() != m_ResponsibleTeam && SnapPlayer->m_SpecTeam)
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->SpectatorId() == -1 && SnapChar && SnapChar->Team() != m_ResponsibleTeam && SnapPlayer->m_SpecTeam)
 		return;
 
 	CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(

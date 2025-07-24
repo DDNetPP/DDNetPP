@@ -261,7 +261,7 @@ void CGameContext::SurvivalGetNextSpectator(int UpdateId, int KillerId)
 	int AliveTees = CountSurvivalPlayers(true);
 	if(AliveTees > 1)
 	{
-		pPlayer->m_SpectatorId = UpdateId == KillerId ? SurvivalGetRandomAliveId() : KillerId;
+		pPlayer->SetSpectatorId(UpdateId == KillerId ? SurvivalGetRandomAliveId() : KillerId);
 		pPlayer->Pause(CPlayer::PAUSE_SPEC, true);
 	}
 	else
@@ -276,7 +276,7 @@ void CGameContext::SurvivalUpdateSpectators(int DiedId, int KillerId)
 	{
 		if(!Player || !Player->m_IsSurvivaling)
 			continue;
-		if(Player->m_SpectatorId == DiedId)
+		if(Player->SpectatorId() == DiedId)
 		{
 			SurvivalGetNextSpectator(Player->GetCid(), KillerId);
 		}
