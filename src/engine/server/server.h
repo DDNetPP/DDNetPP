@@ -210,8 +210,6 @@ public:
 
 		// DDRace
 
-		NETADDR m_Addr;
-		bool m_IsDummy;
 		bool m_GotDDNetVersionPacket;
 		bool m_DDNetVersionSettled;
 		int m_DDNetVersion;
@@ -221,6 +219,8 @@ public:
 
 		// DDNet++
 		bool m_IsClientDummy = false; //ddnet++ hide dummy in master
+		NETADDR m_Addr; // TODO: what is this?
+		bool m_IsDummy;
 
 		// DNSBL
 		int m_DnsblState;
