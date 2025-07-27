@@ -334,7 +334,6 @@ void CServer::BotJoin(int BotId)
 	m_aClients[BotId].m_DDNetVersion = VERSION_NONE;
 	m_aClients[BotId].m_GotDDNetVersionPacket = false;
 	m_aClients[BotId].m_DDNetVersionSettled = false;
-	memset(&m_aClients[BotId].m_Addr, 0, sizeof(NETADDR));
 	m_aClients[BotId].Reset();
 	m_aClients[BotId].m_Sixup = false;
 

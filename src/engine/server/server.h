@@ -219,7 +219,6 @@ public:
 
 		// DDNet++
 		bool m_IsClientDummy = false; //ddnet++ hide dummy in master
-		NETADDR m_Addr; // TODO: what is this?
 		bool m_IsDummy;
 
 		// DNSBL
