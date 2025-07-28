@@ -80,8 +80,7 @@ public:
 	// calls SendChatTarget under the hood
 	// the pFormat string will be translated so make sure
 	// it matches the text in server/ddpp/loc.cpp
-	void SendChatLoc(int ClientId, const char *pFormat, ...) const
-		GNUC_ATTRIBUTE((format(printf, 3, 4)));
+	[[gnu::format(printf, 3, 4)]] void SendChatLoc(int ClientId, const char *pFormat, ...) const;
 
 	void ShowProfile(int ViewerId, int ViewedId);
 	void ShowAdminWelcome(int ClientId);
