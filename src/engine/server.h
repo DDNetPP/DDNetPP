@@ -331,9 +331,18 @@ public:
 	virtual void OnShutdown(void *pPersistentData) = 0;
 
 	virtual void OnTick() = 0;
-	virtual void OnPreSnap() = 0;
-	virtual void OnSnap(int ClientId) = 0;
-	virtual void OnPostSnap() = 0;
+
+	// Snap for a specific client.
+	//
+	// GlobalSnap is true when sending snapshots to all clients,
+	// otherwise only forced high bandwidth clients would receive snap.
+	virtual void OnSnap(int ClientId, bool GlobalSnap) = 0;
+
+	// Called after sending snapshots to all clients.
+	//
+	// Note if any client has force high bandwidth enabled,
+	// this will not be called when only sending snapshots to these clients.
+	virtual void OnPostGlobalSnap() = 0;
 
 	virtual void OnMessage(int MsgId, CUnpacker *pUnpacker, int ClientId) = 0;
 
@@ -356,14 +365,15 @@ public:
 	virtual void OnClientEnter(int ClientId) = 0;
 	virtual void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) = 0;
 	virtual void OnClientPrepareInput(int ClientId, void *pInput) = 0;
-	virtual void OnClientDirectInput(int ClientId, void *pInput) = 0;
-	virtual void OnClientPredictedInput(int ClientId, void *pInput) = 0;
-	virtual void OnClientPredictedEarlyInput(int ClientId, void *pInput) = 0;
+	virtual void OnClientDirectInput(int ClientId, const void *pInput) = 0;
+	virtual void OnClientPredictedInput(int ClientId, const void *pInput) = 0;
+	virtual void OnClientPredictedEarlyInput(int ClientId, const void *pInput) = 0;
 
 	virtual void PreInputClients(int ClientId, bool *pClients) = 0;
 
 	virtual bool IsClientReady(int ClientId) const = 0;
 	virtual bool IsClientPlayer(int ClientId) const = 0;
+	virtual bool IsClientHighBandwidth(int ClientId) const = 0;
 
 	virtual int PersistentDataSize() const = 0;
 	virtual int PersistentClientDataSize() const = 0;

@@ -49,7 +49,6 @@
 
 #include <engine/shared/protocolglue.h>
 
-#include <game/client/projectile_data.h>
 #include <game/localization.h>
 #include <game/version.h>
 
@@ -88,9 +87,9 @@ static constexpr ColorRGBA gs_ClientNetworkErrPrintColor{1.0f, 0.25f, 0.25f, 1.0
 
 CClient::CClient() :
 	m_DemoPlayer(&m_SnapshotDelta, true, [&]() { UpdateDemoIntraTimers(); }),
-	m_InputtimeMarginGraph(128),
-	m_aGametimeMarginGraphs{128, 128},
-	m_FpsGraph(4096)
+	m_InputtimeMarginGraph(128, 2, true),
+	m_aGametimeMarginGraphs{{128, 2, true}, {128, 2, true}},
+	m_FpsGraph(4096, 0, true)
 {
 	m_StateStartTime = time_get();
 	for(auto &DemoRecorder : m_aDemoRecorder)
@@ -988,21 +987,22 @@ void CClient::RenderGraphs()
 	if(!g_Config.m_DbgGraphs)
 		return;
 
+	// Make sure graph positions and sizes are aligned with pixels to avoid lines overlapping graph edges
 	Graphics()->MapScreen(0, 0, Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
-	float w = Graphics()->ScreenWidth() / 4.0f;
-	float h = Graphics()->ScreenHeight() / 6.0f;
-	float sp = Graphics()->ScreenWidth() / 100.0f;
-	float x = Graphics()->ScreenWidth() - w - sp;
+	const float GraphW = std::round(Graphics()->ScreenWidth() / 4.0f);
+	const float GraphH = std::round(Graphics()->ScreenHeight() / 6.0f);
+	const float GraphSpacing = std::round(Graphics()->ScreenWidth() / 100.0f);
+	const float GraphX = Graphics()->ScreenWidth() - GraphW - GraphSpacing;
 
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
-	TextRender()->Text(x, sp * 5 - 12.0f - 10.0f, 12.0f, Localize("Press Ctrl+Shift+G to disable debug graphs."));
+	TextRender()->Text(GraphX, GraphSpacing * 5 - 12.0f - 10.0f, 12.0f, Localize("Press Ctrl+Shift+G to disable debug graphs."));
 
 	m_FpsGraph.Scale(time_freq());
-	m_FpsGraph.Render(Graphics(), TextRender(), x, sp * 5, w, h, "FPS");
+	m_FpsGraph.Render(Graphics(), TextRender(), GraphX, GraphSpacing * 5, GraphW, GraphH, "FPS");
 	m_InputtimeMarginGraph.Scale(5 * time_freq());
-	m_InputtimeMarginGraph.Render(Graphics(), TextRender(), x, sp * 6 + h, w, h, "Prediction Margin");
+	m_InputtimeMarginGraph.Render(Graphics(), TextRender(), GraphX, GraphSpacing * 6 + GraphH, GraphW, GraphH, "Prediction Margin");
 	m_aGametimeMarginGraphs[g_Config.m_ClDummy].Scale(5 * time_freq());
-	m_aGametimeMarginGraphs[g_Config.m_ClDummy].Render(Graphics(), TextRender(), x, sp * 7 + h * 2, w, h, "Gametime Margin");
+	m_aGametimeMarginGraphs[g_Config.m_ClDummy].Render(Graphics(), TextRender(), GraphX, GraphSpacing * 7 + GraphH * 2, GraphW, GraphH, "Gametime Margin");
 }
 
 void CClient::Restart()
@@ -2077,8 +2077,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 
 					if(!Dummy)
 					{
-						// for antiping: if the projectile netobjects from the server contains extra data, this is removed and the original content restored before recording demo
-						SnapshotRemoveExtraProjectileInfo(pTmpBuffer3);
+						GameClient()->ProcessDemoSnapshot(pTmpBuffer3);
 
 						unsigned char aSnapSeven[CSnapshot::MAX_SIZE];
 						CSnapshot *pSnapSeven = (CSnapshot *)aSnapSeven;
@@ -4570,7 +4569,7 @@ static void ShowMessageBox(const char *pTitle, const char *pMessage, IClient::EM
 extern "C" int TWMain(int argc, const char **argv)
 #elif defined(CONF_PLATFORM_ANDROID)
 static int gs_AndroidStarted = false;
-extern "C" __attribute__((visibility("default"))) int SDL_main(int argc, char *argv[]);
+extern "C" [[gnu::visibility("default")]] int SDL_main(int argc, char *argv[]);
 int SDL_main(int argc, char *argv2[])
 #else
 int main(int argc, const char **argv)

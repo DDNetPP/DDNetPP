@@ -35,6 +35,7 @@
 #include "race.h"
 #include "render.h"
 
+#include <game/client/projectile_data.h>
 #include <game/localization.h>
 #include <game/mapitems.h>
 #include <game/version.h>
@@ -1302,6 +1303,33 @@ void CGameClient::RenderShutdownMessage()
 	Graphics()->Clear(0.0f, 0.0f, 0.0f);
 }
 
+void CGameClient::ProcessDemoSnapshot(CSnapshot *pSnap)
+{
+	for(int Index = 0; Index < pSnap->NumItems(); Index++)
+	{
+		const CSnapshotItem *pItem = pSnap->GetItem(Index);
+		int ItemType = pSnap->GetItemType(Index);
+
+		if(ItemType == NETOBJTYPE_PROJECTILE)
+		{
+			// for antiping: if the projectile netobjects from the server contains extra data, this is removed and the original content restored before recording demo
+			CNetObj_Projectile *pProj = (CNetObj_Projectile *)((void *)pItem->Data());
+			DemoObjectRemoveExtraProjectileInfo(pProj);
+		}
+		else if(ItemType == NETOBJTYPE_DDNETSPECTATORINFO)
+		{
+			// always record local camera info as follow mode
+			CNetObj_DDNetSpectatorInfo *pProj = (CNetObj_DDNetSpectatorInfo *)((void *)pItem->Data());
+			pProj->m_HasCameraInfo = true;
+			pProj->m_Zoom = (m_Camera.m_Zooming ? m_Camera.m_ZoomSmoothingTarget : m_Camera.m_Zoom) * 1000.0f;
+			pProj->m_Deadzone = m_Camera.Deadzone();
+			pProj->m_FollowFactor = m_Camera.FollowFactor();
+			// this also removes spectator count since it has lost its context
+			pProj->m_SpectatorCount = 0;
+		}
+	}
+}
+
 void CGameClient::OnRconType(bool UsernameReq)
 {
 	m_GameConsole.RequireUsername(UsernameReq);
@@ -2061,12 +2089,11 @@ void CGameClient::OnNewSnapshot()
 		}
 	}
 
-	CTuningParams StandardTuning;
 	if(ServerInfo.m_aGameType[0] != '0')
 	{
 		if(str_comp(ServerInfo.m_aGameType, "DM") != 0 && str_comp(ServerInfo.m_aGameType, "TDM") != 0 && str_comp(ServerInfo.m_aGameType, "CTF") != 0)
 			m_ServerMode = SERVERMODE_MOD;
-		else if(mem_comp(&StandardTuning, &m_aTuning[g_Config.m_ClDummy], 33) == 0)
+		else if(mem_comp(&CTuningParams::DEFAULT, &m_aTuning[g_Config.m_ClDummy], 33) == 0)
 			m_ServerMode = SERVERMODE_PURE;
 		else
 			m_ServerMode = SERVERMODE_PUREMOD;
@@ -4394,10 +4421,9 @@ void CGameClient::LoadMapSettings()
 	m_MapBugs = CMapBugs::Create(Client()->GetCurrentMap(), pMap->MapSize(), pMap->Sha256());
 
 	// Reset Tunezones
-	CTuningParams TuningParams;
 	for(int TuneZone = 0; TuneZone < NUM_TUNEZONES; TuneZone++)
 	{
-		TuningList()[TuneZone] = TuningParams;
+		TuningList()[TuneZone] = CTuningParams::DEFAULT;
 		TuningList()[TuneZone].Set("gun_curvature", 0);
 		TuningList()[TuneZone].Set("gun_speed", 1400);
 		TuningList()[TuneZone].Set("shotgun_curvature", 0);

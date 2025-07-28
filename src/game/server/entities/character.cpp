@@ -731,7 +731,7 @@ void CCharacter::SetEmote(int Emote, int Tick)
 	m_EmoteStop = Tick;
 }
 
-void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnPredictedInput(const CNetObj_PlayerInput *pNewInput)
 {
 	// check for changes
 	if(mem_comp(&m_SavedInput, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
@@ -747,7 +747,7 @@ void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 	mem_copy(&m_SavedInput, &m_Input, sizeof(m_SavedInput));
 }
 
-void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
+void CCharacter::OnDirectInput(const CNetObj_PlayerInput *pNewInput)
 {
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 	mem_copy(&m_LatestInput, pNewInput, sizeof(m_LatestInput));
@@ -1420,7 +1420,7 @@ void CCharacter::Snap(int SnappingClient)
 	pDDNetCharacter->m_TuneZoneOverride = -1;
 }
 
-void CCharacter::PostSnap()
+void CCharacter::PostGlobalSnap()
 {
 	m_TriggeredEvents7 = 0;
 }

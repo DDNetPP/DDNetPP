@@ -79,17 +79,19 @@ struct CScoreRandomMapResult;
 
 struct CSnapContext
 {
-	CSnapContext(int Version, bool Sixup = false) :
-		m_ClientVersion(Version), m_Sixup(Sixup)
+	CSnapContext(int Version, bool Sixup, int ClientId) :
+		m_ClientVersion(Version), m_Sixup(Sixup), m_ClientId(ClientId)
 	{
 	}
 
 	int GetClientVersion() const { return m_ClientVersion; }
 	bool IsSixup() const { return m_Sixup; }
+	bool ClientId() const { return m_ClientId; }
 
 private:
 	int m_ClientVersion;
 	bool m_Sixup;
+	int m_ClientId;
 };
 
 class CMute
@@ -342,9 +344,8 @@ public:
 	void OnShutdown(void *pPersistentData) override;
 
 	void OnTick() override;
-	void OnPreSnap() override;
-	void OnSnap(int ClientId) override;
-	void OnPostSnap() override;
+	void OnSnap(int ClientId, bool GlobalSnap) override;
+	void OnPostGlobalSnap() override;
 
 	void UpdatePlayerMaps();
 
@@ -371,9 +372,9 @@ public:
 	void OnClientEnter(int ClientId) override;
 	void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) override;
 	void OnClientPrepareInput(int ClientId, void *pInput) override;
-	void OnClientDirectInput(int ClientId, void *pInput) override;
-	void OnClientPredictedInput(int ClientId, void *pInput) override;
-	void OnClientPredictedEarlyInput(int ClientId, void *pInput) override;
+	void OnClientDirectInput(int ClientId, const void *pInput) override;
+	void OnClientPredictedInput(int ClientId, const void *pInput) override;
+	void OnClientPredictedEarlyInput(int ClientId, const void *pInput) override;
 
 	void PreInputClients(int ClientId, bool *pClients) override;
 
@@ -387,6 +388,8 @@ public:
 
 	bool IsClientReady(int ClientId) const override;
 	bool IsClientPlayer(int ClientId) const override;
+	// Whether the client is allowed to have high bandwidth.
+	bool IsClientHighBandwidth(int ClientId) const override;
 	int PersistentDataSize() const override { return sizeof(CPersistentData); }
 	int PersistentClientDataSize() const override { return sizeof(CPersistentClientData); }
 
