@@ -4126,33 +4126,12 @@ void CGameContext::OnInit(const void *pPersistentData)
 	// Reset Tunezones
 	for(int i = 0; i < NUM_TUNEZONES; i++)
 	{
-<<<<<<< HEAD
-		//-- start comment for m_IsVanillaWeapons --
-		//TuningList()[i] = TuningParams;
-		//TuningList()[i].Set("gun_curvature", 0.0f);
-		//TuningList()[i].Set("gun_speed", 1400.0f);
-		//TuningList()[i].Set("shotgun_curvature", 0.0f);
-		//TuningList()[i].Set("shotgun_speed", 500.0f);
-		//TuningList()[i].Set("shotgun_speeddiff", 0.0f);
-		//-- end comment for m_IsVanillaWeapons --
-
-		//-- start add code for m_IsVanillaWeapons --
-		TuningList()[i] = TuningParams;
-		TuningList()[i].Set("gun_curvature", 0.0f);
-		TuningList()[i].Set("gun_speed", 1400.0f);
-		Tuning()->Set("shotgun_speed", 2750.00f);
-		Tuning()->Set("shotgun_speeddiff", 0.80f);
-		Tuning()->Set("shotgun_curvature", 7.00f);
-		Tuning()->Set("shotgun_lifetime", 0.20f);
-		//-- end add code for m_IsVanillaWeapons --
-=======
 		TuningList()[i] = CTuningParams::DEFAULT;
 		TuningList()[i].Set("gun_curvature", 0);
 		TuningList()[i].Set("gun_speed", 1400);
 		TuningList()[i].Set("shotgun_curvature", 0);
 		TuningList()[i].Set("shotgun_speed", 500);
 		TuningList()[i].Set("shotgun_speeddiff", 0);
->>>>>>> ddnet/master
 	}
 
 	for(int i = 0; i < NUM_TUNEZONES; i++)
@@ -4169,23 +4148,11 @@ void CGameContext::OnInit(const void *pPersistentData)
 	}
 	else
 	{
-		//-- start2 comment for m_IsVanillaWeapons --
-		//Tuning()->Set("gun_speed", 1400.0f);
-		//Tuning()->Set("gun_curvature", 0.0f);
-		//Tuning()->Set("shotgun_speed", 500.0f);
-		//Tuning()->Set("shotgun_speeddiff", 0.0f);
-		//Tuning()->Set("shotgun_curvature", 0.0f);
-		//-- end2 comment for m_IsVanillaWeapons --
-
-		//-- start2 add code for m_IsVanillaWeapons --
-		Tuning()->Set("gun_speed", 1400.0f);
-		Tuning()->Set("gun_curvature", 0.0f);
-		//Shotgun tuning by chiller
-		Tuning()->Set("shotgun_speed", 2750.00f);
-		Tuning()->Set("shotgun_speeddiff", 0.80f);
-		Tuning()->Set("shotgun_curvature", 7.00f);
-		Tuning()->Set("shotgun_lifetime", 0.20f);
-		//-- end2 add code for m_IsVanillaWeapons --
+		Tuning()->Set("gun_speed", 1400);
+		Tuning()->Set("gun_curvature", 0);
+		Tuning()->Set("shotgun_speed", 500);
+		Tuning()->Set("shotgun_speeddiff", 0);
+		Tuning()->Set("shotgun_curvature", 0);
 	}
 
 	if(g_Config.m_SvDDRaceTuneReset)
