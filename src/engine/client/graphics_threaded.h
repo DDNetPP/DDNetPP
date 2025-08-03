@@ -83,15 +83,10 @@ public:
 		CMDGROUP_PLATFORM_GL = 10000, // commands specific to a platform
 		CMDGROUP_PLATFORM_SDL = 20000,
 
-		//
 		CMD_FIRST = CMDGROUP_CORE,
-		CMD_NOP = CMD_FIRST,
-
-		//
-		CMD_RUNBUFFER,
 
 		// synchronization
-		CMD_SIGNAL,
+		CMD_SIGNAL = CMD_FIRST,
 
 		// texture commands
 		CMD_TEXTURE_CREATE,
@@ -225,13 +220,6 @@ public:
 		SCommand_Signal() :
 			SCommand(CMD_SIGNAL) {}
 		CSemaphore *m_pSemaphore;
-	};
-
-	struct SCommand_RunBuffer : public SCommand
-	{
-		SCommand_RunBuffer() :
-			SCommand(CMD_RUNBUFFER) {}
-		CCommandBuffer *m_pOtherBuffer;
 	};
 
 	struct SCommand_Render : public SCommand
@@ -746,8 +734,10 @@ public:
 
 	virtual bool GetWarning(std::vector<std::string> &WarningStrings) = 0;
 
-	// returns true if the error msg was shown
-	virtual bool ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg) = 0;
+	/**
+	 * @see IGraphics::ShowMessageBox
+	 */
+	virtual std::optional<int> ShowMessageBox(const IGraphics::CMessageBox &MessageBox) = 0;
 };
 
 class CGraphics_Threaded : public IEngineGraphics
@@ -1245,7 +1235,8 @@ public:
 	void AddWarning(const SWarning &Warning);
 	std::optional<SWarning> CurrentWarning() override;
 
-	bool ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg) override;
+	std::optional<int> ShowMessageBox(const CMessageBox &MessageBox) override;
+
 	bool IsBackendInitialized() override;
 
 	bool GetDriverVersion(EGraphicsDriverAgeType DriverAgeType, int &Major, int &Minor, int &Patch, const char *&pName, EBackendType BackendType) override { return m_pBackend->GetDriverVersion(DriverAgeType, Major, Minor, Patch, pName, BackendType); }
