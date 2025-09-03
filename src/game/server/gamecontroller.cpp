@@ -3,7 +3,9 @@
 #include <engine/shared/config.h>
 
 #include <engine/shared/protocolglue.h>
-#include <game/generated/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/score.h>
@@ -60,7 +62,7 @@ void IGameController::DoActivityCheck()
 
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
-		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS && Server()->GetAuthedState(i) == AUTHED_NO)
+		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS && !Server()->IsRconAuthed(i))
 		{
 			if(Server()->Tick() > GameServer()->m_apPlayers[i]->m_LastActionTick + g_Config.m_SvInactiveKickTime * Server()->TickSpeed() * 60)
 			{
@@ -766,16 +768,6 @@ void IGameController::Snap(int SnappingClient)
 
 int IGameController::GetAutoTeam(int NotThisId)
 {
-	int aNumplayers[2] = {0, 0};
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(GameServer()->m_apPlayers[i] && i != NotThisId)
-		{
-			if(GameServer()->m_apPlayers[i]->GetTeam() >= TEAM_RED && GameServer()->m_apPlayers[i]->GetTeam() <= TEAM_BLUE)
-				aNumplayers[GameServer()->m_apPlayers[i]->GetTeam()]++;
-		}
-	}
-
 	int Team = 0;
 
 	if(CanJoinTeam(Team, NotThisId, nullptr, 0))

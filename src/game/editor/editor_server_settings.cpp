@@ -152,7 +152,7 @@ void CEditor::RenderServerSettingsEditor(CUIRect View, bool ShowServerSettingsEd
 	const bool CanUpdate = GotSelection && CurrentInputValid && str_comp(m_Map.m_vSettings[s_CommandSelectedIndex].m_aCommand, m_SettingsCommandInput.GetString()) != 0;
 
 	static int s_UpdateButton = 0;
-	if(DoButton_FontIcon(&s_UpdateButton, FONT_ICON_PENCIL, CanUpdate ? 0 : -1, &Button, BUTTONFLAG_LEFT, "[Alt+Enter] Update the selected command based on the entered value.", IGraphics::CORNER_R, 9.0f) || (CanUpdate && Input()->AltIsPressed() && m_Dialog == DIALOG_NONE && Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
+	if(DoButton_FontIcon(&s_UpdateButton, FONT_ICON_PENCIL, CanUpdate ? 0 : -1, &Button, BUTTONFLAG_LEFT, "[Alt+Enter] Update the selected command based on the entered value.", IGraphics::CORNER_R, 9.0f) || (CanUpdate && Input()->AltIsPressed() && m_Dialog == DIALOG_NONE && m_SettingsCommandInput.IsActive() && Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
 	{
 		if(CollidingCommandIndex == -1)
 		{
@@ -219,7 +219,7 @@ void CEditor::RenderServerSettingsEditor(CUIRect View, bool ShowServerSettingsEd
 	ToolBar.VSplitRight(100.0f, &ToolBar, nullptr);
 
 	static int s_AddButton = 0;
-	if(DoButton_FontIcon(&s_AddButton, CanReplace ? FONT_ICON_ARROWS_ROTATE : FONT_ICON_PLUS, CanAdd || CanReplace ? 0 : -1, &Button, BUTTONFLAG_LEFT, CanReplace ? "[Enter] Replace the corresponding command in the command list." : "[Enter] Add a command to the command list.", IGraphics::CORNER_L) || ((CanAdd || CanReplace) && !Input()->AltIsPressed() && m_Dialog == DIALOG_NONE && Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
+	if(DoButton_FontIcon(&s_AddButton, CanReplace ? FONT_ICON_ARROWS_ROTATE : FONT_ICON_PLUS, CanAdd || CanReplace ? 0 : -1, &Button, BUTTONFLAG_LEFT, CanReplace ? "[Enter] Replace the corresponding command in the command list." : "[Enter] Add a command to the command list.", IGraphics::CORNER_L) || ((CanAdd || CanReplace) && !Input()->AltIsPressed() && m_Dialog == DIALOG_NONE && m_SettingsCommandInput.IsActive() && Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
 	{
 		if(CanReplace)
 		{
@@ -293,10 +293,6 @@ void CEditor::DoMapSettingsEditBox(CMapSettingsBackend::CContext *pContext, cons
 	auto *pLineInput = pContext->LineInput();
 	auto &Context = *pContext;
 	Context.SetFontSize(FontSize);
-
-	// Set current active context if input is active
-	if(pLineInput->IsActive())
-		CMapSettingsBackend::ms_pActiveContext = pContext;
 
 	// Small utility to render a floating part above the input rect.
 	// Use to display either the error or the current argument name
@@ -1049,8 +1045,6 @@ void CEditor::MapSettingsDropdownRenderCallback(const SPossibleValueMatch &Match
 }
 
 // ----------------------------------------
-
-CMapSettingsBackend::CContext *CMapSettingsBackend::ms_pActiveContext = nullptr;
 
 void CMapSettingsBackend::OnInit(CEditor *pEditor)
 {
@@ -2075,28 +2069,6 @@ void CMapSettingsBackend::CContext::GetCommandHelpText(char *pStr, int Length) c
 	str_copy(pStr, m_pCurrentSetting->m_pHelp, Length);
 }
 
-void CMapSettingsBackend::CContext::UpdateCompositionString()
-{
-	if(!m_pLineInput)
-		return;
-
-	const bool HasComposition = m_pBackend->Input()->HasComposition();
-
-	if(HasComposition)
-	{
-		const size_t CursorOffset = m_pLineInput->GetCursorOffset();
-		const size_t DisplayCursorOffset = m_pLineInput->OffsetFromActualToDisplay(CursorOffset);
-		const std::string DisplayStr = std::string(m_pLineInput->GetString());
-		std::string CompositionBuffer = DisplayStr.substr(0, DisplayCursorOffset) + m_pBackend->Input()->GetComposition() + DisplayStr.substr(DisplayCursorOffset);
-		if(CompositionBuffer != m_CompositionStringBuffer)
-		{
-			m_CompositionStringBuffer = CompositionBuffer;
-			Update();
-			UpdateCursor();
-		}
-	}
-}
-
 template<int N>
 void CMapSettingsBackend::CContext::FormatDisplayValue(const char *pValue, char (&aOut)[N])
 {
@@ -2110,20 +2082,6 @@ void CMapSettingsBackend::CContext::FormatDisplayValue(const char *pValue, char 
 	{
 		str_copy(aOut, pValue);
 	}
-}
-
-bool CMapSettingsBackend::OnInput(const IInput::CEvent &Event)
-{
-	if(ms_pActiveContext)
-		return ms_pActiveContext->OnInput(Event);
-
-	return false;
-}
-
-void CMapSettingsBackend::OnUpdate()
-{
-	if(ms_pActiveContext && ms_pActiveContext->m_pLineInput && ms_pActiveContext->m_pLineInput->IsActive())
-		ms_pActiveContext->UpdateCompositionString();
 }
 
 void CMapSettingsBackend::OnMapLoad()

@@ -1,7 +1,6 @@
 #include <base/log.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
-#include <game/generated/protocol.h>
 #include <game/mapitems_ddpp.h>
 #include <game/race_state.h>
 #include <game/server/ddpp/enums.h>
@@ -12,6 +11,7 @@
 #include <game/server/player.h>
 #include <game/server/teams.h>
 #include <game/team_state.h>
+#include <generated/protocol.h>
 
 #include "one_vs_one_block.h"
 

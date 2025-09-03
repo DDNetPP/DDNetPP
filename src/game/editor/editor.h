@@ -6,12 +6,12 @@
 #include <base/bezier.h>
 #include <base/system.h>
 
-#include <game/client/render.h>
 #include <game/client/ui.h>
 #include <game/client/ui_listbox.h>
 #include <game/mapitems.h>
 
 #include <game/editor/enums.h>
+#include <game/editor/file_browser.h>
 #include <game/editor/mapitems/envelope.h>
 #include <game/editor/mapitems/layer.h>
 #include <game/editor/mapitems/layer_front.h>
@@ -25,6 +25,8 @@
 #include <game/editor/mapitems/layer_tiles.h>
 #include <game/editor/mapitems/layer_tune.h>
 #include <game/editor/mapitems/map.h>
+
+#include <game/map/render_interfaces.h>
 
 #include <engine/console.h>
 #include <engine/editor.h>
@@ -105,7 +107,7 @@ enum
 	PROPTYPE_AUTOMAPPER_REFERENCE,
 };
 
-class CEditor : public IEditor
+class CEditor : public IEditor, public IEnvelopeEval
 {
 	class IInput *m_pInput = nullptr;
 	class IClient *m_pClient = nullptr;
@@ -117,12 +119,13 @@ class CEditor : public IEditor
 	class ITextRender *m_pTextRender = nullptr;
 	class ISound *m_pSound = nullptr;
 	class IStorage *m_pStorage = nullptr;
-	CRenderTools m_RenderTools;
+	CRenderMap m_RenderMap;
 	CUi m_UI;
 
 	std::vector<std::reference_wrapper<CEditorComponent>> m_vComponents;
 	CMapView m_MapView;
 	CLayerSelector m_LayerSelector;
+	CFileBrowser m_FileBrowser;
 	CPrompt m_Prompt;
 	CFontTyper m_FontTyper;
 
@@ -160,7 +163,7 @@ public:
 	class ITextRender *TextRender() const { return m_pTextRender; }
 	class IStorage *Storage() const { return m_pStorage; }
 	CUi *Ui() { return &m_UI; }
-	CRenderTools *RenderTools() { return &m_RenderTools; }
+	CRenderMap *RenderMap() { return &m_RenderMap; }
 
 	CMapView *MapView() { return &m_MapView; }
 	const CMapView *MapView() const { return &m_MapView; }
@@ -213,28 +216,10 @@ public:
 
 		m_aFileName[0] = '\0';
 		m_aFileNamePending[0] = '\0';
-		m_aFileSaveName[0] = '\0';
 		m_ValidSaveFilename = false;
 
 		m_PopupEventActivated = false;
 		m_PopupEventWasActivated = false;
-
-		m_FileDialogStorageType = 0;
-		m_FileDialogLastPopulatedStorageType = 0;
-		m_FileDialogSaveAction = false;
-		m_pFileDialogTitle = nullptr;
-		m_pFileDialogButtonText = nullptr;
-		m_pFileDialogUser = nullptr;
-		m_aFileDialogCurrentFolder[0] = '\0';
-		m_aFileDialogCurrentLink[0] = '\0';
-		m_aFilesSelectedName[0] = '\0';
-		m_pFileDialogPath = m_aFileDialogCurrentFolder;
-		m_FileDialogOpening = false;
-		m_FilesSelectedIndex = -1;
-
-		m_FilePreviewImage.Invalidate();
-		m_FilePreviewSound = -1;
-		m_FilePreviewState = PREVIEW_UNLOADED;
 
 		m_ToolbarPreviewSound = -1;
 
@@ -350,11 +335,8 @@ public:
 	bool PerformAutosave();
 	void HandleWriterFinishJobs();
 
-	void RefreshFilteredFileList();
-	void FilelistPopulate(int StorageType, bool KeepSelection = false);
-	void InvokeFileDialog(int StorageType, int FileType, const char *pTitle, const char *pButtonText,
-		const char *pBasepath, bool FilenameAsDefault,
-		bool (*pfnFunc)(const char *pFilename, int StorageType, void *pUser), void *pUser);
+	// TODO: The name of the ShowFileDialogError function is not accurate anymore, this is used for generic error messages.
+	//       Popups in UI should be shared_ptrs to make this even more generic.
 	struct SStringKeyComparator
 	{
 		bool operator()(const char *pLhs, const char *pRhs) const
@@ -414,7 +396,7 @@ public:
 	bool IsTangentInSelected() const;
 	bool IsTangentOutSelected() const;
 	bool IsTangentSelected() const;
-	std::pair<int, int> EnvGetSelectedTimeAndValue() const;
+	std::pair<CFixedTime, int> EnvGetSelectedTimeAndValue() const;
 
 	template<typename E>
 	SEditResult<E> DoPropertiesWithState(CUIRect *pToolbox, CProperty *pProps, int *pIds, int *pNewVal, const std::vector<ColorRGBA> &vColors = {});
@@ -432,7 +414,6 @@ public:
 
 	char m_aFileName[IO_MAX_PATH_LENGTH];
 	char m_aFileNamePending[IO_MAX_PATH_LENGTH];
-	char m_aFileSaveName[IO_MAX_PATH_LENGTH];
 	bool m_ValidSaveFilename;
 
 	enum
@@ -442,10 +423,6 @@ public:
 		POPEVENT_LOADCURRENT,
 		POPEVENT_LOADDROP,
 		POPEVENT_NEW,
-		POPEVENT_SAVE,
-		POPEVENT_SAVE_COPY,
-		POPEVENT_SAVE_IMG,
-		POPEVENT_SAVE_SOUND,
 		POPEVENT_LARGELAYER,
 		POPEVENT_PREVENTUNUSEDTILES,
 		POPEVENT_IMAGEDIV16,
@@ -482,109 +459,7 @@ public:
 	int m_Mentions = 0;
 	bool m_IngameMoved = false;
 
-	enum
-	{
-		FILETYPE_MAP,
-		FILETYPE_IMG,
-		FILETYPE_SOUND,
-		NUM_FILETYPES
-	};
-
-	int m_FileDialogStorageType;
-	int m_FileDialogLastPopulatedStorageType;
-	bool m_FileDialogSaveAction;
-	const char *m_pFileDialogTitle;
-	const char *m_pFileDialogButtonText;
-	bool (*m_pfnFileDialogFunc)(const char *pFileName, int StorageType, void *pUser);
-	void *m_pFileDialogUser;
-	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_FileDialogFileNameInput;
-	char m_aFileDialogCurrentFolder[IO_MAX_PATH_LENGTH];
-	char m_aFileDialogCurrentLink[IO_MAX_PATH_LENGTH];
-	char m_aFilesSelectedName[IO_MAX_PATH_LENGTH];
-	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_FileDialogFilterInput;
-	char *m_pFileDialogPath;
-	int m_FileDialogFileType;
-	bool m_FileDialogMultipleStorages = false;
-	bool m_FileDialogShowingRoot = false;
-	int m_FilesSelectedIndex;
-	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_FileDialogNewFolderNameInput;
-
-	IGraphics::CTextureHandle m_FilePreviewImage;
-	int m_FilePreviewSound;
-	EPreviewState m_FilePreviewState;
-	int m_FilePreviewImageWidth;
-	int m_FilePreviewImageHeight;
-	bool m_FileDialogOpening;
-
 	int m_ToolbarPreviewSound;
-
-	struct CFilelistItem
-	{
-		char m_aFilename[IO_MAX_PATH_LENGTH];
-		char m_aName[IO_MAX_PATH_LENGTH];
-		bool m_IsDir;
-		bool m_IsLink;
-		int m_StorageType;
-		time_t m_TimeModified;
-	};
-	std::vector<CFilelistItem> m_vCompleteFileList;
-	std::vector<const CFilelistItem *> m_vpFilteredFileList;
-
-	static bool CompareFilenameAscending(const CFilelistItem *pLhs, const CFilelistItem *pRhs)
-	{
-		if(str_comp(pLhs->m_aFilename, "..") == 0)
-			return true;
-		if(str_comp(pRhs->m_aFilename, "..") == 0)
-			return false;
-		if(pLhs->m_IsLink != pRhs->m_IsLink)
-			return pLhs->m_IsLink;
-		if(pLhs->m_IsDir != pRhs->m_IsDir)
-			return pLhs->m_IsDir;
-		return str_comp_filenames(pLhs->m_aName, pRhs->m_aName) < 0;
-	}
-
-	static bool CompareFilenameDescending(const CFilelistItem *pLhs, const CFilelistItem *pRhs)
-	{
-		if(str_comp(pLhs->m_aFilename, "..") == 0)
-			return true;
-		if(str_comp(pRhs->m_aFilename, "..") == 0)
-			return false;
-		if(pLhs->m_IsLink != pRhs->m_IsLink)
-			return pLhs->m_IsLink;
-		if(pLhs->m_IsDir != pRhs->m_IsDir)
-			return pLhs->m_IsDir;
-		return str_comp_filenames(pLhs->m_aName, pRhs->m_aName) > 0;
-	}
-
-	static bool CompareTimeModifiedAscending(const CFilelistItem *pLhs, const CFilelistItem *pRhs)
-	{
-		if(str_comp(pLhs->m_aFilename, "..") == 0)
-			return true;
-		if(str_comp(pRhs->m_aFilename, "..") == 0)
-			return false;
-		if(pLhs->m_IsLink != pRhs->m_IsLink)
-			return pLhs->m_IsLink;
-		if(pLhs->m_IsDir != pRhs->m_IsDir)
-			return pLhs->m_IsDir;
-		return pLhs->m_TimeModified < pRhs->m_TimeModified;
-	}
-
-	static bool CompareTimeModifiedDescending(const CFilelistItem *pLhs, const CFilelistItem *pRhs)
-	{
-		if(str_comp(pLhs->m_aFilename, "..") == 0)
-			return true;
-		if(str_comp(pRhs->m_aFilename, "..") == 0)
-			return false;
-		if(pLhs->m_IsLink != pRhs->m_IsLink)
-			return pLhs->m_IsLink;
-		if(pLhs->m_IsDir != pRhs->m_IsDir)
-			return pLhs->m_IsDir;
-		return pLhs->m_TimeModified > pRhs->m_TimeModified;
-	}
-
-	void SortFilteredFileList();
-	int m_SortByFilename = 1;
-	int m_SortByTimeModified = 0;
 
 	std::vector<std::string> m_vSelectEntitiesFiles;
 	std::string m_SelectEntitiesImage;
@@ -697,7 +572,7 @@ public:
 
 	int m_ShiftBy;
 
-	static void EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels, void *pUser);
+	void EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels) override;
 
 	CLineInputBuffered<256> m_SettingsCommandInput;
 	CMapSettingsBackend m_MapSettingsBackend;
@@ -759,7 +634,6 @@ public:
 	static CUi::EPopupMenuFunctionResult PopupEnvPointCurveType(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupImage(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSound(void *pContext, CUIRect View, bool Active);
-	static CUi::EPopupMenuFunctionResult PopupNewFolder(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupMapInfo(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupEvent(void *pContext, CUIRect View, bool Active);
 	static CUi::EPopupMenuFunctionResult PopupSelectImage(void *pContext, CUIRect View, bool Active);
@@ -878,7 +752,7 @@ public:
 	static bool ReplaceSoundCallback(const char *pFileName, int StorageType, void *pUser);
 	static bool AddImage(const char *pFilename, int StorageType, void *pUser);
 	static bool AddSound(const char *pFileName, int StorageType, void *pUser);
-	static bool IsAssetUsed(int FileType, int Index, void *pUser);
+	static bool IsAssetUsed(CFileBrowser::EFileType FileType, int Index, void *pUser);
 
 	bool IsEnvelopeUsed(int EnvelopeIndex) const;
 	void RemoveUnusedEnvelopes();
@@ -914,7 +788,6 @@ public:
 	void SetHotEnvelopePoint(const CUIRect &View, const std::shared_ptr<CEnvelope> &pEnvelope, int ActiveChannels);
 
 	void RenderMenubar(CUIRect Menubar);
-	void RenderFileDialog();
 
 	void SelectGameLayer();
 	std::vector<int> SortImages();

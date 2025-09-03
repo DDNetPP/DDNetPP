@@ -1,8 +1,9 @@
 #include "layer_sounds.h"
 
+#include <generated/client_data.h>
+
 #include <game/editor/editor.h>
 #include <game/editor/editor_actions.h>
-#include <game/generated/client_data.h>
 
 static const float s_SourceVisualSize = 32.0f;
 
@@ -35,7 +36,7 @@ void CLayerSounds::Render(bool Tileset)
 	for(const auto &Source : m_vSources)
 	{
 		ColorRGBA Offset = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-		CEditor::EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Offset, 2, m_pEditor);
+		m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Offset, 2);
 		const vec2 Position = vec2(fx2f(Source.m_Position.x) + Offset.r, fx2f(Source.m_Position.y) + Offset.g);
 		const float Falloff = Source.m_Falloff / 255.0f;
 
@@ -71,13 +72,13 @@ void CLayerSounds::Render(bool Tileset)
 	Graphics()->QuadsBegin();
 
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pEditor->RenderTools()->SelectSprite(SPRITE_AUDIO_SOURCE);
+	m_pEditor->Graphics()->SelectSprite(SPRITE_AUDIO_SOURCE);
 	for(const auto &Source : m_vSources)
 	{
 		ColorRGBA Offset = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
-		CEditor::EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Offset, 2, m_pEditor);
+		m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Offset, 2);
 		const vec2 Position = vec2(fx2f(Source.m_Position.x) + Offset.r, fx2f(Source.m_Position.y) + Offset.g);
-		m_pEditor->RenderTools()->DrawSprite(Position.x, Position.y, m_pEditor->MapView()->ScaleLength(s_SourceVisualSize));
+		m_pEditor->Graphics()->DrawSprite(Position.x, Position.y, m_pEditor->MapView()->ScaleLength(s_SourceVisualSize));
 	}
 
 	Graphics()->QuadsEnd();

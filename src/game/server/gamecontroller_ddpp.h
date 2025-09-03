@@ -7,10 +7,10 @@
 #include <base/vmath.h>
 #include <engine/map.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
-#include <game/generated/protocol7.h>
 #include <game/server/entities/character.h>
 #include <game/server/teams.h>
+#include <generated/protocol.h>
+#include <generated/protocol7.h>
 
 struct CScoreLoadBestTimeResult;
 

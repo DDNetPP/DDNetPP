@@ -47,7 +47,7 @@ jobs:
         sudo apt-get install pkg-config cmake ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libvulkan-dev glslang-tools spirv-tools libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libpng-dev valgrind gcovr libglew-dev -y
 
     - name: Prepare Linux (non-fancy)
-      if: ${{ contains(matrix.os, 'ubuntu') && !matrix.fancy }}
+      if: contains(matrix.os, 'ubuntu') && !matrix.fancy
       run: |
         # Our minimum supported Rust version (MSRV)
         rustup default 1.63.0
@@ -90,20 +90,45 @@ jobs:
         echo /Library/Frameworks/Python.framework/Versions/3.12/bin >> $GITHUB_PATH
         sudo rm -rf /Library/Developer/CommandLineTools
 
+    - name: Prepare Windows MinGW
+      if: contains(matrix.os, 'windows') && contains(matrix.name, 'mingw')
+      run: |
+        rustup toolchain install stable-x86_64-pc-windows-gnu
+        rustup target add x86_64-pc-windows-gnu
+        rustup default stable-x86_64-pc-windows-gnu
+        rustup set default-host x86_64-pc-windows-gnu
+
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
+      with:
+          workspaces: |
+              src/mastersrv
+              src/masterping
+              ./
+
+    - name: Build mastersrv
+      if: ${{ !contains(matrix.os, 'ubuntu-22.04') }}
+      run: |
+        cd src/mastersrv
+        cargo build
+
+    - name: Build masterping
+      if: ${{ !contains(matrix.os, 'ubuntu-22.04') }}
+      run: |
+        cd src/masterping
+        cargo build
 
     - name: Build in debug mode
       run: |
         mkdir debug
         cd debug
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
-        ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything ${{ matrix.build-args }}
+        ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything
 
     - name: Test debug
       run: |
         cd debug
-        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests ${{ matrix.build-args }}
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
 
     - name: Run debug server
       run: |
@@ -115,12 +140,12 @@ jobs:
         mkdir release
         cd release
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCLIENT=ON -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
-        ${{ matrix.cmake-path }}cmake --build . --config Release --target everything ${{ matrix.build-args }}
+        ${{ matrix.cmake-path }}cmake --build . --config Release --target everything
 
     - name: Test release
       run: |
         cd release
-        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Release --target run_tests ${{ matrix.build-args }}
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Release --target run_tests
 
     - name: Run release server
       run: |
@@ -155,7 +180,7 @@ jobs:
       if: contains(matrix.os, 'ubuntu-latest')
       run: |
         cd headless
-        ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" RUSTDOCFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests ${{ matrix.build-args }}
+        ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" RUSTDOCFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
 
     - name: Upload Codecov report (unit tests)
       if: contains(matrix.os, 'ubuntu-latest')

@@ -1,8 +1,8 @@
 /* CLaser ddnet++ methods */
 #include "laser.h"
-#include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
+#include <generated/protocol.h>
 
 #include <engine/shared/config.h>
 #include <game/server/teams.h>

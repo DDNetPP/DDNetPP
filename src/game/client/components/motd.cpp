@@ -5,8 +5,9 @@
 #include <engine/shared/config.h>
 #include <engine/textrender.h>
 
+#include <generated/protocol.h>
+
 #include <game/client/gameclient.h>
-#include <game/generated/protocol.h>
 
 #include "motd.h"
 
@@ -72,15 +73,12 @@ void CMotd::OnRender()
 		Graphics()->RenderQuadContainer(m_RectQuadContainer, -1);
 	}
 
-	const float TextWidth = RectWidth - 2.0f * FontSize;
-	const float TextX = RectX + FontSize;
-	const float TextY = RectY + FontSize;
-
 	if(!m_TextContainerIndex.Valid())
 	{
 		CTextCursor Cursor;
-		TextRender()->SetCursor(&Cursor, TextX, TextY, FontSize, TEXTFLAG_RENDER);
-		Cursor.m_LineWidth = TextWidth;
+		Cursor.SetPosition(vec2(RectX + FontSize, RectY + FontSize));
+		Cursor.m_FontSize = FontSize;
+		Cursor.m_LineWidth = RectWidth - 2.0f * FontSize;
 		TextRender()->CreateTextContainer(m_TextContainerIndex, &Cursor, ServerMotd());
 	}
 

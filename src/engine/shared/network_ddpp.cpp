@@ -7,7 +7,7 @@
 #include "network.h"
 #include <engine/message.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 void CNetServer::BotInit(int BotId)
 {

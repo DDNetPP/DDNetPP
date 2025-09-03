@@ -6,8 +6,9 @@
 #include <engine/console.h>
 #include <engine/server.h>
 
+#include <generated/protocol.h>
+
 #include <game/collision.h>
-#include <game/generated/protocol.h>
 #include <game/layers.h>
 #include <game/mapbugs.h>
 #include <game/voting.h>
@@ -189,6 +190,7 @@ class CGameContext : public IGameServer
 	static void ConAntibot(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainSettingUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainPracticeByDefaultUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConDumpLog(IConsole::IResult *pResult, void *pUserData);
 
 	void Construct(int Resetting);
@@ -221,6 +223,8 @@ public:
 	IAntibot *Antibot() { return m_pAntibot; }
 	CTeeHistorian *TeeHistorian() { return &m_TeeHistorian; }
 	bool TeeHistorianActive() const { return m_TeeHistorianActive; }
+	CNetObjHandler *GetNetObjHandler() override { return &m_NetObjHandler; }
+	protocol7::CNetObjHandler *GetNetObjHandler7() override { return &m_NetObjHandler7; }
 
 	CGameContext();
 	CGameContext(int Reset);
@@ -518,7 +522,6 @@ private:
 	// static void ConJoin(IConsole::IResult *pResult, void *pUserData); // conflicting with ddnet++ /join block tournaments
 	static void ConAccept(IConsole::IResult *pResult, void *pUserData);
 	static void ConTeam0Mode(IConsole::IResult *pResult, void *pUserData);
-	static void ConMe(IConsole::IResult *pResult, void *pUserData);
 	static void ConWhisper(IConsole::IResult *pResult, void *pUserData);
 	static void ConConverse(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetEyeEmote(IConsole::IResult *pResult, void *pUserData);
@@ -618,7 +621,7 @@ private:
 	{
 		int64_t m_Timestamp;
 		bool m_FromServer;
-		char m_aDescription[128];
+		char m_aDescription[256 + 8];
 		int m_ClientVersion;
 		char m_aClientName[MAX_NAME_LENGTH];
 		char m_aClientAddrStr[NETADDR_MAXSTRSIZE];

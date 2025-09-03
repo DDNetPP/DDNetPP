@@ -4,11 +4,11 @@
 #include "heartgun.h"
 #include "character.h"
 #include <engine/shared/config.h>
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
+#include <generated/protocol.h>
+#include <generated/server_data.h>
 
 CHeartGun::CHeartGun(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
 	bool Explosive, bool Unfreeze, bool Bloody, bool Spooky, float Lifetime, float Accel, float Speed) :

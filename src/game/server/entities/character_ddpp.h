@@ -3,12 +3,12 @@
 #ifndef IN_CLASS_CHARACTER
 #include <deque>
 #include <engine/antibot.h>
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
 #include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
+#include <generated/protocol.h>
+#include <generated/server_data.h>
 
 #include <game/gamecore.h>
 

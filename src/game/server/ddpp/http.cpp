@@ -2,7 +2,7 @@
 #include <engine/shared/http.h>
 #include <engine/shared/json.h>
 #include <engine/shared/jsonwriter.h>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include <game/server/gamecontext.h>
 

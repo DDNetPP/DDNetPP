@@ -1924,7 +1924,7 @@ function(generate_maps output_file script_parameter)
   )
 endfunction()
 
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/game/generated/")
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/generated/")
 execute_process(COMMAND git rev-parse --git-dir
   ERROR_QUIET
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
@@ -1938,33 +1938,33 @@ if(NOT PROJECT_GIT_DIR_ERROR)
     ${PROJECT_GIT_DIR}/logs/HEAD
   )
 endif()
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/game/generated/git_revision.cpp
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/generated/git_revision.cpp
   COMMAND ${Python3_EXECUTABLE}
     scripts/git_revision.py
-    > ${PROJECT_BINARY_DIR}/src/game/generated/git_revision.cpp
+    > ${PROJECT_BINARY_DIR}/src/generated/git_revision.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   DEPENDS
     ${GIT_REVISION_EXTRA_DEPS}
     scripts/git_revision.py
 )
-generate_source("src/game/generated/client_data.cpp" "client_content_source")
-generate_source("src/game/generated/client_data.h" "client_content_header")
-generate_source("src/game/generated/data_types.h" "content_types_header")
-generate_source("src/game/generated/protocol.cpp" "network_source")
-generate_source("src/game/generated/protocol.h" "network_header")
-generate_source("src/game/generated/server_data.cpp" "server_content_source")
-generate_source("src/game/generated/server_data.h" "server_content_header")
+generate_source("src/generated/client_data.cpp" "client_content_source")
+generate_source("src/generated/client_data.h" "client_content_header")
+generate_source("src/generated/data_types.h" "content_types_header")
+generate_source("src/generated/protocol.cpp" "network_source")
+generate_source("src/generated/protocol.h" "network_header")
+generate_source("src/generated/server_data.cpp" "server_content_source")
+generate_source("src/generated/server_data.h" "server_content_header")
 
-generate_source7("src/game/generated/protocol7.cpp" "network_source")
-generate_source7("src/game/generated/protocol7.h" "network_header")
-generate_source7("src/game/generated/client_data7.cpp" "client_content_source")
-generate_source7("src/game/generated/client_data7.h" "client_content_header")
+generate_source7("src/generated/protocol7.cpp" "network_source")
+generate_source7("src/generated/protocol7.h" "network_header")
+generate_source7("src/generated/client_data7.cpp" "client_content_source")
+generate_source7("src/generated/client_data7.h" "client_content_header")
 
-generate_maps("src/game/generated/protocolglue.h" "map_header")
-generate_maps("src/game/generated/protocolglue.cpp" "map_source")
+generate_maps("src/generated/protocolglue.h" "map_header")
+generate_maps("src/generated/protocolglue.cpp" "map_source")
 
-add_custom_command(OUTPUT "src/game/generated/wordlist.h"
-  COMMAND ${Python3_EXECUTABLE} scripts/wordlist.py > ${PROJECT_BINARY_DIR}/src/game/generated/wordlist.h
+add_custom_command(OUTPUT "src/generated/wordlist.h"
+  COMMAND ${Python3_EXECUTABLE} scripts/wordlist.py > ${PROJECT_BINARY_DIR}/src/generated/wordlist.h
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   DEPENDS
     scripts/wordlist.py
@@ -2024,6 +2024,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   favorites.h
   friends.h
   ghost.h
+  graphics.cpp
   graphics.h
   http.h
   image.h
@@ -2183,12 +2184,12 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "src/game/version
 # A bit hacky, but these are needed to register all the UUIDs, even for stuff
 # that doesn't link game.
 set(ENGINE_UUID_SHARED
-  src/game/generated/protocolglue.cpp
-  src/game/generated/protocolglue.h
-  src/game/generated/protocol7.cpp
-  src/game/generated/protocol7.h
-  src/game/generated/protocol.cpp
-  src/game/generated/protocol.h
+  src/generated/protocolglue.cpp
+  src/generated/protocolglue.h
+  src/generated/protocol7.cpp
+  src/generated/protocol7.h
+  src/generated/protocol.cpp
+  src/generated/protocol.h
   src/game/mapitems_ex.cpp
   src/game/mapitems_ex.h
   src/game/mapitems_ex_types.h
@@ -2200,11 +2201,11 @@ foreach(s ${GAME_SHARED})
 endforeach()
 list(REMOVE_ITEM GAME_SHARED ${ENGINE_UUID_SHARED})
 set(GAME_GENERATED_SHARED
-  src/game/generated/data_types.h
-  src/game/generated/git_revision.cpp
-  src/game/generated/protocol.h
-  src/game/generated/protocol7.h
-  src/game/generated/protocolglue.h
+  src/generated/data_types.h
+  src/generated/git_revision.cpp
+  src/generated/protocol.h
+  src/generated/protocol7.h
+  src/generated/protocolglue.h
 )
 set(DEPS ${DEP_JSON} ${DEP_MD5} ${ZLIB_DEP})
 
@@ -2300,6 +2301,7 @@ if(CLIENT)
     graphics_defines.h
     graphics_threaded.cpp
     graphics_threaded.h
+    graphics_threaded_sprites.cpp
     input.cpp
     input.h
     keynames.cpp
@@ -2384,6 +2386,8 @@ if(CLIENT)
     components/menus_browser.cpp
     components/menus_demo.cpp
     components/menus_ingame.cpp
+    components/menus_ingame_touch_controls.cpp
+    components/menus_ingame_touch_controls.h
     components/menus_settings.cpp
     components/menus_settings7.cpp
     components/menus_settings_assets.cpp
@@ -2399,8 +2403,6 @@ if(CLIENT)
     components/players.h
     components/race_demo.cpp
     components/race_demo.h
-    components/render_layer.cpp
-    components/render_layer.h
     components/scoreboard.cpp
     components/scoreboard.h
     components/skins.cpp
@@ -2451,7 +2453,6 @@ if(CLIENT)
     race.h
     render.cpp
     render.h
-    render_map.cpp
     sixup_translate_connless.cpp
     sixup_translate_game.cpp
     sixup_translate_snapshot.cpp
@@ -2489,6 +2490,8 @@ if(CLIENT)
     enums.h
     explanations.cpp
     explanations.h
+    file_browser.cpp
+    file_browser.h
     font_typer.cpp
     font_typer.h
     layer_selector.cpp
@@ -2538,18 +2541,34 @@ if(CLIENT)
     quick_action.h
     quick_actions.cpp
     quick_actions.h
+    references.cpp
+    references.h
     smooth_value.cpp
     smooth_value.h
     tileart.cpp
   )
-  set(GAME_GENERATED_CLIENT
-    src/game/generated/checksum.cpp
-    src/game/generated/client_data.cpp
-    src/game/generated/client_data.h
-    src/game/generated/client_data7.cpp
-    src/game/generated/client_data7.h
+  set_src(GAME_MAP GLOB_RECURSE src/game/map
+    envelope_extrema.cpp
+    envelope_extrema.h
+    envelope_manager.h
+    map_renderer.cpp
+    map_renderer.h
+    render_component.cpp
+    render_component.h
+    render_interfaces.h
+    render_layer.cpp
+    render_layer.h
+    render_map.cpp
+    render_map.h
   )
-  set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR} ${GAME_GENERATED_CLIENT})
+  set(GAME_GENERATED_CLIENT
+    src/generated/checksum.cpp
+    src/generated/client_data.cpp
+    src/generated/client_data.h
+    src/generated/client_data7.cpp
+    src/generated/client_data7.h
+  )
+  set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR} ${GAME_MAP} ${GAME_GENERATED_CLIENT})
 
   set(DEPS_CLIENT ${DEPS} ${GLEW_DEP} ${WAVPACK_DEP})
 
@@ -2931,9 +2950,9 @@ if(SERVER)
     twbl/callback_ctx.h
   )
   set(GAME_GENERATED_SERVER
-    "src/game/generated/server_data.cpp"
-    "src/game/generated/server_data.h"
-    "src/game/generated/wordlist.h"
+    "src/generated/server_data.cpp"
+    "src/generated/server_data.h"
+    "src/generated/wordlist.h"
   )
   set(SERVER_SRC ${ENGINE_SERVER_WITHOUT_MAIN} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
   if(TARGET_OS STREQUAL "windows")
@@ -3153,12 +3172,12 @@ configure_file(cmake/checksummed_extra.txt checksummed_extra.txt)
 string(REPLACE ";" "\n" CHECKSUM_SRC_FILE "${CHECKSUM_SRC}")
 file(WRITE ${PROJECT_BINARY_DIR}/checksummed_files.txt ${CHECKSUM_SRC_FILE})
 
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/game/generated/checksum.cpp
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/generated/checksum.cpp
   COMMAND ${Python3_EXECUTABLE}
     scripts/checksum.py
     ${PROJECT_BINARY_DIR}/checksummed_files.txt
     ${PROJECT_BINARY_DIR}/checksummed_extra.txt
-    > ${PROJECT_BINARY_DIR}/src/game/generated/checksum.cpp
+    > ${PROJECT_BINARY_DIR}/src/generated/checksum.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   DEPENDS
     ${CHECKSUM_SRC}
@@ -3194,6 +3213,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     jsonwriter.cpp
     linereader.cpp
     mapbugs.cpp
+    mapitems.cpp
     math.cpp
     memory.cpp
     name_ban.cpp
@@ -3721,7 +3741,7 @@ foreach(target ${TARGETS})
     target_compile_options(${target} PRIVATE /utf-8) # Use UTF-8 for source files.
     # Enable Edit & Continue (Hot Reload) support
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
-      set_property(TARGET ${target} PROPERTY MSVC_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug>:EditAndContinue>)
+      set_property(TARGET ${target} PROPERTY MSVC_DEBUG_INFORMATION_FORMAT $<IF:$<CONFIG:Debug>,EditAndContinue,Embedded>)
       target_link_options(${target} PRIVATE $<$<CONFIG:Debug>:/INCREMENTAL>)
     endif()
   endif()

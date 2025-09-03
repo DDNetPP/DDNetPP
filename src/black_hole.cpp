@@ -2,8 +2,8 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "black_hole.h"
 #include <engine/config.h>
-#include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
+#include <generated/protocol.h>
 
 /* Cyser!xXx's BlackHole Code 23.01.2013*/
 //////////////////////////////////////////////////

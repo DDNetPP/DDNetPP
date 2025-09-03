@@ -320,7 +320,7 @@ void CServer::BotJoin(int BotId)
 		"64"};
 
 	m_aClients[BotId].m_State = CClient::STATE_PREAUTH;
-	m_aClients[BotId].m_DnsblState = CClient::DNSBL_STATE_NONE;
+	m_aClients[BotId].m_DnsblState = EDnsblState::NONE;
 	m_aClients[BotId].m_aName[0] = 0;
 	m_aClients[BotId].m_aClan[0] = 0;
 	m_aClients[BotId].m_Country = -1;

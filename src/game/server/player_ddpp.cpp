@@ -3,7 +3,6 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
@@ -12,6 +11,7 @@
 #include <game/server/entities/dummy/minigame_balance.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/minigame_base.h>
+#include <generated/protocol.h>
 
 #include "game/race_state.h"
 #include "gamecontext.h"
@@ -482,7 +482,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		pClan = m_RealName;
 	else
 		pClan = m_RealClan;
-	StrToInts(&pClientInfo->m_Clan0, 3, pClan);
+	StrToInts(pClientInfo->m_aClan, std::size(pClientInfo->m_aClan), pClan);
 
 	if(m_SpookyGhostActive)
 	{
@@ -491,11 +491,11 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 	if(m_SetRealName || m_ShowName)
 	{
-		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientId));
+		StrToInts(pClientInfo->m_aName, std::size(pClientInfo->m_aName), Server()->ClientName(m_ClientId));
 	}
 	else
 	{
-		StrToInts(&pClientInfo->m_Name0, 4, " ");
+		StrToInts(pClientInfo->m_aName, std::size(pClientInfo->m_aName), " ");
 	}
 
 	if(GetCharacter())
@@ -508,7 +508,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 	if(GetCharacter() && GetCharacter()->m_IsBomb) // bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
 	{
-		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
+		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
 
 		if(GameServer()->m_BombTick < 75) // red glowup right before explode
@@ -563,7 +563,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 	}
 	else if(m_InfRainbow || GameServer()->IsHooked(GetCid(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
-		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
+		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
 		m_RainbowColor = (m_RainbowColor + 1) % 256;
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;

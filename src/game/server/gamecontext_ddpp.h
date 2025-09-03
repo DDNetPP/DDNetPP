@@ -5,14 +5,14 @@
 #include <deque>
 #include <engine/antibot.h>
 #include <engine/http.h>
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/letters.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
 #include <game/server/twbl/callback_ctx.h>
+#include <generated/protocol.h>
+#include <generated/server_data.h>
 #include <mutex>
 #include <server/ddnet_callback_ctx.h>
 #include <thread>

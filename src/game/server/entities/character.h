@@ -112,6 +112,8 @@ public:
 
 	void Die(int Killer, int Weapon, bool SendKillMsg = true, bool FngScore = false);
 	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon);
+	void SendDeathMessageIfNotInLockedTeam(int Killer, int Weapon, int ModeSpecial);
+	void CancelSwapRequests();
 
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);
 	bool Remove();

@@ -40,15 +40,14 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/protocol7.h>
 #include <engine/shared/protocol_ex.h>
+#include <engine/shared/protocolglue.h>
 #include <engine/shared/rust_version.h>
 #include <engine/shared/snapshot.h>
 #include <engine/shared/uuid_manager.h>
 
-#include <game/generated/protocol.h>
-#include <game/generated/protocol7.h>
-#include <game/generated/protocolglue.h>
-
-#include <engine/shared/protocolglue.h>
+#include <generated/protocol.h>
+#include <generated/protocol7.h>
+#include <generated/protocolglue.h>
 
 #include <game/localization.h>
 #include <game/version.h>
@@ -3063,11 +3062,21 @@ void CClient::Run()
 	m_pGraphics = CreateEngineGraphicsThreaded();
 	Kernel()->RegisterInterface(m_pGraphics); // IEngineGraphics
 	Kernel()->RegisterInterface(static_cast<IGraphics *>(m_pGraphics), false);
-	if(m_pGraphics->Init() != 0)
 	{
-		log_error("client", "couldn't init graphics");
-		ShowMessageBox({.m_pTitle = "Graphics Error", .m_pMessage = "The graphics could not be initialized."});
-		return;
+		CMemoryLogger MemoryLogger;
+		MemoryLogger.SetParent(log_get_scope_logger());
+		bool Success;
+		{
+			CLogScope LogScope(&MemoryLogger);
+			Success = m_pGraphics->Init() == 0;
+		}
+		if(!Success)
+		{
+			log_error("client", "Failed to initialize the graphics (see details above)");
+			std::string Message = std::string("Failed to initialize the graphics. See details below.\n\n") + MemoryLogger.ConcatenatedLines();
+			ShowMessageBox({.m_pTitle = "Graphics Error", .m_pMessage = Message.c_str()});
+			return;
+		}
 	}
 
 	// make sure the first frame just clears everything to prevent undesired colors when waiting for io
@@ -4482,10 +4491,11 @@ void CClient::HandleConnectLink(const char *pLink)
 {
 	// Chrome works fine with ddnet:// but not with ddnet:
 	// Check ddnet:// before ddnet: because we don't want the // as part of connect command
-	if(str_startswith(pLink, CONNECTLINK_DOUBLE_SLASH))
-		str_copy(m_aCmdConnect, pLink + sizeof(CONNECTLINK_DOUBLE_SLASH) - 1);
-	else if(str_startswith(pLink, CONNECTLINK_NO_SLASH))
-		str_copy(m_aCmdConnect, pLink + sizeof(CONNECTLINK_NO_SLASH) - 1);
+	const char *pConnectLink = nullptr;
+	if((pConnectLink = str_startswith(pLink, CONNECTLINK_DOUBLE_SLASH)))
+		str_copy(m_aCmdConnect, pConnectLink);
+	else if((pConnectLink = str_startswith(pLink, CONNECTLINK_NO_SLASH)))
+		str_copy(m_aCmdConnect, pConnectLink);
 	else
 		str_copy(m_aCmdConnect, pLink);
 	// Edge appends / to the URL
@@ -4647,10 +4657,6 @@ int main(int argc, const char **argv)
 		PerformFinalCleanup();
 	};
 
-	const bool RandInitFailed = secure_random_init() != 0;
-	if(!RandInitFailed)
-		CleanerFunctions.emplace([]() { secure_random_uninit(); });
-
 	// Register SDL for cleanup before creating the kernel and client,
 	// so SDL is shutdown after kernel and client. Otherwise the client
 	// may crash when shutting down after SDL is already shutdown.
@@ -4763,7 +4769,7 @@ int main(int argc, const char **argv)
 		if(!pStorage)
 		{
 			log_error("client", "Failed to initialize the storage location (see details above)");
-			std::string Message = "Failed to initialize the storage location. See details below.\n\n" + MemoryLogger.ConcatenatedLines();
+			std::string Message = std::string("Failed to initialize the storage location. See details below.\n\n") + MemoryLogger.ConcatenatedLines();
 			pClient->ShowMessageBox({.m_pTitle = "Storage Error", .m_pMessage = Message.c_str()});
 			PerformAllCleanup();
 			return -1;
@@ -4781,15 +4787,6 @@ int main(int argc, const char **argv)
 		str_format(aBufName, sizeof(aBufName), "dumps/" GAME_NAME "_%s_crash_log_%s_%d_%s.RTP", CONF_PLATFORM_STRING, aDate, pid(), GIT_SHORTREV_HASH != nullptr ? GIT_SHORTREV_HASH : "");
 		pStorage->GetCompletePath(IStorage::TYPE_SAVE, aBufName, aBufPath, sizeof(aBufPath));
 		crashdump_init_if_available(aBufPath);
-	}
-
-	if(RandInitFailed)
-	{
-		const char *pError = "Failed to initialize the secure RNG.";
-		log_error("secure", "%s", pError);
-		pClient->ShowMessageBox({.m_pTitle = "Secure RNG Error", .m_pMessage = pError});
-		PerformAllCleanup();
-		return -1;
 	}
 
 	IConsole *pConsole = CreateConsole(CFGFLAG_CLIENT).release();

@@ -31,9 +31,9 @@ void CLayerQuads::Render(bool QuadPicker)
 		Graphics()->TextureSet(m_pEditor->m_Map.m_vpImages[m_Image]->m_Texture);
 
 	Graphics()->BlendNone();
-	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_OPAQUE, CEditor::EnvelopeEval, m_pEditor);
+	m_pEditor->RenderMap()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_OPAQUE, m_pEditor);
 	Graphics()->BlendNormal();
-	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_TRANSPARENT, CEditor::EnvelopeEval, m_pEditor);
+	m_pEditor->RenderMap()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_TRANSPARENT, m_pEditor);
 }
 
 CQuad *CLayerQuads::NewQuad(int x, int y, int Width, int Height)
@@ -114,6 +114,9 @@ int CLayerQuads::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 
 void CLayerQuads::BrushPlace(std::shared_ptr<CLayer> pBrush, vec2 WorldPos)
 {
+	if(m_Readonly)
+		return;
+
 	std::shared_ptr<CLayerQuads> pQuadLayer = std::static_pointer_cast<CLayerQuads>(pBrush);
 	std::vector<CQuad> vAddedQuads;
 	for(const auto &Quad : pQuadLayer->m_vQuads)

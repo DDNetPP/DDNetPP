@@ -1,8 +1,8 @@
 #include <base/log.h>
-#include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/teams.h>
+#include <generated/protocol.h>
 
 #include <cmath>
 

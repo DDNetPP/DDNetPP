@@ -9,7 +9,6 @@
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/enums.h>
@@ -25,6 +24,7 @@
 #include <game/server/minigames/pvp_arena.h>
 #include <game/server/minigames/survival.h>
 #include <game/server/teams.h>
+#include <generated/protocol.h>
 
 #include "save.h"
 

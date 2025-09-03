@@ -5,7 +5,7 @@
 
 #include <engine/server.h>
 #include <engine/shared/config.h>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include <vector>
 

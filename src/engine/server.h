@@ -17,9 +17,9 @@
 #include <engine/map.h>
 #include <engine/shared/jsonwriter.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/protocol.h>
-#include <game/generated/protocol7.h>
-#include <game/generated/protocolglue.h>
+#include <generated/protocol.h>
+#include <generated/protocol7.h>
+#include <generated/protocolglue.h>
 
 #define AUTHED_HONEY -1 // ddnet++
 struct CAntibotRoundData;
@@ -264,6 +264,8 @@ public:
 	};
 	virtual void SetRconCid(int ClientId) = 0;
 	virtual int GetAuthedState(int ClientId) const = 0;
+	virtual bool IsRconAuthed(int ClientId) const = 0;
+	virtual bool IsRconAuthedAdmin(int ClientId) const = 0;
 	virtual const char *GetAuthName(int ClientId) const = 0;
 	virtual bool HasAuthHidden(int ClientId) const = 0;
 	virtual void Kick(int ClientId, const char *pReason) = 0;
@@ -382,6 +384,9 @@ public:
 	virtual const char *GameType() const = 0;
 	virtual const char *Version() const = 0;
 	virtual const char *NetVersion() const = 0;
+
+	virtual CNetObjHandler *GetNetObjHandler() = 0;
+	virtual protocol7::CNetObjHandler *GetNetObjHandler7() = 0;
 
 	// DDRace
 

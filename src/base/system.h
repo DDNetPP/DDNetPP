@@ -997,7 +997,7 @@ int net_socket_type(NETSOCKET sock);
  *
  * @param bindaddr Address to bind the socket to.
  *
- * @return On success it returns an handle to the socket. On failure it returns `NETSOCKET_INVALID`
+ * @return On success it returns an handle to the socket. On failure it returns `nullptr`.
  */
 NETSOCKET net_udp_create(NETADDR bindaddr);
 
@@ -1050,7 +1050,7 @@ void net_udp_close(NETSOCKET sock);
  *
  * @param bindaddr Address to bind the socket to.
  *
- * @return On success it returns an handle to the socket. On failure it returns NETSOCKET_INVALID.
+ * @return On success it returns an handle to the socket. On failure it returns `nullptr`.
  */
 NETSOCKET net_tcp_create(NETADDR bindaddr);
 
@@ -2736,25 +2736,6 @@ int open_file(const char *path);
  * @param random_length Length of the short array.
  */
 void generate_password(char *buffer, unsigned length, const unsigned short *random, unsigned random_length);
-
-/**
- * Initializes the secure random module.
- * You *MUST* check the return value of this function.
- *
- * @ingroup Secure-Random
- *
- * @return `0` on success.
- */
-[[nodiscard]] int secure_random_init();
-
-/**
- * Uninitializes the secure random module.
- *
- * @ingroup Secure-Random
- *
- * @return `0` on success.
- */
-int secure_random_uninit();
 
 /**
  * Fills the buffer with the specified amount of random password characters.

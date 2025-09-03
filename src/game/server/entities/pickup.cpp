@@ -3,13 +3,15 @@
 #include "pickup.h"
 #include "character.h"
 
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
 #include <game/mapitems.h>
 #include <game/teamscore.h>
+#include <generated/protocol.h>
+#include <generated/server_data.h>
 
+#include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
+#include <game/teamscore.h>
 
 static constexpr int gs_PickupPhysSize = 14;
 

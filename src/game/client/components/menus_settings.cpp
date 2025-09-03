@@ -13,14 +13,13 @@
 #include <engine/textrender.h>
 #include <engine/updater.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include <game/client/animstate.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menu_background.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
-#include <game/client/render.h>
 #include <game/client/skin.h>
 #include <game/client/ui.h>
 #include <game/client/ui_listbox.h>
@@ -152,7 +151,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitTop(20.0f, &Button, &Left);
 		str_copy(aBuf, " ");
 		str_append(aBuf, Localize("Hz", "Hertz"));
-		Ui()->DoScrollbarOption(&g_Config.m_ClRefreshRate, &g_Config.m_ClRefreshRate, &Button, Localize("Refresh Rate"), 10, 10000, &CUi::ms_LogarithmicScrollbarScale, CUi::SCROLLBAR_OPTION_INFINITE, aBuf);
+		Ui()->DoScrollbarOption(&g_Config.m_ClRefreshRate, &g_Config.m_ClRefreshRate, &Button, Localize("Refresh Rate"), 10, 1000, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_INFINITE | CUi::SCROLLBAR_OPTION_NOCLAMPVALUE, aBuf);
 		Left.HSplitTop(5.0f, nullptr, &Left);
 		Left.HSplitTop(20.0f, &Button, &Left);
 		static int s_LowerRefreshRate;
@@ -518,7 +517,10 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 		SkinPrefix.HSplitTop(20.0f, &Button, &SkinPrefix);
 		static CLineInput s_SkinPrefixInput(g_Config.m_ClSkinPrefix, sizeof(g_Config.m_ClSkinPrefix));
-		Ui()->DoClearableEditBox(&s_SkinPrefixInput, &Button, 14.0f);
+		if(Ui()->DoClearableEditBox(&s_SkinPrefixInput, &Button, 14.0f))
+		{
+			ShouldRefresh = true;
+		}
 
 		SkinPrefix.HSplitTop(2.0f, nullptr, &SkinPrefix);
 
@@ -531,6 +533,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 			if(DoButton_Menu(&s_aPrefixButtons[i], s_apSkinPrefixes[i], 0, &Button))
 			{
 				str_copy(g_Config.m_ClSkinPrefix, s_apSkinPrefixes[i]);
+				ShouldRefresh = true;
 			}
 		}
 	}
@@ -1863,7 +1866,7 @@ void CMenus::RenderLanguageSettings(CUIRect MainView)
 	CreditsScroll.y += ScrollOffset.y;
 
 	CTextCursor Cursor;
-	TextRender()->SetCursor(&Cursor, 0.0f, 0.0f, CreditsFontSize, TEXTFLAG_RENDER);
+	Cursor.m_FontSize = CreditsFontSize;
 	Cursor.m_LineWidth = CreditsScroll.w - 2.0f * CreditsMargin;
 
 	const unsigned OldRenderFlags = TextRender()->GetRenderFlags();
@@ -2592,7 +2595,9 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 			if(LineIndex >= (int)s_vLines.size())
 				return vec2(0, 0);
 			CTextCursor LocalCursor;
-			TextRender()->SetCursor(&LocalCursor, x, y, RealFontSize, Render ? TEXTFLAG_RENDER : 0);
+			LocalCursor.SetPosition(vec2(x, y));
+			LocalCursor.m_FontSize = RealFontSize;
+			LocalCursor.m_Flags = Render ? TEXTFLAG_RENDER : 0;
 			LocalCursor.m_LineWidth = LineWidth;
 			const auto &Line = s_vLines[LineIndex];
 
@@ -3003,7 +3008,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		Graphics()->TextureSet(GameClient()->m_MapImages.GetEntities(MAP_IMAGE_ENTITY_LAYER_TYPE_ALL_EXCEPT_SWITCH));
 		Graphics()->BlendNormal();
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderTools()->RenderTile(NoHookTileRect.x, NoHookTileRect.y, TILE_NOHOOK, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+		RenderMap()->RenderTile(NoHookTileRect.x, NoHookTileRect.y, TILE_NOHOOK, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
 		// ***** Hookable Tile Preview *****
 		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);
@@ -3022,7 +3027,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		Graphics()->TextureSet(GameClient()->m_MapImages.GetEntities(MAP_IMAGE_ENTITY_LAYER_TYPE_ALL_EXCEPT_SWITCH));
 		Graphics()->BlendNormal();
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderTools()->RenderTile(HookTileRect.x, HookTileRect.y, TILE_SOLID, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+		RenderMap()->RenderTile(HookTileRect.x, HookTileRect.y, TILE_SOLID, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
 		// ***** Hook Dummy Preivew *****
 		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);

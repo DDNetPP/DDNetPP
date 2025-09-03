@@ -4,7 +4,7 @@
 #ifndef GAME_SERVER_MINIGAMES_SAVE_DDPP_H
 #define GAME_SERVER_MINIGAMES_SAVE_DDPP_H
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 class CCharacter;
 

@@ -8,7 +8,6 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/gamecore.h>
-#include <game/generated/protocol.h>
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/shop.h>
@@ -17,6 +16,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
+#include <generated/protocol.h>
 
 #include "character.h"
 #include "flag.h"

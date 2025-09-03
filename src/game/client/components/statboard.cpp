@@ -3,11 +3,13 @@
 #include <engine/shared/config.h>
 #include <engine/storage.h>
 #include <engine/textrender.h>
+
+#include <generated/client_data.h>
+
 #include <game/client/animstate.h>
 #include <game/client/components/motd.h>
 #include <game/client/components/statboard.h>
 #include <game/client/gameclient.h>
-#include <game/generated/client_data.h>
 #include <game/localization.h>
 
 CStatboard::CStatboard()
@@ -236,13 +238,13 @@ void CStatboard::RenderGlobalStats()
 		if(!aDisplayWeapon[i])
 			continue;
 		float ScaleX, ScaleY;
-		RenderTools()->GetSpriteScale(g_pData->m_Weapons.m_aId[i].m_pSpriteBody, ScaleX, ScaleY);
+		Graphics()->GetSpriteScale(g_pData->m_Weapons.m_aId[i].m_pSpriteBody, ScaleX, ScaleY);
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_aSpriteWeapons[i]);
 		Graphics()->QuadsBegin();
 		if(i == 0)
-			RenderTools()->DrawSprite(x + px, y + 10, g_pData->m_Weapons.m_aId[i].m_VisualSize * 0.8f * ScaleX, g_pData->m_Weapons.m_aId[i].m_VisualSize * 0.8f * ScaleY);
+			Graphics()->DrawSprite(x + px, y + 10, g_pData->m_Weapons.m_aId[i].m_VisualSize * 0.8f * ScaleX, g_pData->m_Weapons.m_aId[i].m_VisualSize * 0.8f * ScaleY);
 		else
-			RenderTools()->DrawSprite(x + px, y + 10, g_pData->m_Weapons.m_aId[i].m_VisualSize * ScaleX, g_pData->m_Weapons.m_aId[i].m_VisualSize * ScaleY);
+			Graphics()->DrawSprite(x + px, y + 10, g_pData->m_Weapons.m_aId[i].m_VisualSize * ScaleX, g_pData->m_Weapons.m_aId[i].m_VisualSize * ScaleY);
 		px += 80;
 		Graphics()->QuadsEnd();
 	}
@@ -251,10 +253,10 @@ void CStatboard::RenderGlobalStats()
 	{
 		Graphics()->TextureSet(GameClient()->m_GameSkin.m_SpriteFlagRed);
 		float ScaleX, ScaleY;
-		RenderTools()->GetSpriteScale(SPRITE_FLAG_RED, ScaleX, ScaleY);
+		Graphics()->GetSpriteScale(SPRITE_FLAG_RED, ScaleX, ScaleY);
 		Graphics()->QuadsBegin();
 		Graphics()->QuadsSetRotation(0.78f);
-		RenderTools()->DrawSprite(x + px, y + 15, 48 * ScaleX, 48 * ScaleY);
+		Graphics()->DrawSprite(x + px, y + 15, 48 * ScaleX, 48 * ScaleY);
 		Graphics()->QuadsEnd();
 	}
 
@@ -302,7 +304,9 @@ void CStatboard::RenderGlobalStats()
 
 		char aBuf[128];
 		CTextCursor Cursor;
-		TextRender()->SetCursor(&Cursor, x + 64, y + (LineHeight * 0.95f - FontSize) / 2.f, FontSize, TEXTFLAG_RENDER | TEXTFLAG_STOP_AT_END);
+		Cursor.SetPosition(vec2(x + 64, y + (LineHeight * 0.95f - FontSize) / 2.f));
+		Cursor.m_FontSize = FontSize;
+		Cursor.m_Flags |= TEXTFLAG_STOP_AT_END;
 		Cursor.m_LineWidth = 220;
 		TextRender()->TextEx(&Cursor, GameClient()->m_aClients[pInfo->m_ClientId].m_aName, -1);
 
@@ -485,8 +489,7 @@ void CStatboard::FormatStats(char *pDest, size_t DestSize)
 		}
 	}
 
-	char aPlayerStats[1024 * VANILLA_MAX_CLIENTS];
-	str_copy(aPlayerStats, "Local-player,Team,Name,Clan,Score,Frags,Deaths,Suicides,F/D-ratio,Net,FPM,Spree,Best,Hammer-F/D,Gun-F/D,Shotgun-F/D,Grenade-F/D,Laser-F/D,Ninja-F/D,GameWithFlags,Flag-grabs,Flag-captures\n");
+	char aPlayerStats[1024 * VANILLA_MAX_CLIENTS] = "Local-player,Team,Name,Clan,Score,Frags,Deaths,Suicides,F/D-ratio,Net,FPM,Spree,Best,Hammer-F/D,Gun-F/D,Shotgun-F/D,Grenade-F/D,Laser-F/D,Ninja-F/D,GameWithFlags,Flag-grabs,Flag-captures\n";
 	for(int i = 0; i < NumPlayers; i++)
 	{
 		const CNetObj_PlayerInfo *pInfo = apPlayers[i];

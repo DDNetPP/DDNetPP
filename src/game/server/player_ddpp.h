@@ -6,10 +6,10 @@
 // this include should perhaps be removed
 #include "captcha.h"
 #include "entities/character.h"
-#include <game/generated/protocol.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/version.h>
+#include <generated/protocol.h>
 
 #include "ddpp/accounts.h"
 

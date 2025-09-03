@@ -4,6 +4,8 @@
 #define GAME_MAPITEMS_H
 
 #include "mapitems_ddpp.h"
+
+#include <base/color.h>
 #include <base/vmath.h>
 #include <engine/shared/protocol.h>
 
@@ -222,6 +224,84 @@ static constexpr size_t MAX_MAPSOUNDS = 64;
 typedef ivec2 CPoint; // 22.10 fixed point
 typedef ivec4 CColor;
 
+class CFixedTime
+{
+	int m_FixedPoint;
+
+public:
+	constexpr CFixedTime() :
+		m_FixedPoint(0) {}
+	constexpr explicit CFixedTime(int FixedPoint) :
+		m_FixedPoint(FixedPoint) {}
+
+	constexpr int GetInternal() const
+	{
+		return m_FixedPoint;
+	}
+
+	constexpr float AsSeconds() const
+	{
+		return m_FixedPoint / 1000.0f;
+	}
+
+	constexpr static CFixedTime FromSeconds(float Seconds)
+	{
+		return CFixedTime((int)std::round(Seconds * 1000.0f));
+	}
+
+	constexpr bool operator<(const CFixedTime &Other) const
+	{
+		return m_FixedPoint < Other.m_FixedPoint;
+	}
+
+	constexpr bool operator<=(const CFixedTime &Other) const
+	{
+		return m_FixedPoint <= Other.m_FixedPoint;
+	}
+
+	constexpr bool operator>(const CFixedTime &Other) const
+	{
+		return m_FixedPoint > Other.m_FixedPoint;
+	}
+
+	constexpr bool operator>=(const CFixedTime &Other) const
+	{
+		return m_FixedPoint >= Other.m_FixedPoint;
+	}
+
+	constexpr bool operator==(const CFixedTime &Other) const
+	{
+		return m_FixedPoint == Other.m_FixedPoint;
+	}
+
+	constexpr bool operator!=(const CFixedTime &Other) const
+	{
+		return m_FixedPoint != Other.m_FixedPoint;
+	}
+
+	constexpr CFixedTime operator+(const CFixedTime &Other) const
+	{
+		return CFixedTime(m_FixedPoint + Other.m_FixedPoint);
+	}
+
+	constexpr CFixedTime operator-(const CFixedTime &Other) const
+	{
+		return CFixedTime(m_FixedPoint - Other.m_FixedPoint);
+	}
+
+	constexpr CFixedTime &operator+=(const CFixedTime &Other)
+	{
+		m_FixedPoint += Other.m_FixedPoint;
+		return *this;
+	}
+
+	constexpr CFixedTime &operator-=(const CFixedTime &Other)
+	{
+		m_FixedPoint -= Other.m_FixedPoint;
+		return *this;
+	}
+};
+
 class CQuad
 {
 public:
@@ -379,11 +459,14 @@ public:
 		MAX_CHANNELS = 4,
 	};
 
-	int m_Time; // in ms
+	CFixedTime m_Time;
 	int m_Curvetype; // CURVETYPE_* constants, any unknown value behaves like CURVETYPE_LINEAR
 	int m_aValues[MAX_CHANNELS]; // 1-4 depending on envelope (22.10 fixed point)
 
 	bool operator<(const CEnvPoint &Other) const { return m_Time < Other.m_Time; }
+
+	ColorRGBA ColorValue() const;
+	void SetColorValue(const ColorRGBA &Color);
 };
 
 // Represents additional envelope point information for CURVETYPE_BEZIER.
@@ -392,11 +475,10 @@ public:
 class CEnvPointBezier
 {
 public:
-	// DeltaX in ms and DeltaY as 22.10 fxp
-	int m_aInTangentDeltaX[CEnvPoint::MAX_CHANNELS];
-	int m_aInTangentDeltaY[CEnvPoint::MAX_CHANNELS];
-	int m_aOutTangentDeltaX[CEnvPoint::MAX_CHANNELS];
-	int m_aOutTangentDeltaY[CEnvPoint::MAX_CHANNELS];
+	CFixedTime m_aInTangentDeltaX[CEnvPoint::MAX_CHANNELS];
+	int m_aInTangentDeltaY[CEnvPoint::MAX_CHANNELS]; // 22.10 fxp
+	CFixedTime m_aOutTangentDeltaX[CEnvPoint::MAX_CHANNELS];
+	int m_aOutTangentDeltaY[CEnvPoint::MAX_CHANNELS]; // 22.10 fxp
 };
 
 // Written to maps on upstream Teeworlds for envelope points including bezier information instead of the basic
@@ -573,6 +655,8 @@ bool IsValidTuneTile(int Index);
 bool IsValidEntity(int Index);
 bool IsRotatableTile(int Index);
 bool IsCreditsTile(int TileIndex);
-int PackColor(CColor Color);
+
+int PackColor(const CColor &Color);
+CColor UnpackColor(int PackedColor);
 
 #endif

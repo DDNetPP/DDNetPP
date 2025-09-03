@@ -14,11 +14,11 @@
 #include "captcha.h"
 #include "ddpp/accounts.h"
 #include "entities/character.h"
-#include <game/generated/protocol7.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/version.h>
+#include <generated/protocol7.h>
 #include <memory>
 #include <twbl/state.h>
 #include <vector>
