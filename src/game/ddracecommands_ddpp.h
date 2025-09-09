@@ -6,7 +6,7 @@
 #define CONSOLE_COMMAND(name, params, flags, callback, userdata, help)
 #endif
 
-CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer to you") //added by ChillerDragon and not as a cheat... because a hammer comon xd
+CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer to you") // added by ChillerDragon and not as a cheat... because a hammer comon xd
 
 // cosmetics
 CONSOLE_COMMAND("old_rainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
@@ -36,43 +36,43 @@ CONSOLE_COMMAND("hammerfightmode", "v", CFGFLAG_SERVER, ConHammerfightMode, this
 CONSOLE_COMMAND("freeze_shotgun", "v", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
 CONSOLE_COMMAND("Damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
 
-CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'");
-CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanId, this, "Ban a player from the registration system");
-CONSOLE_COMMAND("register_ban_ip", "si", CFGFLAG_SERVER, ConRegisterBanIp, this, "Ban a player ip from the registration system");
-CONSOLE_COMMAND("unregister_ban", "v", CFGFLAG_SERVER, ConUnRegisterBan, this, "Unban a player from the registration system");
-CONSOLE_COMMAND("register_bans", "", CFGFLAG_SERVER, ConRegisterBans, this, "Unban a player ip from the registration system");
+CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'")
+CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanId, this, "Ban a player from the registration system")
+CONSOLE_COMMAND("register_ban_ip", "si", CFGFLAG_SERVER, ConRegisterBanIp, this, "Ban a player ip from the registration system")
+CONSOLE_COMMAND("unregister_ban", "v", CFGFLAG_SERVER, ConUnRegisterBan, this, "Unban a player from the registration system")
+CONSOLE_COMMAND("register_bans", "", CFGFLAG_SERVER, ConRegisterBans, this, "Unban a player ip from the registration system")
 
-CONSOLE_COMMAND("login_ban", "", CFGFLAG_SERVER, ConLoginBan, this, "Use either 'login_ban_id <client_id> <seconds>' or 'login_ban_ip <ip> <seconds>'");
-CONSOLE_COMMAND("login_ban_id", "vi", CFGFLAG_SERVER, ConLoginBanId, this, "Ban a player from the login system");
-CONSOLE_COMMAND("login_ban_ip", "si", CFGFLAG_SERVER, ConLoginBanIp, this, "Ban a player ip from the login system");
-CONSOLE_COMMAND("unlogin_ban", "v", CFGFLAG_SERVER, ConUnLoginBan, this, "Unban a player from the login system");
-CONSOLE_COMMAND("login_bans", "", CFGFLAG_SERVER, ConLoginBans, this, "Unban a player ip from the login system");
+CONSOLE_COMMAND("login_ban", "", CFGFLAG_SERVER, ConLoginBan, this, "Use either 'login_ban_id <client_id> <seconds>' or 'login_ban_ip <ip> <seconds>'")
+CONSOLE_COMMAND("login_ban_id", "vi", CFGFLAG_SERVER, ConLoginBanId, this, "Ban a player from the login system")
+CONSOLE_COMMAND("login_ban_ip", "si", CFGFLAG_SERVER, ConLoginBanIp, this, "Ban a player ip from the login system")
+CONSOLE_COMMAND("unlogin_ban", "v", CFGFLAG_SERVER, ConUnLoginBan, this, "Unban a player from the login system")
+CONSOLE_COMMAND("login_bans", "", CFGFLAG_SERVER, ConLoginBans, this, "Unban a player ip from the login system")
 
-CONSOLE_COMMAND("namechange_mute", "", CFGFLAG_SERVER, ConNameChangeMute, this, "Use either 'namechange_mute_id <client_id> <seconds>' or 'namechange_mute_ip <ip> <seconds>'");
-CONSOLE_COMMAND("namechange_mute_id", "vi", CFGFLAG_SERVER, ConNameChangeMuteId, this, "Mute a player from changing name system by client ID");
-CONSOLE_COMMAND("namechange_mute_ip", "si", CFGFLAG_SERVER, ConNameChangeMuteIp, this, "Mute a player from changing name system by IP address");
-CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, this, "Unmute a player from name change system");
-CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "List all players muted from changing name system");
+CONSOLE_COMMAND("namechange_mute", "", CFGFLAG_SERVER, ConNameChangeMute, this, "Use either 'namechange_mute_id <client_id> <seconds>' or 'namechange_mute_ip <ip> <seconds>'")
+CONSOLE_COMMAND("namechange_mute_id", "vi", CFGFLAG_SERVER, ConNameChangeMuteId, this, "Mute a player from changing name system by client ID")
+CONSOLE_COMMAND("namechange_mute_ip", "si", CFGFLAG_SERVER, ConNameChangeMuteIp, this, "Mute a player from changing name system by IP address")
+CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, this, "Unmute a player from name change system")
+CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "List all players muted from changing name system")
 
-CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "List all connected dummy");
+CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "List all connected dummy")
 
-CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'");
-CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'");
+CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'")
+CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'")
 
 CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
 CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")
 
-//gun
+// gun
 CONSOLE_COMMAND("heartgun", "v", CFGFLAG_SERVER, ConHeartGun, this, "Gives a player heart gun")
 
-//SarKro
+// SarKro
 CONSOLE_COMMAND("unfreeze", "v", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
 CONSOLE_COMMAND("freeze", "v?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
 
-//HACK COMMAND ChillerDragon
-//CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
+// HACK COMMAND ChillerDragon
+// CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
 CONSOLE_COMMAND("godmode", "v", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
-CONSOLE_COMMAND("hide_player", "v", CFGFLAG_SERVER, ConHidePlayer, this, "makes player invisble")
+CONSOLE_COMMAND("hide_player", "v", CFGFLAG_SERVER, ConHidePlayer, this, "makes player invisible")
 CONSOLE_COMMAND("verify_player", "v", CFGFLAG_SERVER, ConVerifyPlayer, this, "manually set a targets player human level to max (force solve captcha)")
 
 CONSOLE_COMMAND("logs", "?s[type]", CFGFLAG_SERVER, ConDDPPLogs, this, "shows ddnet++ logs (types: mastersrv)")
@@ -80,7 +80,7 @@ CONSOLE_COMMAND("reload_spamfilters", "", CFGFLAG_SERVER, ConReloadSpamfilters, 
 CONSOLE_COMMAND("add_spamfilter", "s[filter]", CFGFLAG_SERVER, ConAddSpamfilter, this, "writes to spamfilters.txt (see also list_spamfilters)")
 CONSOLE_COMMAND("list_spamfilters", "", CFGFLAG_SERVER, ConListSpamfilters, this, "prints actice spamfilters (see also reload_spamfilters)")
 
-//ddpp sql
+// ddpp sql
 CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSql_ADD, this, "adds an new column to the table")
 
 CONSOLE_COMMAND("set_shop_item_price", "s[item] s[price]", CFGFLAG_SERVER, ConSetShopItemPrice, this, "sets the price of a shop item")
@@ -91,10 +91,10 @@ CONSOLE_COMMAND("deactivate_shop_item", "?s[item]", CFGFLAG_SERVER, ConDeactivat
 CONSOLE_COMMAND("deactivate_all_shop_items", "", CFGFLAG_SERVER, ConDeactivateAllShopItems, this, "deactivates all shop items")
 CONSOLE_COMMAND("activate_all_shop_items", "", CFGFLAG_SERVER, ConActivateAllShopItems, this, "activates all shop items")
 
-CONSOLE_COMMAND("run_test", "i[test_number]", CFGFLAG_SERVER, ConRunTest, this, "WARNING WILL KILL THE SERVER! run integration tests (used in CI)");
-CONSOLE_COMMAND("defer", "r[command]", CFGFLAG_SERVER, ConDeferCommand, this, "Run a cmd after the server fully initialized. Run cmds from cfg or cli that would crash if executed too early.");
+CONSOLE_COMMAND("run_test", "i[test_number]", CFGFLAG_SERVER, ConRunTest, this, "WARNING WILL KILL THE SERVER! run integration tests (used in CI)")
+CONSOLE_COMMAND("defer", "r[command]", CFGFLAG_SERVER, ConDeferCommand, this, "Run a cmd after the server fully initialized. Run cmds from cfg or cli that would crash if executed too early.")
 
-//rcon api commands
-CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayId, this, "RCON API command dont use it") //sends a servermessage to player v
-//adds the column with the name s and the type i. i=0 INTEGER i=1 VARCHAR(4) i=2 VARCHAR(16) i=3 VARCHAR(32) i=4 VARCHAR(64) i=5 VARCHAR(128)
+// rcon api commands
+CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayId, this, "RCON API command dont use it") // sends a servermessage to player v
+// adds the column with the name s and the type i. i=0 INTEGER i=1 VARCHAR(4) i=2 VARCHAR(16) i=3 VARCHAR(32) i=4 VARCHAR(64) i=5 VARCHAR(128)
 CONSOLE_COMMAND("rcon_api_alter_table", "i[type]s[column]", CFGFLAG_SERVER, ConRconApiAlterTable, this, "RCON API command dont use it")

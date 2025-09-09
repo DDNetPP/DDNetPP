@@ -235,99 +235,98 @@
 + `rcon_api_alter_table` RCON API command dont use it
 
 # Chat commands
-
-+ `changepassword` change your account password with '/changepassword <old password> <new password> <new password repeat>'
-+ `register` Register an sql account
-+ `login` Login an sql account
-+ `register2` Register an filebased account
-+ `login2` Login an filebased account
-+ `logout` Logout from your account
-+ `SQL` SQL admistration (using sql id)
-+ `SQL_name` SQL admistration (using acc name)
-+ `SQL_logout` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
-+ `SQL_logout_all` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
-+ `acc2` filebased acc sys admistration (using usernames)
-+ `acc_info` (admin-cmd) shows deeper information about accounts
-+ `stats` shows the stats of the player r
-+ `profile` player profiles more help at '/profile help'
-+ `ascii` create ascii animations with it
-+ `policechat` get more attention in chat with this command
-+ `policehelper` '/policehelper help' for more help
-+ `jail` police command
-+ `jail_code` police command shows jail code of player
-+ `report` report players and police will arrest em
-+ `taser` everything about taser
-+ `wanted` shows a list of wanted players. help the police to catch em
-+ `togglespawn` switches the spawnpoint between normal and supermod spawn
-+ `show` shows info. partner of '/hide' command.
-+ `hide` hides info. partner of '/show' command.
-+ `score` changes score of players to time (race), level or block (points)
-+ `spawnweapons` toggles using spawnweapons or not
-+ `spawnweaponsinfo` shows level of spawn weapons
-+ `spookyghostinfo` help for spooky ghost
-+ `shop` Shows the list of items that you can '/buy'
-+ `buy` Buy something. To see all buyable items check '/shop'
-+ `bank` for more info check '/bank'
-+ `gangsterbag` only for real gangstazzZ
-+ `money` shows your money and last transactions
-+ `pay` give i amount of your '/money' to player r
-+ `gift` send the player r money more info at '/gift'
-+ `trade` trade weapons and other items with players on the server
-+ `tr` the unsave short command for trade (warning don't use if you don't know what you are doing)
-+ `chidraqul` chidraqul3 (minigame) more info '/chidraqul info'
-+ `minigames` show stats and informations about all minigames
-+ `pvp_arena` teleports you in the pvp-arena (you can die there)
-+ `bomb` join, create and leave bomb games and more. more help at '/bomb help'
-+ `insta` play instagib games like gdm or idm
-+ `join` join the current event
-+ `block` join block deathmatch
-+ `balance` battle other players in tee balancing
-+ `survival` play infamous survival mod
-+ `blockwave` play block agianst bot waves
-+ `1vs1` challenge one player to a block duel
-+ `leave` leave the current minigame
-+ `rainbow` accep/turn-off rainbow
-+ `bloody` accep/turn-off bloody
-+ `atom` accep/turn-off atom
-+ `trail` accep/turn-off trail
-+ `spread_gun` accep/turn-off spread_gun
-+ `drop_health` cosmetic staff command to drop health
-+ `drop_armor` cosmetic staff command to drop armor
-+ `give` give extras to others or yourself.
-+ `policeinfo` Get all info about police
-+ `AccountInfo` shows info on how to register and login
-+ `OfferInfo` shows info and stats about cosmetic offers
-+ `event` shows running events
-+ `viewers` shows your current stalker/fangrills
-+ `ip` shows your own ip
-+ `changelog` shows info about the different ddnet++ versions
-+ `say_srv` says something as server
-+ `broadcast_srv` broadcasts something as server
-+ `hook` modify your hook with this command
-+ `lasertext` write some text in the world (lasertext from fng)
-+ `loltext` write some text in the world (lasertext from fng)
-+ `market` buy and sell virtual goods in the unregulated free market
-+ `captcha` use this command to proof your not a robot
-+ `human_level` information about human level
-+ `lang` set language
-+ `poop` throw shit at the player r. Warning: you lose that shit.
-+ `room` supermoderator command '/room help' for help
-+ `spawn` teleport to spawn without dieing (costs money)
-+ `quest` play little quest and earn rewards.
-+ `bounty` blocker hitman command
-+ `fng` configurate some fng settings '/fng help' for more help
-+ `dcdummy` disconnect dummy by id
-+ `166` command for admins TROLL166
-+ `420` command for admins TROLL420
-+ `tcmd3000` secret test command dont use
-+ `flood` anti flood command
-+ `admin` command for admins
-+ `fnn` command for admins (fake neural network)
-+ `a` allows communication between admins only
-+ `live` get live stats of player r
-+ `regex` test regex patterns
-+ `mapsave` save current map status
-+ `cc` clear the chat by spamming fake connection messages
++ `/changepassword` change your account password with '/changepassword <old password> <new password> <new password repeat>'
++ `/register` Register an sql account
++ `/login` Login an sql account
++ `/register2` Register an filebased account
++ `/login2` Login an filebased account
++ `/logout` Logout from your account.
++ `/SQL` SQL admistration (using sql id)
++ `/SQL_name` SQL admistration (using acc name)
++ `/SQL_logout` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
++ `/SQL_logout_all` SQL admistration (doesnt really log out the player but sets his sql state to loggedout)
++ `/acc2` filebased acc sys admistration (using usernames)
++ `/acc_info` (admin-cmd) shows deeper information about accounts
++ `/stats` shows the stats of the player r
++ `/profile` player profiles more help at '/profile help'
++ `/ascii` create ascii animations with it
++ `/policechat` get more attention in chat with this command
++ `/policehelper` '/policehelper help' for more help
++ `/jail` police command
++ `/jail_code` police command shows jail code of player
++ `/report` report players and police will arrest em
++ `/taser` everything about taser
++ `/wanted` shows a list of wanted players. help the police to catch em
++ `/togglespawn` switches the spawnpoint between normal and supermod spawn
++ `/show` shows info. partner of '/hide' command.
++ `/hide` hides info. partner of '/show' command.
++ `/score` changes score of players to time (race), level or block (points)
++ `/spawnweapons` toggles using spawnweapons or not
++ `/spawnweaponsinfo` shows level of spawn weapons
++ `/spookyghostinfo` help for spooky ghost
++ `/shop` Shows the list of items that you can '/buy'
++ `/buy` Buy something. To see all buyable items check '/shop'
++ `/bank` for more info check '/bank'
++ `/gangsterbag` only for real gangstazzZ
++ `/money` shows your money and last transactions
++ `/pay` give i amount of your '/money' to player r
++ `/gift` send the player r money more info at '/gift'
++ `/trade` trade weapons and other items with players on the server
++ `/tr` the unsave short command for trade (warning don't use if you don't know what you are doing)
++ `/chidraqul` chidraqul3 (minigame) more info '/chidraqul info'
++ `/minigames` show stats and informations about all minigames
++ `/pvp_arena` teleports you in the pvp-arena (you can die there)
++ `/bomb` join, create and leave bomb games and more. more help at '/bomb help'
++ `/insta` play instagib games like gdm or idm
++ `/join` join the current event
++ `/block` join block deathmatch
++ `/balance` battle other players in tee balancing
++ `/survival` play infamous survival mod
++ `/blockwave` play block agianst bot waves
++ `/1vs1` challenge one player to a block duel
++ `/leave` leave the current minigame
++ `/rainbow` accep/turn-off rainbow
++ `/bloody` accep/turn-off bloody
++ `/atom` accep/turn-off atom
++ `/trail` accep/turn-off trail
++ `/spread_gun` accep/turn-off spread_gun
++ `/drop_health` cosmetic staff command to drop health
++ `/drop_armor` cosmetic staff command to drop armor
++ `/give` give extras to others or yourself.
++ `/policeinfo` Get all info about police
++ `/AccountInfo` shows info on how to register and login
++ `/OfferInfo` shows info and stats about cosmetic offers
++ `/event` shows running events
++ `/viewers` shows your current stalker/fangrills
++ `/ip` shows your own ip
++ `/changelog` shows info about the different ddnet++ versions
++ `/say_srv` says something as server
++ `/broadcast_srv` broadcasts something as server
++ `/hook` modify your hook with this command
++ `/lasertext` write some text in the world (lasertext from fng)
++ `/loltext` write some text in the world (lasertext from fng)
++ `/market` buy and sell virtual goods in the unregulated free market
++ `/captcha` use this command to proof your not a robot
++ `/human_level` information about human level
++ `/lang` set language
++ `/poop` throw shit at the player r. Warning: you lose that shit.
++ `/room` supermoderator command '/room help' for help
++ `/spawn` teleport to spawn without dieing (costs money)
++ `/quest` play little quest and earn rewards.
++ `/bounty` blocker hitman command
++ `/fng` configurate some fng settings '/fng help' for more help
++ `/dcdummy` disconnect dummy by id
++ `/166` command for admins TROLL166
++ `/420` command for admins TROLL420
++ `/tcmd3000` secret test command dont use
++ `/flood` anti flood command
++ `/admin` command for admins
++ `/fnn` command for admins (fake neural network)
++ `/a` allows communication between admins only
++ `/live` get live stats of player r
++ `/regex` test regex patterns
++ `/mapsave` save current map status
++ `/cc` clear the chat by spamming fake connection messages
 
 # More
 
