@@ -6,7 +6,7 @@
 #define CHAT_COMMAND(name, params, flags, callback, userdata, help)
 #endif
 
-//account stuff
+// account stuff
 CHAT_COMMAND("changepassword", "?sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChangePassword, this, "change your account password with '/changepassword <old password> <new password> <new password repeat>'")
 CHAT_COMMAND("register", "?sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register an sql account")
 CHAT_COMMAND("login", "?ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogin, this, "Login an sql account")
@@ -23,9 +23,9 @@ CHAT_COMMAND("stats", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStats, this, "show
 CHAT_COMMAND("profile", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProfile, this, "player profiles more help at '/profile help'")
 CHAT_COMMAND("ascii", "?s?i?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAscii, this, "create ascii animations with it")
 
-//police
+// police
 CHAT_COMMAND("policechat", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoliceChat, this, "get more attention in chat with this command")
-//CHAT_COMMAND("policetaser", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPolicetaser, this, "turn taser on/off")
+// CHAT_COMMAND("policetaser", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPolicetaser, this, "turn taser on/off")
 CHAT_COMMAND("policehelper", "?s?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPolicehelper, this, "'/policehelper help' for more help")
 CHAT_COMMAND("jail", "?s?i?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConJail, this, "police command")
 CHAT_COMMAND("jail_code", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConJailCode, this, "police command shows jail code of player")
@@ -34,22 +34,22 @@ CHAT_COMMAND("report", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConReport, this, "r
 CHAT_COMMAND("taser", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTaser, this, "everything about taser")
 CHAT_COMMAND("wanted", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConWanted, this, "shows a list of wanted players. help the police to catch em")
 
-//toggles
+// toggles
 CHAT_COMMAND("togglespawn", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleSpawn, this, "switches the spawnpoint between normal and supermod spawn")
 CHAT_COMMAND("show", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShow, this, "shows info. partner of '/hide' command.")
 CHAT_COMMAND("hide", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHide, this, "hides info. partner of '/show' command.")
 
-//score display
+// score display
 CHAT_COMMAND("score", "?s[time|level|block]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConScore, this, "changes score of players to time (race), level or block (points)")
 
-//spawn weapons
+// spawn weapons
 CHAT_COMMAND("spawnweapons", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawnWeapons, this, "toggles using spawnweapons or not")
 CHAT_COMMAND("spawnweaponsinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawnWeaponsInfo, this, "shows level of spawn weapons")
 
 // spooky ghost
 CHAT_COMMAND("spookyghostinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpookyGhostInfo, this, "help for spooky ghost")
 
-//money
+// money
 CHAT_COMMAND("shop", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShop, this, "Shows the list of items that you can '/buy'")
 CHAT_COMMAND("buy", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBuy, this, "Buy something. To see all buyable items check '/shop'")
 CHAT_COMMAND("bank", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBank, this, "for more info check '/bank'")
@@ -60,7 +60,7 @@ CHAT_COMMAND("gift", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGift, this, "send t
 CHAT_COMMAND("trade", "?ssir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTrade, this, "trade weapons and other items with players on the server")
 CHAT_COMMAND("tr", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTr, this, "the unsave short command for trade (warning don't use if you don't know what you are doing)")
 
-//minigames
+// minigames
 CHAT_COMMAND("chidraqul", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChidraqul, this, "chidraqul3 (minigame) more info '/chidraqul info'")
 
 CHAT_COMMAND("minigames", "?ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigames, this, "show stats and informations about all minigames")
@@ -75,7 +75,7 @@ CHAT_COMMAND("blockwave", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBlockWave, thi
 CHAT_COMMAND("1vs1", "s[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConOneVsOneBlock, this, "challenge one player to a block duel")
 CHAT_COMMAND("leave", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLeave, this, "leave the current minigame")
 
-//extras
+// extras
 CHAT_COMMAND("rainbow", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRainbow, this, "accep/turn-off rainbow")
 CHAT_COMMAND("bloody", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBloody, this, "accep/turn-off bloody")
 CHAT_COMMAND("atom", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAtom, this, "accep/turn-off atom")
@@ -86,11 +86,11 @@ CHAT_COMMAND("drop_armor", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDropArmor, th
 
 CHAT_COMMAND("give", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGive, this, "give extras to others or yourself.")
 
-//info
-//CHAT_COMMAND("taserinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTaserinfo, this, "Shows info about the taser")
+// info
+// CHAT_COMMAND("taserinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTaserinfo, this, "Shows info about the taser")
 CHAT_COMMAND("policeinfo", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoliceInfo, this, "Get all info about police")
 CHAT_COMMAND("AccountInfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAccountInfo, this, "shows info on how to register and login")
-//CHAT_COMMAND("ProfileInfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProfileInfo, this, "shows info about the profile commands")
+// CHAT_COMMAND("ProfileInfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProfileInfo, this, "shows info about the profile commands")
 CHAT_COMMAND("OfferInfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConOfferInfo, this, "shows info and stats about cosmetic offers")
 CHAT_COMMAND("event", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConEvent, this, "shows running events")
 CHAT_COMMAND("viewers", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConViewers, this, "shows your current stalker/fangrills")
@@ -98,7 +98,7 @@ CHAT_COMMAND("ip", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConIp, this, "shows your o
 
 CHAT_COMMAND("changelog", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChangelog, this, "shows info about the different ddnet++ versions")
 
-//VIP and VIP+
+// VIP and VIP+
 CHAT_COMMAND("say_srv", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSayServer, this, "says something as server")
 CHAT_COMMAND("broadcast_srv", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBroadcastServer, this, "broadcasts something as server")
 CHAT_COMMAND("hook", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHook, this, "modify your hook with this command")
@@ -106,7 +106,7 @@ CHAT_COMMAND("hook", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHook, this, "modify
 CHAT_COMMAND("lasertext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLaserText, this, "write some text in the world (lasertext from fng)")
 CHAT_COMMAND("loltext", "s[text]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLaserText, this, "write some text in the world (lasertext from fng)")
 
-//Others
+// Others
 CHAT_COMMAND("market", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStockMarket, this, "buy and sell virtual goods in the unregulated free market")
 CHAT_COMMAND("captcha", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConCaptcha, this, "use this command to proof your not a robot")
 CHAT_COMMAND("human_level", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHumanLevel, this, "information about human level")
@@ -121,9 +121,9 @@ CHAT_COMMAND("quest", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConQuest, this, "pla
 CHAT_COMMAND("bounty", "?sii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBounty, this, "blocker hitman command")
 CHAT_COMMAND("fng", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConFng, this, "configurate some fng settings '/fng help' for more help")
 
-//CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")
+// CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")
 
-//admin
+// admin
 CHAT_COMMAND("dcdummy", "i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDcDummy, this, "disconnect dummy by id")
 CHAT_COMMAND("166", "vi", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTROLL166, this, "command for admins TROLL166")
 CHAT_COMMAND("420", "vi", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTROLL420, this, "command for admins TROLL420")
