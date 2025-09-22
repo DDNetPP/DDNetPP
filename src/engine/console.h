@@ -81,7 +81,6 @@ public:
 		const char *m_pName;
 		const char *m_pHelp;
 		const char *m_pParams;
-		int m_ddpp_access_level;
 
 		virtual const CCommandInfo *NextCommandInfo(int AccessLevel, int FlagMask) const = 0;
 
