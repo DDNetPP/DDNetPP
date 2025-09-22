@@ -1,6 +1,7 @@
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/gamecontroller.h>
 
 #include "ddnetpp.h"
 
@@ -85,18 +86,18 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 	}
 	else if(pPlayer->m_IsInstaArena_gdm)
 	{
-		EvaluateSpawnType(&Eval, 1, DDTeam); //red (not bloody anymore)
+		EvaluateSpawnType(&Eval, SPAWNTYPE_RED, DDTeam);
 	}
 	else if(pPlayer->m_IsInstaArena_idm)
 	{
-		EvaluateSpawnType(&Eval, 2, DDTeam); //blue
+		EvaluateSpawnType(&Eval, SPAWNTYPE_BLUE, DDTeam);
 	}
 	else if(pPlayer->m_IsSurvivaling)
 	{
 		int Id = pPlayer->GetCid();
 		Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);
 		if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
-			EvaluateSpawnType(&Eval, 0, DDTeam); //default
+			EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
 		else
 			Eval.m_Got = true;
 	}
@@ -254,12 +255,12 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 					pPlayer->m_IsNoboSpawn = false;
 					str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
 					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
-					EvaluateSpawnType(&Eval, 0, DDTeam); //default
+					EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
 				}
 			}
 			else
 			{
-				EvaluateSpawnType(&Eval, 0, DDTeam); //default
+				EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
 			}
 		}
 	}

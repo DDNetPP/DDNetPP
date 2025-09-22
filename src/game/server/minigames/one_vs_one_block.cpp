@@ -12,6 +12,7 @@
 #include <game/server/teams.h>
 #include <game/team_state.h>
 #include <generated/protocol.h>
+#include <optional>
 
 #include "one_vs_one_block.h"
 
@@ -66,7 +67,18 @@ void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
 	}
 
 	if(!pGameState->m_DDRaceTeam)
-		pGameState->m_DDRaceTeam = GameServer()->m_pController->Teams().GetFirstEmptyTeam();
+	{
+		std::optional<int> EmptyTeam = GameServer()->m_pController->Teams().GetFirstEmptyTeam();
+		if(!EmptyTeam.has_value())
+		{
+			const char *pErrorMsg = "[1vs1] game aborted joining team failed: No empty team left.";
+			SendChatTarget(pPlayer->GetCid(), pErrorMsg);
+			SendChatTarget(pGameState->OtherPlayer(pPlayer)->GetCid(), pErrorMsg);
+			OnRoundEnd(pGameState);
+			return;
+		}
+		pGameState->m_DDRaceTeam = EmptyTeam.value();
+	}
 
 	const char *pError = nullptr;
 	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, false);
