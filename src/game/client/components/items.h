@@ -2,6 +2,9 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #ifndef GAME_CLIENT_COMPONENTS_ITEMS_H
 #define GAME_CLIENT_COMPONENTS_ITEMS_H
+
+#include <base/color.h>
+
 #include <generated/protocol.h>
 
 #include <game/client/component.h>
@@ -13,6 +16,7 @@ class CItems : public CComponent
 {
 	void RenderProjectile(const CProjectileData *pCurrent, int ItemId);
 	void RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCurrent, bool IsPredicted, int Flags);
+	void RenderFlags();
 	void RenderFlag(const CNetObj_Flag *pPrev, const CNetObj_Flag *pCurrent, const CNetObj_GameData *pPrevGameData, const CNetObj_GameData *pCurGameData);
 	void RenderLaser(const CLaserData *pCurrent, bool IsPredicted = false);
 

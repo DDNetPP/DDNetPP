@@ -41,7 +41,7 @@ class CBinds : public CComponent
 
 public:
 	CBinds();
-	~CBinds();
+	~CBinds() override;
 	int Sizeof() const override { return sizeof(*this); }
 
 	class CBindsSpecial : public CComponent
@@ -61,9 +61,10 @@ public:
 		MODIFIER_ALT,
 		MODIFIER_SHIFT,
 		MODIFIER_GUI,
+
 		MODIFIER_COUNT,
-		MODIFIER_COMBINATION_COUNT = 1 << MODIFIER_COUNT
 	};
+	static constexpr auto MODIFIER_COMBINATION_COUNT = 1 << MODIFIER_COUNT;
 
 	CBindsSpecial m_SpecialBinds;
 

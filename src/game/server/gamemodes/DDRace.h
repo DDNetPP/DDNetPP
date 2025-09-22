@@ -10,7 +10,7 @@ public:
 	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
 
 	CGameControllerDDRace(class CGameContext *pGameServer);
-	~CGameControllerDDRace();
+	~CGameControllerDDRace() override;
 
 	CScore *Score();
 

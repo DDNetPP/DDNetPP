@@ -6,14 +6,14 @@
 
 #include "protocolglue.h"
 
-namespace protocol7 {
-
-enum
+namespace protocol7
 {
-	NET_PACKETFLAG_CONTROL = 1,
-	NET_PACKETFLAG_RESEND = 2,
-	NET_PACKETFLAG_COMPRESSION = 4,
-};
+	enum
+	{
+		NET_PACKETFLAG_CONTROL = 1 << 0,
+		NET_PACKETFLAG_RESEND = 1 << 1,
+		NET_PACKETFLAG_COMPRESSION = 1 << 2,
+	};
 
 }
 

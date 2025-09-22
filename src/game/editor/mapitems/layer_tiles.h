@@ -106,7 +106,7 @@ protected:
 public:
 	CLayerTiles(CEditor *pEditor, int w, int h);
 	CLayerTiles(const CLayerTiles &Other);
-	~CLayerTiles();
+	~CLayerTiles() override;
 
 	[[nodiscard]] virtual CTile GetTile(int x, int y) const;
 	virtual void SetTile(int x, int y, CTile Tile);
@@ -197,7 +197,7 @@ public:
 	bool m_KnownTextModeLayer = false;
 
 	EditorTileStateChangeHistory<STileStateChange> m_TilesHistory;
-	inline virtual void ClearHistory() { m_TilesHistory.clear(); }
+	virtual void ClearHistory() { m_TilesHistory.clear(); }
 
 	static bool HasAutomapEffect(ETilesProp Prop);
 

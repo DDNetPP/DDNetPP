@@ -19,7 +19,7 @@ class CLayerTune : public CLayerTiles
 public:
 	CLayerTune(CEditor *pEditor, int w, int h);
 	CLayerTune(const CLayerTune &Other);
-	~CLayerTune();
+	~CLayerTune() override;
 
 	CTuneTile *m_pTuneTile;
 	unsigned char m_TuningNumber;
@@ -40,7 +40,7 @@ public:
 	ivec2 m_GotoTuneLastPos;
 
 	EditorTileStateChangeHistory<STuneTileStateChange> m_History;
-	inline void ClearHistory() override
+	void ClearHistory() override
 	{
 		CLayerTiles::ClearHistory();
 		m_History.clear();

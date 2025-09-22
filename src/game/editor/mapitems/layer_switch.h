@@ -21,7 +21,7 @@ class CLayerSwitch : public CLayerTiles
 public:
 	CLayerSwitch(CEditor *pEditor, int w, int h);
 	CLayerSwitch(const CLayerSwitch &Other);
-	~CLayerSwitch();
+	~CLayerSwitch() override;
 
 	CSwitchTile *m_pSwitchTile;
 	unsigned char m_SwitchNumber;
@@ -43,7 +43,7 @@ public:
 	ivec2 m_GotoSwitchLastPos;
 
 	EditorTileStateChangeHistory<SSwitchTileStateChange> m_History;
-	inline void ClearHistory() override
+	void ClearHistory() override
 	{
 		CLayerTiles::ClearHistory();
 		m_History.clear();

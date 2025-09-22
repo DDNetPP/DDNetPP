@@ -127,6 +127,7 @@ public:
 	void SetEndlessHook(bool Enable);
 
 	void SetEmote(int Emote, int Tick);
+	int DetermineEyeEmote();
 
 	void Rescue();
 
