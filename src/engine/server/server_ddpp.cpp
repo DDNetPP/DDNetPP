@@ -324,7 +324,6 @@ void CServer::BotJoin(int BotId)
 	m_aClients[BotId].m_aName[0] = 0;
 	m_aClients[BotId].m_aClan[0] = 0;
 	m_aClients[BotId].m_Country = -1;
-	m_aClients[BotId].m_Authed = AUTHED_NO;
 	m_aClients[BotId].m_AuthKey = -1;
 	m_aClients[BotId].m_AuthTries = 0;
 	m_aClients[BotId].m_pRconCmdToSend = 0;
@@ -352,7 +351,6 @@ void CServer::BotLeave(int BotId, bool Silent)
 	m_aClients[BotId].m_aName[0] = 0;
 	m_aClients[BotId].m_aClan[0] = 0;
 	m_aClients[BotId].m_Country = -1;
-	m_aClients[BotId].m_Authed = AUTHED_NO;
 	m_aClients[BotId].m_AuthTries = 0;
 	m_aClients[BotId].m_pRconCmdToSend = 0;
 	m_aClients[BotId].m_Snapshots.PurgeAll();

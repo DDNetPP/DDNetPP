@@ -633,9 +633,6 @@ void CServer::SetRconCid(int ClientId)
 
 int CServer::GetAuthedState(int ClientId) const
 {
-	if(m_aClients[ClientId].m_Authed == AUTHED_HONEY)
-		return AUTHED_NO;
-
 	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "ClientId is not valid");
 	dbg_assert(m_aClients[ClientId].m_State != CServer::CClient::STATE_EMPTY, "Client slot is empty");
 	return m_AuthManager.KeyLevel(m_aClients[ClientId].m_AuthKey);
@@ -2100,12 +2097,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					{
 						SendRconLine(ClientId, "Helper authentication successful. Limited remote console access granted.");
 						str_format(aBuf, sizeof(aBuf), "ClientId=%d authed with key=%s (helper)", ClientId, pIdent);
-						break;
-					}
-					case AUTHED_HONEY:
-					{
-						SendRconLine(ClientId, "Admin authentication successful. Full remote console access granted.");
-						str_format(aBuf, sizeof(aBuf), "ClientId=%d authed (honeypot admin)", ClientId);
 						break;
 					}
 					}

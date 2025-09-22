@@ -4774,8 +4774,6 @@ IGameServer *CreateGameServer() { return new CGameContext; }
 
 void CGameContext::OnSetAuthed(int ClientId, int Level)
 {
-	if(Level == AUTHED_HONEY) // ddnet++
-		return;
 	if(m_apPlayers[ClientId] && m_VoteCloseTime && Level != AUTHED_NO)
 	{
 		char aBuf[512];

@@ -21,7 +21,6 @@
 #include <generated/protocol7.h>
 #include <generated/protocolglue.h>
 
-#define AUTHED_HONEY -1 // ddnet++
 struct CAntibotRoundData;
 
 // When recording a demo on the server, the ClientId -1 is used
