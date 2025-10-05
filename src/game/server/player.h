@@ -3,29 +3,29 @@
 #ifndef GAME_SERVER_PLAYER_H
 #define GAME_SERVER_PLAYER_H
 
+#include "teeinfo.h"
+#include "captcha.h"
+
 #include <base/vmath.h>
+
 #include <engine/shared/protocol.h>
+
 #include <game/alloc.h>
 #include <game/server/save.h>
 
-#include "teeinfo.h"
-
-// ddnet++ includes start
-#include "captcha.h"
-#include "ddpp/accounts.h"
-#include "entities/character.h"
+#include <game/server/ddpp/accounts.h>
+#include <game/server//entities/character.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/version.h>
 #include <generated/protocol7.h>
-#include <memory>
 #include <twbl/state.h>
-#include <vector>
-#define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-// ddnet++ includes end
+
 #include <memory>
 #include <optional>
+
+#define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 
 class CCharacter;
 class CGameContext;

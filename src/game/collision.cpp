@@ -3,21 +3,20 @@
 
 #include <game/collision_ddpp.h>
 #include <game/mapitems_ddpp.h>
+#include <antibot/antibot_data.h>
 
 #include <base/math.h>
 #include <base/system.h>
 #include <base/vmath.h>
 
-#include <antibot/antibot_data.h>
-
-#include <cmath>
 #include <engine/map.h>
+#include <engine/shared/config.h>
 
 #include <game/collision.h>
 #include <game/layers.h>
 #include <game/mapitems.h>
 
-#include <engine/shared/config.h>
+#include <cmath>
 
 vec2 ClampVel(int MoveRestriction, vec2 Vel)
 {

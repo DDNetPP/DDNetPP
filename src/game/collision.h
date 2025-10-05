@@ -6,6 +6,7 @@
 #include <game/collision_ddpp.h>
 
 #include <base/vmath.h>
+
 #include <engine/shared/protocol.h>
 
 #include <list>

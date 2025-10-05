@@ -13,7 +13,6 @@
 
 #include "gamecontext.h"
 #include "gamecontroller.h"
-#include "player.h"
 
 #include "entities/character.h"
 #include "entities/door.h"
@@ -24,6 +23,17 @@
 #include "entities/plant.h"
 #include "entities/plasma.h"
 #include "entities/projectile.h"
+#include "gamecontext.h"
+#include "player.h"
+
+#include <engine/shared/config.h>
+#include <engine/shared/protocolglue.h>
+
+#include <generated/protocol.h>
+
+#include <game/mapitems.h>
+#include <game/server/score.h>
+#include <game/teamscore.h>
 
 #include <game/layers.h>
 

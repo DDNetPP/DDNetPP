@@ -3,6 +3,10 @@
 #ifndef GAME_SERVER_GAMECONTEXT_H
 #define GAME_SERVER_GAMECONTEXT_H
 
+#include "eventhandler.h"
+#include "gameworld.h"
+#include "teehistorian.h"
+
 #include <engine/console.h>
 #include <engine/server.h>
 
@@ -24,14 +28,11 @@
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
-#include <atomic>
 #include <engine/http.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/letters.h>
 #include <game/server/twbl/callback_ctx.h>
-#include <mutex>
 #include <server/ddnet_callback_ctx.h>
-#include <thread>
 
 #include "eventhandler.h"
 #include "gameworld.h"
@@ -41,6 +42,9 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <atomic> // ddnet++ worker thread
+#include <thread>  // ddnet++ worker thread
+#include <mutex> // ddnet++ worker thread
 
 /*
 	Tick
@@ -421,7 +425,7 @@ public:
 	bool RateLimitPlayerVote(int ClientId);
 	bool RateLimitPlayerMapVote(int ClientId) const;
 
-	void OnUpdatePlayerServerInfo(CJsonStringWriter *pJSonWriter, int Id) override;
+	void OnUpdatePlayerServerInfo(CJsonWriter *pJsonWriter, int ClientId) override;
 	void ReadCensorList();
 
 	bool PracticeByDefault() const;
