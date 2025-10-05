@@ -1167,7 +1167,7 @@ void CGameContext::ConDeactivateAllShopItems(IConsole::IResult *pResult, void *p
 		Item->Deactivate();
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "deactivated all %d shop items", pSelf->Shop()->m_vItems.size());
+	str_format(aBuf, sizeof(aBuf), "deactivated all %" PRIzu " shop items", pSelf->Shop()->m_vItems.size());
 	pSelf->Console()->Print(
 		IConsole::OUTPUT_LEVEL_STANDARD,
 		"shop",
@@ -1184,7 +1184,7 @@ void CGameContext::ConActivateAllShopItems(IConsole::IResult *pResult, void *pUs
 		Item->Activate();
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "activated all %d shop items", pSelf->Shop()->m_vItems.size());
+	str_format(aBuf, sizeof(aBuf), "activated all %" PRIzu "  shop items", pSelf->Shop()->m_vItems.size());
 	pSelf->Console()->Print(
 		IConsole::OUTPUT_LEVEL_STANDARD,
 		"shop",

@@ -468,11 +468,12 @@ void CCharacter::DropArmor(int amount)
 
 void CCharacter::DropWeapon(int WeaponId)
 {
-	{
-		char aAssert[512];
-		str_format(aAssert, sizeof(aAssert), "DropWeapon(WeaponId=%d) weapon out of range 0-%d", WeaponId, NUM_WEAPONS);
-		dbg_assert(WeaponId >= 0 && WeaponId < NUM_WEAPONS, aAssert);
-	}
+	dbg_assert(
+		WeaponId >= 0 && WeaponId < NUM_WEAPONS,
+		"DropWeapon(WeaponId=%d) weapon out of range 0-%d",
+		WeaponId,
+		NUM_WEAPONS);
+
 	if(!g_Config.m_SvAllowDroppingWeapons)
 		return;
 	if(isFreezed || m_FreezeTime)
