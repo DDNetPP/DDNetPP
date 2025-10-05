@@ -18,7 +18,10 @@ void CGameControllerDDNetPP::Snap(int SnappingClient)
 	// FakeSnap(SnappingClient);
 
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+	{
 		pMinigame->Snap(SnappingClient);
+		pMinigame->SnapSavedPositions(SnappingClient);
+	}
 }
 
 void CGameControllerDDNetPP::SnapFlags(int SnappingClient)

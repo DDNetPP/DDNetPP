@@ -74,6 +74,14 @@ public:
 	// register your custom snap items here
 	virtual void Snap(int SnappingClient){};
 
+	// This already implements logic in the minigame base
+	// it is unlikely that you need to override it!
+	// If you do make sure you call the parent method
+	// or understand what it does.
+	// If you just want to register snap items
+	// look at `Snap(int SnappingClient)` instead
+	virtual void SnapSavedPositions(int SnappingClient);
+
 	// will be called every 600 ticks for every player
 	virtual void PlayerSlowTick(CPlayer *pPlayer){};
 

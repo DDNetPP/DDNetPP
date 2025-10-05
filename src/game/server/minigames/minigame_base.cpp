@@ -5,9 +5,12 @@
 #include <base/system.h>
 #include <base/vmath.h>
 
+#include <engine/shared/protocol.h>
+
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/save_ddpp.h>
+#include <game/server/save.h>
 
 CMinigame::CMinigame(CGameContext *pGameContext)
 {
@@ -54,6 +57,23 @@ void CMinigame::CleanupMinigame()
 		delete SavePos;
 	for(auto &SavePos : m_apSavedPositionsDDPP)
 		delete SavePos;
+}
+
+void CMinigame::SnapSavedPositions(int SnappingClient)
+{
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		const CSaveTee *pPos = m_apSavedPositions[i];
+		if(!pPos)
+			continue;
+
+		CNetObj_SpecChar *pSpecChar = Server()->SnapNewItem<CNetObj_SpecChar>(i);
+		if(!pSpecChar)
+			return;
+
+		pSpecChar->m_X = pPos->GetPos().x;
+		pSpecChar->m_Y = pPos->GetPos().y;
+	}
 }
 
 bool CMinigame::GetSavedPosition(CPlayer *pPlayer, vec2 *pPos)
