@@ -1,9 +1,9 @@
 // ddnet++ extension of ddnets CSaveTee
 // store character data including ddnet++ state
 
-#include <game/server/entities/character.h>
-
 #include "save_ddpp.h"
+
+#include <game/server/entities/character.h>
 
 void CSaveTeeDDPP::Save(CCharacter *pChr)
 {

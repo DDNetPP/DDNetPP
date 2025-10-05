@@ -1,6 +1,6 @@
-#include <game/server/gamecontext.h>
-
 #include "plant.h"
+
+#include <game/server/gamecontext.h>
 
 CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)

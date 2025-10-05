@@ -1,9 +1,10 @@
 // grenade fng
 
-#include <engine/shared/config.h>
-#include <game/server/gamecontext.h>
-
 #include "rifle_fng.h"
+
+#include <engine/shared/config.h>
+
+#include <game/server/gamecontext.h>
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)

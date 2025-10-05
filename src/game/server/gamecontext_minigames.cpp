@@ -1,9 +1,10 @@
 // gamecontext scoped minigame ddnet++ methods
 
-#include <engine/shared/config.h>
-#include <game/server/teams.h>
-
 #include "gamecontext.h"
+
+#include <engine/shared/config.h>
+
+#include <game/server/teams.h>
 
 EDisplayScore CGameContext::MinigameScoreType(int ClientId)
 {

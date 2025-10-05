@@ -4,10 +4,11 @@
 #define GAME_SERVER_MINIGAMES_MINIGAME_BASE_H
 
 #include <base/system.h>
+
 #include <engine/shared/network.h>
-#include <game/server/save.h>
 
 #include <game/server/ddpp/enums.h>
+#include <game/server/save.h>
 
 class CCharacter;
 class CPlayer;

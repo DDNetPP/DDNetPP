@@ -1,11 +1,12 @@
 // gamecontext scoped OnMessage ddnet++ methods
 
+#include "gamecontext.h"
+
 #include <engine/shared/config.h>
+
 #include <game/server/teams.h>
 
 #include <cstring>
-
-#include "gamecontext.h"
 
 bool CGameContext::AbortTeamChange(int ClientId, CPlayer *pPlayer)
 {

@@ -1,6 +1,7 @@
 #ifndef GAME_SERVER_ENTITIES_PLANT_H
 #define GAME_SERVER_ENTITIES_PLANT_H
 
+#include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 
 #define MAX_PLANT_PROJS 10

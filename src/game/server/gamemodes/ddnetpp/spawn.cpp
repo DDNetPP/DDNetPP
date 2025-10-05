@@ -1,9 +1,11 @@
+#include "ddnetpp.h"
+
 #include <base/system.h>
+
 #include <engine/shared/config.h>
+
 #include <game/mapitems_ddpp.h>
 #include <game/server/gamecontroller.h>
-
-#include "ddnetpp.h"
 
 bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam)
 {

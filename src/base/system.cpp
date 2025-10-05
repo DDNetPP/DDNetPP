@@ -2,8 +2,10 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "system.h"
 
+#include "ddpp_logs.h"
 #include "lock.h"
 #include "logger.h"
+#include "system.h"
 
 #include <sys/types.h>
 
@@ -21,13 +23,6 @@
 #include <mutex>
 #include <sstream> // std::istringstream
 #include <string_view>
-
-#include "ddpp_logs.h"
-#include "lock.h"
-#include "logger.h"
-#include "system.h"
-
-#include <sys/types.h>
 
 #if defined(CONF_WEBSOCKETS)
 #include <engine/shared/websockets.h>

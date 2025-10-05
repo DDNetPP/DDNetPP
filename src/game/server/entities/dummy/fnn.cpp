@@ -11,19 +11,21 @@ ModeStructure:
 
 */
 
+#include "fnn.h"
+
+#include "../character.h"
+
 #include <base/math_ddpp.h>
 #include <base/system.h>
+
 #include <engine/shared/config.h>
+
 #include <game/mapitems.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
 #include <fstream>
-
-#include "../character.h"
-
-#include "fnn.h"
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)

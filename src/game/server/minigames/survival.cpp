@@ -1,11 +1,12 @@
 // gamecontext scoped survival ddnet++ methods
 
-#include <engine/shared/config.h>
-#include <game/mapitems.h>
+#include "survival.h"
 
 #include "../gamecontext.h"
 
-#include "survival.h"
+#include <engine/shared/config.h>
+
+#include <game/mapitems.h>
 
 bool CSurvival::IsActive(int ClientId)
 {

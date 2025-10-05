@@ -1,13 +1,16 @@
 // fokkonaut
 
 #include "plasmabullet.h"
+
 #include <engine/config.h>
 #include <engine/server.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
-#include <generated/protocol.h>
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
 	bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime, float Accel, float Speed) :

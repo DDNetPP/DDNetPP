@@ -1,10 +1,11 @@
 // gamecontext scoped vote menu ddnet++ methods
 
+#include "gamecontext.h"
+
 #include <base/system.h>
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
-
-#include "gamecontext.h"
 
 // TODO: this should be a highly configurable system like the shop
 //       where admins can remove and add entrys they want to display

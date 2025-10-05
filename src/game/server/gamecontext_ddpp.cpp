@@ -1,14 +1,20 @@
 // gamecontext scoped ddnet++ methods
 
+#include "save.h"
+
 #include <base/ddpp_logs.h>
 #include <base/log.h>
 #include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
+
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
 #include <engine/shared/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/enums.h>
@@ -24,9 +30,6 @@
 #include <game/server/minigames/pvp_arena.h>
 #include <game/server/minigames/survival.h>
 #include <game/server/teams.h>
-#include <generated/protocol.h>
-
-#include "save.h"
 
 #include <chrono>
 #include <cinttypes>

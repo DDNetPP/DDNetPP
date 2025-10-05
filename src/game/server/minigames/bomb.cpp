@@ -1,13 +1,15 @@
 // gamecontext scoped bomb ddnet++ methods
 
+#include "bomb.h"
+
+#include "../gamecontext.h"
+
 #include <engine/shared/config.h>
+
 #include <game/server/teams.h>
 
 #include <cinttypes>
 #include <cstring>
-
-#include "../gamecontext.h"
-#include "bomb.h"
 
 bool CBomb::IsActive(int ClientId)
 {

@@ -1,17 +1,5 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <engine/shared/config.h>
-
-#include <engine/shared/protocolglue.h>
-
-#include <generated/protocol.h>
-
-#include <game/mapitems.h>
-#include <game/server/ddpp/enums.h>
-#include <game/server/score.h>
-#include <game/teamscore.h>
-
-#include "gamecontext.h"
 #include "gamecontroller.h"
 
 #include "entities/character.h"
@@ -26,18 +14,18 @@
 #include "gamecontext.h"
 #include "player.h"
 
+#include <base/ddpp_logs.h> // ddnet++
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocolglue.h>
 
 #include <generated/protocol.h>
 
+#include <game/layers.h>
 #include <game/mapitems.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/score.h>
 #include <game/teamscore.h>
-
-#include <game/layers.h>
-
-#include <base/ddpp_logs.h> // ddnet++
 
 IGameController::IGameController(class CGameContext *pGameServer) :
 	m_Teams(pGameServer), m_pLoadBestTimeResult(nullptr)

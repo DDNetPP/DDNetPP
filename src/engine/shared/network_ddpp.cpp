@@ -1,12 +1,13 @@
 /* network.h scoped ddnet++ methods */
+#include "network.h"
+
 #include <base/hash_ctxt.h>
 #include <base/system.h>
 
 #include <engine/console.h>
-
-#include "network.h"
 #include <engine/message.h>
 #include <engine/shared/protocol.h>
+
 #include <generated/protocol.h>
 
 void CNetServer::BotInit(int BotId)

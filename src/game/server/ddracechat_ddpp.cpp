@@ -1,11 +1,15 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+#include "gamecontext.h"
+
 #include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
+
 #include <engine/external/sqlite3/sqlite3.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/captcha.h>
@@ -24,8 +28,6 @@
 #include <cstdlib> //acc2 to_str()
 #include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
-
-#include "gamecontext.h"
 
 bool CheckClientId(int ClientId); //TODO: whats this ? xd
 

@@ -1,12 +1,14 @@
+#include "ddnetpp.h"
+
 #include <base/log.h>
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/DDRace.h>
-
-#include "ddnetpp.h"
 
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {

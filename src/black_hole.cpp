@@ -1,9 +1,12 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "black_hole.h"
+
 #include <engine/config.h>
-#include <game/server/gamecontext.h>
+
 #include <generated/protocol.h>
+
+#include <game/server/gamecontext.h>
 
 /* Cyser!xXx's BlackHole Code 23.01.2013*/
 //////////////////////////////////////////////////

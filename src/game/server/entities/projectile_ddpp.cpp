@@ -1,15 +1,16 @@
 /* projectile scoped ddnet++ methods */
+#include "character.h"
 #include "projectile.h"
+
+#include <engine/shared/config.h>
+
+#include <generated/protocol.h>
+
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
-#include <game/version.h>
-#include <generated/protocol.h>
-
-#include <engine/shared/config.h>
 #include <game/server/teams.h>
-
-#include "character.h"
+#include <game/version.h>
 
 bool CProjectile::IsDDPPVanillaProjectile(int Collide, vec2 PrevPos, vec2 CurPos, vec2 ColPos, vec2 NewPos, CCharacter *pOwnerChar, float Pt, float Ct)
 {

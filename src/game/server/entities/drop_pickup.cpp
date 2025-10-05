@@ -1,12 +1,14 @@
+#include "drop_pickup.h"
+
 #include <base/log.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/teams.h>
-#include <generated/protocol.h>
 
 #include <cmath>
-
-#include "drop_pickup.h"
 
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_DROP_PICKUP)

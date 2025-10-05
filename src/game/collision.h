@@ -3,11 +3,11 @@
 #ifndef GAME_COLLISION_H
 #define GAME_COLLISION_H
 
-#include <game/collision_ddpp.h>
-
 #include <base/vmath.h>
 
 #include <engine/shared/protocol.h>
+
+#include <game/collision_ddpp.h>
 
 #include <list>
 #include <map>

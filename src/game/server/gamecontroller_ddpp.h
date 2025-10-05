@@ -5,12 +5,15 @@
 #ifndef IN_CLASS_IGAMECONTROLLER
 
 #include <base/vmath.h>
+
 #include <engine/map.h>
 #include <engine/shared/protocol.h>
-#include <game/server/entities/character.h>
-#include <game/server/teams.h>
+
 #include <generated/protocol.h>
 #include <generated/protocol7.h>
+
+#include <game/server/entities/character.h>
+#include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;
 

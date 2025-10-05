@@ -3,14 +3,17 @@
 //       sub gametypes have to be fully refactored
 //       make it a proper minigame or a own gamecontroller
 
+#include "character.h"
+
 #include <base/system.h>
+
 #include <engine/shared/config.h>
+
+#include <generated/protocol.h>
+
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
-#include <generated/protocol.h>
-
-#include "character.h"
 
 void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 {

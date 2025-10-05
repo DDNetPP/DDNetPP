@@ -1,18 +1,20 @@
 // ddnet++ tile character stuff
 // see also ddnetpp/tiles.cpp
 
+#include "character.h"
+#include "game/race_state.h"
+
 #include <base/system.h>
+
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
-
-#include "character.h"
-#include "game/race_state.h"
 
 bool CCharacter::IsOnTile(int Tile) const
 {

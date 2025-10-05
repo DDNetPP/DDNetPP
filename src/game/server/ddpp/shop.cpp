@@ -1,10 +1,10 @@
 /* DDNet++ shop */
 
-#include <generated/protocol.h>
+#include "shop.h"
 
 #include "../gamecontext.h"
 
-#include "shop.h"
+#include <generated/protocol.h>
 
 CShopItem::CShopItem(
 	const char *pName,

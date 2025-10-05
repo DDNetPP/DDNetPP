@@ -1,8 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
-#include <game/collision_ddpp.h>
-#include <game/mapitems_ddpp.h>
 #include <antibot/antibot_data.h>
 
 #include <base/math.h>
@@ -13,8 +11,10 @@
 #include <engine/shared/config.h>
 
 #include <game/collision.h>
+#include <game/collision_ddpp.h>
 #include <game/layers.h>
 #include <game/mapitems.h>
+#include <game/mapitems_ddpp.h>
 
 #include <cmath>
 

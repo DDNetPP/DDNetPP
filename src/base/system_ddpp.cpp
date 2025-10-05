@@ -1,17 +1,17 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+#include "ddpp_logs.h"
+#include "system.h"
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <cctype>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-
-#include "ddpp_logs.h"
-#include "system.h"
-
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #if defined(__cplusplus)
 extern "C" {

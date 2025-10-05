@@ -1,7 +1,8 @@
-#include <engine/shared/protocol.h>
-#include <game/server/gamecontext.h>
-
 #include "callback_ctx.h"
+
+#include <engine/shared/protocol.h>
+
+#include <game/server/gamecontext.h>
 
 // currently using the default ddnet context shipped by twbl
 

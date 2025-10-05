@@ -3,11 +3,10 @@
 #ifndef GAME_SERVER_ENTITIES_CHARACTER_H
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
+#include <game/gamecore.h>
 #include <game/race_state.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
-
-#include <game/gamecore.h>
 
 // ddnet++
 #include "drop_pickup.h"
@@ -31,9 +30,11 @@
 #include "dummy/shopbot.h"
 #include "dummy/survival.h"
 #include "weapon.h"
-#include <deque>
+
 #include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/stable_projectile.h>
+
+#include <deque>
 #include <vector>
 
 #define NUM_ATOMS 6

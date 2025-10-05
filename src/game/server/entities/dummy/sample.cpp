@@ -1,8 +1,8 @@
 // sample dummy mode
 
-#include <game/server/gamecontext.h>
-
 #include "sample.h"
+
+#include <game/server/gamecontext.h>
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)

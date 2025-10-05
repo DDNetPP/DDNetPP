@@ -1,15 +1,15 @@
 // gamecontext scoped balance ddnet++ methods
 
-#include <engine/shared/config.h>
-#include <game/server/teams.h>
-
-#include <cstring>
+#include "balance.h"
 
 #include "../gamecontext.h"
 
-#include <game/mapitems.h>
+#include <engine/shared/config.h>
 
-#include "balance.h"
+#include <game/mapitems.h>
+#include <game/server/teams.h>
+
+#include <cstring>
 
 bool CBalance::IsActive(int ClientId)
 {

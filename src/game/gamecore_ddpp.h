@@ -2,6 +2,7 @@
 #define GAME_GAMECORE_DDPP_H
 
 #include <base/vmath.h>
+
 #include <game/collision_ddpp.h>
 
 class CCharacterCoreDDPP

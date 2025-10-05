@@ -3,23 +3,24 @@
 #ifndef GAME_SERVER_PLAYER_H
 #define GAME_SERVER_PLAYER_H
 
-#include "teeinfo.h"
 #include "captcha.h"
+#include "teeinfo.h"
 
 #include <base/vmath.h>
 
 #include <engine/shared/protocol.h>
 
-#include <game/alloc.h>
-#include <game/server/save.h>
+#include <generated/protocol7.h>
 
+#include <game/alloc.h>
 #include <game/server/ddpp/accounts.h>
-#include <game/server//entities/character.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
+#include <game/server/entities/character.h>
 #include <game/server/minigames/one_vs_one_block.h>
+#include <game/server/save.h>
 #include <game/version.h>
-#include <generated/protocol7.h>
+
 #include <twbl/state.h>
 
 #include <memory>

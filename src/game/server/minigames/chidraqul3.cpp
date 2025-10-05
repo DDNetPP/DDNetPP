@@ -1,12 +1,13 @@
 // gamecontext scoped chodraqul3 ddnet++ methods
 
+#include "../gamecontext.h"
+
 #include <engine/shared/config.h>
+
 #include <game/server/teams.h>
 
 #include <cinttypes>
 #include <cstring>
-
-#include "../gamecontext.h"
 
 int CGameContext::C3_GetFreeSlots()
 {

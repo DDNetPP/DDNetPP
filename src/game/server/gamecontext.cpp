@@ -35,16 +35,19 @@
 #include <game/mapitems.h>
 #include <game/server/entities/flag.h>
 #include <game/version.h>
-#include <new>
 
+#include <new>
 #include <vector>
 
 //ChillerDragon (ddpp)
 #include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
+
 #include <base/ddpp_logs.h>
-#include <cstdio>
+
 #include <game/server/gamemodes/ddnetpp/ddnetpp.h>
 #include <game/server/teams.h>
+
+#include <cstdio>
 
 // Not thread-safe!
 class CClientChatLogger : public ILogger

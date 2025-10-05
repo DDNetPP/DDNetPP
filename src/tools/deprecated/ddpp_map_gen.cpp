@@ -18,8 +18,10 @@
 */
 
 #include <base/system.h>
+
 #include <engine/shared/datafile.h>
 #include <engine/storage.h>
+
 #include <game/gamecore.h>
 #include <game/mapitems.h>
 

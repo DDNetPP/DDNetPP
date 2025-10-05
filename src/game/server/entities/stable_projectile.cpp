@@ -1,4 +1,5 @@
 #include "stable_projectile.h"
+
 #include <game/server/gamecontext.h>
 
 CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int OwnerId, int Type, vec2 Pos) :

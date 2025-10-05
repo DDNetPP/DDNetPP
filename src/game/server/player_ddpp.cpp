@@ -1,8 +1,16 @@
 /* CPlayer related ddnet++ methods */
 
+#include "game/race_state.h"
+#include "gamecontext.h"
+#include "player.h"
+
 #include <base/system.h>
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
@@ -11,11 +19,6 @@
 #include <game/server/entities/dummy/minigame_balance.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/minigame_base.h>
-#include <generated/protocol.h>
-
-#include "game/race_state.h"
-#include "gamecontext.h"
-#include "player.h"
 
 #include <cinttypes>
 #include <fstream>

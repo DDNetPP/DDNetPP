@@ -1,10 +1,10 @@
 // gamecontext scoped sql ddnet++ methods
 
+#include "gamecontext.h"
+
 #include <engine/shared/config.h>
 
 #include <cstring>
-
-#include "gamecontext.h"
 
 CPlayer *CGameContext::GetPlayerByAccountId(int AccountId)
 {

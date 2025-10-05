@@ -1,16 +1,16 @@
 // ddnet++ quest character stuff
 
-#include <engine/server/server.h>
-#include <engine/shared/config.h>
-#include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
-#include <game/server/player.h>
-
+#include "character.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
 
-#include "character.h"
+#include <engine/server/server.h>
+#include <engine/shared/config.h>
+
+#include <game/server/gamecontext.h>
+#include <game/server/gamemodes/DDRace.h>
+#include <game/server/player.h>
 
 void CCharacter::QuestHammerHit(CCharacter *pTarget)
 {

@@ -19,6 +19,8 @@
 
 // ddnet++
 #include "ddpp/dummymode.h"
+#include "eventhandler.h"
+#include "gameworld.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
@@ -28,23 +30,23 @@
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
-#include <engine/http.h>
-#include <game/server/ddpp/enums.h>
-#include <game/server/ddpp/letters.h>
-#include <game/server/twbl/callback_ctx.h>
-#include <server/ddnet_callback_ctx.h>
-
-#include "eventhandler.h"
-#include "gameworld.h"
 #include "player.h"
 #include "teehistorian.h"
 
+#include <engine/http.h>
+
+#include <game/server/ddpp/enums.h>
+#include <game/server/ddpp/letters.h>
+#include <game/server/twbl/callback_ctx.h>
+
+#include <server/ddnet_callback_ctx.h>
+
+#include <atomic> // ddnet++ worker thread
 #include <map>
 #include <memory>
-#include <string>
-#include <atomic> // ddnet++ worker thread
-#include <thread>  // ddnet++ worker thread
 #include <mutex> // ddnet++ worker thread
+#include <string>
+#include <thread> // ddnet++ worker thread
 
 /*
 	Tick

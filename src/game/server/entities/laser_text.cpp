@@ -4,10 +4,11 @@
     https://github.com/fstd/teeworlds/blob/edceb914f47f3fb6407a85f8cd01060bf79b847a/src/game/server/entities/loltext.cpp
 */
 
-#include <base/system.h>
-#include <game/server/gamecontext.h>
-
 #include "laser_text.h"
+
+#include <base/system.h>
+
+#include <game/server/gamecontext.h>
 
 CLaserText::CLaserText(CGameWorld *pGameWorld, vec2 Pos, int AliveTicks, const char *pText) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos)

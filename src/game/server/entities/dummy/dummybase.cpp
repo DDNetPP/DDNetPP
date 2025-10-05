@@ -2,11 +2,12 @@
 #include "dummybase.h"
 
 #include "../character.h"
+
 #include <engine/shared/config.h>
-#include <game/server/gamecontext.h>
-#include <game/server/player.h>
 
 #include <game/mapitems.h>
+#include <game/server/gamecontext.h>
+#include <game/server/player.h>
 
 CDummyBase::CDummyBase(class CPlayer *pPlayer, int Mode)
 {

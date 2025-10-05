@@ -1,6 +1,8 @@
 #ifndef GAME_SERVER_ENTITIES_DROP_PICKUP_H
 #define GAME_SERVER_ENTITIES_DROP_PICKUP_H
 
+#include <game/server/entity.h>
+
 class CDropPickup : public CEntity
 {
 public:

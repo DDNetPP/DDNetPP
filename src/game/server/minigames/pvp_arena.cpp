@@ -1,8 +1,9 @@
+#include "pvp_arena.h"
+
 #include <engine/shared/config.h>
+
 #include <game/mapitems_ddpp.h>
 #include <game/server/gamecontext.h>
-
-#include "pvp_arena.h"
 
 bool CPvpArena::IsActive(int ClientId)
 {

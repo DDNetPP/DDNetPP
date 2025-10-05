@@ -1,15 +1,16 @@
 // gamecontext scoped balance ddnet++ methods
 
+#include "block_tournament.h"
+
+#include "../gamecontext.h"
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+
 #include <game/server/gamecontroller.h>
 #include <game/server/teams.h>
 
 #include <cstring>
-
-#include "../gamecontext.h"
-
-#include "block_tournament.h"
 
 bool CBlockTournament::IsActive(int ClientId)
 {

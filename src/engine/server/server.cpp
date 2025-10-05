@@ -7,6 +7,7 @@
 #include "databases/connection_pool.h"
 #include "register.h"
 
+#include <base/ddpp_logs.h>
 #include <base/logger.h>
 #include <base/math.h>
 #include <base/system.h>
@@ -39,11 +40,9 @@
 #include <engine/shared/snapshot.h>
 #include <engine/storage.h>
 
+#include <game/server/gamecontext.h>
 #include <game/version.h>
 
-#include <base/ddpp_logs.h>
-#include <engine/shared/linereader.h>
-#include <game/server/gamecontext.h>
 #include <zlib.h>
 
 #include <chrono>

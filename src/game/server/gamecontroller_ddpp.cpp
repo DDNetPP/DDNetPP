@@ -1,7 +1,8 @@
-#include <engine/shared/config.h>
-#include <game/server/score.h>
-
 #include "gamecontroller.h"
+
+#include <engine/shared/config.h>
+
+#include <game/server/score.h>
 
 int IGameController::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore)
 {

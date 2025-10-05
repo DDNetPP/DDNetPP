@@ -1,10 +1,10 @@
 // gamecontext scoped trade ddnet++ methods
 
+#include "gamecontext.h"
+
 #include <engine/shared/config.h>
 
 #include <cinttypes>
-
-#include "gamecontext.h"
 
 int CGameContext::TradePrepareSell(const char *pToName, int FromId, const char *pItemName, int Price, bool IsPublic)
 {

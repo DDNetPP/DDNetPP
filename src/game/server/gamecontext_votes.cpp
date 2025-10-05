@@ -1,12 +1,12 @@
 // gamecontext scoped votes ddnet++ methods
 
+#include "gamecontext.h"
 #include "gamemodes/DDRace.h"
+
 #include <engine/shared/config.h>
-#include <game/server/entities/flag.h>
 
 #include <game/server/ddpp/shop.h>
-
-#include "gamecontext.h"
+#include <game/server/entities/flag.h>
 
 void CGameContext::VotedYes(CCharacter *pChr, CPlayer *pPlayer)
 {

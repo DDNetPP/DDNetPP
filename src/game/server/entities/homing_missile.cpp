@@ -1,11 +1,11 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <game/server/gamecontext.h>
+#include "homing_missile.h"
+
 #include <generated/protocol.h>
 
+#include <game/server/gamecontext.h>
 #include <game/server/teams.h>
-
-#include "homing_missile.h"
 
 CHomingMissile::CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, float Force, vec2 Dir) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)

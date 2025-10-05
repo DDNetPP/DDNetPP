@@ -1,11 +1,11 @@
 /* Teams scoped ddnet++ methods */
+#include "entities/character.h"
+#include "player.h"
 #include "score.h"
 #include "teams.h"
 #include "teehistorian.h"
-#include <engine/shared/config.h>
 
-#include "entities/character.h"
-#include "player.h"
+#include <engine/shared/config.h>
 
 void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, float Time)
 {

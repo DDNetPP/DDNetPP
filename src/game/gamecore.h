@@ -4,8 +4,6 @@
 #define GAME_GAMECORE_H
 
 #include "gamecore_ddpp.h"
-
-#include <base/vmath.h>
 #include "prng.h"
 
 #include <base/vmath.h>

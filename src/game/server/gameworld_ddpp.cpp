@@ -3,8 +3,10 @@
 #include "entity.h"
 #include "gamecontext.h"
 #include "gameworld.h"
-#include <algorithm>
+
 #include <engine/shared/config.h>
+
+#include <algorithm>
 #include <utility>
 
 //////////////////////////////////////////////////

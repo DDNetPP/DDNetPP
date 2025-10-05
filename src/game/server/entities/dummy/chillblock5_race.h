@@ -2,6 +2,7 @@
 #define GAME_SERVER_ENTITIES_DUMMY_CHILLBLOCK5_RACE_H
 
 #include "dummybase.h"
+
 #include <base/vmath.h>
 
 class CDummyChillBlock5Race : public CDummyBase

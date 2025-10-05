@@ -1,3 +1,5 @@
+#include "console.h"
+
 #include <base/color.h>
 #include <base/ddpp_logs.h>
 #include <base/math.h>
@@ -6,8 +8,6 @@
 
 #include <engine/shared/protocol.h>
 #include <engine/storage.h>
-
-#include "console.h"
 
 void CConsole::PrintDDPPLogs(int Type)
 {

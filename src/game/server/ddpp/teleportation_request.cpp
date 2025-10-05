@@ -1,12 +1,14 @@
+#include "teleportation_request.h"
+
 #include <base/system.h>
+
 #include <engine/server.h>
 #include <engine/shared/config.h>
+
 #include <game/collision.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
-
-#include "teleportation_request.h"
 
 CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharacter, vec2 Pos)
 {

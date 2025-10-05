@@ -1,11 +1,13 @@
+#include "ddnetpp.h"
+
 #include <base/system.h>
+
 #include <engine/shared/config.h>
+
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/race_state.h>
 #include <game/server/gamemodes/DDRace.h>
-
-#include "ddnetpp.h"
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
 {

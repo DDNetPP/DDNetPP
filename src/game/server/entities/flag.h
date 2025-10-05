@@ -5,6 +5,7 @@
 #define GAME_SERVER_ENTITIES_FLAG_H
 
 #include <engine/shared/protocol.h>
+
 #include <game/server/entities/character.h>
 #include <game/server/entity.h>
 

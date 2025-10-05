@@ -1,12 +1,22 @@
 // ddnet++ generic character stuff
 
-#include <cinttypes>
+#include "character.h"
+#include "flag.h"
+#include "heartgun.h"
+#include "homing_missile.h"
+#include "laser.h"
+#include "plasmabullet.h"
+#include "projectile.h"
 
 #include <base/ddpp_logs.h>
 #include <base/math_ddpp.h>
 #include <base/system.h>
+
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+
+#include <generated/protocol.h>
+
 #include <game/gamecore.h>
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
@@ -16,15 +26,8 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
-#include <generated/protocol.h>
 
-#include "character.h"
-#include "flag.h"
-#include "heartgun.h"
-#include "homing_missile.h"
-#include "laser.h"
-#include "plasmabullet.h"
-#include "projectile.h"
+#include <cinttypes>
 
 CCharacter::~CCharacter()
 {

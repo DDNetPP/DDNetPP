@@ -1,5 +1,7 @@
 #include "meteor.h"
+
 #include <engine/shared/config.h>
+
 #include <game/server/gamecontext.h>
 
 CMeteor::CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos) :

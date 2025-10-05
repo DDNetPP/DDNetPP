@@ -4,6 +4,7 @@
 #define GAME_SERVER_ENTITIES_DUMMY_BLMAPCHILL_POLICE_H
 
 #include "dummybase.h"
+
 #include <base/vmath.h>
 
 class CDummyBlmapChillPolice : public CDummyBase

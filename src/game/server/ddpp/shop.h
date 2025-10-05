@@ -5,6 +5,7 @@
 
 #include <engine/server.h>
 #include <engine/shared/config.h>
+
 #include <generated/protocol.h>
 
 #include <vector>

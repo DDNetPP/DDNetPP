@@ -12,8 +12,6 @@
 #include <engine/engine.h>
 #include <engine/map.h>
 #include <engine/server.h>
-#include <engine/storage.h>
-
 #include <engine/shared/compression.h>
 #include <engine/shared/config.h>
 #include <engine/shared/datafile.h>
@@ -27,16 +25,21 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/protocol_ex.h>
 #include <engine/shared/snapshot.h>
+#include <engine/storage.h>
 
 // DDRace
-#include <base/ddpp_logs.h>
-#include <cstring>
-#include <engine/shared/linereader.h>
-#include <game/server/gamecontext.h>
-#include <zlib.h>
-
 #include "register.h"
 #include "server.h"
+
+#include <base/ddpp_logs.h>
+
+#include <engine/shared/linereader.h>
+
+#include <game/server/gamecontext.h>
+
+#include <zlib.h>
+
+#include <cstring>
 
 #if defined(CONF_FAMILY_WINDOWS)
 #ifndef _WIN32_WINNT

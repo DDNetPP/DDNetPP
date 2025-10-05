@@ -3,6 +3,8 @@
 #ifndef GAME_SERVER_ENTITIES_HOMING_MISSILE_H
 #define GAME_SERVER_ENTITIES_HOMING_MISSILE_H
 
+#include <game/server/entity.h>
+
 class CHomingMissile : public CEntity
 {
 public:

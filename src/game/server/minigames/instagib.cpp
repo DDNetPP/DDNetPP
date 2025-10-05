@@ -1,14 +1,16 @@
 // gamecontext scoped instagib ddnet++ methods
 
-#include <base/log.h>
-#include <engine/shared/config.h>
-#include <game/server/teams.h>
-
-#include <cstring>
+#include "instagib.h"
 
 #include "../gamecontext.h"
 
-#include "instagib.h"
+#include <base/log.h>
+
+#include <engine/shared/config.h>
+
+#include <game/server/teams.h>
+
+#include <cstring>
 
 bool CInstagib::IsActive(int ClientId)
 {

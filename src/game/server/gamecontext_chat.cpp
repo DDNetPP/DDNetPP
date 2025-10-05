@@ -1,18 +1,19 @@
 // gamecontext scoped chat ddnet++ methods
 // this file is deprecated use ddnetpp/chat.cpp instead
 
+#include "gamecontext.h"
+
 #include <base/ddpp_logs.h>
 #include <base/system.h>
+
 #include <engine/server/server.h> // ddpp imported for dummys
 #include <engine/shared/config.h>
-#include <game/server/player.h>
 
 #include <game/server/entities/laser_text.h>
+#include <game/server/player.h>
 
 #include <cstring>
 #include <fstream>
-
-#include "gamecontext.h"
 
 void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 {

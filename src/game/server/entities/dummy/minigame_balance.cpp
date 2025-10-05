@@ -1,13 +1,15 @@
 //Minigame the down left balance to secret moneyroom
 // mode 30
 
+#include "minigame_balance.h"
+
 #include <base/math_ddpp.h>
+
 #include <engine/shared/config.h>
+
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
-
-#include "minigame_balance.h"
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)

@@ -1,9 +1,9 @@
 // dummy mode -3
 // BlockWave
 
-#include <game/server/gamecontext.h>
-
 #include "blockwave.h"
+
+#include <game/server/gamecontext.h>
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)

@@ -1,8 +1,8 @@
 /* DDNet++ 2022 */
 
-#include "../gamecontext.h"
-
 #include "letters.h"
+
+#include "../gamecontext.h"
 
 CLetters::CLetters(CGameContext *pGameServer)
 {

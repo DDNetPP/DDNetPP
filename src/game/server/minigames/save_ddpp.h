@@ -6,6 +6,8 @@
 
 #include <generated/protocol.h>
 
+#include <cstdint>
+
 class CCharacter;
 
 class CSaveTeeDDPP

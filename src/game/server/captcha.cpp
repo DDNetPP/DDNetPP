@@ -1,8 +1,8 @@
-#include <engine/shared/config.h>
+#include "captcha.h"
 
 #include "gamecontext.h"
 
-#include "captcha.h"
+#include <engine/shared/config.h>
 
 CCaptcha::CCaptcha(CGameContext *pGameServer, int ClientId)
 {

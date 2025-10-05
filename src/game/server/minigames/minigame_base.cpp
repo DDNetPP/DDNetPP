@@ -1,12 +1,13 @@
 // DDNet++ minigame base
 
+#include "minigame_base.h"
+
 #include <base/system.h>
 #include <base/vmath.h>
+
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/save_ddpp.h>
-
-#include "minigame_base.h"
 
 CMinigame::CMinigame(CGameContext *pGameContext)
 {

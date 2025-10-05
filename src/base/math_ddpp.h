@@ -2,10 +2,10 @@
 #ifndef BASE_MATH_DDPP_H
 #define BASE_MATH_DDPP_H
 
+#include "vmath.h"
+
 #include <math.h>
 #include <stdlib.h>
-
-#include "vmath.h"
 
 // M_PI defined in math.h on linux bot not on windows
 #ifndef M_PI

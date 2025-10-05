@@ -1,17 +1,7 @@
 // This file can be included several times.
 
 #ifndef IN_CLASS_CHARACTER
-#include <deque>
-#include <engine/antibot.h>
-#include <game/server/ddpp/teleportation_request.h>
-#include <game/server/entities/stable_projectile.h>
-#include <game/server/entity.h>
-#include <game/server/save.h>
-#include <generated/protocol.h>
-#include <generated/server_data.h>
-
-#include <game/gamecore.h>
-
+#include "drop_pickup.h"
 #include "dummy/adventure.h"
 #include "dummy/blmapchill_police.h"
 #include "dummy/blmapv3_arena.h"
@@ -31,11 +21,21 @@
 #include "dummy/sample.h"
 #include "dummy/shopbot.h"
 #include "dummy/survival.h"
-
-#include <vector>
-
-#include "drop_pickup.h"
 #include "weapon.h"
+
+#include <engine/antibot.h>
+
+#include <generated/protocol.h>
+#include <generated/server_data.h>
+
+#include <game/gamecore.h>
+#include <game/server/ddpp/teleportation_request.h>
+#include <game/server/entities/stable_projectile.h>
+#include <game/server/entity.h>
+#include <game/server/save.h>
+
+#include <deque>
+#include <vector>
 class CCharacter : public CEntity
 {
 #endif

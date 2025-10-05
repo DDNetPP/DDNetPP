@@ -1,12 +1,16 @@
 /*
     DDNet++ commands
 */
+#include "gamecontext.h"
+
 #include <base/ddpp_logs.h>
 #include <base/log.h>
 #include <base/system.h>
 #include <base/vmath.h>
+
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/dummymode.h>
@@ -15,8 +19,6 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/teams.h>
 #include <game/version.h>
-
-#include "gamecontext.h"
 
 void CGameContext::RegisterDDNetPPCommands()
 {

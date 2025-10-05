@@ -7,6 +7,7 @@
 
 #include <base/color.h>
 #include <base/vmath.h>
+
 #include <engine/shared/protocol.h>
 
 // layer types

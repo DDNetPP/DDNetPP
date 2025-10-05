@@ -30,6 +30,7 @@
 #include "meteor.h"
 #include "plasmabullet.h"
 #include "weapon.h"
+
 #include <game/server/ddpp/shop.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)

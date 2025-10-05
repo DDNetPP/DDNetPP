@@ -5,8 +5,11 @@
 #include "chillblock5_police.h"
 
 #include "../character.h"
+
 #include <base/math_ddpp.h>
+
 #include <engine/shared/config.h>
+
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>

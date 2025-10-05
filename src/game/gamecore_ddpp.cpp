@@ -1,12 +1,13 @@
 /* DDNet++ gamecore */
 
+#include "gamecore.h"
+
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+
 #include <game/collision.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/flag.h>
-
-#include "gamecore.h"
 
 void CCharacterCoreDDPP::SetFlagPos(int FlagId, vec2 Pos, bool AtStand, vec2 Vel, int CarrierId)
 {

@@ -4,15 +4,15 @@
 #include <base/system.h>
 #include <base/vmath.h>
 
-#include <cmath>
 #include <engine/kernel.h>
 #include <engine/map.h>
+#include <engine/shared/config.h>
 
 #include <game/collision.h>
 #include <game/layers.h>
 #include <game/mapitems.h>
 
-#include <engine/shared/config.h>
+#include <cmath>
 
 int CCollision::GetCustTile(int x, int y)
 {

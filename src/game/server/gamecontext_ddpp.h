@@ -1,41 +1,40 @@
 // This file can be included several times.
 
 #ifndef IN_CLASS_GAMECONTEXT
-#include <atomic>
-#include <deque>
+#include "ddpp/dummymode.h"
+#include "drop_pickup.h"
+#include "minigames/balance.h"
+#include "minigames/block_tournament.h"
+#include "minigames/blockwave.h"
+#include "minigames/bomb.h"
+#include "minigames/instagib.h"
+#include "minigames/minigame_base.h"
+#include "minigames/one_vs_one_block.h"
+#include "minigames/pvp_arena.h"
+#include "minigames/survival.h"
+#include "weapon.h"
+
 #include <engine/antibot.h>
 #include <engine/http.h>
+
+#include <generated/protocol.h>
+#include <generated/server_data.h>
+
+#include <game/gamecore.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/letters.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
 #include <game/server/twbl/callback_ctx.h>
-#include <generated/protocol.h>
-#include <generated/server_data.h>
-#include <mutex>
+
 #include <server/ddnet_callback_ctx.h>
+
+#include <atomic>
+#include <deque>
+#include <mutex>
 #include <thread>
-
-#include <game/gamecore.h>
-
 #include <vector>
-
-#include "minigames/minigame_base.h"
-
-#include "minigames/balance.h"
-#include "minigames/block_tournament.h"
-#include "minigames/blockwave.h"
-#include "minigames/bomb.h"
-#include "minigames/instagib.h"
-#include "minigames/one_vs_one_block.h"
-#include "minigames/pvp_arena.h"
-#include "minigames/survival.h"
-
-#include "ddpp/dummymode.h"
-
-#include "drop_pickup.h"
-#include "weapon.h"
 class CGameContext : public IGameServer
 {
 #endif

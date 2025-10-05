@@ -1,6 +1,6 @@
-#include <engine/shared/config.h>
-
 #include "ddnetpp.h"
+
+#include <engine/shared/config.h>
 
 bool CGameControllerDDNetPP::OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer)
 {

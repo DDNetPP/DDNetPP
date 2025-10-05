@@ -1,16 +1,19 @@
+#include "weapon.h"
+
+#include "pickup.h"
+
 #include <base/log.h>
+
+#include <generated/protocol.h>
+
 #include <game/mapitems.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
-#include <generated/protocol.h>
 
 #include <cmath>
-
-#include "pickup.h"
-#include "weapon.h"
 
 CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int DDRaceTeam, int Direction, int Bullets, bool Jetpack, bool SpreadGun) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_WEAPON)

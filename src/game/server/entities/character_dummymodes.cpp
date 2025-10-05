@@ -5,10 +5,10 @@
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
-#include <game/server/ddpp/enums.h>
-#include <game/server/gamecontext.h>
 
+#include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
+#include <game/server/gamecontext.h>
 
 // twbl
 #include <bots/follow/follow.h>
