@@ -74,7 +74,7 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
-	const char *Loc(const char *pStr, int ClientId) const;
+	[[gnu::format_arg(2)]] const char *Loc(const char *pStr, int ClientId) const;
 
 	// calls SendChatTarget under the hood
 	// the pFormat string will be translated so make sure
