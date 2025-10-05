@@ -70,6 +70,10 @@ public:
 	// will be called every 600 ticks
 	virtual void SlowTick(){};
 
+	// called every time the server builds a snap
+	// register your custom snap items here
+	virtual void Snap(int SnappingClient){};
+
 	// will be called every 600 ticks for every player
 	virtual void PlayerSlowTick(CPlayer *pPlayer){};
 

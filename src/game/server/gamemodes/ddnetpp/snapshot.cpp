@@ -9,12 +9,16 @@
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/DDRace.h>
+#include <game/server/minigames/minigame_base.h>
 
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
 	CGameControllerDDRace::Snap(SnappingClient);
 	SnapFlags(SnappingClient);
 	// FakeSnap(SnappingClient);
+
+	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
+		pMinigame->Snap(SnappingClient);
 }
 
 void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
