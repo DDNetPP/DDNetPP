@@ -3040,7 +3040,7 @@ void CGameContext::ListSpamfilters()
 	{
 		if(i++ >= Max)
 		{
-			str_format(aBuf, sizeof(aBuf), "and %d more", m_vSpamfilters.size() - i);
+			str_format(aBuf, sizeof(aBuf), "and %" PRIzu " more", m_vSpamfilters.size() - i);
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", aBuf);
 			break;
 		}
@@ -3087,7 +3087,7 @@ void CGameContext::ReadSpamfilterList()
 	}
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "loaded %d filters that will drop chat messages from " SPAMFILTERS_FILE, m_vSpamfilters.size());
+	str_format(aBuf, sizeof(aBuf), "loaded %" PRIzu " filters that will drop chat messages from " SPAMFILTERS_FILE, m_vSpamfilters.size());
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spamfilters", aBuf);
 }
 
