@@ -49,6 +49,10 @@ void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
 			FlagCarrierBlue = FLAG_TAKEN;
 	}
 
+	// we do not check pPlayer for null because we already check pMinigame
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(SnappingClient);
+	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
+
 	if(Server()->IsSixup(SnappingClient))
 	{
 		protocol7::CNetObj_GameDataFlag *pGameDataObj = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
@@ -57,6 +61,9 @@ void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
 
 		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
 		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
+
+		if(pMinigame)
+			pMinigame->SnapGameDataFlag7(pPlayer, pGameDataObj);
 	}
 	else
 	{
@@ -66,6 +73,9 @@ void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
 
 		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
 		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
+
+		if(pMinigame)
+			pMinigame->SnapGameData(pPlayer, pGameDataObj);
 	}
 }
 

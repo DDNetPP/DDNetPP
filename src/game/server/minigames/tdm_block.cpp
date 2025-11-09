@@ -37,14 +37,17 @@ bool CTdmBlock::IsActive(int ClientId)
 void CTdmBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
-	if(!pPlayer->m_IsBlockTdming)
+	if(!IsActive(pPlayer->GetCid()))
 		return;
 
 	if(Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
 		CPlayer *pKiller = GameServer()->GetPlayerOrNullptr(Killer);
 		if(pKiller && pChr->GetId() != Killer)
+		{
 			pKiller->m_Minigame.m_Score++;
+			pPlayer->m_pBlockTdmState->m_aTeamscore[pKiller->m_Minigame.m_Team]++;
+		}
 	}
 }
 
@@ -80,6 +83,33 @@ int CTdmBlock::ScoreLimit(CPlayer *pPlayer)
 void CTdmBlock::SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo)
 {
 	pGameInfo->m_GameFlags |= GAMEFLAG_TEAMS;
+}
+
+void CTdmBlock::Snap(int SnappingClient)
+{
+	if(!IsActive(SnappingClient))
+		return;
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(SnappingClient);
+	if(!pPlayer)
+		return;
+
+	CGameState *pGameState = pPlayer->m_pBlockTdmState;
+	if(Server()->IsSixup(SnappingClient))
+	{
+		protocol7::CNetObj_GameDataTeam *pGameDataTeam = static_cast<protocol7::CNetObj_GameDataTeam *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATATEAM, 0, sizeof(protocol7::CNetObj_GameDataTeam)));
+		if(!pGameDataTeam)
+			return;
+
+		pGameDataTeam->m_TeamscoreRed = pGameState->m_aTeamscore[TEAM_RED];
+		pGameDataTeam->m_TeamscoreBlue = pGameState->m_aTeamscore[TEAM_BLUE];
+	}
+}
+
+void CTdmBlock::SnapGameData(CPlayer *pPlayer, CNetObj_GameData *pGameData)
+{
+	CGameState *pGameState = pPlayer->m_pBlockTdmState;
+	pGameData->m_TeamscoreRed = pGameState->m_aTeamscore[TEAM_RED];
+	pGameData->m_TeamscoreBlue = pGameState->m_aTeamscore[TEAM_BLUE];
 }
 
 void CTdmBlock::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason)
@@ -204,6 +234,7 @@ void CTdmBlock::OnRoundEnd(CGameState *pGameState)
 void CTdmBlock::OnRoundStart(CGameState *pGameState)
 {
 	pGameState->m_State = CGameState::EState::RUNNING;
+	mem_zero(pGameState->m_aTeamscore, sizeof(pGameState->m_aTeamscore));
 	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
 	{
 		if(!IsInLobby(pGameState, pPlayer))

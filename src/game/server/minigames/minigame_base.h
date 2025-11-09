@@ -7,6 +7,8 @@
 
 #include <engine/shared/network.h>
 
+#include <generated/protocol7.h>
+
 #include <game/server/ddpp/enums.h>
 #include <game/server/save.h>
 
@@ -137,9 +139,21 @@ public:
 	// will be included in the snapshot
 	virtual int ScoreLimit(CPlayer *pPlayer) { return 0; }
 
+	// alter the pGameInfo object if needed, its values are already filled
 	virtual void SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo) {}
 
+	// alter the snap objects if needed, its values are already filled
 	virtual void SnapPlayer6(CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
+
+	// alter the pGameData object if needed, its values are already filled
+	// it includes the flag carriers from the main game
+	// but you can also have your own custom flags in the minigame by overwriting it
+	virtual void SnapGameData(CPlayer *pPlayer, CNetObj_GameData *pGameData){};
+
+	// alter the pGameData object if needed, its values are already filled
+	// it includes the flag carriers from the main game
+	// but you can also have your own custom flags in the minigame by overwriting it
+	virtual void SnapGameDataFlag7(CPlayer *pPlayer, protocol7::CNetObj_GameDataFlag *pGameData){};
 
 	// Presist player position when joining the minigame
 	// to be later able to load it again

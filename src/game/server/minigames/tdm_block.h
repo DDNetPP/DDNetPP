@@ -5,6 +5,8 @@
 
 #include "minigame_base.h"
 
+#include <generated/protocol.h>
+
 class CPlayer;
 class CCharacter;
 class CGameContext;
@@ -19,7 +21,9 @@ public:
 	void OnDeath(CCharacter *pChr, int Killer, int Weapon) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 	int ScoreLimit(CPlayer *pPlayer) override;
+	void Snap(int SnappingClient) override;
 	void SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo) override;
+	void SnapGameData(CPlayer *pPlayer, CNetObj_GameData *pGameData) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
 	void Tick() override;
 
@@ -55,6 +59,8 @@ public:
 		int ScoreLimit() { return 10; }
 		int m_CountDownTicksLeft = 0;
 		int m_NumTeleportedPlayers = 0;
+
+		int m_aTeamscore[NUM_TEAMS] = {0};
 
 		int m_DDRaceTeam = 0;
 		int m_SpawnCounter = 0;
