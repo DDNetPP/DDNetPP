@@ -83,6 +83,12 @@ int CTdmBlock::ScoreLimit(CPlayer *pPlayer)
 void CTdmBlock::SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo)
 {
 	pGameInfo->m_GameFlags |= GAMEFLAG_TEAMS;
+
+	CGameState *pGameState = pPlayer->m_pBlockTdmState;
+	if(pGameState->m_State == CGameState::EState::ROUND_END)
+		pGameInfo->m_GameStateFlags |= GAMESTATEFLAG_GAMEOVER;
+	if(pGameState->m_State == CGameState::EState::SUDDEN_DEATH)
+		pGameInfo->m_GameStateFlags |= GAMESTATEFLAG_SUDDENDEATH;
 }
 
 void CTdmBlock::Snap(int SnappingClient)
@@ -175,14 +181,21 @@ void CTdmBlock::Tick(CGameState *pGameState)
 			OnRoundStart(pGameState);
 		}
 		break;
-	case CGameState::EState::RUNNING:
-	case CGameState::EState::SUDDEN_DEATH:
 	case CGameState::EState::ROUND_END:
+		pGameState->m_CountDownTicksLeft--;
+		if(pGameState->m_CountDownTicksLeft < 1)
+		{
+			// TODO: should clear scores here
+			pGameState->m_State = CGameState::EState::WAITING_FOR_PLAYERS;
+		}
+	case CGameState::EState::SUDDEN_DEATH:
+	case CGameState::EState::RUNNING:
 		// we do nothing on tick for these
 		break;
 	}
 
 	PrintHudBroadcast(pGameState);
+	DoWincheck(pGameState);
 }
 
 void CTdmBlock::OnChatCmdTdm(CPlayer *pPlayer)
@@ -245,6 +258,39 @@ void CTdmBlock::OnRoundStart(CGameState *pGameState)
 		pPlayer->KillCharacter();
 		SendChatTarget(pPlayer->GetCid(), "[tdm] round is starting!");
 	}
+}
+
+void CTdmBlock::DoWincheck(CGameState *pGameState)
+{
+	if(!pGameState->IsRunning())
+		return;
+
+	// TODO: support draw/sudden death
+	//       can happen if both teams do the final score point
+	//       in the same tick
+	//       right now we just let red win in that rare edge case :D
+
+	for(int Team = TEAM_RED; Team < NUM_TEAMS; Team++)
+	{
+		if(pGameState->m_aTeamscore[Team] >= pGameState->ScoreLimit())
+		{
+			OnWin(pGameState, Team);
+			return;
+		}
+	}
+}
+
+void CTdmBlock::OnWin(CGameState *pGameState, int WinnerTeam)
+{
+	if(pGameState->m_State == CGameState::EState::ROUND_END)
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "[tdm] %s team won!", WinnerTeam == TEAM_RED ? "red" : "blue");
+	SendChat(pGameState, aBuf);
+
+	pGameState->m_State = CGameState::EState::ROUND_END;
+	pGameState->m_CountDownTicksLeft = Server()->TickSpeed() * 5;
 }
 
 void CTdmBlock::SendChat(CGameState *pGameState, const char *pMessage)

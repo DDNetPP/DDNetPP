@@ -56,7 +56,7 @@ public:
 		EState m_State = EState::WAITING_FOR_PLAYERS;
 		EState State() const { return m_State; }
 		bool IsRunning() const { return m_State == EState::RUNNING || m_State == EState::SUDDEN_DEATH; }
-		int ScoreLimit() { return 10; }
+		int ScoreLimit() { return 20; }
 		int m_CountDownTicksLeft = 0;
 		int m_NumTeleportedPlayers = 0;
 
@@ -95,6 +95,11 @@ public:
 	void OnRoundEnd(CGameState *pGameState);
 
 	void OnRoundStart(CGameState *pGameState);
+
+	// Checks if a team won and then ends the game
+	void DoWincheck(CGameState *pGameState);
+
+	void OnWin(CGameState *pGameState, int WinnerTeam);
 
 	// send a chat message to all players in the tdm lobby
 	void SendChat(CGameState *pGameState, const char *pMessage);
