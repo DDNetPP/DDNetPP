@@ -112,6 +112,12 @@ void CCharacter::PostSpawnDDPP()
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
+	if(m_pPlayer->m_FreezeOnSpawn)
+	{
+		Freeze(m_pPlayer->m_FreezeOnSpawn);
+		m_pPlayer->m_FreezeOnSpawn = 0;
+	}
+
 	for(auto &Minigame : GameServer()->m_vMinigames)
 		Minigame->PostSpawn(this);
 	for(auto &Minigame : GameServer()->m_vMinigames)

@@ -692,6 +692,15 @@ private: // private ddnet+++
 	int64_t m_neededxp;
 	EDummyMode m_DummyMode;
 
+public:
+	// ************************************
+	// ddnet-insta compatible
+	// ************************************
+
+	// amount of seconds to freeze on next spawn
+	int m_FreezeOnSpawn = 0;
+
+private:
 #ifndef IN_CLASS_PLAYER
 }
 #endif
