@@ -68,6 +68,7 @@ public:
 	void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) override;
 	int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) override;
 	int SnapScoreLimit(int SnappingClient) override;
+	void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo) override;
 
 	// tiles.cpp
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;

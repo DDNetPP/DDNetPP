@@ -3,4 +3,5 @@
 void CMinigamePlayerState::Reset()
 {
 	m_Score = 0;
+	m_Team = TEAM_RED;
 }

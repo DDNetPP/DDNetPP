@@ -10,6 +10,7 @@
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/minigames/minigame_base.h>
+#include <game/server/player.h>
 
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
@@ -151,6 +152,17 @@ int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
 	return CGameControllerDDRace::SnapScoreLimit(SnappingClient);
 }
 
+void CGameControllerDDNetPP::SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo)
+{
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(SnappingClient);
+	if(!pPlayer)
+		return;
+
+	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
+	if(pMinigame)
+		pMinigame->SnapGameInfo(pPlayer, pGameInfo);
+}
+
 // SnappingClient - Client Id of the player that will receive the snapshot
 // pPlayer - CPlayer that is being snapped
 // pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
@@ -161,6 +173,10 @@ void CGameControllerDDNetPP::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, C
 	// this is 0.6 only so 0.7 players see all players at all times (too lazy to fix)
 	if(pPlayer->m_PendingCaptcha)
 		pPlayerInfo->m_Team = TEAM_BLUE;
+
+	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
+	if(pMinigame)
+		pMinigame->SnapPlayer6(pPlayer, pClientInfo, pPlayerInfo);
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot

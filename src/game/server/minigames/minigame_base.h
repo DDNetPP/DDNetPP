@@ -137,6 +137,10 @@ public:
 	// will be included in the snapshot
 	virtual int ScoreLimit(CPlayer *pPlayer) { return 0; }
 
+	virtual void SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo) {}
+
+	virtual void SnapPlayer6(CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
+
 	// Presist player position when joining the minigame
 	// to be later able to load it again
 	virtual void SavePosition(CPlayer *pPlayer);

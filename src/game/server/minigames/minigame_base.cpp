@@ -104,6 +104,12 @@ void CMinigame::ClearSavedPosition(CPlayer *pPlayer)
 	m_aRestorePos[pPlayer->GetCid()] = false;
 }
 
+// TODO: support 0.7 teams by sending a net message, they are not in the snap
+void CMinigame::SnapPlayer6(CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+{
+	pPlayerInfo->m_Team = pPlayer->m_Minigame.m_Team;
+}
+
 void CMinigame::SavePosition(CPlayer *pPlayer)
 {
 	if(!pPlayer)

@@ -117,6 +117,8 @@ public:
 	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore);
 	virtual int SnapScoreLimit(int SnappingClient);
 
+	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo){};
+
 	/*
 		Function: ServerInfoClientScoreValue
 			This method determines the value that should be used as score

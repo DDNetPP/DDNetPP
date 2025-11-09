@@ -77,6 +77,11 @@ int CTdmBlock::ScoreLimit(CPlayer *pPlayer)
 	return GameState(pPlayer)->ScoreLimit();
 }
 
+void CTdmBlock::SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo)
+{
+	pGameInfo->m_GameFlags |= GAMEFLAG_TEAMS;
+}
+
 void CTdmBlock::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason)
 {
 	Leave(pPlayer);
@@ -204,7 +209,7 @@ void CTdmBlock::OnRoundStart(CGameState *pGameState)
 		if(!IsInLobby(pGameState, pPlayer))
 			continue;
 
-		pPlayer->m_Minigame.Reset();
+		pPlayer->m_Minigame.m_Score = 0;
 		pPlayer->m_FreezeOnSpawn = 3;
 		pPlayer->KillCharacter();
 		SendChatTarget(pPlayer->GetCid(), "[tdm] round is starting!");
@@ -259,9 +264,6 @@ void CTdmBlock::Join(CPlayer *pPlayer)
 	// TODO: we could assert here that all these vars we init
 	//       are not initied already to avoid logic issues of duped joins
 
-	pPlayer->m_IsBlockTdming = true;
-	pPlayer->m_Minigame.Reset();
-
 	// if we add multiple lobbies this has to create a new one
 	pPlayer->m_pBlockTdmState = &m_GameState;
 
@@ -269,6 +271,10 @@ void CTdmBlock::Join(CPlayer *pPlayer)
 	//       but we do not teleport yet with cooldown we just respawn into the area
 	//       if this is changed also on leave we need to only decrement if teleport happend
 	pPlayer->m_pBlockTdmState->m_NumTeleportedPlayers++;
+
+	pPlayer->m_IsBlockTdming = true;
+	pPlayer->m_Minigame.Reset();
+	pPlayer->m_Minigame.m_Team = pPlayer->m_pBlockTdmState->m_NumTeleportedPlayers % 2 ? TEAM_RED : TEAM_BLUE;
 }
 
 void CTdmBlock::Leave(CPlayer *pPlayer)

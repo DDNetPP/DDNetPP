@@ -19,6 +19,7 @@ public:
 	void OnDeath(CCharacter *pChr, int Killer, int Weapon) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 	int ScoreLimit(CPlayer *pPlayer) override;
+	void SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
 	void Tick() override;
 
