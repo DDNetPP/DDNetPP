@@ -30,6 +30,7 @@
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
+#include "minigames/tdm_block.h"
 #include "player.h"
 #include "teehistorian.h"
 

@@ -202,6 +202,10 @@ public:
 	bool m_BlockOneVsOneTeleported = false;
 	COneVsOneBlock::CGameState *m_pBlockOneVsOneState = nullptr;
 
+	// block team deathmatch
+	bool m_IsBlockTdming = false;
+	CTdmBlock::CGameState *m_pBlockTdmState = nullptr;
+
 	// blockwave
 	bool m_IsBlockWaving;
 	bool m_IsBlockWaveDead;

@@ -2941,6 +2941,8 @@ if(SERVER)
     minigames/save_ddpp.h
     minigames/survival.cpp
     minigames/survival.h
+    minigames/tdm_block.cpp
+    minigames/tdm_block.h
     mutes.cpp
     player.cpp
     player.h

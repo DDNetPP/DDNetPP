@@ -73,6 +73,7 @@ CHAT_COMMAND("balance", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBalance, this, 
 CHAT_COMMAND("survival", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSurvival, this, "play infamous survival mod")
 CHAT_COMMAND("blockwave", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBlockWave, this, "play block agianst bot waves")
 CHAT_COMMAND("1vs1", "s[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConOneVsOneBlock, this, "challenge one player to a block duel")
+CHAT_COMMAND("tdm", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTdm, this, "join block team deathmatch")
 CHAT_COMMAND("leave", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLeave, this, "leave the current minigame")
 
 // extras

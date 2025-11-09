@@ -12,6 +12,7 @@
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
+#include "minigames/tdm_block.h"
 #include "weapon.h"
 
 #include <engine/antibot.h>
@@ -176,6 +177,10 @@ public:
 	//usefull everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
+
+	// it is safe to pass in any ClientId
+	// returned value might be null
+	CPlayer *GetPlayerOrNullptr(int ClientId) const;
 
 	// deprecated use IsMinigaming() instead
 	int IsMinigame(int playerId);
@@ -386,6 +391,7 @@ public:
 	CInstagib *m_pInstagib = nullptr;
 	CBlockwave *m_pBlockwave = nullptr;
 	COneVsOneBlock *m_pOneVsOneBlock = nullptr;
+	CTdmBlock *m_pTdmBlock = nullptr;
 	CPvpArena *m_pPvpArena = nullptr;
 	CSurvival *m_pSurvival = nullptr;
 	CBomb *m_pBomb = nullptr;
@@ -915,6 +921,7 @@ private:
 	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
 	static void ConBlockWave(IConsole::IResult *pResult, void *pUserData);
 	static void ConOneVsOneBlock(IConsole::IResult *pResult, void *pUserData);
+	static void ConTdm(IConsole::IResult *pResult, void *pUserData);
 	static void ConLeave(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);

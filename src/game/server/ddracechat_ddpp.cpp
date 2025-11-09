@@ -7738,6 +7738,20 @@ void CGameContext::ConOneVsOneBlock(IConsole::IResult *pResult, void *pUserData)
 	pSelf->m_pOneVsOneBlock->OnChatCmdInvite(pPlayer, pResult->GetString(0));
 }
 
+void CGameContext::ConTdm(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int ClientId = pResult->m_ClientId;
+	if(!CheckClientId(ClientId))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
+	if(!pPlayer)
+		return;
+
+	pSelf->m_pTdmBlock->OnChatCmdTdm(pPlayer);
+}
+
 void CGameContext::ConBroadcastServer(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

@@ -29,6 +29,7 @@
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/server/minigames/pvp_arena.h>
 #include <game/server/minigames/survival.h>
+#include <game/server/minigames/tdm_block.h>
 #include <game/server/teams.h>
 
 #include <chrono>
@@ -60,6 +61,7 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pInstagib = nullptr;
 	m_pBlockwave = nullptr;
 	m_pOneVsOneBlock = nullptr;
+	m_pTdmBlock = nullptr;
 	m_pPvpArena = nullptr;
 	m_pSurvival = nullptr;
 	m_pBomb = nullptr;
@@ -411,6 +413,8 @@ void CGameContext::OnInitDDPP()
 		m_pBlockwave = new CBlockwave(this);
 	if(!m_pOneVsOneBlock)
 		m_pOneVsOneBlock = new COneVsOneBlock(this);
+	if(!m_pTdmBlock)
+		m_pTdmBlock = new CTdmBlock(this);
 	if(!m_pPvpArena)
 		m_pPvpArena = new CPvpArena(this);
 	if(!m_pSurvival)
@@ -422,6 +426,7 @@ void CGameContext::OnInitDDPP()
 	m_vMinigames.push_back(m_pInstagib);
 	m_vMinigames.push_back(m_pBlockwave);
 	m_vMinigames.push_back(m_pOneVsOneBlock);
+	m_vMinigames.push_back(m_pTdmBlock);
 	m_vMinigames.push_back(m_pPvpArena);
 	m_vMinigames.push_back(m_pSurvival);
 	m_vMinigames.push_back(m_pBomb);
@@ -699,6 +704,14 @@ void CGameContext::AbuseMotd(const char *pMsg, int ClientId)
 	CNetMsg_Sv_Motd Msg;
 	Msg.m_pMessage = pMsg;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientId);
+}
+
+CPlayer *CGameContext::GetPlayerOrNullptr(int ClientId) const
+{
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+		return nullptr;
+
+	return m_apPlayers[ClientId];
 }
 
 bool CGameContext::IsDDPPgametype(const char *pGametype)

@@ -18,6 +18,7 @@
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/minigames/one_vs_one_block.h>
+#include <game/server/minigames/tdm_block.h>
 #include <game/server/save.h>
 #include <game/version.h>
 

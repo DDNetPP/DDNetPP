@@ -284,6 +284,7 @@
 + `/survival` play infamous survival mod
 + `/blockwave` play block agianst bot waves
 + `/1vs1` challenge one player to a block duel
++ `/tdm` join block team deathmatch
 + `/leave` leave the current minigame
 + `/rainbow` accep/turn-off rainbow
 + `/bloody` accep/turn-off bloody
