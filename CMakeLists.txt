@@ -2783,6 +2783,8 @@ if(SERVER)
     ddpp/letters.h
     ddpp/loc.cpp
     ddpp/loc.h
+    ddpp/minigame_player_state.cpp
+    ddpp/minigame_player_state.h
     ddpp/shop.cpp
     ddpp/shop.h
     ddpp/teleportation_request.cpp

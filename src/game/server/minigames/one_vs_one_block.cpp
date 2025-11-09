@@ -49,7 +49,7 @@ void COneVsOneBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 		if(pKiller->GetCharacter() && pKiller->GetCharacter()->m_FreezeTime && pKiller->GetCharacter()->Core()->m_IsInFreeze)
 			SendChat(pState, "[1vs1] draw");
 		else
-			pKiller->m_MinigameScore++;
+			pKiller->m_Minigame.m_Score++;
 		if(pKiller->GetCharacter() && pKiller->GetCharacter()->IsAlive())
 		{
 			pKiller->GetCharacter()->Die(pKiller->GetCid(), WEAPON_MINIGAME);
@@ -200,8 +200,8 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 	pPlayer1->m_pBlockOneVsOneState = pGameState;
 	pPlayer2->m_pBlockOneVsOneState = pGameState;
 
-	pPlayer1->m_MinigameScore = 0;
-	pPlayer2->m_MinigameScore = 0;
+	pPlayer1->m_Minigame.Reset();
+	pPlayer2->m_Minigame.Reset();
 
 	for(CCharacter *pChr : apCharacters)
 	{
@@ -297,8 +297,8 @@ void COneVsOneBlock::OnGameAbort(CGameState *pGameState, CPlayer *pAbortingPlaye
 		return;
 	}
 
-	int Score1 = pGameState->m_pPlayer1->m_MinigameScore;
-	int Score2 = pGameState->m_pPlayer2->m_MinigameScore;
+	int Score1 = pGameState->m_pPlayer1->m_Minigame.Score();
+	int Score2 = pGameState->m_pPlayer2->m_Minigame.Score();
 
 	// if nobody did a score yet the game has no winner
 	if(!Score1 && !Score2)
@@ -332,8 +332,8 @@ void COneVsOneBlock::DoWincheck(CGameState *pGameState)
 	if(!pGameState->IsRunning())
 		return;
 
-	int Score1 = pGameState->m_pPlayer1->m_MinigameScore;
-	int Score2 = pGameState->m_pPlayer2->m_MinigameScore;
+	int Score1 = pGameState->m_pPlayer1->m_Minigame.Score();
+	int Score2 = pGameState->m_pPlayer2->m_Minigame.Score();
 
 	// if nobody reached the scorelimit yet there is no winner
 	if(Score1 < pGameState->ScoreLimit() && Score2 < pGameState->ScoreLimit())
@@ -490,9 +490,9 @@ void COneVsOneBlock::PrintScoreBroadcast(CGameState *pGameState)
 		"%s: %d                                                                                                                                ",
 		aTopText,
 		Server()->ClientName(pGameState->m_pPlayer1->GetCid()),
-		pGameState->m_pPlayer1->m_MinigameScore,
+		pGameState->m_pPlayer1->m_Minigame.Score(),
 		Server()->ClientName(pGameState->m_pPlayer2->GetCid()),
-		pGameState->m_pPlayer2->m_MinigameScore);
+		pGameState->m_pPlayer2->m_Minigame.Score());
 	GameServer()->SendBroadcast(aBuf, pGameState->m_pPlayer1->GetCid());
 	GameServer()->SendBroadcast(aBuf, pGameState->m_pPlayer2->GetCid());
 

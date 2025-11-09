@@ -25,7 +25,7 @@ public:
 	// bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) override;
 	int ScoreLimit(CPlayer *pPlayer) override;
 
-	// score is counted in CPlayer::m_MinigameScore
+	// score is counted in CPlayer::m_Minigame::m_Score
 	class CGameState
 	{
 	public:

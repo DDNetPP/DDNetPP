@@ -1323,7 +1323,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 
 	if(g_Config.m_SvDDPPscore == 0)
 		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCid())
-			GameServer()->m_apPlayers[Killer]->m_MinigameScore++;
+			GameServer()->m_apPlayers[Killer]->m_Minigame.m_Score++;
 
 	// TODO: combine with insta 1on1
 	// insta kills
@@ -1335,7 +1335,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 		}
 		else if(GameServer()->IsDDPPgametype("fng"))
 		{
-			GameServer()->m_apPlayers[Killer]->m_MinigameScore += 3;
+			GameServer()->m_apPlayers[Killer]->m_Minigame.m_Score += 3;
 		}
 	}
 

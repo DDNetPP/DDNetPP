@@ -44,7 +44,7 @@ void CTdmBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	{
 		CPlayer *pKiller = GameServer()->GetPlayerOrNullptr(Killer);
 		if(pKiller && pChr->GetId() != Killer)
-			pKiller->m_MinigameScore++;
+			pKiller->m_Minigame.m_Score++;
 	}
 }
 
@@ -204,7 +204,7 @@ void CTdmBlock::OnRoundStart(CGameState *pGameState)
 		if(!IsInLobby(pGameState, pPlayer))
 			continue;
 
-		pPlayer->m_MinigameScore = 0;
+		pPlayer->m_Minigame.Reset();
 		pPlayer->m_FreezeOnSpawn = 3;
 		pPlayer->KillCharacter();
 		SendChatTarget(pPlayer->GetCid(), "[tdm] round is starting!");
@@ -260,7 +260,7 @@ void CTdmBlock::Join(CPlayer *pPlayer)
 	//       are not initied already to avoid logic issues of duped joins
 
 	pPlayer->m_IsBlockTdming = true;
-	pPlayer->m_MinigameScore = 0;
+	pPlayer->m_Minigame.Reset();
 
 	// if we add multiple lobbies this has to create a new one
 	pPlayer->m_pBlockTdmState = &m_GameState;

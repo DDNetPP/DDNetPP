@@ -22,7 +22,7 @@ public:
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
 	void Tick() override;
 
-	// score is counted in CPlayer::m_MinigameScore
+	// score is counted in CPlayer::m_Minigame::m_Score
 	class CGameState
 	{
 	public:

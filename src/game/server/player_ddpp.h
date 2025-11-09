@@ -11,6 +11,7 @@
 #include <generated/protocol.h>
 
 #include <game/server/ddpp/enums.h>
+#include <game/server/ddpp/minigame_player_state.h>
 #include <game/server/minigames/one_vs_one_block.h>
 #include <game/version.h>
 
@@ -532,19 +533,7 @@ public:
 
 	EDisplayScore m_DisplayScore;
 	int m_AllowTimeScore;
-	/*
-		m_MinigameScore
-
-		Score that will also be displayed in the scoreboard
-		if the minigame is active
-
-		is seperate from m_Score which is only used for ddnet
-		race times
-
-		The minigame score can/should be used for kills
-		in fng/dm/gctf/block/bomb and so on
-	*/
-	int m_MinigameScore = 0;
+	CMinigamePlayerState m_Minigame;
 
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;

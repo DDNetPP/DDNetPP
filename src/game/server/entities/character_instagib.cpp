@@ -65,7 +65,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//do scoring (by ChillerDragon)
 			if(g_Config.m_SvInstagibMode)
 			{
-				GameServer()->m_apPlayers[From]->m_MinigameScore++;
+				GameServer()->m_apPlayers[From]->m_Minigame.m_Score++;
 			}
 			GameServer()->DoInstaScore(1, From);
 

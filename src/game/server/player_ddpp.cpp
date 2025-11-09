@@ -161,7 +161,7 @@ void CPlayer::ResetDDPP()
 	m_Language = LANG_EN;
 	if(!str_comp_nocase("ru", g_Config.m_SvLanguage))
 		m_Language = LANG_RU;
-	m_MinigameScore = 0;
+	m_Minigame.Reset();
 
 	for(auto &WeaponLimit : m_aWeaponLimit)
 		WeaponLimit.resize(0);
@@ -700,7 +700,7 @@ int CPlayer::GetScoreValue(int ReceivingClientId)
 		// but ideally it would also be used for survival where BLOCK sounds a bit wrong
 		CMinigame *pMinigame = GameServer()->GetMinigame(pSnapReceiver->GetCid());
 		if(pMinigame && pMinigame->ScoreType() == EDisplayScore::BLOCK)
-			return m_MinigameScore;
+			return m_Minigame.Score();
 	}
 
 	int DDRaceScore;
