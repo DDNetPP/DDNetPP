@@ -14,9 +14,17 @@
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
+#include <game/server/minigames/minigame_base.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
 #include <game/team_state.h>
+
+CTdmBlock::CTdmBlock(CGameContext *pGameContext) :
+	CMinigame(pGameContext)
+{
+	// we only ever have one lobby at a time for now
+	m_vpGameStates.emplace_back(&m_GameState);
+}
 
 bool CTdmBlock::IsActive(int ClientId)
 {
@@ -60,19 +68,6 @@ bool CTdmBlock::AllowSelfKill(int ClientId)
 	return true;
 }
 
-void CTdmBlock::PostSpawn(CCharacter *pChr)
-{
-	if(!pChr)
-		return;
-	CPlayer *pPlayer = pChr->GetPlayer();
-	if(!pPlayer)
-		return;
-	if(!IsActive(pPlayer->GetCid()))
-		return;
-
-	pChr->Freeze(3);
-}
-
 int CTdmBlock::ScoreLimit(CPlayer *pPlayer)
 {
 	if(!pPlayer)
@@ -80,6 +75,11 @@ int CTdmBlock::ScoreLimit(CPlayer *pPlayer)
 	if(!GameState(pPlayer))
 		return 10;
 	return GameState(pPlayer)->ScoreLimit();
+}
+
+void CTdmBlock::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason)
+{
+	Leave(pPlayer);
 }
 
 vec2 CTdmBlock::GetNextArenaSpawn(CGameState *pGameState)
@@ -113,6 +113,41 @@ bool CTdmBlock::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 
 	*pPos = Pos;
 	return true;
+}
+
+void CTdmBlock::Tick()
+{
+	for(CGameState *pGameState : m_vpGameStates)
+		Tick(pGameState);
+}
+
+void CTdmBlock::Tick(CGameState *pGameState)
+{
+	switch(pGameState->m_State)
+	{
+	case CGameState::EState::WAITING_FOR_PLAYERS:
+		// randomly hardcodet min amount of 2 players to start a round xd
+		if(pGameState->m_NumTeleportedPlayers > 1)
+		{
+			pGameState->m_State = CGameState::EState::COUNTDOWN;
+			pGameState->m_CountDownTicksLeft = Server()->TickSpeed() * 3;
+		}
+		break;
+	case CGameState::EState::COUNTDOWN:
+		pGameState->m_CountDownTicksLeft--;
+		if(pGameState->m_CountDownTicksLeft < 1)
+		{
+			OnRoundStart(pGameState);
+		}
+		break;
+	case CGameState::EState::RUNNING:
+	case CGameState::EState::SUDDEN_DEATH:
+	case CGameState::EState::ROUND_END:
+		// we do nothing on tick for these
+		break;
+	}
+
+	PrintHudBroadcast(pGameState);
 }
 
 void CTdmBlock::OnChatCmdTdm(CPlayer *pPlayer)
@@ -161,6 +196,21 @@ void CTdmBlock::OnRoundEnd(CGameState *pGameState)
 	}
 }
 
+void CTdmBlock::OnRoundStart(CGameState *pGameState)
+{
+	pGameState->m_State = CGameState::EState::RUNNING;
+	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+	{
+		if(!IsInLobby(pGameState, pPlayer))
+			continue;
+
+		pPlayer->m_MinigameScore = 0;
+		pPlayer->m_FreezeOnSpawn = 3;
+		pPlayer->KillCharacter();
+		SendChatTarget(pPlayer->GetCid(), "[tdm] round is starting!");
+	}
+}
+
 void CTdmBlock::SendChat(CGameState *pGameState, const char *pMessage)
 {
 	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
@@ -169,6 +219,38 @@ void CTdmBlock::SendChat(CGameState *pGameState, const char *pMessage)
 			continue;
 
 		SendChatTarget(pPlayer->GetCid(), pMessage);
+	}
+}
+
+void CTdmBlock::PrintHudBroadcast(CGameState *pGameState)
+{
+	char aBuf[512] = "";
+
+	switch(pGameState->m_State)
+	{
+	case CGameState::EState::WAITING_FOR_PLAYERS:
+		str_copy(aBuf, "Waiting for more players");
+		break;
+	case CGameState::EState::COUNTDOWN:
+		// TODO: do not use broadcast for that, send a proper game timer
+		str_format(aBuf, sizeof(aBuf), "Game starting in %.2f", (float)pGameState->m_CountDownTicksLeft / Server()->TickSpeed());
+		break;
+	case CGameState::EState::RUNNING:
+	case CGameState::EState::SUDDEN_DEATH:
+	case CGameState::EState::ROUND_END:
+		// lets not spam hud all the time
+		break;
+	}
+
+	if(aBuf[0] == '\0')
+		return;
+
+	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+	{
+		if(!IsInLobby(pGameState, pPlayer))
+			continue;
+
+		GameServer()->SendBroadcast(aBuf, pPlayer->GetCid());
 	}
 }
 
@@ -182,10 +264,19 @@ void CTdmBlock::Join(CPlayer *pPlayer)
 
 	// if we add multiple lobbies this has to create a new one
 	pPlayer->m_pBlockTdmState = &m_GameState;
+
+	// TODO: this should actually be only incremented after teleport
+	//       but we do not teleport yet with cooldown we just respawn into the area
+	//       if this is changed also on leave we need to only decrement if teleport happend
+	pPlayer->m_pBlockTdmState->m_NumTeleportedPlayers++;
 }
 
 void CTdmBlock::Leave(CPlayer *pPlayer)
 {
+	if(!IsActive(pPlayer->GetCid()))
+		return;
+
+	pPlayer->m_pBlockTdmState->m_NumTeleportedPlayers--;
 	pPlayer->m_IsBlockTdming = false;
 	pPlayer->m_pBlockTdmState = nullptr;
 }

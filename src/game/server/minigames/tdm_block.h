@@ -7,18 +7,20 @@
 
 class CPlayer;
 class CCharacter;
+class CGameContext;
 
 class CTdmBlock : public CMinigame
 {
 public:
-	using CMinigame::CMinigame;
+	CTdmBlock(CGameContext *pGameContext);
 
 	bool IsActive(int ClientId) override;
 	bool AllowSelfKill(int ClientId) override;
 	void OnDeath(CCharacter *pChr, int Killer, int Weapon) override;
-	void PostSpawn(CCharacter *pChr) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 	int ScoreLimit(CPlayer *pPlayer) override;
+	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
+	void Tick() override;
 
 	// score is counted in CPlayer::m_MinigameScore
 	class CGameState
@@ -58,11 +60,16 @@ public:
 	};
 	CGameState m_GameState;
 
+	// this is for potential multi lobby support in the future
+	std::vector<CGameState *> m_vpGameStates;
+
 	// the pPlayer argument does not make much sense
 	// but this is here in case in the future there will be multiple
 	// tdm games at once and we need a player instance to find the
 	// matching gamestate
 	CGameState *GameState(const CPlayer *pPlayer) { return &m_GameState; }
+
+	void Tick(CGameState *pGameState);
 
 	void OnChatCmdTdm(CPlayer *pPlayer);
 	bool OnChatCmdLeave(CPlayer *pPlayer) override;
@@ -80,8 +87,13 @@ public:
 	// used to cleanup all the game state
 	void OnRoundEnd(CGameState *pGameState);
 
+	void OnRoundStart(CGameState *pGameState);
+
 	// send a chat message to all players in the tdm lobby
 	void SendChat(CGameState *pGameState, const char *pMessage);
+
+	// prints current game state info to all participants
+	void PrintHudBroadcast(CGameState *pGameState);
 
 	void Join(CPlayer *pPlayer);
 	void Leave(CPlayer *pPlayer);
