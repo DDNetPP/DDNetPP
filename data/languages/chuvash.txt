@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Режим улăштарма валли вăйă сӳнтер тата каллер яр
 
-##### needs translation #####
-
 New name:
 == Çĕн ят
 
@@ -1133,6 +1131,9 @@ All combined
 Demo
 == 
 
+Markers
+== 
+
 Length
 == 
 
@@ -1155,9 +1156,6 @@ Size
 == 
 
 %.2f KiB
-== 
-
-Markers
 == 
 
 Netversion
@@ -1987,6 +1985,9 @@ Show only chat messages from team members
 Use old chat style
 == 
 
+Censor profanity
+== 
+
 Chat font size
 == 
 
@@ -2048,7 +2049,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2372,6 +2373,9 @@ Downloading %s:
 == 
 
 Update failed! Check log…
+== 
+
+Download
 == 
 
 Loading race demo files

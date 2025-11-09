@@ -17,26 +17,31 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         include:
-        - os: ubuntu-latest
+        - name: ubuntu-latest
+          os: ubuntu-latest
           cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-linux_x86_64.tar.xz"
-          fancy: true
-        - os: macOS-latest
-          cmake-args: -G Ninja
-          cmake-init-env: CXXFLAGS=-Werror
-          package-file: "*-macos.dmg"
-          fancy: false
-        - os: windows-latest
-          cmake-args: -A x64 -DEXCEPTION_HANDLING=ON
-          cmake-init-env: CXXFLAGS=/WX LDFLAGS=/WX
+          workaround-issue10203-run-after-configure:
+        - name: macOS-latest
+          os: macOS-latest
+          workaround-issue10203-run-after-configure:
+        - name: windows-latest
+          os: windows-latest
+          workaround-issue10203-run-after-configure:
+        - name: windows-latest-mingw
+          os: windows-latest
+          cmake-args: -G Ninja -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DEXCEPTION_HANDLING=ON -DCMAKE_RC_COMPILER=windres -DCMAKE_AR=ar
+          cmake-init-env: CXXFLAGS=-Werror LDFLAGS=-Werror
           package-file: "*-win64.zip"
-          fancy: false
+          # Delete outdated libwinpthread-1.dll after configuring to workaround https://github.com/ddnet/ddnet/issues/10203 when using MinGW.
+          # Adding this condition into the individual steps is not possible without using bash shell consistently, which does not work for windows-latest.
+          workaround-issue10203-run-after-configure: rm libwinpthread-1.dll
 
     steps:
     - uses: actions/checkout@v4
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Prepare Linux
       if: contains(matrix.os, 'ubuntu')
@@ -123,6 +128,7 @@ jobs:
         mkdir debug
         cd debug
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything
 
     - name: Test debug
@@ -140,6 +146,7 @@ jobs:
         mkdir release
         cd release
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCLIENT=ON -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake --build . --config Release --target everything
 
     - name: Test release
@@ -167,6 +174,7 @@ jobs:
           -DDOWNLOAD_GTEST=ON \
           -DDEV=ON \
           -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
         ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug  ${{ matrix.build-args }}
         cp DDNetPP.exe DDNet-Server.exe || true
         cp data/maps/ddnetpp-test.map data/maps/'Sunny Side Up'.map
@@ -197,4 +205,3 @@ jobs:
         ./DDNet-Server "sv_map coverage" &
         ./DDNet "cl_download_skins 0;connect localhost:8303;quit"
         pkill -f DDNet-Server || true
-

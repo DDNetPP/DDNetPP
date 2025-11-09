@@ -442,8 +442,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Trebuie să repornești jocul pentru aplicarea setărilor.
 
-##### needs translation #####
-
 New name:
 == Nume nou:
 
@@ -2144,7 +2142,7 @@ Name plates offset
 Show friend icon in name plates
 == Afișați indicatorul de prieten în plăcuțele de nume
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Arată ID-urile de client pe o linie separată
 
 Client IDs size
@@ -2472,6 +2470,9 @@ Skin could not be found.
 No skins match your filter criteria
 == 
 
+Censor profanity
+== 
+
 Chat background color
 == 
 
@@ -2482,4 +2483,7 @@ Dragger Outline Color
 == 
 
 Dragger Inner Color
+== 
+
+Download
 == 

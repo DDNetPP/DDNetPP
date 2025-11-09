@@ -69,7 +69,7 @@ CLayerTiles::CLayerTiles(const CLayerTiles &Other) :
 	m_HasSwitch = Other.m_HasSwitch;
 	m_HasTune = Other.m_HasTune;
 
-	str_copy(m_aFileName, Other.m_aFileName);
+	str_copy(m_aFilename, Other.m_aFilename);
 }
 
 CLayerTiles::~CLayerTiles()
@@ -200,7 +200,7 @@ void CLayerTiles::Render(bool Tileset)
 int CLayerTiles::ConvertX(float x) const { return (int)(x / 32.0f); }
 int CLayerTiles::ConvertY(float y) const { return (int)(y / 32.0f); }
 
-void CLayerTiles::Convert(CUIRect Rect, RECTi *pOut) const
+void CLayerTiles::Convert(CUIRect Rect, CIntRect *pOut) const
 {
 	pOut->x = ConvertX(Rect.x);
 	pOut->y = ConvertY(Rect.y);
@@ -210,7 +210,7 @@ void CLayerTiles::Convert(CUIRect Rect, RECTi *pOut) const
 
 void CLayerTiles::Snap(CUIRect *pRect) const
 {
-	RECTi Out;
+	CIntRect Out;
 	Convert(*pRect, &Out);
 	pRect->x = Out.x * 32.0f;
 	pRect->y = Out.y * 32.0f;
@@ -218,7 +218,7 @@ void CLayerTiles::Snap(CUIRect *pRect) const
 	pRect->h = Out.h * 32.0f;
 }
 
-void CLayerTiles::Clamp(RECTi *pRect) const
+void CLayerTiles::Clamp(CIntRect *pRect) const
 {
 	if(pRect->x < 0)
 	{
@@ -298,7 +298,7 @@ static void InitGrabbedLayer(std::shared_ptr<T> &pLayer, CLayerTiles *pThisLayer
 
 int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 {
-	RECTi r;
+	CIntRect r;
 	Convert(Rect, &r);
 	Clamp(&r);
 
@@ -345,10 +345,10 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 			}
 		}
 
-		pGrabbed->m_TeleNum = m_pEditor->m_TeleNumber;
-		pGrabbed->m_TeleCheckpointNum = m_pEditor->m_TeleCheckpointNumber;
+		pGrabbed->m_TeleNumber = m_pEditor->m_TeleNumber;
+		pGrabbed->m_TeleCheckpointNumber = m_pEditor->m_TeleCheckpointNumber;
 
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		str_copy(pGrabbed->m_aFilename, m_pEditor->m_aFilename);
 	}
 	else if(m_HasSpeedup)
 	{
@@ -392,7 +392,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		pGrabbed->m_SpeedupForce = m_pEditor->m_SpeedupForce;
 		pGrabbed->m_SpeedupMaxSpeed = m_pEditor->m_SpeedupMaxSpeed;
 		pGrabbed->m_SpeedupAngle = m_pEditor->m_SpeedupAngle;
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		str_copy(pGrabbed->m_aFilename, m_pEditor->m_aFilename);
 	}
 	else if(m_HasSwitch)
 	{
@@ -414,7 +414,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 					pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x] = static_cast<CLayerSwitch *>(this)->m_pSwitchTile[(r.y + y) * m_Width + (r.x + x)];
 					if(IsValidSwitchTile(pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Type))
 					{
-						m_pEditor->m_SwitchNum = pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Number;
+						m_pEditor->m_SwitchNumber = pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Number;
 						m_pEditor->m_SwitchDelay = pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Delay;
 					}
 				}
@@ -424,7 +424,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 					if(IsValidSwitchTile(Tile.m_Index))
 					{
 						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
-						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_SwitchNum;
+						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_SwitchNumber;
 						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Delay = m_pEditor->m_SwitchDelay;
 						pGrabbed->m_pSwitchTile[y * pGrabbed->m_Width + x].m_Flags = Tile.m_Flags;
 					}
@@ -432,9 +432,9 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 			}
 		}
 
-		pGrabbed->m_SwitchNumber = m_pEditor->m_SwitchNum;
+		pGrabbed->m_SwitchNumber = m_pEditor->m_SwitchNumber;
 		pGrabbed->m_SwitchDelay = m_pEditor->m_SwitchDelay;
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		str_copy(pGrabbed->m_aFilename, m_pEditor->m_aFilename);
 	}
 
 	else if(m_HasTune)
@@ -456,7 +456,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 					pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x] = static_cast<CLayerTune *>(this)->m_pTuneTile[(r.y + y) * m_Width + (r.x + x)];
 					if(IsValidTuneTile(pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Type))
 					{
-						m_pEditor->m_TuningNum = pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Number;
+						m_pEditor->m_TuningNumber = pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Number;
 					}
 				}
 				else
@@ -465,14 +465,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 					if(IsValidTuneTile(Tile.m_Index))
 					{
 						pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Type = Tile.m_Index;
-						pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_TuningNum;
+						pGrabbed->m_pTuneTile[y * pGrabbed->m_Width + x].m_Number = m_pEditor->m_TuningNumber;
 					}
 				}
 			}
 		}
 
-		pGrabbed->m_TuningNumber = m_pEditor->m_TuningNum;
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		pGrabbed->m_TuningNumber = m_pEditor->m_TuningNumber;
+		str_copy(pGrabbed->m_aFilename, m_pEditor->m_aFilename);
 	}
 	else // game, front and tiles layers
 	{
@@ -497,7 +497,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		for(int y = 0; y < r.h; y++)
 			for(int x = 0; x < r.w; x++)
 				pGrabbed->m_pTiles[y * pGrabbed->m_Width + x] = GetTile(r.x + x, r.y + y);
-		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName);
+		str_copy(pGrabbed->m_aFilename, m_pEditor->m_aFilename);
 	}
 
 	return 1;
@@ -799,9 +799,9 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 		{
 			if(pGLayer->m_Width < m_Width + OffsetX || pGLayer->m_Height < m_Height + OffsetY)
 			{
-				std::map<int, std::shared_ptr<CLayer>> savedLayers;
-				savedLayers[LAYERTYPE_TILES] = pGLayer->Duplicate();
-				savedLayers[LAYERTYPE_GAME] = savedLayers[LAYERTYPE_TILES];
+				std::map<int, std::shared_ptr<CLayer>> SavedLayers;
+				SavedLayers[LAYERTYPE_TILES] = pGLayer->Duplicate();
+				SavedLayers[LAYERTYPE_GAME] = SavedLayers[LAYERTYPE_TILES];
 
 				int PrevW = pGLayer->m_Width;
 				int PrevH = pGLayer->m_Height;
@@ -813,8 +813,8 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 				vpActions.push_back(std::make_shared<CEditorActionEditLayerTilesProp>(m_pEditor, GameGroupIndex, GameLayerIndex, ETilesProp::PROP_HEIGHT, PrevH, NewH));
 				const std::shared_ptr<CEditorActionEditLayerTilesProp> &Action2 = std::static_pointer_cast<CEditorActionEditLayerTilesProp>(vpActions[vpActions.size() - 1]);
 
-				Action1->SetSavedLayers(savedLayers);
-				Action2->SetSavedLayers(savedLayers);
+				Action1->SetSavedLayers(SavedLayers);
+				Action2->SetSavedLayers(SavedLayers);
 			}
 
 			int Changes = 0;
@@ -847,9 +847,9 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 
 				if(m_Width != pGLayer->m_Width || m_Height > pGLayer->m_Height)
 				{
-					std::map<int, std::shared_ptr<CLayer>> savedLayers;
-					savedLayers[LAYERTYPE_TILES] = pGLayer->Duplicate();
-					savedLayers[LAYERTYPE_GAME] = savedLayers[LAYERTYPE_TILES];
+					std::map<int, std::shared_ptr<CLayer>> SavedLayers;
+					SavedLayers[LAYERTYPE_TILES] = pGLayer->Duplicate();
+					SavedLayers[LAYERTYPE_GAME] = SavedLayers[LAYERTYPE_TILES];
 
 					int NewW = pGLayer->m_Width;
 					int NewH = pGLayer->m_Height;
@@ -870,8 +870,8 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 					vpActions.push_back(std::make_shared<CEditorActionEditLayerTilesProp>(m_pEditor, GameGroupIndex, GameLayerIndex, ETilesProp::PROP_HEIGHT, PrevH, NewH));
 					const std::shared_ptr<CEditorActionEditLayerTilesProp> &Action2 = std::static_pointer_cast<CEditorActionEditLayerTilesProp>(vpActions[vpActions.size() - 1]);
 
-					Action1->SetSavedLayers(savedLayers);
-					Action2->SetSavedLayers(savedLayers);
+					Action1->SetSavedLayers(SavedLayers);
+					Action2->SetSavedLayers(SavedLayers);
 				}
 			}
 
@@ -880,9 +880,9 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 
 			if(pTLayer->m_Width < m_Width + OffsetX || pTLayer->m_Height < m_Height + OffsetY)
 			{
-				std::map<int, std::shared_ptr<CLayer>> savedLayers;
-				savedLayers[LAYERTYPE_TILES] = pTLayer->Duplicate();
-				savedLayers[LAYERTYPE_TELE] = savedLayers[LAYERTYPE_TILES];
+				std::map<int, std::shared_ptr<CLayer>> SavedLayers;
+				SavedLayers[LAYERTYPE_TILES] = pTLayer->Duplicate();
+				SavedLayers[LAYERTYPE_TELE] = SavedLayers[LAYERTYPE_TILES];
 
 				int PrevW = pTLayer->m_Width;
 				int PrevH = pTLayer->m_Height;
@@ -893,8 +893,8 @@ void CLayerTiles::FillGameTiles(EGameTileOp Fill)
 				vpActions.push_back(Action1 = std::make_shared<CEditorActionEditLayerTilesProp>(m_pEditor, GameGroupIndex, TeleLayerIndex, ETilesProp::PROP_WIDTH, PrevW, NewW));
 				vpActions.push_back(Action2 = std::make_shared<CEditorActionEditLayerTilesProp>(m_pEditor, GameGroupIndex, TeleLayerIndex, ETilesProp::PROP_HEIGHT, PrevH, NewH));
 
-				Action1->SetSavedLayers(savedLayers);
-				Action2->SetSavedLayers(savedLayers);
+				Action1->SetSavedLayers(SavedLayers);
+				Action2->SetSavedLayers(SavedLayers);
 			}
 
 			int Changes = 0;

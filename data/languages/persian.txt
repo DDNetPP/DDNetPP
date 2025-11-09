@@ -1,4 +1,4 @@
-﻿%ds left
+%ds left
 == %ds ﻩﺪﻧﺎﻣ ﯽﻗﺎﺑ
 
 %i minute left
@@ -354,6 +354,7 @@ Quit
 
 Are you sure that you want to disconnect?
 == ؟ﯽﻨﮐ ﻝﺎﺼﺗﺍ ﻊﻄﻗ ﯼﺍﻮﺨﯿﻣ ﯽﻨﺌﻌﻤﻄﻣ
+
 Disconnect Dummy
 == ﯽﻣﺍﺩ ﻥﺩﺮﮐ ﻊﻄﻗ
 
@@ -2413,6 +2414,9 @@ Show spectator cursor
 Show number of spectators
 == 
 
+Censor profanity
+== 
+
 Chat background color
 == 
 
@@ -2438,7 +2442,7 @@ Name plates offset
 Show friend icon in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2476,6 +2480,9 @@ Dragger Inner Color
 == 
 
 AntiPing: prediction margin
+== 
+
+Download
 == 
 
 https://wiki.ddnet.org/wiki/Mapping

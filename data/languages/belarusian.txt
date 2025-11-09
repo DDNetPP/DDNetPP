@@ -2070,7 +2070,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == Паказваць ID кліента ў таблічках імёнаў
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Паказваць ID кліента ў асобным радку
 
 Client IDs size
@@ -2470,6 +2470,9 @@ Skin could not be found.
 No skins match your filter criteria
 == 
 
+Censor profanity
+== 
+
 Chat background color
 == 
 
@@ -2480,4 +2483,7 @@ Dragger Outline Color
 == 
 
 Dragger Inner Color
+== 
+
+Download
 == 

@@ -2414,6 +2414,9 @@ Show spectator cursor
 Show number of spectators
 == 
 
+Censor profanity
+== 
+
 Chat background color
 == 
 
@@ -2439,7 +2442,7 @@ Name plates offset
 Show friend icon in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2477,6 +2480,9 @@ Dragger Inner Color
 == 
 
 AntiPing: prediction margin
+== 
+
+Download
 == 
 
 https://wiki.ddnet.org/wiki/Mapping

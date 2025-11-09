@@ -2374,10 +2374,14 @@ if(CLIENT)
     components/ghost.h
     components/hud.cpp
     components/hud.h
+    components/important_alert.cpp
+    components/important_alert.h
     components/infomessages.cpp
     components/infomessages.h
     components/items.cpp
     components/items.h
+    components/key_binder.cpp
+    components/key_binder.h
     components/local_server.cpp
     components/local_server.h
     components/mapimages.cpp
@@ -2398,6 +2402,8 @@ if(CLIENT)
     components/menus_settings.cpp
     components/menus_settings7.cpp
     components/menus_settings_assets.cpp
+    components/menus_settings_controls.cpp
+    components/menus_settings_controls.h
     components/menus_start.cpp
     components/menus_start.h
     components/motd.cpp

@@ -320,7 +320,7 @@ bool CEditor::IsEnvPointSelected(int Index) const
 	auto Iter = std::find_if(
 		m_vSelectedEnvelopePoints.begin(),
 		m_vSelectedEnvelopePoints.end(),
-		[&](auto pair) { return pair.first == Index; });
+		[&](const auto &Pair) { return Pair.first == Index; });
 
 	return Iter != m_vSelectedEnvelopePoints.end();
 }
@@ -450,10 +450,10 @@ void CEditor::SelectPreviousLayer()
 	}
 }
 
-bool CEditor::CallbackOpenMap(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackOpenMap(const char *pFilename, int StorageType, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
-	if(pEditor->Load(pFileName, StorageType))
+	if(pEditor->Load(pFilename, StorageType))
 	{
 		pEditor->m_ValidSaveFilename = StorageType == IStorage::TYPE_SAVE && pEditor->m_FileBrowser.IsValidSaveFilename();
 		if(pEditor->m_Dialog == DIALOG_FILE)
@@ -464,46 +464,46 @@ bool CEditor::CallbackOpenMap(const char *pFileName, int StorageType, void *pUse
 	}
 	else
 	{
-		pEditor->ShowFileDialogError("Failed to load map from file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to load map from file '%s'.", pFilename);
 		return false;
 	}
 }
 
-bool CEditor::CallbackAppendMap(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackAppendMap(const char *pFilename, int StorageType, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
-	if(pEditor->Append(pFileName, StorageType))
+	if(pEditor->Append(pFilename, StorageType))
 	{
 		pEditor->OnDialogClose();
 		return true;
 	}
 	else
 	{
-		pEditor->m_aFileName[0] = 0;
-		pEditor->ShowFileDialogError("Failed to load map from file '%s'.", pFileName);
+		pEditor->m_aFilename[0] = 0;
+		pEditor->ShowFileDialogError("Failed to load map from file '%s'.", pFilename);
 		return false;
 	}
 }
 
-bool CEditor::CallbackSaveMap(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackSaveMap(const char *pFilename, int StorageType, void *pUser)
 {
 	dbg_assert(StorageType == IStorage::TYPE_SAVE, "Saving only allowed for IStorage::TYPE_SAVE");
 
 	CEditor *pEditor = static_cast<CEditor *>(pUser);
 
 	// Save map to specified file
-	if(pEditor->Save(pFileName))
+	if(pEditor->Save(pFilename))
 	{
-		if(pEditor->m_aFileName != pFileName)
+		if(pEditor->m_aFilename != pFilename)
 		{
-			str_copy(pEditor->m_aFileName, pFileName);
+			str_copy(pEditor->m_aFilename, pFilename);
 		}
 		pEditor->m_ValidSaveFilename = true;
 		pEditor->m_Map.m_Modified = false;
 	}
 	else
 	{
-		pEditor->ShowFileDialogError("Failed to save map to file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to save map to file '%s'.", pFilename);
 		return false;
 	}
 
@@ -519,53 +519,53 @@ bool CEditor::CallbackSaveMap(const char *pFileName, int StorageType, void *pUse
 	return true;
 }
 
-bool CEditor::CallbackSaveCopyMap(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackSaveCopyMap(const char *pFilename, int StorageType, void *pUser)
 {
 	dbg_assert(StorageType == IStorage::TYPE_SAVE, "Saving only allowed for IStorage::TYPE_SAVE");
 
 	CEditor *pEditor = static_cast<CEditor *>(pUser);
 
-	if(pEditor->Save(pFileName))
+	if(pEditor->Save(pFilename))
 	{
 		pEditor->OnDialogClose();
 		return true;
 	}
 	else
 	{
-		pEditor->ShowFileDialogError("Failed to save map to file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to save map to file '%s'.", pFilename);
 		return false;
 	}
 }
 
-bool CEditor::CallbackSaveImage(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackSaveImage(const char *pFilename, int StorageType, void *pUser)
 {
 	dbg_assert(StorageType == IStorage::TYPE_SAVE, "Saving only allowed for IStorage::TYPE_SAVE");
 
 	CEditor *pEditor = static_cast<CEditor *>(pUser);
 
-	std::shared_ptr<CEditorImage> pImg = pEditor->m_Map.m_vpImages[pEditor->m_SelectedImage];
+	std::shared_ptr<CEditorImage> pImg = pEditor->m_Map.SelectedImage();
 
-	if(CImageLoader::SavePng(pEditor->Storage()->OpenFile(pFileName, IOFLAG_WRITE, StorageType), pFileName, *pImg))
+	if(CImageLoader::SavePng(pEditor->Storage()->OpenFile(pFilename, IOFLAG_WRITE, StorageType), pFilename, *pImg))
 	{
 		pEditor->OnDialogClose();
 		return true;
 	}
 	else
 	{
-		pEditor->ShowFileDialogError("Failed to write image to file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to write image to file '%s'.", pFilename);
 		return false;
 	}
 }
 
-bool CEditor::CallbackSaveSound(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackSaveSound(const char *pFilename, int StorageType, void *pUser)
 {
 	dbg_assert(StorageType == IStorage::TYPE_SAVE, "Saving only allowed for IStorage::TYPE_SAVE");
 
 	CEditor *pEditor = static_cast<CEditor *>(pUser);
 
-	std::shared_ptr<CEditorSound> pSound = pEditor->m_Map.m_vpSounds[pEditor->m_SelectedSound];
+	std::shared_ptr<CEditorSound> pSound = pEditor->m_Map.SelectedSound();
 
-	IOHANDLE File = pEditor->Storage()->OpenFile(pFileName, IOFLAG_WRITE, StorageType);
+	IOHANDLE File = pEditor->Storage()->OpenFile(pFilename, IOFLAG_WRITE, StorageType);
 	if(File)
 	{
 		io_write(File, pSound->m_pData, pSound->m_DataSize);
@@ -573,16 +573,16 @@ bool CEditor::CallbackSaveSound(const char *pFileName, int StorageType, void *pU
 		pEditor->OnDialogClose();
 		return true;
 	}
-	pEditor->ShowFileDialogError("Failed to open file '%s'.", pFileName);
+	pEditor->ShowFileDialogError("Failed to open file '%s'.", pFilename);
 	return false;
 }
 
-bool CEditor::CallbackCustomEntities(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::CallbackCustomEntities(const char *pFilename, int StorageType, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
 
 	char aBuf[IO_MAX_PATH_LENGTH];
-	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
 
 	if(std::find(pEditor->m_vSelectEntitiesFiles.begin(), pEditor->m_vSelectEntitiesFiles.end(), std::string(aBuf)) != pEditor->m_vSelectEntitiesFiles.end())
 	{
@@ -591,9 +591,9 @@ bool CEditor::CallbackCustomEntities(const char *pFileName, int StorageType, voi
 	}
 
 	CImageInfo ImgInfo;
-	if(!pEditor->Graphics()->LoadPng(ImgInfo, pFileName, StorageType))
+	if(!pEditor->Graphics()->LoadPng(ImgInfo, pFilename, StorageType))
 	{
-		pEditor->ShowFileDialogError("Failed to load image from file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to load image from file '%s'.", pFilename);
 		return false;
 	}
 
@@ -730,15 +730,15 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		}
 	}
 
-	CUIRect TB_Top, TB_Bottom;
+	CUIRect ToolbarTop, ToolbarBottom;
 	CUIRect Button;
 
-	ToolBar.HSplitMid(&TB_Top, &TB_Bottom, 5.0f);
+	ToolBar.HSplitMid(&ToolbarTop, &ToolbarBottom, 5.0f);
 
 	// top line buttons
 	{
 		// detail button
-		TB_Top.VSplitLeft(40.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(40.0f, &Button, &ToolbarTop);
 		static int s_HqButton = 0;
 		if(DoButton_Editor(&s_HqButton, "HD", m_ShowDetail, &Button, BUTTONFLAG_LEFT, "[Ctrl+H] Toggle high detail.") ||
 			(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_H) && ModPressed))
@@ -746,10 +746,10 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 			m_ShowDetail = !m_ShowDetail;
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// animation button
-		TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static char s_AnimateButton;
 		if(DoButton_FontIcon(&s_AnimateButton, FONT_ICON_CIRCLE_PLAY, m_Animate, &Button, BUTTONFLAG_LEFT, "[Ctrl+M] Toggle animation.", IGraphics::CORNER_L) ||
 			(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_M) && ModPressed))
@@ -759,7 +759,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		}
 
 		// animation settings button
-		TB_Top.VSplitLeft(14.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(14.0f, &Button, &ToolbarTop);
 		static char s_AnimateSettingsButton;
 		if(DoButton_FontIcon(&s_AnimateSettingsButton, FONT_ICON_CIRCLE_CHEVRON_DOWN, 0, &Button, BUTTONFLAG_LEFT, "Change the animation settings.", IGraphics::CORNER_R, 8.0f))
 		{
@@ -768,16 +768,16 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 			Ui()->DoPopupMenu(&s_PopupAnimateSettingsId, Button.x, Button.y + Button.h, 150.0f, 37.0f, this, PopupAnimateSettings);
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// proof button
-		TB_Top.VSplitLeft(40.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(40.0f, &Button, &ToolbarTop);
 		if(DoButton_Ex(&m_QuickActionProof, m_QuickActionProof.Label(), m_QuickActionProof.Active(), &Button, BUTTONFLAG_LEFT, m_QuickActionProof.Description(), IGraphics::CORNER_L))
 		{
 			m_QuickActionProof.Call();
 		}
 
-		TB_Top.VSplitLeft(14.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(14.0f, &Button, &ToolbarTop);
 		static int s_ProofModeButton = 0;
 		if(DoButton_FontIcon(&s_ProofModeButton, FONT_ICON_CIRCLE_CHEVRON_DOWN, 0, &Button, BUTTONFLAG_LEFT, "Select proof mode.", IGraphics::CORNER_R, 8.0f))
 		{
@@ -785,20 +785,20 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 			Ui()->DoPopupMenu(&s_PopupProofModeId, Button.x, Button.y + Button.h, 60.0f, 36.0f, this, PopupProofMode);
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// zoom button
-		TB_Top.VSplitLeft(40.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(40.0f, &Button, &ToolbarTop);
 		static int s_ZoomButton = 0;
 		if(DoButton_Editor(&s_ZoomButton, "Zoom", m_PreviewZoom, &Button, BUTTONFLAG_LEFT, "Toggle preview of how layers will be zoomed ingame."))
 		{
 			m_PreviewZoom = !m_PreviewZoom;
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// grid button
-		TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_GridButton = 0;
 		if(DoButton_FontIcon(&s_GridButton, FONT_ICON_BORDER_ALL, m_QuickActionToggleGrid.Active(), &Button, BUTTONFLAG_LEFT, m_QuickActionToggleGrid.Description(), IGraphics::CORNER_L) ||
 			(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_G) && ModPressed && !ShiftPressed))
@@ -807,62 +807,62 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		}
 
 		// grid settings button
-		TB_Top.VSplitLeft(14.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(14.0f, &Button, &ToolbarTop);
 		static char s_GridSettingsButton;
 		if(DoButton_FontIcon(&s_GridSettingsButton, FONT_ICON_CIRCLE_CHEVRON_DOWN, 0, &Button, BUTTONFLAG_LEFT, "Change the grid settings.", IGraphics::CORNER_R, 8.0f))
 		{
 			MapView()->MapGrid()->DoSettingsPopup(vec2(Button.x, Button.y + Button.h));
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// zoom group
-		TB_Top.VSplitLeft(20.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(20.0f, &Button, &ToolbarTop);
 		static int s_ZoomOutButton = 0;
 		if(DoButton_FontIcon(&s_ZoomOutButton, FONT_ICON_MINUS, 0, &Button, BUTTONFLAG_LEFT, m_QuickActionZoomOut.Description(), IGraphics::CORNER_L))
 		{
 			m_QuickActionZoomOut.Call();
 		}
 
-		TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_ZoomNormalButton = 0;
 		if(DoButton_FontIcon(&s_ZoomNormalButton, FONT_ICON_MAGNIFYING_GLASS, 0, &Button, BUTTONFLAG_LEFT, m_QuickActionResetZoom.Description(), IGraphics::CORNER_NONE))
 		{
 			m_QuickActionResetZoom.Call();
 		}
 
-		TB_Top.VSplitLeft(20.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(20.0f, &Button, &ToolbarTop);
 		static int s_ZoomInButton = 0;
 		if(DoButton_FontIcon(&s_ZoomInButton, FONT_ICON_PLUS, 0, &Button, BUTTONFLAG_LEFT, m_QuickActionZoomIn.Description(), IGraphics::CORNER_R))
 		{
 			m_QuickActionZoomIn.Call();
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// undo/redo group
-		TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_UndoButton = 0;
 		if(DoButton_FontIcon(&s_UndoButton, FONT_ICON_UNDO, m_EditorHistory.CanUndo() - 1, &Button, BUTTONFLAG_LEFT, "[Ctrl+Z] Undo the last action.", IGraphics::CORNER_L))
 		{
 			m_EditorHistory.Undo();
 		}
 
-		TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_RedoButton = 0;
 		if(DoButton_FontIcon(&s_RedoButton, FONT_ICON_REDO, m_EditorHistory.CanRedo() - 1, &Button, BUTTONFLAG_LEFT, "[Ctrl+Y] Redo the last action.", IGraphics::CORNER_R))
 		{
 			m_EditorHistory.Redo();
 		}
 
-		TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 		// brush manipulation
 		{
 			int Enabled = m_pBrush->IsEmpty() ? -1 : 0;
 
 			// flip buttons
-			TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_FlipXButton = 0;
 			if(DoButton_FontIcon(&s_FlipXButton, FONT_ICON_ARROWS_LEFT_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[N] Flip the brush horizontally.", IGraphics::CORNER_L) || (Input()->KeyPress(KEY_N) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
@@ -870,17 +870,17 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 					pLayer->BrushFlipX();
 			}
 
-			TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_FlipyButton = 0;
 			if(DoButton_FontIcon(&s_FlipyButton, FONT_ICON_ARROWS_UP_DOWN, Enabled, &Button, BUTTONFLAG_LEFT, "[M] Flip the brush vertically.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_M) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
 				for(auto &pLayer : m_pBrush->m_vpLayers)
 					pLayer->BrushFlipY();
 			}
-			TB_Top.VSplitLeft(5.0f, nullptr, &TB_Top);
+			ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
 
 			// rotate buttons
-			TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_RotationAmount = 90;
 			bool TileLayer = false;
 			// check for tile layers in brush selection
@@ -899,11 +899,11 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 					pLayer->BrushRotate(-s_RotationAmount / 360.0f * pi * 2);
 			}
 
-			TB_Top.VSplitLeft(30.0f, &Button, &TB_Top);
+			ToolbarTop.VSplitLeft(30.0f, &Button, &ToolbarTop);
 			auto RotationAmountRes = UiDoValueSelector(&s_RotationAmount, &Button, "", s_RotationAmount, TileLayer ? 90 : 1, 359, TileLayer ? 90 : 1, TileLayer ? 10.0f : 2.0f, "Rotation of the brush in degrees. Use left mouse button to drag and change the value. Hold shift to be more precise.", true, false, IGraphics::CORNER_NONE);
 			s_RotationAmount = RotationAmountRes.m_Value;
 
-			TB_Top.VSplitLeft(25.0f, &Button, &TB_Top);
+			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_CwButton = 0;
 			if(DoButton_FontIcon(&s_CwButton, FONT_ICON_ARROW_ROTATE_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[T] Rotate the brush clockwise.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_T) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
@@ -917,10 +917,10 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 			const float PipetteButtonWidth = 30.0f;
 			const float ColorPickerButtonWidth = 20.0f;
 			const float Spacing = 2.0f;
-			const size_t NumColorsShown = std::clamp<int>(round_to_int((TB_Top.w - PipetteButtonWidth - 40.0f) / (ColorPickerButtonWidth + Spacing)), 1, std::size(m_aSavedColors));
+			const size_t NumColorsShown = std::clamp<int>(round_to_int((ToolbarTop.w - PipetteButtonWidth - 40.0f) / (ColorPickerButtonWidth + Spacing)), 1, std::size(m_aSavedColors));
 
 			CUIRect ColorPalette;
-			TB_Top.VSplitRight(NumColorsShown * (ColorPickerButtonWidth + Spacing) + PipetteButtonWidth, &TB_Top, &ColorPalette);
+			ToolbarTop.VSplitRight(NumColorsShown * (ColorPickerButtonWidth + Spacing) + PipetteButtonWidth, &ToolbarTop, &ColorPalette);
 
 			// Pipette button
 			static char s_PipetteButton;
@@ -949,11 +949,11 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 	{
 		// refocus button
 		{
-			TB_Bottom.VSplitLeft(50.0f, &Button, &TB_Bottom);
+			ToolbarBottom.VSplitLeft(50.0f, &Button, &ToolbarBottom);
 			int FocusButtonChecked = MapView()->IsFocused() ? -1 : 1;
 			if(DoButton_Editor(&m_QuickActionRefocus, m_QuickActionRefocus.Label(), FocusButtonChecked, &Button, BUTTONFLAG_LEFT, m_QuickActionRefocus.Description()) || (m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_HOME)))
 				m_QuickActionRefocus.Call();
-			TB_Bottom.VSplitLeft(5.0f, nullptr, &TB_Bottom);
+			ToolbarBottom.VSplitLeft(5.0f, nullptr, &ToolbarBottom);
 		}
 
 		// tile manipulation
@@ -998,7 +998,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 						static char s_aButtonTooltip[64];
 						str_format(s_aButtonTooltip, sizeof(s_aButtonTooltip), "[Ctrl+T] %s", pButtonName);
 
-						TB_Bottom.VSplitLeft(60.0f, &Button, &TB_Bottom);
+						ToolbarBottom.VSplitLeft(60.0f, &Button, &ToolbarBottom);
 						static int s_ModifierButton = 0;
 						if(DoButton_Ex(&s_ModifierButton, pButtonName, 0, &Button, BUTTONFLAG_LEFT, s_aButtonTooltip, IGraphics::CORNER_ALL) || (m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && ModPressed && Input()->KeyPress(KEY_T)))
 						{
@@ -1008,7 +1008,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 								Ui()->DoPopupMenu(&s_PopupModifierId, Button.x, Button.y + Button.h, 120 + ExtraWidth, 10.0f + Rows * 13.0f, this, pfnPopupFunc);
 							}
 						}
-						TB_Bottom.VSplitLeft(5.0f, nullptr, &TB_Bottom);
+						ToolbarBottom.VSplitLeft(5.0f, nullptr, &ToolbarBottom);
 					}
 				}
 			}
@@ -1019,7 +1019,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		if(pLayer && (pLayer->m_Type == LAYERTYPE_QUADS || pLayer->m_Type == LAYERTYPE_SOUNDS))
 		{
 			// "Add sound source" button needs more space or the font size will be scaled down
-			TB_Bottom.VSplitLeft((pLayer->m_Type == LAYERTYPE_QUADS) ? 60.0f : 100.0f, &Button, &TB_Bottom);
+			ToolbarBottom.VSplitLeft((pLayer->m_Type == LAYERTYPE_QUADS) ? 60.0f : 100.0f, &Button, &ToolbarBottom);
 
 			if(pLayer->m_Type == LAYERTYPE_QUADS)
 			{
@@ -1038,17 +1038,17 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 				}
 			}
 
-			TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
+			ToolbarBottom.VSplitLeft(5.0f, &Button, &ToolbarBottom);
 		}
 
 		// Brush draw mode button
 		{
-			TB_Bottom.VSplitLeft(65.0f, &Button, &TB_Bottom);
+			ToolbarBottom.VSplitLeft(65.0f, &Button, &ToolbarBottom);
 			static int s_BrushDrawModeButton = 0;
 			if(DoButton_Editor(&s_BrushDrawModeButton, "Destructive", m_BrushDrawDestructive, &Button, BUTTONFLAG_LEFT, "[Ctrl+D] Toggle brush draw mode: preserve or override existing tiles.") ||
 				(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Input()->KeyPress(KEY_D) && ModPressed && !ShiftPressed))
 				m_BrushDrawDestructive = !m_BrushDrawDestructive;
-			TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
+			ToolbarBottom.VSplitLeft(5.0f, &Button, &ToolbarBottom);
 		}
 	}
 }
@@ -1058,9 +1058,9 @@ void CEditor::DoToolbarImages(CUIRect ToolBar)
 	CUIRect ToolBarTop, ToolBarBottom;
 	ToolBar.HSplitMid(&ToolBarTop, &ToolBarBottom, 5.0f);
 
-	if(m_SelectedImage >= 0 && (size_t)m_SelectedImage < m_Map.m_vpImages.size())
+	std::shared_ptr<CEditorImage> pSelectedImage = m_Map.SelectedImage();
+	if(pSelectedImage != nullptr)
 	{
-		const std::shared_ptr<CEditorImage> pSelectedImage = m_Map.m_vpImages[m_SelectedImage];
 		char aLabel[64];
 		str_format(aLabel, sizeof(aLabel), "Size: %" PRIzu " × %" PRIzu, pSelectedImage->m_Width, pSelectedImage->m_Height);
 		Ui()->DoLabel(&ToolBarBottom, aLabel, 12.0f, TEXTALIGN_ML);
@@ -1072,9 +1072,9 @@ void CEditor::DoToolbarSounds(CUIRect ToolBar)
 	CUIRect ToolBarTop, ToolBarBottom;
 	ToolBar.HSplitMid(&ToolBarTop, &ToolBarBottom, 5.0f);
 
-	if(m_SelectedSound >= 0 && (size_t)m_SelectedSound < m_Map.m_vpSounds.size())
+	std::shared_ptr<CEditorSound> pSelectedSound = m_Map.SelectedSound();
+	if(pSelectedSound != nullptr)
 	{
-		const std::shared_ptr<CEditorSound> pSelectedSound = m_Map.m_vpSounds[m_SelectedSound];
 		if(pSelectedSound->m_SoundId != m_ToolbarPreviewSound && m_ToolbarPreviewSound >= 0 && Sound()->IsPlaying(m_ToolbarPreviewSound))
 			Sound()->Stop(m_ToolbarPreviewSound);
 		m_ToolbarPreviewSound = pSelectedSound->m_SoundId;
@@ -4099,11 +4099,11 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 	}
 }
 
-bool CEditor::ReplaceImage(const char *pFileName, int StorageType, bool CheckDuplicate)
+bool CEditor::ReplaceImage(const char *pFilename, int StorageType, bool CheckDuplicate)
 {
 	// check if we have that image already
 	char aBuf[128];
-	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
 	if(CheckDuplicate)
 	{
 		for(const auto &pImage : m_Map.m_vpImages)
@@ -4117,13 +4117,13 @@ bool CEditor::ReplaceImage(const char *pFileName, int StorageType, bool CheckDup
 	}
 
 	CImageInfo ImgInfo;
-	if(!Graphics()->LoadPng(ImgInfo, pFileName, StorageType))
+	if(!Graphics()->LoadPng(ImgInfo, pFilename, StorageType))
 	{
-		ShowFileDialogError("Failed to load image from file '%s'.", pFileName);
+		ShowFileDialogError("Failed to load image from file '%s'.", pFilename);
 		return false;
 	}
 
-	std::shared_ptr<CEditorImage> pImg = m_Map.m_vpImages[m_SelectedImage];
+	std::shared_ptr<CEditorImage> pImg = m_Map.SelectedImage();
 	pImg->CEditorImage::Free();
 	pImg->m_Width = ImgInfo.m_Width;
 	pImg->m_Height = ImgInfo.m_Height;
@@ -4139,33 +4139,26 @@ bool CEditor::ReplaceImage(const char *pFileName, int StorageType, bool CheckDup
 	int TextureLoadFlag = Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
 	if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
 		TextureLoadFlag = 0;
-	pImg->m_Texture = Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFileName);
+	pImg->m_Texture = Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFilename);
 
-	SortImages();
-	for(size_t i = 0; i < m_Map.m_vpImages.size(); ++i)
-	{
-		if(m_Map.m_vpImages[i] == pImg)
-		{
-			m_SelectedImage = i;
-			break;
-		}
-	}
+	m_Map.SortImages();
+	m_Map.SelectImage(pImg);
 	OnDialogClose();
 	return true;
 }
 
-bool CEditor::ReplaceImageCallback(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::ReplaceImageCallback(const char *pFilename, int StorageType, void *pUser)
 {
-	return static_cast<CEditor *>(pUser)->ReplaceImage(pFileName, StorageType, true);
+	return static_cast<CEditor *>(pUser)->ReplaceImage(pFilename, StorageType, true);
 }
 
-bool CEditor::AddImage(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::AddImage(const char *pFilename, int StorageType, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
 
 	// check if we have that image already
 	char aBuf[128];
-	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
 	for(const auto &pImage : pEditor->m_Map.m_vpImages)
 	{
 		if(!str_comp(pImage->m_aName, aBuf))
@@ -4183,9 +4176,9 @@ bool CEditor::AddImage(const char *pFileName, int StorageType, void *pUser)
 	}
 
 	CImageInfo ImgInfo;
-	if(!pEditor->Graphics()->LoadPng(ImgInfo, pFileName, StorageType))
+	if(!pEditor->Graphics()->LoadPng(ImgInfo, pFilename, StorageType))
 	{
-		pEditor->ShowFileDialogError("Failed to load image from file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to load image from file '%s'.", pFilename);
 		return false;
 	}
 
@@ -4202,30 +4195,23 @@ bool CEditor::AddImage(const char *pFileName, int StorageType, void *pUser)
 	int TextureLoadFlag = pEditor->Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
 	if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
 		TextureLoadFlag = 0;
-	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFileName);
+	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFilename);
 	str_copy(pImg->m_aName, aBuf);
 	pImg->m_AutoMapper.Load(pImg->m_aName);
 	pEditor->m_Map.m_vpImages.push_back(pImg);
-	pEditor->SortImages();
-	for(size_t i = 0; i < pEditor->m_Map.m_vpImages.size(); ++i)
-	{
-		if(pEditor->m_Map.m_vpImages[i] == pImg)
-		{
-			pEditor->m_SelectedImage = i;
-			break;
-		}
-	}
+	pEditor->m_Map.SortImages();
+	pEditor->m_Map.SelectImage(pImg);
 	pEditor->OnDialogClose();
 	return true;
 }
 
-bool CEditor::AddSound(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::AddSound(const char *pFilename, int StorageType, void *pUser)
 {
 	CEditor *pEditor = (CEditor *)pUser;
 
 	// check if we have that sound already
 	char aBuf[128];
-	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
 	for(const auto &pSound : pEditor->m_Map.m_vpSounds)
 	{
 		if(!str_comp(pSound->m_aName, aBuf))
@@ -4245,18 +4231,18 @@ bool CEditor::AddSound(const char *pFileName, int StorageType, void *pUser)
 	// load external
 	void *pData;
 	unsigned DataSize;
-	if(!pEditor->Storage()->ReadFile(pFileName, StorageType, &pData, &DataSize))
+	if(!pEditor->Storage()->ReadFile(pFilename, StorageType, &pData, &DataSize))
 	{
-		pEditor->ShowFileDialogError("Failed to open sound file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to open sound file '%s'.", pFilename);
 		return false;
 	}
 
 	// load sound
-	const int SoundId = pEditor->Sound()->LoadOpusFromMem(pData, DataSize, true, pFileName);
+	const int SoundId = pEditor->Sound()->LoadOpusFromMem(pData, DataSize, true, pFilename);
 	if(SoundId == -1)
 	{
 		free(pData);
-		pEditor->ShowFileDialogError("Failed to load sound from file '%s'.", pFileName);
+		pEditor->ShowFileDialogError("Failed to load sound from file '%s'.", pFilename);
 		return false;
 	}
 
@@ -4268,24 +4254,16 @@ bool CEditor::AddSound(const char *pFileName, int StorageType, void *pUser)
 	str_copy(pSound->m_aName, aBuf);
 	pEditor->m_Map.m_vpSounds.push_back(pSound);
 
-	for(size_t i = 0; i < pEditor->m_Map.m_vpSounds.size(); ++i)
-	{
-		if(pEditor->m_Map.m_vpSounds[i] == pSound)
-		{
-			pEditor->m_SelectedSound = i;
-			break;
-		}
-	}
-
+	pEditor->m_Map.SelectSound(pSound);
 	pEditor->OnDialogClose();
 	return true;
 }
 
-bool CEditor::ReplaceSound(const char *pFileName, int StorageType, bool CheckDuplicate)
+bool CEditor::ReplaceSound(const char *pFilename, int StorageType, bool CheckDuplicate)
 {
 	// check if we have that sound already
 	char aBuf[128];
-	IStorage::StripPathAndExtension(pFileName, aBuf, sizeof(aBuf));
+	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
 	if(CheckDuplicate)
 	{
 		for(const auto &pSound : m_Map.m_vpSounds)
@@ -4301,22 +4279,22 @@ bool CEditor::ReplaceSound(const char *pFileName, int StorageType, bool CheckDup
 	// load external
 	void *pData;
 	unsigned DataSize;
-	if(!Storage()->ReadFile(pFileName, StorageType, &pData, &DataSize))
+	if(!Storage()->ReadFile(pFilename, StorageType, &pData, &DataSize))
 	{
-		ShowFileDialogError("Failed to open sound file '%s'.", pFileName);
+		ShowFileDialogError("Failed to open sound file '%s'.", pFilename);
 		return false;
 	}
 
 	// load sound
-	const int SoundId = Sound()->LoadOpusFromMem(pData, DataSize, true, pFileName);
+	const int SoundId = Sound()->LoadOpusFromMem(pData, DataSize, true, pFilename);
 	if(SoundId == -1)
 	{
 		free(pData);
-		ShowFileDialogError("Failed to load sound from file '%s'.", pFileName);
+		ShowFileDialogError("Failed to load sound from file '%s'.", pFilename);
 		return false;
 	}
 
-	std::shared_ptr<CEditorSound> pSound = m_Map.m_vpSounds[m_SelectedSound];
+	std::shared_ptr<CEditorSound> pSound = m_Map.SelectedSound();
 
 	if(m_ToolbarPreviewSound == pSound->m_SoundId)
 	{
@@ -4333,64 +4311,14 @@ bool CEditor::ReplaceSound(const char *pFileName, int StorageType, bool CheckDup
 	pSound->m_pData = pData;
 	pSound->m_DataSize = DataSize;
 
-	for(size_t i = 0; i < m_Map.m_vpSounds.size(); ++i)
-	{
-		if(m_Map.m_vpSounds[i] == pSound)
-		{
-			m_SelectedSound = i;
-			break;
-		}
-	}
-
+	m_Map.SelectSound(pSound);
 	OnDialogClose();
 	return true;
 }
 
-bool CEditor::ReplaceSoundCallback(const char *pFileName, int StorageType, void *pUser)
+bool CEditor::ReplaceSoundCallback(const char *pFilename, int StorageType, void *pUser)
 {
-	return static_cast<CEditor *>(pUser)->ReplaceSound(pFileName, StorageType, true);
-}
-
-bool CEditor::IsAssetUsed(CFileBrowser::EFileType FileType, int Index, void *pUser)
-{
-	CEditor *pEditor = (CEditor *)pUser;
-	for(const auto &pGroup : pEditor->m_Map.m_vpGroups)
-	{
-		for(const auto &pLayer : pGroup->m_vpLayers)
-		{
-			if(FileType == CFileBrowser::EFileType::IMAGE)
-			{
-				if(pLayer->m_Type == LAYERTYPE_TILES)
-				{
-					std::shared_ptr<CLayerTiles> pTiles = std::static_pointer_cast<CLayerTiles>(pLayer);
-					if(pTiles->m_Image == Index)
-					{
-						return true;
-					}
-				}
-				else if(pLayer->m_Type == LAYERTYPE_QUADS)
-				{
-					std::shared_ptr<CLayerQuads> pQuads = std::static_pointer_cast<CLayerQuads>(pLayer);
-					if(pQuads->m_Image == Index)
-					{
-						return true;
-					}
-				}
-			}
-			else if(FileType == CFileBrowser::EFileType::SOUND)
-			{
-				if(pLayer->m_Type == LAYERTYPE_SOUNDS)
-				{
-					std::shared_ptr<CLayerSounds> pSounds = std::static_pointer_cast<CLayerSounds>(pLayer);
-					if(pSounds->m_Sound == Index)
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	return false;
+	return static_cast<CEditor *>(pUser)->ReplaceSound(pFilename, StorageType, true);
 }
 
 void CEditor::SelectGameLayer()
@@ -4406,40 +4334,6 @@ void CEditor::SelectGameLayer()
 			}
 		}
 	}
-}
-
-std::vector<int> CEditor::SortImages()
-{
-	static const auto &&s_ImageNameComparator = [](const std::shared_ptr<CEditorImage> &pLhs, const std::shared_ptr<CEditorImage> &pRhs) {
-		return str_comp(pLhs->m_aName, pRhs->m_aName) < 0;
-	};
-	if(!std::is_sorted(m_Map.m_vpImages.begin(), m_Map.m_vpImages.end(), s_ImageNameComparator))
-	{
-		const std::vector<std::shared_ptr<CEditorImage>> vpTemp = m_Map.m_vpImages;
-		std::vector<int> vSortedIndex;
-		vSortedIndex.resize(vpTemp.size());
-
-		std::sort(m_Map.m_vpImages.begin(), m_Map.m_vpImages.end(), s_ImageNameComparator);
-		for(size_t OldIndex = 0; OldIndex < vpTemp.size(); OldIndex++)
-		{
-			for(size_t NewIndex = 0; NewIndex < m_Map.m_vpImages.size(); NewIndex++)
-			{
-				if(vpTemp[OldIndex] == m_Map.m_vpImages[NewIndex])
-				{
-					vSortedIndex[OldIndex] = NewIndex;
-					break;
-				}
-			}
-		}
-		m_Map.ModifyImageIndex([vSortedIndex](int *pIndex) {
-			if(*pIndex >= 0)
-				*pIndex = vSortedIndex[*pIndex];
-		});
-
-		return vSortedIndex;
-	}
-
-	return std::vector<int>();
 }
 
 void CEditor::RenderImagesList(CUIRect ToolBox)
@@ -4460,53 +4354,15 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 	{
 		if(Input()->KeyPress(KEY_DOWN))
 		{
-			int OldImage = m_SelectedImage;
-			m_SelectedImage = std::clamp(m_SelectedImage, 0, (int)m_Map.m_vpImages.size() - 1);
-			for(size_t i = m_SelectedImage + 1; i < m_Map.m_vpImages.size(); i++)
-			{
-				if(m_Map.m_vpImages[i]->m_External == m_Map.m_vpImages[m_SelectedImage]->m_External)
-				{
-					m_SelectedImage = i;
-					break;
-				}
-			}
-			if(m_SelectedImage == OldImage && !m_Map.m_vpImages[m_SelectedImage]->m_External)
-			{
-				for(size_t i = 0; i < m_Map.m_vpImages.size(); i++)
-				{
-					if(m_Map.m_vpImages[i]->m_External)
-					{
-						m_SelectedImage = i;
-						break;
-					}
-				}
-			}
-			ScrollToSelection = OldImage != m_SelectedImage;
+			const int OldImage = m_Map.m_SelectedImage;
+			m_Map.SelectNextImage();
+			ScrollToSelection = OldImage != m_Map.m_SelectedImage;
 		}
 		else if(Input()->KeyPress(KEY_UP))
 		{
-			int OldImage = m_SelectedImage;
-			m_SelectedImage = std::clamp(m_SelectedImage, 0, (int)m_Map.m_vpImages.size() - 1);
-			for(int i = m_SelectedImage - 1; i >= 0; i--)
-			{
-				if(m_Map.m_vpImages[i]->m_External == m_Map.m_vpImages[m_SelectedImage]->m_External)
-				{
-					m_SelectedImage = i;
-					break;
-				}
-			}
-			if(m_SelectedImage == OldImage && m_Map.m_vpImages[m_SelectedImage]->m_External)
-			{
-				for(int i = (int)m_Map.m_vpImages.size() - 1; i >= 0; i--)
-				{
-					if(!m_Map.m_vpImages[i]->m_External)
-					{
-						m_SelectedImage = i;
-						break;
-					}
-				}
-			}
-			ScrollToSelection = OldImage != m_SelectedImage;
+			const int OldImage = m_Map.m_SelectedImage;
+			m_Map.SelectPreviousImage();
+			ScrollToSelection = OldImage != m_Map.m_SelectedImage;
 		}
 	}
 
@@ -4526,7 +4382,7 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 			}
 
 			ToolBox.HSplitTop(RowHeight + 2.0f, &Slot, &ToolBox);
-			int Selected = m_SelectedImage == i;
+			int Selected = m_Map.m_SelectedImage == i;
 			if(!s_ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
 				continue;
 			Slot.HSplitTop(RowHeight, &Slot, nullptr);
@@ -4555,12 +4411,11 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 			if(int Result = DoButton_Ex(&m_Map.m_vpImages[i], m_Map.m_vpImages[i]->m_aName, Selected, &Slot,
 				   BUTTONFLAG_LEFT | BUTTONFLAG_RIGHT, "Select image.", IGraphics::CORNER_ALL))
 			{
-				m_SelectedImage = i;
+				m_Map.m_SelectedImage = i;
 
 				if(Result == 2)
 				{
-					const std::shared_ptr<CEditorImage> pImg = m_Map.m_vpImages[m_SelectedImage];
-					const int Height = pImg->m_External ? 73 : 107;
+					const int Height = m_Map.SelectedImage()->m_External ? 73 : 107;
 					static SPopupMenuId s_PopupImageId;
 					Ui()->DoPopupMenu(&s_PopupImageId, Ui()->MouseX(), Ui()->MouseY(), 140, Height, this, PopupImage);
 				}
@@ -4593,9 +4448,10 @@ void CEditor::RenderImagesList(CUIRect ToolBox)
 	s_ScrollRegion.End();
 }
 
-void CEditor::RenderSelectedImage(CUIRect View)
+void CEditor::RenderSelectedImage(CUIRect View) const
 {
-	if(m_SelectedImage < 0 || (size_t)m_SelectedImage >= m_Map.m_vpImages.size())
+	std::shared_ptr<CEditorImage> pSelectedImage = m_Map.SelectedImage();
+	if(pSelectedImage == nullptr)
 		return;
 
 	View.Margin(10.0f, &View);
@@ -4603,10 +4459,10 @@ void CEditor::RenderSelectedImage(CUIRect View)
 		View.w = View.h;
 	else
 		View.h = View.w;
-	float Max = maximum<float>(m_Map.m_vpImages[m_SelectedImage]->m_Width, m_Map.m_vpImages[m_SelectedImage]->m_Height);
-	View.w *= m_Map.m_vpImages[m_SelectedImage]->m_Width / Max;
-	View.h *= m_Map.m_vpImages[m_SelectedImage]->m_Height / Max;
-	Graphics()->TextureSet(m_Map.m_vpImages[m_SelectedImage]->m_Texture);
+	float Max = maximum<float>(pSelectedImage->m_Width, pSelectedImage->m_Height);
+	View.w *= pSelectedImage->m_Width / Max;
+	View.h *= pSelectedImage->m_Height / Max;
+	Graphics()->TextureSet(pSelectedImage->m_Texture);
 	Graphics()->BlendNormal();
 	Graphics()->WrapClamp();
 	Graphics()->QuadsBegin();
@@ -4634,12 +4490,12 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 	{
 		if(Input()->KeyPress(KEY_DOWN))
 		{
-			m_SelectedSound = (m_SelectedSound + 1) % m_Map.m_vpSounds.size();
+			m_Map.SelectNextSound();
 			ScrollToSelection = true;
 		}
 		else if(Input()->KeyPress(KEY_UP))
 		{
-			m_SelectedSound = (m_SelectedSound + m_Map.m_vpSounds.size() - 1) % m_Map.m_vpSounds.size();
+			m_Map.SelectPreviousSound();
 			ScrollToSelection = true;
 		}
 	}
@@ -4652,7 +4508,7 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 	for(int i = 0; i < (int)m_Map.m_vpSounds.size(); i++)
 	{
 		ToolBox.HSplitTop(RowHeight + 2.0f, &Slot, &ToolBox);
-		int Selected = m_SelectedSound == i;
+		int Selected = m_Map.m_SelectedSound == i;
 		if(!s_ScrollRegion.AddRect(Slot, Selected && ScrollToSelection))
 			continue;
 		Slot.HSplitTop(RowHeight, &Slot, nullptr);
@@ -4671,7 +4527,7 @@ void CEditor::RenderSounds(CUIRect ToolBox)
 		if(int Result = DoButton_Ex(&m_Map.m_vpSounds[i], m_Map.m_vpSounds[i]->m_aName, Selected, &Slot,
 			   BUTTONFLAG_LEFT | BUTTONFLAG_RIGHT, "Select sound.", IGraphics::CORNER_ALL))
 		{
-			m_SelectedSound = i;
+			m_Map.m_SelectedSound = i;
 
 			if(Result == 2)
 			{
@@ -5192,7 +5048,6 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 	static int s_ActiveChannels = 0xf;
 	{
 		CUIRect Button;
-		std::shared_ptr<CEnvelope> pNewEnv = nullptr;
 
 		// redo button
 		ToolBar.VSplitRight(25.0f, &ToolBar, &Button);
@@ -5215,8 +5070,8 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		static int s_NewSoundButton = 0;
 		if(DoButton_Editor(&s_NewSoundButton, "Sound+", 0, &Button, BUTTONFLAG_LEFT, "Create a new sound envelope."))
 		{
-			m_Map.OnModify();
-			pNewEnv = m_Map.NewEnvelope(CEnvelope::EType::SOUND);
+			m_EnvelopeEditorHistory.Execute(std::make_shared<CEditorActionEnvelopeAdd>(this, CEnvelope::EType::SOUND));
+			pEnvelope = m_Map.m_vpEnvelopes[m_SelectedEnvelope];
 		}
 
 		ToolBar.VSplitRight(5.0f, &ToolBar, nullptr);
@@ -5224,8 +5079,8 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		static int s_New4dButton = 0;
 		if(DoButton_Editor(&s_New4dButton, "Color+", 0, &Button, BUTTONFLAG_LEFT, "Create a new color envelope."))
 		{
-			m_Map.OnModify();
-			pNewEnv = m_Map.NewEnvelope(CEnvelope::EType::COLOR);
+			m_EnvelopeEditorHistory.Execute(std::make_shared<CEditorActionEnvelopeAdd>(this, CEnvelope::EType::COLOR));
+			pEnvelope = m_Map.m_vpEnvelopes[m_SelectedEnvelope];
 		}
 
 		ToolBar.VSplitRight(5.0f, &ToolBar, nullptr);
@@ -5233,8 +5088,8 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		static int s_New2dButton = 0;
 		if(DoButton_Editor(&s_New2dButton, "Pos.+", 0, &Button, BUTTONFLAG_LEFT, "Create a new position envelope."))
 		{
-			m_Map.OnModify();
-			pNewEnv = m_Map.NewEnvelope(CEnvelope::EType::POSITION);
+			m_EnvelopeEditorHistory.Execute(std::make_shared<CEditorActionEnvelopeAdd>(this, CEnvelope::EType::POSITION));
+			pEnvelope = m_Map.m_vpEnvelopes[m_SelectedEnvelope];
 		}
 
 		if(m_SelectedEnvelope >= 0)
@@ -5321,22 +5176,6 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 
 			// Margin on the right side
 			ToolBar.VSplitRight(7.0f, &ToolBar, nullptr);
-		}
-
-		if(pNewEnv) // add the default points
-		{
-			if(pNewEnv->GetChannels() == 4)
-			{
-				pNewEnv->AddPoint(CFixedTime::FromSeconds(0.0f), {f2fx(1.0f), f2fx(1.0f), f2fx(1.0f), f2fx(1.0f)});
-				pNewEnv->AddPoint(CFixedTime::FromSeconds(1.0f), {f2fx(1.0f), f2fx(1.0f), f2fx(1.0f), f2fx(1.0f)});
-			}
-			else
-			{
-				pNewEnv->AddPoint(CFixedTime::FromSeconds(0.0f), {0, 0, 0, 0});
-				pNewEnv->AddPoint(CFixedTime::FromSeconds(1.0f), {0, 0, 0, 0});
-			}
-
-			m_EnvelopeEditorHistory.RecordAction(std::make_shared<CEditorActionEnvelopeAdd>(this, pNewEnv));
 		}
 
 		CUIRect Shifter, Inc, Dec;
@@ -5459,7 +5298,7 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		ToolBar.VSplitLeft(40.0f, &Button, &ToolBar);
 
 		static int s_SyncButton;
-		if(DoButton_Editor(&s_SyncButton, "Sync", pEnvelope->m_Synchronized, &Button, BUTTONFLAG_LEFT, "Synchronize envelope animation to game time (restarts when you touch the start line)."))
+		if(DoButton_Editor(&s_SyncButton, "Sync", pEnvelope->m_Synchronized, &Button, BUTTONFLAG_LEFT, "Synchronize envelope animation to server time."))
 		{
 			m_EnvelopeEditorHistory.RecordAction(std::make_shared<CEditorActionEnvelopeEdit>(this, m_SelectedEnvelope, CEditorActionEnvelopeEdit::EEditType::SYNC, pEnvelope->m_Synchronized, !pEnvelope->m_Synchronized));
 			pEnvelope->m_Synchronized = !pEnvelope->m_Synchronized;
@@ -6851,7 +6690,7 @@ void CEditor::RenderMenubar(CUIRect MenuBar)
 	}
 
 	char aBuf[IO_MAX_PATH_LENGTH + 32];
-	str_format(aBuf, sizeof(aBuf), "File: %s", m_aFileName);
+	str_format(aBuf, sizeof(aBuf), "File: %s", m_aFilename);
 	SLabelProperties Props;
 	Props.m_MaxWidth = MenuBar.w;
 	Props.m_EllipsisAtEnd = true;
@@ -7012,7 +6851,7 @@ void CEditor::Render()
 			else
 			{
 				Reset();
-				m_aFileName[0] = 0;
+				m_aFilename[0] = 0;
 			}
 		}
 		// ctrl+o or ctrl+l to open
@@ -7046,7 +6885,7 @@ void CEditor::Render()
 		if(Input()->KeyPress(KEY_S) && ModPressed && ShiftPressed && AltPressed)
 		{
 			char aDefaultName[IO_MAX_PATH_LENGTH];
-			fs_split_file_extension(fs_filename(m_aFileName), aDefaultName, sizeof(aDefaultName));
+			fs_split_file_extension(fs_filename(m_aFilename), aDefaultName, sizeof(aDefaultName));
 			m_FileBrowser.ShowFileDialog(IStorage::TYPE_SAVE, CFileBrowser::EFileType::MAP, "Save map", "Save copy", "maps", aDefaultName, CallbackSaveCopyMap, this);
 		}
 		// ctrl+shift+s to save as
@@ -7057,9 +6896,9 @@ void CEditor::Render()
 		// ctrl+s to save
 		else if(Input()->KeyPress(KEY_S) && ModPressed)
 		{
-			if(m_aFileName[0] != '\0' && m_ValidSaveFilename)
+			if(m_aFilename[0] != '\0' && m_ValidSaveFilename)
 			{
-				CallbackSaveMap(m_aFileName, IStorage::TYPE_SAVE, this);
+				CallbackSaveMap(m_aFilename, IStorage::TYPE_SAVE, this);
 			}
 			else
 			{
@@ -7603,8 +7442,6 @@ void CEditor::Reset(bool CreateDefault)
 	DeselectQuads();
 	DeselectQuadPoints();
 	m_SelectedEnvelope = 0;
-	m_SelectedImage = 0;
-	m_SelectedSound = 0;
 	m_SelectedSource = -1;
 
 	m_pContainerPanned = nullptr;
@@ -7822,7 +7659,7 @@ void CEditor::OnMouseMove(vec2 MousePos)
 			Rect.y = aPoints[1] + WorldHeight * (MousePos.y / Graphics()->WindowHeight());
 			Rect.w = 0;
 			Rect.h = 0;
-			RECTi r;
+			CIntRect r;
 			pTiles->Convert(Rect, &r);
 			pTiles->Clamp(&r);
 			int x = r.x;
@@ -7918,17 +7755,17 @@ bool CEditor::PerformAutosave()
 	char aDate[20];
 	char aAutosavePath[IO_MAX_PATH_LENGTH];
 	str_timestamp(aDate, sizeof(aDate));
-	char aFileNameNoExt[IO_MAX_PATH_LENGTH];
-	if(m_aFileName[0] == '\0')
+	char aFilenameNoExt[IO_MAX_PATH_LENGTH];
+	if(m_aFilename[0] == '\0')
 	{
-		str_copy(aFileNameNoExt, "unnamed");
+		str_copy(aFilenameNoExt, "unnamed");
 	}
 	else
 	{
-		const char *pFileName = fs_filename(m_aFileName);
-		str_truncate(aFileNameNoExt, sizeof(aFileNameNoExt), pFileName, str_length(pFileName) - str_length(".map"));
+		const char *pFilename = fs_filename(m_aFilename);
+		str_truncate(aFilenameNoExt, sizeof(aFilenameNoExt), pFilename, str_length(pFilename) - str_length(".map"));
 	}
-	str_format(aAutosavePath, sizeof(aAutosavePath), "maps/auto/%s_%s.map", aFileNameNoExt, aDate);
+	str_format(aAutosavePath, sizeof(aAutosavePath), "maps/auto/%s_%s.map", aFilenameNoExt, aDate);
 
 	m_Map.m_LastSaveTime = Client()->GlobalTime();
 	if(Save(aAutosavePath))
@@ -7938,7 +7775,7 @@ bool CEditor::PerformAutosave()
 		if(g_Config.m_EdAutosaveMax)
 		{
 			CFileCollection AutosavedMaps;
-			AutosavedMaps.Init(Storage(), "maps/auto", aFileNameNoExt, ".map", g_Config.m_EdAutosaveMax);
+			AutosavedMaps.Init(Storage(), "maps/auto", aFilenameNoExt, ".map", g_Config.m_EdAutosaveMax);
 		}
 		return true;
 	}
@@ -7960,23 +7797,23 @@ void CEditor::HandleWriterFinishJobs()
 	m_WriterFinishJobs.pop_front();
 
 	char aBuf[2 * IO_MAX_PATH_LENGTH + 128];
-	if(!Storage()->RemoveFile(pJob->GetRealFileName(), IStorage::TYPE_SAVE))
+	if(!Storage()->RemoveFile(pJob->GetRealFilename(), IStorage::TYPE_SAVE))
 	{
-		str_format(aBuf, sizeof(aBuf), "Saving failed: Could not remove old map file '%s'.", pJob->GetRealFileName());
+		str_format(aBuf, sizeof(aBuf), "Saving failed: Could not remove old map file '%s'.", pJob->GetRealFilename());
 		ShowFileDialogError("%s", aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "editor/save", aBuf);
 		return;
 	}
 
-	if(!Storage()->RenameFile(pJob->GetTempFileName(), pJob->GetRealFileName(), IStorage::TYPE_SAVE))
+	if(!Storage()->RenameFile(pJob->GetTempFilename(), pJob->GetRealFilename(), IStorage::TYPE_SAVE))
 	{
-		str_format(aBuf, sizeof(aBuf), "Saving failed: Could not move temporary map file '%s' to '%s'.", pJob->GetTempFileName(), pJob->GetRealFileName());
+		str_format(aBuf, sizeof(aBuf), "Saving failed: Could not move temporary map file '%s' to '%s'.", pJob->GetTempFilename(), pJob->GetRealFilename());
 		ShowFileDialogError("%s", aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "editor/save", aBuf);
 		return;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "saving '%s' done", pJob->GetRealFileName());
+	str_format(aBuf, sizeof(aBuf), "saving '%s' done", pJob->GetRealFilename());
 	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "editor/save", aBuf);
 
 	// send rcon.. if we can
@@ -7988,7 +7825,7 @@ void CEditor::HandleWriterFinishJobs()
 		if(net_addr_is_local(&Client()->ServerAddress()))
 		{
 			char aMapName[128];
-			IStorage::StripPathAndExtension(pJob->GetRealFileName(), aMapName, sizeof(aMapName));
+			IStorage::StripPathAndExtension(pJob->GetRealFilename(), aMapName, sizeof(aMapName));
 			if(!str_comp(aMapName, CurrentServerInfo.m_aMap))
 				Client()->Rcon("hot_reload");
 		}
@@ -8126,7 +7963,7 @@ void CEditor::LoadCurrentMap()
 bool CEditor::Save(const char *pFilename)
 {
 	// Check if file with this name is already being saved at the moment
-	if(std::any_of(std::begin(m_WriterFinishJobs), std::end(m_WriterFinishJobs), [pFilename](const std::shared_ptr<CDataFileWriterFinishJob> &Job) { return str_comp(pFilename, Job->GetRealFileName()) == 0; }))
+	if(std::any_of(std::begin(m_WriterFinishJobs), std::end(m_WriterFinishJobs), [pFilename](const std::shared_ptr<CDataFileWriterFinishJob> &Job) { return str_comp(pFilename, Job->GetRealFilename()) == 0; }))
 		return false;
 
 	const auto &&ErrorHandler = [this](const char *pErrorMessage) {
@@ -8136,22 +7973,22 @@ bool CEditor::Save(const char *pFilename)
 	return m_Map.Save(pFilename, ErrorHandler);
 }
 
-bool CEditor::HandleMapDrop(const char *pFileName, int StorageType)
+bool CEditor::HandleMapDrop(const char *pFilename, int StorageType)
 {
 	if(HasUnsavedData())
 	{
-		str_copy(m_aFileNamePending, pFileName);
+		str_copy(m_aFilenamePending, pFilename);
 		m_PopupEventType = CEditor::POPEVENT_LOADDROP;
 		m_PopupEventActivated = true;
 		return true;
 	}
 	else
 	{
-		return Load(pFileName, IStorage::TYPE_ALL_OR_ABSOLUTE);
+		return Load(pFilename, IStorage::TYPE_ALL_OR_ABSOLUTE);
 	}
 }
 
-bool CEditor::Load(const char *pFileName, int StorageType)
+bool CEditor::Load(const char *pFilename, int StorageType)
 {
 	const auto &&ErrorHandler = [this](const char *pErrorMessage) {
 		ShowFileDialogError("%s", pErrorMessage);
@@ -8159,26 +7996,26 @@ bool CEditor::Load(const char *pFileName, int StorageType)
 	};
 
 	Reset();
-	bool Result = m_Map.Load(pFileName, StorageType, std::move(ErrorHandler));
+	bool Result = m_Map.Load(pFilename, StorageType, std::move(ErrorHandler));
 	if(Result)
 	{
-		str_copy(m_aFileName, pFileName);
-		SortImages();
+		str_copy(m_aFilename, pFilename);
+		m_Map.SortImages();
 		SelectGameLayer();
 
 		for(CEditorComponent &Component : m_vComponents)
 			Component.OnMapLoad();
 
-		log_info("editor/load", "Loaded map '%s'", m_aFileName);
+		log_info("editor/load", "Loaded map '%s'", m_aFilename);
 	}
 	else
 	{
-		m_aFileName[0] = 0;
+		m_aFilename[0] = 0;
 	}
 	return Result;
 }
 
-bool CEditor::Append(const char *pFileName, int StorageType, bool IgnoreHistory)
+bool CEditor::Append(const char *pFilename, int StorageType, bool IgnoreHistory)
 {
 	CEditorMap NewMap(this);
 
@@ -8186,7 +8023,7 @@ bool CEditor::Append(const char *pFileName, int StorageType, bool IgnoreHistory)
 		ShowFileDialogError("%s", pErrorMessage);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "editor/append", pErrorMessage);
 	};
-	if(!NewMap.Load(pFileName, StorageType, std::move(ErrorHandler)))
+	if(!NewMap.Load(pFilename, StorageType, std::move(ErrorHandler)))
 		return false;
 
 	CEditorActionAppendMap::SPrevInfo Info{
@@ -8309,10 +8146,10 @@ bool CEditor::Append(const char *pFileName, int StorageType, bool IgnoreHistory)
 
 	NewMap.m_vSettings.clear();
 
-	auto IndexMap = SortImages();
+	auto IndexMap = m_Map.SortImages();
 
 	if(!IgnoreHistory)
-		m_EditorHistory.RecordAction(std::make_shared<CEditorActionAppendMap>(this, pFileName, Info, IndexMap));
+		m_EditorHistory.RecordAction(std::make_shared<CEditorActionAppendMap>(this, pFilename, Info, IndexMap));
 
 	// all done \o/
 	return true;

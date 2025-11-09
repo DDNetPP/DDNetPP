@@ -137,7 +137,7 @@ public:
 
 private:
 	// weapon info
-	int m_aHitObjects[10];
+	int m_aHitObjects[MAX_CLIENTS];
 	int m_NumObjectsHit;
 
 	int m_LastWeapon;
@@ -174,8 +174,6 @@ private:
 	void DDRaceTick();
 	void DDRacePostCoreTick();
 	void HandleTuneLayer();
-
-	CTuningParams *CharacterTuning();
 
 	int m_StrongWeakId;
 

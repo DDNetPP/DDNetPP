@@ -17,6 +17,7 @@
 #include <game/client/components/community_icons.h>
 #include <game/client/components/mapimages.h>
 #include <game/client/components/menus_ingame_touch_controls.h>
+#include <game/client/components/menus_settings_controls.h>
 #include <game/client/components/menus_start.h>
 #include <game/client/components/skins7.h>
 #include <game/client/lineinput.h>
@@ -27,20 +28,6 @@
 #include <deque>
 #include <optional>
 #include <vector>
-
-// component to fetch keypresses, override all other input
-class CMenusKeyBinder : public CComponent
-{
-public:
-	const void *m_pKeyReaderId;
-	bool m_TakeKey;
-	bool m_GotKey;
-	IInput::CEvent m_Key;
-	int m_ModifierCombination;
-	CMenusKeyBinder();
-	int Sizeof() const override { return sizeof(*this); }
-	bool OnInput(const IInput::CEvent &Event) override;
-};
 
 class CMenus : public CComponent
 {
@@ -75,14 +62,6 @@ private:
 	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor, int LaserType);
 	int DoButton_GridHeader(const void *pId, const char *pText, int Checked, const CUIRect *pRect, int Align = TEXTALIGN_ML);
 	int DoButton_Favorite(const void *pButtonId, const void *pParentId, bool Checked, const CUIRect *pRect);
-
-	int DoKeyReader(const void *pId, const CUIRect *pRect, int Key, int ModifierCombination, int *pNewModifierCombination);
-
-	void DoSettingsControlsButtons(int Start, int Stop, CUIRect View);
-
-	float RenderSettingsControlsJoystick(CUIRect View);
-	void DoJoystickAxisPicker(CUIRect View);
-	void DoJoystickBar(const CUIRect *pRect, float Current, float Tolerance, bool Active);
 
 	bool m_SkinListScrollToSelected = false;
 	std::optional<std::chrono::nanoseconds> m_SkinList7LastRefreshTime;
@@ -488,6 +467,7 @@ protected:
 	void RenderDemoBrowserList(CUIRect ListView, bool &WasListboxItemActivated);
 	void RenderDemoBrowserDetails(CUIRect DetailsView);
 	void RenderDemoBrowserButtons(CUIRect ButtonsView, bool WasListboxItemActivated);
+	void PopupConfirmPlayDemo();
 	void PopupConfirmDeleteDemo();
 	void PopupConfirmDeleteFolder();
 	static void ConchainDemoPlay(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -496,7 +476,6 @@ protected:
 	// found in menus_ingame.cpp
 	STextContainerIndex m_MotdTextContainerIndex;
 	void RenderGame(CUIRect MainView);
-	void RenderTouchControlsEditor(CUIRect MainView);
 	void PopupConfirmDisconnect();
 	void PopupConfirmDisconnectDummy();
 	void PopupConfirmDiscardTouchControlsChanges();
@@ -566,20 +545,21 @@ protected:
 	void RenderThemeSelection(CUIRect MainView);
 	void RenderSettingsGeneral(CUIRect MainView);
 	void RenderSettingsPlayer(CUIRect MainView);
-	void RenderSettingsDummyPlayer(CUIRect MainView);
 	void RenderSettingsTee(CUIRect MainView);
 	void RenderSettingsTee7(CUIRect MainView);
 	void RenderSettingsTeeCustom7(CUIRect MainView);
 	void RenderSkinSelection7(CUIRect MainView);
 	void RenderSkinPartSelection7(CUIRect MainView);
-	void RenderSettingsControls(CUIRect MainView);
-	void ResetSettingsControls();
 	void RenderSettingsGraphics(CUIRect MainView);
 	void RenderSettingsSound(CUIRect MainView);
 	void RenderSettings(CUIRect MainView);
 	void RenderSettingsCustom(CUIRect MainView);
 
-	std::vector<CButtonContainer> m_vButtonContainersJoystickAbsolute = {{}, {}};
+	// found in menus_settings_controls.cpp
+	// TODO: Change PopupConfirm to avoid using a function pointer to a CMenus
+	//       member function, to move this function to CMenusSettingsControls
+	void ResetSettingsControls();
+
 	std::vector<CButtonContainer> m_vButtonContainersNamePlateShow = {{}, {}, {}, {}};
 	std::vector<CButtonContainer> m_vButtonContainersNamePlateKeyPresses = {{}, {}, {}, {}};
 
@@ -620,8 +600,6 @@ protected:
 
 public:
 	void RenderBackground();
-
-	CMenusKeyBinder m_Binder;
 
 	CMenus();
 	int Sizeof() const override { return sizeof(*this); }
@@ -812,9 +790,11 @@ public:
 
 private:
 	CCommunityIcons m_CommunityIcons;
-	CMenusStart m_MenusStart;
 	CMenusIngameTouchControls m_MenusIngameTouchControls;
 	friend CMenusIngameTouchControls;
+	CMenusSettingsControls m_MenusSettingsControls;
+	friend CMenusSettingsControls;
+	CMenusStart m_MenusStart;
 
 	static int GhostlistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser);
 

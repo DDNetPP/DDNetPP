@@ -340,10 +340,10 @@ int CCollision::GetTile(int x, int y) const
 
 	int Nx = std::clamp(x / 32, 0, m_Width - 1);
 	int Ny = std::clamp(y / 32, 0, m_Height - 1);
-	int pos = Ny * m_Width + Nx;
+	const int Index = Ny * m_Width + Nx;
 
-	if(m_pTiles[pos].m_Index >= TILE_SOLID && m_pTiles[pos].m_Index <= TILE_NOLASER)
-		return m_pTiles[pos].m_Index;
+	if(m_pTiles[Index].m_Index >= TILE_SOLID && m_pTiles[Index].m_Index <= TILE_NOLASER)
+		return m_pTiles[Index].m_Index;
 	return 0;
 }
 
@@ -411,23 +411,23 @@ int CCollision::IntersectLineTeleHook(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision,
 			return TILE_TELEINHOOK;
 		}
 
-		int hit = 0;
+		int Hit = 0;
 		if(CheckPoint(ix, iy))
 		{
 			if(!IsThrough(ix, iy, dx, dy, Pos0, Pos1))
-				hit = GetCollisionAt(ix, iy);
+				Hit = GetCollisionAt(ix, iy);
 		}
 		else if(IsHookBlocker(ix, iy, Pos0, Pos1))
 		{
-			hit = TILE_NOHOOK;
+			Hit = TILE_NOHOOK;
 		}
-		if(hit)
+		if(Hit)
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return hit;
+			return Hit;
 		}
 
 		Last = Pos;
@@ -619,36 +619,36 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 
 int CCollision::IsSolid(int x, int y) const
 {
-	int index = GetTile(x, y);
-	if(index == TILE_CONFIG_1)
+	const int Index = GetTile(x, y);
+	if(Index == TILE_CONFIG_1)
 		return g_Config.m_SvCfgTile1 == CFG_TILE_HOOK || g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
-	if(index == TILE_CONFIG_2)
+	if(Index == TILE_CONFIG_2)
 		return g_Config.m_SvCfgTile2 == CFG_TILE_HOOK || g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK;
-	return index == TILE_SOLID || index == TILE_NOHOOK;
+	return Index == TILE_SOLID || Index == TILE_NOHOOK;
 }
 
 bool CCollision::IsThrough(int x, int y, int OffsetX, int OffsetY, vec2 Pos0, vec2 Pos1) const
 {
-	int pos = GetPureMapIndex(x, y);
-	if(m_pFront && (m_pFront[pos].m_Index == TILE_THROUGH_ALL || m_pFront[pos].m_Index == TILE_THROUGH_CUT))
+	const int Index = GetPureMapIndex(x, y);
+	if(m_pFront && (m_pFront[Index].m_Index == TILE_THROUGH_ALL || m_pFront[Index].m_Index == TILE_THROUGH_CUT))
 		return true;
-	if(m_pFront && m_pFront[pos].m_Index == TILE_THROUGH_DIR && ((m_pFront[pos].m_Flags == ROTATION_0 && Pos0.y > Pos1.y) || (m_pFront[pos].m_Flags == ROTATION_90 && Pos0.x < Pos1.x) || (m_pFront[pos].m_Flags == ROTATION_180 && Pos0.y < Pos1.y) || (m_pFront[pos].m_Flags == ROTATION_270 && Pos0.x > Pos1.x)))
+	if(m_pFront && m_pFront[Index].m_Index == TILE_THROUGH_DIR && ((m_pFront[Index].m_Flags == ROTATION_0 && Pos0.y > Pos1.y) || (m_pFront[Index].m_Flags == ROTATION_90 && Pos0.x < Pos1.x) || (m_pFront[Index].m_Flags == ROTATION_180 && Pos0.y < Pos1.y) || (m_pFront[Index].m_Flags == ROTATION_270 && Pos0.x > Pos1.x)))
 		return true;
-	int offpos = GetPureMapIndex(x + OffsetX, y + OffsetY);
-	return m_pTiles[offpos].m_Index == TILE_THROUGH || (m_pFront && m_pFront[offpos].m_Index == TILE_THROUGH);
+	const int OffsetIndex = GetPureMapIndex(x + OffsetX, y + OffsetY);
+	return m_pTiles[OffsetIndex].m_Index == TILE_THROUGH || (m_pFront && m_pFront[OffsetIndex].m_Index == TILE_THROUGH);
 }
 
 bool CCollision::IsHookBlocker(int x, int y, vec2 Pos0, vec2 Pos1) const
 {
-	int pos = GetPureMapIndex(x, y);
-	if(m_pTiles[pos].m_Index == TILE_THROUGH_ALL || (m_pFront && m_pFront[pos].m_Index == TILE_THROUGH_ALL))
+	const int Index = GetPureMapIndex(x, y);
+	if(m_pTiles[Index].m_Index == TILE_THROUGH_ALL || (m_pFront && m_pFront[Index].m_Index == TILE_THROUGH_ALL))
 		return true;
-	if(m_pTiles[pos].m_Index == TILE_THROUGH_DIR && ((m_pTiles[pos].m_Flags == ROTATION_0 && Pos0.y < Pos1.y) ||
-								(m_pTiles[pos].m_Flags == ROTATION_90 && Pos0.x > Pos1.x) ||
-								(m_pTiles[pos].m_Flags == ROTATION_180 && Pos0.y > Pos1.y) ||
-								(m_pTiles[pos].m_Flags == ROTATION_270 && Pos0.x < Pos1.x)))
+	if(m_pTiles[Index].m_Index == TILE_THROUGH_DIR && ((m_pTiles[Index].m_Flags == ROTATION_0 && Pos0.y < Pos1.y) ||
+								  (m_pTiles[Index].m_Flags == ROTATION_90 && Pos0.x > Pos1.x) ||
+								  (m_pTiles[Index].m_Flags == ROTATION_180 && Pos0.y > Pos1.y) ||
+								  (m_pTiles[Index].m_Flags == ROTATION_270 && Pos0.x < Pos1.x)))
 		return true;
-	if(m_pFront && m_pFront[pos].m_Index == TILE_THROUGH_DIR && ((m_pFront[pos].m_Flags == ROTATION_0 && Pos0.y < Pos1.y) || (m_pFront[pos].m_Flags == ROTATION_90 && Pos0.x > Pos1.x) || (m_pFront[pos].m_Flags == ROTATION_180 && Pos0.y > Pos1.y) || (m_pFront[pos].m_Flags == ROTATION_270 && Pos0.x < Pos1.x)))
+	if(m_pFront && m_pFront[Index].m_Index == TILE_THROUGH_DIR && ((m_pFront[Index].m_Flags == ROTATION_0 && Pos0.y < Pos1.y) || (m_pFront[Index].m_Flags == ROTATION_90 && Pos0.x > Pos1.x) || (m_pFront[Index].m_Flags == ROTATION_180 && Pos0.y > Pos1.y) || (m_pFront[Index].m_Flags == ROTATION_270 && Pos0.x < Pos1.x)))
 		return true;
 	return false;
 }
@@ -1065,7 +1065,8 @@ int CCollision::GetIndex(vec2 PrevPos, vec2 Pos) const
 		}
 	}
 
-	for(int i = 0, id = std::ceil(Distance); i < id; i++)
+	const int DistanceRounded = std::ceil(Distance);
+	for(int i = 0; i < DistanceRounded; i++)
 	{
 		float a = (float)i / Distance;
 		vec2 Tmp = mix(PrevPos, Pos, a);
@@ -1192,12 +1193,13 @@ void ThroughOffset(vec2 Pos0, vec2 Pos1, int *pOffsetX, int *pOffsetY)
 
 int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
 {
-	float d = distance(Pos0, Pos1);
+	float Distance = distance(Pos0, Pos1);
 	vec2 Last = Pos0;
 
-	for(int i = 0, id = std::ceil(d); i < id; i++)
+	const int DistanceRounded = std::ceil(Distance);
+	for(int i = 0; i < DistanceRounded; i++)
 	{
-		float a = i / d;
+		float a = i / Distance;
 		vec2 Pos = mix(Pos0, Pos1, a);
 		int Nx = std::clamp(round_to_int(Pos.x) / 32, 0, m_Width - 1);
 		int Ny = std::clamp(round_to_int(Pos.y) / 32, 0, m_Height - 1);
@@ -1228,12 +1230,13 @@ int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2
 
 int CCollision::IntersectNoLaserNoWalls(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
 {
-	float d = distance(Pos0, Pos1);
+	float Distance = distance(Pos0, Pos1);
 	vec2 Last = Pos0;
 
-	for(int i = 0, id = std::ceil(d); i < id; i++)
+	const int DistanceRounded = std::ceil(Distance);
+	for(int i = 0; i < DistanceRounded; i++)
 	{
-		float a = (float)i / d;
+		float a = (float)i / Distance;
 		vec2 Pos = mix(Pos0, Pos1, a);
 		if(IsNoLaser(round_to_int(Pos.x), round_to_int(Pos.y)) || IsFrontNoLaser(round_to_int(Pos.x), round_to_int(Pos.y)))
 		{
@@ -1257,12 +1260,13 @@ int CCollision::IntersectNoLaserNoWalls(vec2 Pos0, vec2 Pos1, vec2 *pOutCollisio
 
 int CCollision::IntersectAir(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
 {
-	float d = distance(Pos0, Pos1);
+	float Distance = distance(Pos0, Pos1);
 	vec2 Last = Pos0;
 
-	for(int i = 0, id = std::ceil(d); i < id; i++)
+	const int DistanceRounded = std::ceil(Distance);
+	for(int i = 0; i < DistanceRounded; i++)
 	{
-		float a = (float)i / d;
+		float a = (float)i / Distance;
 		vec2 Pos = mix(Pos0, Pos1, a);
 		if(IsSolid(round_to_int(Pos.x), round_to_int(Pos.y)) || (!GetTile(round_to_int(Pos.x), round_to_int(Pos.y)) && !GetFrontTile(round_to_int(Pos.x), round_to_int(Pos.y))))
 		{

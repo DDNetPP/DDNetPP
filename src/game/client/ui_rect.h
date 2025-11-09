@@ -4,15 +4,16 @@
 #define GAME_CLIENT_UI_RECT_H
 
 #include <base/color.h>
+#include <base/vmath.h>
 
 class IGraphics;
 
 class CUIRect
 {
-	static IGraphics *s_pGraphics;
+	static IGraphics *ms_pGraphics;
 
 public:
-	static void Init(IGraphics *pGraphics) { s_pGraphics = pGraphics; }
+	static void Init(IGraphics *pGraphics) { ms_pGraphics = pGraphics; }
 
 	float x, y, w, h;
 

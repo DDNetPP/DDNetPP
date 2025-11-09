@@ -667,8 +667,6 @@ Fat skins (DDFat)
 Ratio
 == K/D
 
-##### Ratio的算法是击杀除以死亡次数 #####
-
 AntiPing
 == 延迟补偿（AntiPing）
 
@@ -726,12 +724,8 @@ Suicides
 Net
 == 净击杀
 
-##### Net的算法是杀人+1被杀-1 #####
-
 FPM
 == 击杀/分
-
-##### 得分速度就是效率FPM #####
 
 Spree
 == 连杀
@@ -2036,7 +2030,7 @@ https://wiki.ddnet.org/wiki/Touch_controls
 Show client IDs in name plates
 == 显示客户端 ID
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 客户端 ID 换行显示
 
 Client IDs size
@@ -2487,3 +2481,9 @@ Joystick Hook
 
 Chat background color
 == 聊天背景色
+
+Censor profanity
+== 屏蔽不文明用语
+
+Download
+== 下载

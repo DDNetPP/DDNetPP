@@ -48,6 +48,7 @@ PickupFlags = [
 LaserTypes = ["RIFLE", "SHOTGUN", "DOOR", "FREEZE", "DRAGGER", "GUN", "PLASMA"]
 DraggerTypes = ["WEAK", "WEAK_NW", "NORMAL", "NORMAL_NW", "STRONG", "STRONG_NW"]
 GunTypes = ["UNFREEZE", "EXPLOSIVE", "FREEZE", "EXPFREEZE"]
+SaveStates = ["PENDING", "DONE", "FALLBACKFILE", "WARNING", "ERROR"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
@@ -93,6 +94,7 @@ Enums = [
 	Enum("LASERDRAGGERTYPE", DraggerTypes),
 	Enum("LASERGUNTYPE", GunTypes),
 	Enum("TEAM", Teams, -2),
+	Enum("SAVESTATE", SaveStates),
 ]
 
 Flags = [
@@ -535,7 +537,7 @@ Messages = [
 	NetMessage("Cl_ShowOthersLegacy", [
 		NetBool("m_Show"),
 	]),
-# Can't add any NetMessages here!
+	# Can't add any NetMessages here!
 
 	NetMessageEx("Sv_MyOwnMessage", "my-own-message@heinrich5991.de", [
 		NetIntAny("m_Test"),
@@ -587,13 +589,13 @@ Messages = [
 	]),
 
 	NetMessageEx("Sv_CommandInfo", "commandinfo@netmsg.ddnet.org", [
-			NetStringStrict("m_pName"),
-			NetStringStrict("m_pArgsFormat"),
-			NetStringStrict("m_pHelpText")
+		NetStringStrict("m_pName"),
+		NetStringStrict("m_pArgsFormat"),
+		NetStringStrict("m_pHelpText")
 	]),
 
 	NetMessageEx("Sv_CommandInfoRemove", "commandinfo-remove@netmsg.ddnet.org", [
-			NetStringStrict("m_pName")
+		NetStringStrict("m_pName")
 	]),
 
 	NetMessageEx("Sv_VoteOptionGroupStart", "sv-vote-option-group-start@netmsg.ddnet.org", []),
@@ -609,7 +611,7 @@ Messages = [
 	NetMessageEx("Sv_MapSoundGlobal", "map-sound-global@netmsg.ddnet.org", [
 		NetIntAny("m_SoundId"),
 	]),
-    
+
 	NetMessageEx("Sv_PreInput", "preinput@netmsg.ddnet.org", [
 		NetIntAny("m_Direction"),
 		NetIntAny("m_TargetX"),
@@ -622,9 +624,27 @@ Messages = [
 		NetIntAny("m_WantedWeapon"),
 		NetIntAny("m_NextWeapon"),
 		NetIntAny("m_PrevWeapon"),
-        
+
 		NetIntRange("m_Owner", 0, 'MAX_CLIENTS-1'),
 		NetTick("m_IntendedTick"),
+	]),
+
+	NetMessageEx("Sv_SaveCode", "save-code@netmsg.ddnet.org", [
+		NetIntRange("m_State", 'SAVESTATE_PENDING', 'SAVESTATE_ERROR'),
+		NetStringStrict("m_pError"),
+		NetStringStrict("m_pSaveRequester"),
+		NetStringStrict("m_pServerName"),
+		NetStringStrict("m_pGeneratedCode"),
+		NetStringStrict("m_pCode"),
+		NetStringStrict("m_pTeamMembers"),
+    ]),
+
+	NetMessageEx("Sv_ServerAlert", "server-alert@netmsg.ddnet.org", [
+		NetString("m_pMessage"),
+	]),
+
+	NetMessageEx("Sv_ModeratorAlert", "moderator-alert@netmsg.ddnet.org", [
+		NetString("m_pMessage"),
 	]),
 ]
 

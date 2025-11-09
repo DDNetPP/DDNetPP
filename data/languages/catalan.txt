@@ -126,6 +126,7 @@ Favorite
 
 Favorites
 == Preferits
+
 Feet
 == Peus
 
@@ -2198,6 +2199,9 @@ Always show chat
 Show only chat messages from team members
 == 
 
+Censor profanity
+== 
+
 Chat font size
 == 
 
@@ -2232,7 +2236,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2420,6 +2424,9 @@ Loading assets
 == 
 
 Open the directory to add custom assets
+== 
+
+Download
 == 
 
 Loading race demo files

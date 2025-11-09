@@ -66,11 +66,7 @@ struct CScorePlayerResult : ISqlResult
 
 struct CScoreLoadBestTimeResult : ISqlResult
 {
-	CScoreLoadBestTimeResult() :
-		m_CurrentRecord(0)
-	{
-	}
-	float m_CurrentRecord;
+	std::optional<float> m_CurrentRecord = std::nullopt;
 };
 
 struct CSqlLoadBestTimeRequest : ISqlData
@@ -150,16 +146,22 @@ struct CSqlScoreData : ISqlData
 
 struct CScoreSaveResult : ISqlResult
 {
-	CScoreSaveResult(int PlayerId) :
+	CScoreSaveResult(int PlayerId, const char *pPlayerName, const char *pServer) :
 		m_Status(SAVE_FAILED),
 		m_RequestingPlayer(PlayerId)
 	{
 		m_aMessage[0] = '\0';
 		m_aBroadcast[0] = '\0';
+		m_aCode[0] = '\0';
+		m_aGeneratedCode[0] = '\0';
+		str_copy(m_aRequestingPlayer, pPlayerName);
+		str_copy(m_aServer, pServer);
 	}
 	enum
 	{
 		SAVE_SUCCESS,
+		SAVE_WARNING,
+		SAVE_FALLBACKFILE,
 		// load team in the following two cases
 		SAVE_FAILED,
 		LOAD_SUCCESS,
@@ -169,7 +171,11 @@ struct CScoreSaveResult : ISqlResult
 	char m_aBroadcast[512];
 	CSaveTeam m_SavedTeam;
 	int m_RequestingPlayer;
+	char m_aRequestingPlayer[MAX_NAME_LENGTH];
 	CUuid m_SaveId;
+	char m_aServer[5];
+	char m_aCode[128];
+	char m_aGeneratedCode[128];
 };
 
 struct CSqlTeamScoreData : ISqlData

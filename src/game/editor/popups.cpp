@@ -49,7 +49,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupMenuFile(void *pContext, CUIRect Vie
 		else
 		{
 			pEditor->Reset();
-			pEditor->m_aFileName[0] = 0;
+			pEditor->m_aFilename[0] = 0;
 		}
 		return CUi::POPUP_CLOSE_CURRENT;
 	}
@@ -88,9 +88,9 @@ CUi::EPopupMenuFunctionResult CEditor::PopupMenuFile(void *pContext, CUIRect Vie
 	View.HSplitTop(12.0f, &Slot, &View);
 	if(pEditor->DoButton_MenuItem(&s_SaveButton, "Save", 0, &Slot, BUTTONFLAG_LEFT, "[Ctrl+S] Save the current map."))
 	{
-		if(pEditor->m_aFileName[0] != '\0' && pEditor->m_ValidSaveFilename)
+		if(pEditor->m_aFilename[0] != '\0' && pEditor->m_ValidSaveFilename)
 		{
-			CallbackSaveMap(pEditor->m_aFileName, IStorage::TYPE_SAVE, pEditor);
+			CallbackSaveMap(pEditor->m_aFilename, IStorage::TYPE_SAVE, pEditor);
 		}
 		else
 		{
@@ -112,7 +112,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupMenuFile(void *pContext, CUIRect Vie
 	if(pEditor->DoButton_MenuItem(&s_SaveCopyButton, "Save copy", 0, &Slot, BUTTONFLAG_LEFT, "[Ctrl+Shift+Alt+S] Save a copy of the current map under a new name."))
 	{
 		char aDefaultName[IO_MAX_PATH_LENGTH];
-		fs_split_file_extension(fs_filename(pEditor->m_aFileName), aDefaultName, sizeof(aDefaultName));
+		fs_split_file_extension(fs_filename(pEditor->m_aFilename), aDefaultName, sizeof(aDefaultName));
 		pEditor->m_FileBrowser.ShowFileDialog(IStorage::TYPE_SAVE, CFileBrowser::EFileType::MAP, "Save map", "Save copy", "maps", aDefaultName, CallbackSaveCopyMap, pEditor);
 		return CUi::POPUP_CLOSE_CURRENT;
 	}
@@ -1699,7 +1699,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupImage(void *pContext, CUIRect View, 
 
 	CUIRect Slot;
 	View.HSplitTop(RowHeight, &Slot, &View);
-	std::shared_ptr<CEditorImage> pImg = pEditor->m_Map.m_vpImages[pEditor->m_SelectedImage];
+	std::shared_ptr<CEditorImage> pImg = pEditor->m_Map.SelectedImage();
 
 	if(!pImg->m_External)
 	{
@@ -1793,15 +1793,15 @@ CUi::EPopupMenuFunctionResult CEditor::PopupImage(void *pContext, CUIRect View, 
 	View.HSplitTop(RowHeight, &Slot, &View);
 	if(pEditor->DoButton_MenuItem(&s_RemoveButton, "Remove", 0, &Slot, BUTTONFLAG_LEFT, "Remove the image from the map."))
 	{
-		if(IsAssetUsed(CFileBrowser::EFileType::IMAGE, pEditor->m_SelectedImage, pEditor))
+		if(pEditor->m_Map.IsImageUsed(pEditor->m_Map.m_SelectedImage))
 		{
 			pEditor->m_PopupEventType = POPEVENT_REMOVE_USED_IMAGE;
 			pEditor->m_PopupEventActivated = true;
 		}
 		else
 		{
-			pEditor->m_Map.m_vpImages.erase(pEditor->m_Map.m_vpImages.begin() + pEditor->m_SelectedImage);
-			pEditor->m_Map.ModifyImageIndex(gs_ModifyIndexDeleted(pEditor->m_SelectedImage));
+			pEditor->m_Map.m_vpImages.erase(pEditor->m_Map.m_vpImages.begin() + pEditor->m_Map.m_SelectedImage);
+			pEditor->m_Map.ModifyImageIndex(gs_ModifyIndexDeleted(pEditor->m_Map.m_SelectedImage));
 		}
 		return CUi::POPUP_CLOSE_CURRENT;
 	}
@@ -1838,7 +1838,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSound(void *pContext, CUIRect View, 
 
 	CUIRect Slot;
 	View.HSplitTop(RowHeight, &Slot, &View);
-	std::shared_ptr<CEditorSound> pSound = pEditor->m_Map.m_vpSounds[pEditor->m_SelectedSound];
+	std::shared_ptr<CEditorSound> pSound = pEditor->m_Map.SelectedSound();
 
 	static CUi::SSelectionPopupContext s_SelectionPopupContext;
 	static CScrollRegion s_SelectionPopupScrollRegion;
@@ -1902,15 +1902,15 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSound(void *pContext, CUIRect View, 
 	View.HSplitTop(RowHeight, &Slot, &View);
 	if(pEditor->DoButton_MenuItem(&s_RemoveButton, "Remove", 0, &Slot, BUTTONFLAG_LEFT, "Remove the sound from the map."))
 	{
-		if(IsAssetUsed(CFileBrowser::EFileType::SOUND, pEditor->m_SelectedSound, pEditor))
+		if(pEditor->m_Map.IsSoundUsed(pEditor->m_Map.m_SelectedSound))
 		{
 			pEditor->m_PopupEventType = POPEVENT_REMOVE_USED_SOUND;
 			pEditor->m_PopupEventActivated = true;
 		}
 		else
 		{
-			pEditor->m_Map.m_vpSounds.erase(pEditor->m_Map.m_vpSounds.begin() + pEditor->m_SelectedSound);
-			pEditor->m_Map.ModifySoundIndex(gs_ModifyIndexDeleted(pEditor->m_SelectedSound));
+			pEditor->m_Map.m_vpSounds.erase(pEditor->m_Map.m_vpSounds.begin() + pEditor->m_Map.m_SelectedSound);
+			pEditor->m_Map.ModifySoundIndex(gs_ModifyIndexDeleted(pEditor->m_Map.m_SelectedSound));
 			pEditor->m_ToolbarPreviewSound = -1;
 		}
 		return CUi::POPUP_CLOSE_CURRENT;
@@ -2141,7 +2141,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		if(pEditor->DoButton_Editor(&s_CancelButton, "Cancel", 0, &Button, BUTTONFLAG_LEFT, nullptr))
 		{
 			if(pEditor->m_PopupEventType == POPEVENT_LOADDROP)
-				pEditor->m_aFileNamePending[0] = 0;
+				pEditor->m_aFilenamePending[0] = 0;
 
 			else if(pEditor->m_PopupEventType == POPEVENT_TILEART_BIG_IMAGE || pEditor->m_PopupEventType == POPEVENT_TILEART_MANY_COLORS)
 				pEditor->m_TileartImageInfo.Free();
@@ -2176,15 +2176,15 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_LOADDROP)
 		{
-			int Result = pEditor->Load(pEditor->m_aFileNamePending, IStorage::TYPE_ALL_OR_ABSOLUTE);
+			int Result = pEditor->Load(pEditor->m_aFilenamePending, IStorage::TYPE_ALL_OR_ABSOLUTE);
 			if(!Result)
-				dbg_msg("editor", "editing passed map file '%s' failed", pEditor->m_aFileNamePending);
-			pEditor->m_aFileNamePending[0] = 0;
+				dbg_msg("editor", "editing passed map file '%s' failed", pEditor->m_aFilenamePending);
+			pEditor->m_aFilenamePending[0] = 0;
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_NEW)
 		{
 			pEditor->Reset();
-			pEditor->m_aFileName[0] = 0;
+			pEditor->m_aFilename[0] = 0;
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_PLACE_BORDER_TILES)
 		{
@@ -2204,13 +2204,13 @@ CUi::EPopupMenuFunctionResult CEditor::PopupEvent(void *pContext, CUIRect View, 
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_REMOVE_USED_IMAGE)
 		{
-			pEditor->m_Map.m_vpImages.erase(pEditor->m_Map.m_vpImages.begin() + pEditor->m_SelectedImage);
-			pEditor->m_Map.ModifyImageIndex(gs_ModifyIndexDeleted(pEditor->m_SelectedImage));
+			pEditor->m_Map.m_vpImages.erase(pEditor->m_Map.m_vpImages.begin() + pEditor->m_Map.m_SelectedImage);
+			pEditor->m_Map.ModifyImageIndex(gs_ModifyIndexDeleted(pEditor->m_Map.m_SelectedImage));
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_REMOVE_USED_SOUND)
 		{
-			pEditor->m_Map.m_vpSounds.erase(pEditor->m_Map.m_vpSounds.begin() + pEditor->m_SelectedSound);
-			pEditor->m_Map.ModifySoundIndex(gs_ModifyIndexDeleted(pEditor->m_SelectedSound));
+			pEditor->m_Map.m_vpSounds.erase(pEditor->m_Map.m_vpSounds.begin() + pEditor->m_Map.m_SelectedSound);
+			pEditor->m_Map.ModifySoundIndex(gs_ModifyIndexDeleted(pEditor->m_Map.m_SelectedSound));
 			pEditor->m_ToolbarPreviewSound = -1;
 		}
 		else if(pEditor->m_PopupEventType == POPEVENT_RESTART_SERVER)
@@ -2763,7 +2763,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 		{
 			int Number = pEditor->m_Map.m_pSwitchLayer->FindNextFreeNumber();
 			if(Number != -1)
-				pEditor->m_SwitchNum = Number;
+				pEditor->m_SwitchNumber = Number;
 		}
 
 		static int s_NextViewPid = 0;
@@ -2779,7 +2779,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 	static int s_PreviousView = -1;
 	{
 		CProperty aProps[] = {
-			{"Number", pEditor->m_SwitchNum, PROPTYPE_INT, 0, 255},
+			{"Number", pEditor->m_SwitchNumber, PROPTYPE_INT, 0, 255},
 			{"Delay", pEditor->m_SwitchDelay, PROPTYPE_INT, 0, 255},
 			{"View", pEditor->m_ViewSwitch, PROPTYPE_INT, 0, 255},
 			{nullptr},
@@ -2791,7 +2791,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 
 		if(Prop == PROP_SWITCH_NUMBER)
 		{
-			pEditor->m_SwitchNum = (NewVal + 256) % 256;
+			pEditor->m_SwitchNumber = (NewVal + 256) % 256;
 		}
 		else if(Prop == PROP_SWITCH_DELAY)
 		{
@@ -2802,13 +2802,13 @@ CUi::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 			pEditor->m_ViewSwitch = (NewVal + 256) % 256;
 		}
 
-		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_SwitchNum)
-			s_vColors[PROP_SWITCH_NUMBER] = pEditor->m_Map.m_pSwitchLayer->ContainsElementWithId(pEditor->m_SwitchNum) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_SwitchNumber)
+			s_vColors[PROP_SWITCH_NUMBER] = pEditor->m_Map.m_pSwitchLayer->ContainsElementWithId(pEditor->m_SwitchNumber) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
 		if(s_PreviousView != pEditor->m_ViewSwitch)
 			s_vColors[PROP_SWITCH_VIEW] = ViewSwitch() ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
-	s_PreviousNumber = pEditor->m_SwitchNum;
+	s_PreviousNumber = pEditor->m_SwitchNumber;
 	s_PreviousView = pEditor->m_ViewSwitch;
 	return CUi::POPUP_KEEP_OPEN;
 }
@@ -2863,7 +2863,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTune(void *pContext, CUIRect View, b
 		{
 			int Number = pEditor->m_Map.m_pTuneLayer->FindNextFreeNumber();
 			if(Number != -1)
-				pEditor->m_TuningNum = Number;
+				pEditor->m_TuningNumber = Number;
 		}
 
 		static int s_NextViewPid = 0;
@@ -2879,7 +2879,7 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTune(void *pContext, CUIRect View, b
 	static int s_PreviousView = -1;
 	{
 		CProperty aProps[] = {
-			{"Zone", pEditor->m_TuningNum, PROPTYPE_INT, 1, 255},
+			{"Zone", pEditor->m_TuningNumber, PROPTYPE_INT, 1, 255},
 			{"View", pEditor->m_ViewTuning, PROPTYPE_INT, 1, 255},
 			{nullptr},
 		};
@@ -2890,20 +2890,20 @@ CUi::EPopupMenuFunctionResult CEditor::PopupTune(void *pContext, CUIRect View, b
 
 		if(Prop == PROP_TUNE_NUMBER)
 		{
-			pEditor->m_TuningNum = (NewVal - 1 + 255) % 255 + 1;
+			pEditor->m_TuningNumber = (NewVal - 1 + 255) % 255 + 1;
 		}
 		else if(Prop == PROP_TUNE_VIEW)
 		{
 			pEditor->m_ViewTuning = (NewVal - 1 + 255) % 255 + 1;
 		}
 
-		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_TuningNum)
-			s_vColors[PROP_TUNE_NUMBER] = pEditor->m_Map.m_pTuneLayer->ContainsElementWithId(pEditor->m_TuningNum) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_TuningNumber)
+			s_vColors[PROP_TUNE_NUMBER] = pEditor->m_Map.m_pTuneLayer->ContainsElementWithId(pEditor->m_TuningNumber) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
 		if(s_PreviousView != pEditor->m_ViewTuning)
 			s_vColors[PROP_TUNE_VIEW] = ViewTune() ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
-	s_PreviousNumber = pEditor->m_TuningNum;
+	s_PreviousNumber = pEditor->m_TuningNumber;
 	s_PreviousView = pEditor->m_ViewTuning;
 
 	return CUi::POPUP_KEEP_OPEN;
@@ -3019,8 +3019,8 @@ CUi::EPopupMenuFunctionResult CEditor::PopupAnimateSettings(void *pContext, CUIR
 {
 	CEditor *pEditor = static_cast<CEditor *>(pContext);
 
-	constexpr float MIN_ANIM_SPEED = 0.001f;
-	constexpr float MAX_ANIM_SPEED = 1000000.0f;
+	static constexpr float MIN_ANIM_SPEED = 0.001f;
+	static constexpr float MAX_ANIM_SPEED = 1000000.0f;
 
 	CUIRect Row, Label, ButtonDecrease, EditBox, ButtonIncrease, ButtonReset;
 	View.HSplitTop(13.0f, &Row, &View);

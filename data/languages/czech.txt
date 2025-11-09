@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Změna nastavení se projeví až po restartu hry.
 
-##### needs translation #####
-
 New name:
 == Nové jméno:
 
@@ -2143,7 +2141,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == Zobrazit ID klientů na jmenovkách
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == Zobrazit ID klientů na samostatném řádku
 
 Client IDs size
@@ -2483,3 +2481,9 @@ Joystick Hook
 
 Chat background color
 == Barva pozadí chatu
+
+Censor profanity
+== Cenzurovat nevhodná slova
+
+Download
+== Stáhnout

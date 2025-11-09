@@ -15,6 +15,34 @@
 constexpr int CMD_BUFFER_DATA_BUFFER_SIZE = 1024 * 1024 * 2;
 constexpr int CMD_BUFFER_CMD_BUFFER_SIZE = 1024 * 256;
 
+namespace TextureFlag
+{
+	inline constexpr uint32_t NO_MIPMAPS = 1 << 0;
+	inline constexpr uint32_t TO_3D_TEXTURE = 1 << 1;
+	inline constexpr uint32_t TO_2D_ARRAY_TEXTURE = 1 << 2;
+	inline constexpr uint32_t NO_2D_TEXTURE = 1 << 3;
+};
+
+enum class EPrimitiveType
+{
+	LINES,
+	QUADS,
+	TRIANGLES,
+};
+
+enum class EBlendMode
+{
+	NONE,
+	ALPHA,
+	ADDITIVE,
+};
+
+enum class EWrapMode
+{
+	REPEAT,
+	CLAMP,
+};
+
 class CCommandBuffer
 {
 	class CBuffer
@@ -142,42 +170,6 @@ public:
 		CMD_COUNT,
 	};
 
-	enum
-	{
-		TEXFORMAT_INVALID = 0,
-		TEXFORMAT_RGBA,
-	};
-
-	enum
-	{
-		TEXFLAG_NOMIPMAPS = 1,
-		TEXFLAG_TO_3D_TEXTURE = (1 << 3),
-		TEXFLAG_TO_2D_ARRAY_TEXTURE = (1 << 4),
-		TEXFLAG_NO_2D_TEXTURE = (1 << 5),
-	};
-
-	enum
-	{
-		//
-		PRIMTYPE_INVALID = 0,
-		PRIMTYPE_LINES,
-		PRIMTYPE_QUADS,
-		PRIMTYPE_TRIANGLES,
-	};
-
-	enum
-	{
-		BLEND_NONE = 0,
-		BLEND_ALPHA,
-		BLEND_ADDITIVE,
-	};
-
-	enum
-	{
-		WRAP_REPEAT = 0,
-		WRAP_CLAMP,
-	};
-
 	typedef vec2 SPoint;
 	typedef vec2 STexCoord;
 	typedef GL_SColorf SColorf;
@@ -194,13 +186,11 @@ public:
 		unsigned m_Cmd;
 		SCommand *m_pNext;
 	};
-	SCommand *m_pCmdBufferHead;
-	SCommand *m_pCmdBufferTail;
 
 	struct SState
 	{
-		int m_BlendMode;
-		int m_WrapMode;
+		EBlendMode m_BlendMode;
+		EWrapMode m_WrapMode;
 		int m_Texture;
 		SPoint m_ScreenTL;
 		SPoint m_ScreenBR;
@@ -233,7 +223,7 @@ public:
 		SCommand_Render() :
 			SCommand(CMD_RENDER) {}
 		SState m_State;
-		unsigned m_PrimType;
+		EPrimitiveType m_PrimType;
 		unsigned m_PrimCount;
 		SVertex *m_pVertices; // you should use the command buffer data to allocate vertices for this command
 	};
@@ -243,7 +233,7 @@ public:
 		SCommand_RenderTex3D() :
 			SCommand(CMD_RENDER_TEX3D) {}
 		SState m_State;
-		unsigned m_PrimType;
+		EPrimitiveType m_PrimType;
 		unsigned m_PrimCount;
 		SVertexTex3DStream *m_pVertices; // you should use the command buffer data to allocate vertices for this command
 	};
@@ -647,6 +637,10 @@ public:
 	{
 		m_RenderCallCount += RenderCallCountToAdd;
 	}
+
+private:
+	SCommand *m_pCmdBufferHead;
+	SCommand *m_pCmdBufferTail;
 };
 
 enum EGraphicsBackendErrorCodes
@@ -695,7 +689,6 @@ public:
 	virtual const char *GetScreenName(int Screen) const = 0;
 
 	virtual void Minimize() = 0;
-	virtual void Maximize() = 0;
 	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless) = 0;
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool UpdateDisplayMode(int Index) = 0;
@@ -746,13 +739,12 @@ public:
 
 class CGraphics_Threaded : public IEngineGraphics
 {
-	enum
+	enum class EDrawing
 	{
-		NUM_CMDBUFFERS = 2,
-
-		DRAWING_QUADS = 1,
-		DRAWING_LINES = 2,
-		DRAWING_TRIANGLES = 3
+		NONE,
+		QUADS,
+		LINES,
+		TRIANGLES,
 	};
 
 	CCommandBuffer::SState m_State;
@@ -765,7 +757,7 @@ class CGraphics_Threaded : public IEngineGraphics
 	bool m_GLHasTextureArraysSupport;
 	bool m_GLUseTrianglesAsQuad;
 
-	CCommandBuffer *m_apCommandBuffers[NUM_CMDBUFFERS];
+	CCommandBuffer *m_apCommandBuffers[2];
 	CCommandBuffer *m_pCommandBuffer;
 	unsigned m_CurrentCommandBuffer;
 
@@ -786,7 +778,7 @@ class CGraphics_Threaded : public IEngineGraphics
 	bool m_RenderEnable;
 
 	float m_Rotation;
-	int m_Drawing;
+	EDrawing m_Drawing;
 	bool m_DoScreenshot;
 	char m_aScreenshotName[IO_MAX_PATH_LENGTH];
 
@@ -858,7 +850,7 @@ class CGraphics_Threaded : public IEngineGraphics
 	void AddVertices(int Count, CCommandBuffer::SVertexTex3DStream *pVertices);
 
 	template<typename TName>
-	void Rotate(const CCommandBuffer::SPoint &rCenter, TName *pPoints, int NumPoints)
+	void Rotate(const CCommandBuffer::SPoint &Center, TName *pPoints, int NumPoints)
 	{
 		float c = std::cos(m_Rotation);
 		float s = std::sin(m_Rotation);
@@ -868,10 +860,10 @@ class CGraphics_Threaded : public IEngineGraphics
 		TName *pVertices = pPoints;
 		for(i = 0; i < NumPoints; i++)
 		{
-			x = pVertices[i].m_Pos.x - rCenter.x;
-			y = pVertices[i].m_Pos.y - rCenter.y;
-			pVertices[i].m_Pos.x = x * c - y * s + rCenter.x;
-			pVertices[i].m_Pos.y = x * s + y * c + rCenter.y;
+			x = pVertices[i].m_Pos.x - Center.x;
+			y = pVertices[i].m_Pos.y - Center.y;
+			pVertices[i].m_Pos.x = x * c - y * s + Center.x;
+			pVertices[i].m_Pos.y = x * s + y * c + Center.y;
 		}
 	}
 
@@ -1000,7 +992,7 @@ public:
 	{
 		CCommandBuffer::SPoint Center;
 
-		dbg_assert(m_Drawing == DRAWING_QUADS, "called Graphics()->QuadsDrawTL without begin");
+		dbg_assert(m_Drawing == EDrawing::QUADS, "called Graphics()->QuadsDrawTL without begin");
 
 		if(g_Config.m_GfxQuadAsTriangle && !m_GLUseTrianglesAsQuad)
 		{
@@ -1137,7 +1129,7 @@ public:
 	int QuadContainerAddSprite(int QuadContainerIndex, float X, float Y, float Width, float Height) override;
 
 	template<typename TName>
-	void FlushVerticesImpl(bool KeepVertices, int &PrimType, size_t &PrimCount, size_t &NumVerts, TName &Command, size_t VertSize)
+	void FlushVerticesImpl(bool KeepVertices, EPrimitiveType &PrimType, size_t &PrimCount, size_t &NumVerts, TName &Command, size_t VertSize)
 	{
 		Command.m_pVertices = nullptr;
 		if(m_NumVertices == 0)
@@ -1148,27 +1140,27 @@ public:
 		if(!KeepVertices)
 			m_NumVertices = 0;
 
-		if(m_Drawing == DRAWING_QUADS)
+		if(m_Drawing == EDrawing::QUADS)
 		{
 			if(g_Config.m_GfxQuadAsTriangle && !m_GLUseTrianglesAsQuad)
 			{
-				PrimType = CCommandBuffer::PRIMTYPE_TRIANGLES;
+				PrimType = EPrimitiveType::TRIANGLES;
 				PrimCount = NumVerts / 3;
 			}
 			else
 			{
-				PrimType = CCommandBuffer::PRIMTYPE_QUADS;
+				PrimType = EPrimitiveType::QUADS;
 				PrimCount = NumVerts / 4;
 			}
 		}
-		else if(m_Drawing == DRAWING_LINES)
+		else if(m_Drawing == EDrawing::LINES)
 		{
-			PrimType = CCommandBuffer::PRIMTYPE_LINES;
+			PrimType = EPrimitiveType::LINES;
 			PrimCount = NumVerts / 2;
 		}
-		else if(m_Drawing == DRAWING_TRIANGLES)
+		else if(m_Drawing == EDrawing::TRIANGLES)
 		{
-			PrimType = CCommandBuffer::PRIMTYPE_TRIANGLES;
+			PrimType = EPrimitiveType::TRIANGLES;
 			PrimCount = NumVerts / 3;
 		}
 		else
@@ -1213,7 +1205,6 @@ public:
 	const char *GetScreenName(int Screen) const override;
 
 	void Minimize() override;
-	void Maximize() override;
 	void WarnPngliteIncompatibleImages(bool Warn) override;
 	void SetWindowParams(int FullscreenMode, bool IsBorderless) override;
 	bool SetWindowScreen(int Index) override;

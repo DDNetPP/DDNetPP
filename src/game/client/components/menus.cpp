@@ -3,6 +3,7 @@
 
 #include "menus.h"
 
+#include <base/color.h>
 #include <base/log.h>
 #include <base/math.h>
 #include <base/system.h>
@@ -27,6 +28,7 @@
 #include <game/client/animstate.h>
 #include <game/client/components/binds.h>
 #include <game/client/components/console.h>
+#include <game/client/components/key_binder.h>
 #include <game/client/components/menu_background.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
@@ -74,24 +76,24 @@ CMenus::CMenus()
 	m_DemoPlayerState = DEMOPLAYER_NONE;
 	m_Dummy = false;
 
-	for(SUIAnimator &animator : m_aAnimatorsSettingsTab)
+	for(SUIAnimator &Animator : m_aAnimatorsSettingsTab)
 	{
-		animator.m_YOffset = -2.5f;
-		animator.m_HOffset = 5.0f;
-		animator.m_WOffset = 5.0f;
-		animator.m_RepositionLabel = true;
+		Animator.m_YOffset = -2.5f;
+		Animator.m_HOffset = 5.0f;
+		Animator.m_WOffset = 5.0f;
+		Animator.m_RepositionLabel = true;
 	}
 
-	for(SUIAnimator &animator : m_aAnimatorsBigPage)
+	for(SUIAnimator &Animator : m_aAnimatorsBigPage)
 	{
-		animator.m_YOffset = -5.0f;
-		animator.m_HOffset = 5.0f;
+		Animator.m_YOffset = -5.0f;
+		Animator.m_HOffset = 5.0f;
 	}
 
-	for(SUIAnimator &animator : m_aAnimatorsSmallPage)
+	for(SUIAnimator &Animator : m_aAnimatorsSmallPage)
 	{
-		animator.m_YOffset = -2.5f;
-		animator.m_HOffset = 2.5f;
+		Animator.m_YOffset = -2.5f;
+		Animator.m_HOffset = 2.5f;
 	}
 
 	m_PasswordInput.SetBuffer(g_Config.m_Password, sizeof(g_Config.m_Password));
@@ -487,56 +489,6 @@ int CMenus::DoButton_CheckBox_Number(const void *pId, const char *pText, int Che
 	return DoButton_CheckBox_Common(pId, pText, aBuf, pRect, BUTTONFLAG_LEFT | BUTTONFLAG_RIGHT);
 }
 
-int CMenus::DoKeyReader(const void *pId, const CUIRect *pRect, int Key, int ModifierCombination, int *pNewModifierCombination)
-{
-	int NewKey = Key;
-	*pNewModifierCombination = ModifierCombination;
-
-	const int ButtonResult = Ui()->DoButtonLogic(pId, 0, pRect, BUTTONFLAG_LEFT | BUTTONFLAG_RIGHT);
-	if(ButtonResult == 1)
-	{
-		m_Binder.m_pKeyReaderId = pId;
-		m_Binder.m_TakeKey = true;
-		m_Binder.m_GotKey = false;
-	}
-	else if(ButtonResult == 2)
-	{
-		NewKey = 0;
-		*pNewModifierCombination = CBinds::MODIFIER_NONE;
-	}
-
-	if(m_Binder.m_pKeyReaderId == pId && m_Binder.m_GotKey)
-	{
-		// abort with escape key
-		if(m_Binder.m_Key.m_Key != KEY_ESCAPE)
-		{
-			NewKey = m_Binder.m_Key.m_Key;
-			*pNewModifierCombination = m_Binder.m_ModifierCombination;
-		}
-		m_Binder.m_pKeyReaderId = nullptr;
-		m_Binder.m_GotKey = false;
-		Ui()->SetActiveItem(nullptr);
-	}
-
-	char aBuf[64];
-	if(m_Binder.m_pKeyReaderId == pId && m_Binder.m_TakeKey)
-		str_copy(aBuf, Localize("Press a key…"));
-	else if(NewKey == 0)
-		aBuf[0] = '\0';
-	else
-	{
-		GameClient()->m_Binds.GetKeyBindName(NewKey, *pNewModifierCombination, aBuf, sizeof(aBuf));
-	}
-
-	const ColorRGBA Color = m_Binder.m_pKeyReaderId == pId && m_Binder.m_TakeKey ? ColorRGBA(0.0f, 1.0f, 0.0f, 0.4f) : ColorRGBA(1.0f, 1.0f, 1.0f, 0.5f * Ui()->ButtonColorMul(pId));
-	pRect->Draw(Color, IGraphics::CORNER_ALL, 5.0f);
-	CUIRect Temp;
-	pRect->HMargin(1.0f, &Temp);
-	Ui()->DoLabel(&Temp, aBuf, Temp.h * CUi::ms_FontmodHeight, TEXTALIGN_MC);
-
-	return NewKey;
-}
-
 void CMenus::RenderMenubar(CUIRect Box, IClient::EClientState ClientState)
 {
 	CUIRect Button;
@@ -605,19 +557,9 @@ void CMenus::RenderMenubar(CUIRect Box, IClient::EClientState ClientState)
 			NewPage = PAGE_DEMOS;
 		}
 		GameClient()->m_Tooltips.DoToolTip(&s_DemoButton, &Button, Localize("Demos"));
-	}
+		Box.VSplitRight(10.0f, &Box, nullptr);
 
-	Box.VSplitRight(10.0f, &Box, nullptr);
-
-	TextRender()->SetRenderFlags(0);
-	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
-
-	if(ClientState == IClient::STATE_OFFLINE)
-	{
 		Box.VSplitLeft(33.0f, &Button, &Box);
-
-		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
-		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGNMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 		bool GotNewsOrUpdate = false;
 
@@ -726,6 +668,9 @@ void CMenus::RenderMenubar(CUIRect Box, IClient::EClientState ClientState)
 	}
 	else
 	{
+		TextRender()->SetRenderFlags(0);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
+
 		// online menus
 		Box.VSplitLeft(90.0f, &Button, &Box);
 		static CButtonContainer s_GameButton;
@@ -762,6 +707,25 @@ void CMenus::RenderMenubar(CUIRect Box, IClient::EClientState ClientState)
 		{
 			NewPage = PAGE_CALLVOTE;
 			m_ControlPageOpening = true;
+		}
+
+		if(Box.w >= 10.0f + 33.0f + 10.0f)
+		{
+			TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
+			TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGNMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+
+			Box.VSplitRight(10.0f, &Box, nullptr);
+			Box.VSplitRight(33.0f, &Box, &Button);
+			static CButtonContainer s_DemoButton;
+			if(DoButton_MenuTab(&s_DemoButton, FONT_ICON_CLAPPERBOARD, ActivePage == PAGE_DEMOS, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_DEMOBUTTON]))
+			{
+				NewPage = PAGE_DEMOS;
+			}
+			GameClient()->m_Tooltips.DoToolTip(&s_DemoButton, &Button, Localize("Demos"));
+			Box.VSplitRight(10.0f, &Box, nullptr);
+
+			TextRender()->SetRenderFlags(0);
+			TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		}
 	}
 
@@ -878,9 +842,10 @@ void CMenus::RenderNews(CUIRect MainView)
 void CMenus::OnInterfacesInit(CGameClient *pClient)
 {
 	CComponentInterfaces::OnInterfacesInit(pClient);
-	m_CommunityIcons.OnInterfacesInit(pClient);
-	m_MenusStart.OnInterfacesInit(pClient);
 	m_MenusIngameTouchControls.OnInterfacesInit(pClient);
+	m_MenusSettingsControls.OnInterfacesInit(pClient);
+	m_MenusStart.OnInterfacesInit(pClient);
+	m_CommunityIcons.OnInterfacesInit(pClient);
 }
 
 void CMenus::OnInit()
@@ -1205,6 +1170,10 @@ void CMenus::Render()
 			{
 				RenderServerControl(MainView);
 			}
+			else if(m_GamePage == PAGE_DEMOS)
+			{
+				RenderDemoBrowser(MainView);
+			}
 			else if(m_GamePage == PAGE_SETTINGS)
 			{
 				RenderSettings(MainView);
@@ -1233,7 +1202,7 @@ void CMenus::Render()
 	Ui()->RenderPopupMenus();
 
 	// Prevent UI elements from being hovered while a key reader is active
-	if(m_Binder.m_TakeKey)
+	if(GameClient()->m_KeyBinder.IsActive())
 	{
 		Ui()->SetHotItem(nullptr);
 	}
@@ -1712,6 +1681,16 @@ void CMenus::RenderPopupFullscreen(CUIRect Screen)
 		TextBox.VSplitLeft(10.0f, nullptr, &TextBox);
 		Ui()->DoLabel(&Label, Localize("Video name:"), 12.8f, TEXTALIGN_ML);
 		Ui()->DoEditBox(&m_DemoRenderInput, &TextBox, 12.8f);
+
+		// Warn about disconnect if online
+		if(Client()->State() == IClient::STATE_ONLINE)
+		{
+			Box.HSplitBottom(10.0f, &Box, nullptr);
+			Box.HSplitBottom(20.0f, &Box, &Row);
+			SLabelProperties LabelProperties;
+			LabelProperties.SetColor(ColorRGBA(1.0f, 0.0f, 0.0f));
+			Ui()->DoLabel(&Row, Localize("You will be disconnected from the server."), 12.8f, TEXTALIGN_MC, LabelProperties);
+		}
 	}
 	else if(m_Popup == POPUP_RENDER_DONE)
 	{

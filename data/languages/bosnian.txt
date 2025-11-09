@@ -436,8 +436,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Morate ponovo pokrenuti igru da bi sve postavke bile primijenjene.
 
-##### needs translation #####
-
 New name:
 == Novo ime:
 
@@ -2122,6 +2120,9 @@ Show only chat messages from team members
 Use old chat style
 == 
 
+Censor profanity
+== 
+
 Chat font size
 == 
 
@@ -2156,7 +2157,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2402,6 +2403,9 @@ Run server
 
 [Start menu]
 Play
+== 
+
+Download
 == 
 
 Loading race demo files

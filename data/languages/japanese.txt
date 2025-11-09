@@ -433,8 +433,6 @@ Yes
 You must restart the game for all settings to take effect.
 == 設定を反映するためにはゲームの再起動が必要です。
 
-##### needs translation #####
-
 New name:
 == 新しいファイル名:
 
@@ -2189,6 +2187,9 @@ Always show chat
 Show only chat messages from team members
 == 
 
+Censor profanity
+== 
+
 Chat font size
 == 
 
@@ -2223,7 +2224,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2423,6 +2424,9 @@ Tutorial
 == 
 
 Can't find a Tutorial server
+== 
+
+Download
 == 
 
 Loading race demo files

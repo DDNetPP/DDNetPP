@@ -439,8 +439,6 @@ Yes
 You must restart the game for all settings to take effect.
 == Morate ponovo pokrenuti igru da bi sva podešavanja bila primenjena
 
-##### needs translation #####
-
 Demo
 == Snimak
 
@@ -2297,6 +2295,9 @@ Always show chat
 Show only chat messages from team members
 == 
 
+Censor profanity
+== 
+
 Chat font size
 == 
 
@@ -2331,7 +2332,7 @@ Show friend icon in name plates
 Show client IDs in name plates
 == 
 
-Show client IDs on a seperate line
+Show client IDs on a separate line
 == 
 
 Client IDs size
@@ -2435,6 +2436,9 @@ Delete skin
 == 
 
 Unable to delete skin
+== 
+
+Download
 == 
 
 [Spectators]
