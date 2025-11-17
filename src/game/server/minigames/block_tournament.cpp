@@ -331,7 +331,7 @@ void CBlockTournament::EndRound()
 int CBlockTournament::CountAlive()
 {
 	int c = 0;
-	int id = -404;
+	int Id = -404;
 
 	for(auto &Player : GameServer()->m_apPlayers)
 	{
@@ -340,20 +340,20 @@ int CBlockTournament::CountAlive()
 			if(Player->m_IsBlockTourning)
 			{
 				c++;
-				id = Player->GetCid();
+				Id = Player->GetCid();
 			}
 		}
 	}
 
 	if(c == 1) // one alive? --> return his id negative
 	{
-		if(id == 0)
+		if(Id == 0)
 		{
 			return -420;
 		}
 		else
 		{
-			return id * -1;
+			return Id * -1;
 		}
 	}
 
