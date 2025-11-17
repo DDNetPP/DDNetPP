@@ -9,11 +9,10 @@
 #include <game/server/teams.h>
 
 #include <cinttypes>
-#include <cstring>
 
 bool CBomb::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
 		return false;
 	CCharacter *pChr = pPlayer->GetCharacter();

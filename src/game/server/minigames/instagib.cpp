@@ -10,11 +10,9 @@
 
 #include <game/server/teams.h>
 
-#include <cstring>
-
 bool CInstagib::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
 		return false;
 	return pPlayer->m_IsInstaArena_idm || pPlayer->m_IsInstaArena_gdm;

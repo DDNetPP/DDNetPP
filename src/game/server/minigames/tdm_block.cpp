@@ -28,7 +28,7 @@ CTdmBlock::CTdmBlock(CGameContext *pGameContext) :
 
 bool CTdmBlock::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
 		return false;
 	return pPlayer->m_IsBlockTdming;

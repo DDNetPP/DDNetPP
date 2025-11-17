@@ -11,12 +11,11 @@
 #include <game/mapitems.h>
 #include <game/server/teams.h>
 
-#include <cinttypes>
-#include <cstring>
-
 bool CBlockwave::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+		return false;
 	return pPlayer->m_IsBlockWaving;
 }
 

@@ -22,7 +22,7 @@
 
 bool COneVsOneBlock::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
 		return false;
 	return pPlayer->m_IsBlockOneVsOneing;
