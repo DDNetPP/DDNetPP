@@ -24,14 +24,14 @@ void CLetters::UpdateBuffers(int Ascii, int Offset)
 		{
 			m_aaAsciiBuf[i][k * 2] = ' '; // padding
 			m_aaAsciiBuf[i][(k * 2) + 1] = ' '; // padding
-			// printf("padding indicies %d %d\n", k*2, k*2+1);
+			// printf("padding indices %d %d\n", k*2, k*2+1);
 		}
 		int NumK = NumOffset + ASCII_CHAR_WIDTH + ASCII_PADDING;
 		for(int BufferIndex = NumOffset + ASCII_PADDING, TableIndex = 0; BufferIndex < NumK; BufferIndex++, TableIndex++)
 		{
 			m_aaAsciiBuf[i][BufferIndex * 2] = gs_aaaAsciiTable[Ascii][i][TableIndex] ? ':' : ' '; // colons have same width as spaces in default tw chat font
 			m_aaAsciiBuf[i][(BufferIndex * 2) + 1] = gs_aaaAsciiTable[Ascii][i][TableIndex] ? ':' : ' ';
-			// printf("filling indicies %d %d  k %d/%d\n", k*2, k*2+1, k, numK);
+			// printf("filling indices %d %d  k %d/%d\n", k*2, k*2+1, k, numK);
 		}
 		int Nullterm = (Offset + 1) * ASCII_CHAR_SIZE;
 		m_aaAsciiBuf[i][Nullterm] = '\0';

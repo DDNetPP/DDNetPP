@@ -6,7 +6,7 @@
 #define CONSOLE_COMMAND(name, params, flags, callback, userdata, help)
 #endif
 
-CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer to you") // added by ChillerDragon and not as a cheat... because a hammer comon xd
+CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer to you") // added by ChillerDragon and not as a cheat... because a hammer common xd
 
 // cosmetics
 CONSOLE_COMMAND("old_rainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
@@ -78,7 +78,7 @@ CONSOLE_COMMAND("verify_player", "v", CFGFLAG_SERVER, ConVerifyPlayer, this, "ma
 CONSOLE_COMMAND("logs", "?s[type]", CFGFLAG_SERVER, ConDDPPLogs, this, "shows ddnet++ logs (types: mastersrv)")
 CONSOLE_COMMAND("reload_spamfilters", "", CFGFLAG_SERVER, ConReloadSpamfilters, this, "reads spamfilters.txt (see also add_spamfilter)")
 CONSOLE_COMMAND("add_spamfilter", "s[filter]", CFGFLAG_SERVER, ConAddSpamfilter, this, "writes to spamfilters.txt (see also list_spamfilters)")
-CONSOLE_COMMAND("list_spamfilters", "", CFGFLAG_SERVER, ConListSpamfilters, this, "prints actice spamfilters (see also reload_spamfilters)")
+CONSOLE_COMMAND("list_spamfilters", "", CFGFLAG_SERVER, ConListSpamfilters, this, "prints active spamfilters (see also reload_spamfilters)")
 
 // ddpp sql
 CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSql_ADD, this, "adds an new column to the table")

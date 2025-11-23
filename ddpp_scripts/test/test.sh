@@ -66,7 +66,7 @@ run_all
 echo "---------------------"
 echo "tests run:     $((errors + passed))"
 echo "tests failed:  $errors"
-echo "tests passsed: $passed"
+echo "tests passed: $passed"
 
 if [ $errors -gt 0 ]; then
 	err "test run failed"

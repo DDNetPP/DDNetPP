@@ -15,7 +15,7 @@ public:
 	// Score that will also be displayed in the scoreboard
 	// if the minigame is active
 
-	// is seperate from m_Score which is only used for ddnet
+	// is separate from m_Score which is only used for ddnet
 	// race times
 
 	// The minigame score can/should be used for kills

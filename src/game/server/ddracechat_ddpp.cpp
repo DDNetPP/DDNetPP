@@ -577,7 +577,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"unknow page.");
+			"unknown page.");
 		return;
 	}
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
@@ -831,7 +831,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
 		pSelf->SendChatTarget(ClientId, "----------------------");
 		pSelf->SendChatTarget(ClientId, "'/acc_info <name>' additional info");
-		pSelf->SendChatTarget(ClientId, "'/sql' similiar command using sql ids");
+		pSelf->SendChatTarget(ClientId, "'/sql' similar command using sql ids");
 		return;
 	}
 
@@ -1062,7 +1062,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(ClientId, "[SQL] Unkown player name.");
+		pSelf->SendChatTarget(ClientId, "[SQL] Unknown player name.");
 	}
 }
 
@@ -1166,7 +1166,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		if(!pPlayer->IsLoggedIn()) //also gets triggerd on unknown commands but whatever if logged in all works fine
+		if(!pPlayer->IsLoggedIn()) //also gets triggered on unknown commands but whatever if logged in all works fine
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientId, "Unknown command or:");
 			pSelf->SendChatTarget(pResult->m_ClientId, "You have to be logged in to use this command.");
@@ -1328,7 +1328,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "Unknow command. '/profile cmdlist' or '/profile help' might help.");
+			pSelf->SendChatTarget(pResult->m_ClientId, "Unknown command. '/profile cmdlist' or '/profile help' might help.");
 		}
 	}
 }

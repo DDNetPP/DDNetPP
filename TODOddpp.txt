@@ -8,13 +8,13 @@ he always gets jail code 0
 could also be a feature xd idk yet
 
 ## pChr != this ##
-while working on FNN i expirienced a bug after touching the bot
+while working on FNN i experienced a bug after touching the bot
 and then selfkilling. The bot keeps spamming in chat "stup touch me" 
 and then i added to this line:
 	if (pChr && pChr->IsAlive())
 this:
 	if (pChr && pChr->IsAlive() && pChr != this)
-what fixed it. idk if this also causes some selfblock points or something like that or if this error is catched somewhere else.
+what fixed it. idk if this also causes some selfblock points or something like that or if this error is caught somewhere else.
 this can also fuck some dummymodes idk better check it on time
 
 ## commands ##
@@ -101,7 +101,7 @@ Monition kann jedoch jeder an den munition spawner tiles sammeln (die dort rando
 add reasons why people get arrested (bankrob, spawnblock, report)
 and add a report command
 "/report (player) (reason)" to report a player
-und dann ein paar reasons:
+und dann in paar reasons:
 - spawnblocking
 - hacking
 - insulting
@@ -117,7 +117,7 @@ supermoderators can create some for much money but only if x < cfgrated (to avoi
 and all tele there for some money
 
 ## dppgametype 5 (full fng server) ##
-add sv_scorelimit back agian
+add sv_scorelimit back again
 
 COULD AND TO DOS:
 

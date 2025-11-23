@@ -28,7 +28,7 @@ extern "C" {
 	Function: regex_compile
 		checks if a regex pattern matches
 
-	Retrurns:
+	Returns:
 	   -1 - on error
 		0 - if pattern matches
 		1 - if pattern doesn't match

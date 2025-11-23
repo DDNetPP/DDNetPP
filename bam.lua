@@ -601,7 +601,7 @@ if platform == "macosx" then
 	end
 else
 	build(debug_settings)
-	-- ChillerDragon commented out those to fix (brain dragon assums that the sql release suffixes gamecontext.cpp with _sql and thus create dupe so either rename file or dont uncomment sql rls)
+	-- ChillerDragon commented out those to fix (brain dragon assumes that the sql release suffixes gamecontext.cpp with _sql and thus create dupe so either rename file or dont uncomment sql rls)
 	-- bam: error: job 'objs/game/server/gamecontext_sql_d.o' already exists
 	-- [string "src/driver_gcc.lua"]:21: bad argument #1 to 'AddJob' (node 'objs/game/server/gamecontext_sql_d.o' already exists)
 

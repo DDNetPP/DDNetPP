@@ -390,7 +390,7 @@ struct CSqlCreateTableRequest : ISqlData
 	char m_aaMessages[10][512];
 };
 
-// for server scoped querys (not per player)
+// for server scoped queries (not per player)
 
 // struct CScoreInitResult : ISqlResult
 // {

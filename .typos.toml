@@ -18,6 +18,12 @@ extend-exclude = [
 
 [default]
 extend-ignore-re = [
+	# ddnet++
+	'einZug-',
+	'hax0r',
+	'einFISCH',
+
+	# ddnet
 	'lod',
 	'LOD',
 	'Lod',

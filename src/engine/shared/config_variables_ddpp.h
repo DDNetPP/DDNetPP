@@ -24,7 +24,7 @@ MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as m
 MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 0, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")
 MACRO_CONFIG_INT(SvTimelimit, sv_timelimit, 0, 0, 1000, CFGFLAG_SERVER, "Time limit in minutes (0 disables)")
 
-MACRO_CONFIG_INT(SvVoteDelayAll, sv_vote_delay_all, 600, 0, 9999, CFGFLAG_SERVER, "The time in seconds between any vote (ddpp total afecting all players)")
+MACRO_CONFIG_INT(SvVoteDelayAll, sv_vote_delay_all, 600, 0, 9999, CFGFLAG_SERVER, "The time in seconds between any vote (ddpp total affecting all players)")
 MACRO_CONFIG_STR(SvClientSuggestionSupported, sv_client_suggestion_supported, 128, "Update to 11.4.3 or higher for full support on DDNet++ servers", CFGFLAG_SERVER, "Broadcast to display to players that their client isnt fully supported")
 
 MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "allow users to play minigames")
@@ -126,7 +126,7 @@ MACRO_CONFIG_STR(SvGameTypeName, sv_game_type_name, 16, "DDNet++", CFGFLAG_SERVE
 MACRO_CONFIG_STR(SvGameTypeNameTest, sv_game_type_name_test, 24, "TestDDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 1")
 
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
-MACRO_CONFIG_INT(SvDDPPscore, sv_ddpp_score, 1, 0, 1, CFGFLAG_SERVER, "rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)")
+MACRO_CONFIG_INT(SvDDPPscore, sv_ddpp_score, 1, 0, 1, CFGFLAG_SERVER, "rank scoreboard by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)")
 /*
     "" is normal ddnet++ so ddrace with extensions and minigames
     "block" is round based pvp block game. Block others increase score until score limit is reached. needs "sv_ddpp_score 0"
@@ -230,7 +230,7 @@ MACRO_CONFIG_INT(SvFNNtimeout, sv_fnn_timeout, 0, 0, 500000, CFGFLAG_SERVER, "af
 MACRO_CONFIG_STR(SvFileAccPath, sv_file_acc_path, 128, "file_accounts", CFGFLAG_SERVER, "the path were the server searches the .acc files (no / after last directory)")
 
 //Global chat (between ddpp servers)
-MACRO_CONFIG_INT(SvAllowGlobalChat, sv_allow_global_chat, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=messsages with @all in front get pushed into txt file")
+MACRO_CONFIG_INT(SvAllowGlobalChat, sv_allow_global_chat, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=messages with @all in front get pushed into txt file")
 MACRO_CONFIG_INT(SvGlobalChatServers, sv_global_chat_servers, 0, 0, 9, CFGFLAG_SERVER, "how many servers are connected to the global chat (needed for print confirmation)")
 MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", CFGFLAG_SERVER, "path/to/file.txt where the global chat messages get pushed and pulled")
 
@@ -242,7 +242,7 @@ MACRO_CONFIG_INT(SvFreezeFarm, sv_freeze_farm, 1, 0, 1, CFGFLAG_SERVER, "wether 
 MACRO_CONFIG_INT(SvMaxPoliceFarmPlayers, sv_max_police_farm_players, 0, 0, 64, CFGFLAG_SERVER, "deactivates all police tiles if too many players are on them (0 = no limit)")
 MACRO_CONFIG_INT(SvTeleportationDelay, sv_teleportation_delay, 1, 0, 1, CFGFLAG_SERVER, "force players to stand still a few seconds before joining minigames")
 
-//TODO: move me to sql data or somehting
+//TODO: move me to sql data or something
 //Supporter permissions
 MACRO_CONFIG_INT(SvSupAccReset, sv_sup_acc_reset, 0, 0, 2, CFGFLAG_SERVER, "allow supporters cmds 1='/sql_logout' 2=1 and '/sql_logout_all'")
 
