@@ -6,7 +6,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummySample::CDummySample(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_DEFAULT)
@@ -16,8 +16,8 @@ CDummySample::CDummySample(class CPlayer *pPlayer) :
 void CDummySample::OnTick()
 {
 	/********************************
-	*           weapons             *
-	*********************************/
+	 *           weapons             *
+	 *********************************/
 	SetWeapon(WEAPON_HAMMER);
 	SetWeapon(WEAPON_GUN);
 	SetWeapon(WEAPON_SHOTGUN);
@@ -25,8 +25,8 @@ void CDummySample::OnTick()
 	SetWeapon(WEAPON_LASER);
 
 	/********************************
-	*           aiming              *
-	********************************/
+	 *           aiming              *
+	 ********************************/
 	// right and down:
 	Aim(200, 200);
 
@@ -38,8 +38,8 @@ void CDummySample::OnTick()
 	Aim(1, -200);
 
 	/********************************
-	*           moving              *
-	*********************************/
+	 *           moving              *
+	 *********************************/
 	Left();
 	Right();
 	StopMoving();
@@ -47,14 +47,14 @@ void CDummySample::OnTick()
 	Hook(0); // do not hook
 
 	/********************************
-	*           shooting            *
-	*********************************/
+	 *           shooting            *
+	 *********************************/
 	Fire(); // shoot
 	Fire(0); // stop shooting
 
 	/********************************
-	*           conditions          *
-	*********************************/
+	 *           conditions          *
+	 *********************************/
 	if(GetPos().x < 10 * 32)
 	{
 		// this code gets executed if the bot is in the first 10 left tiles of the map

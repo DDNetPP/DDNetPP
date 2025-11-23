@@ -13,7 +13,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyCtf5Pvp::CDummyCtf5Pvp(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_CTF5_PVP)

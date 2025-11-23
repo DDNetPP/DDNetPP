@@ -11,7 +11,7 @@ public:
 	CDummyChillBlock5Race(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
-	virtual ~CDummyChillBlock5Race(){};
+	virtual ~CDummyChillBlock5Race() {}
 	const char *ModeStr() override { return "ChillBlock5 Race"; }
 
 private:

@@ -87,7 +87,7 @@ void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
 	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, false);
 	Controller()->Teams().ChangeTeamState(pGameState->m_DDRaceTeam, ETeamState::OPEN);
 	char aError[512];
-	
+
 	if(!Controller()->Teams().SetCharacterTeam(pPlayer->GetCid(), pGameState->m_DDRaceTeam, aError, sizeof(aError)))
 	{
 		char aBuf[512];

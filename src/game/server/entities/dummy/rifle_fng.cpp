@@ -8,7 +8,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyRifleFng::CDummyRifleFng(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_RIFLE_FNG)

@@ -29,7 +29,7 @@ ModeStructure:
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyFNN::CDummyFNN(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_FNN)
@@ -433,12 +433,12 @@ void CDummyFNN::OnTick()
 						dbg_msg("FNN", "distance_finish=%.2f", NewestDistanceFinish);
 
 						/***************************************
-						*                                      *
-						*                                      *
-						*         D I S T A N C E              *
-						*                                      *
-						*                                      *
-						****************************************/
+						 *                                      *
+						 *                                      *
+						 *         D I S T A N C E              *
+						 *                                      *
+						 *                                      *
+						 ****************************************/
 
 						if(NewestDistance > GameServer()->m_FNN_best_distance)
 						{
@@ -500,12 +500,12 @@ void CDummyFNN::OnTick()
 						}
 
 						/***************************************
-						*                                      *
-						*                                      *
-						*         F I T T N E S S              *
-						*                                      *
-						*                                      *
-						****************************************/
+						 *                                      *
+						 *                                      *
+						 *         F I T T N E S S              *
+						 *                                      *
+						 *                                      *
+						 ****************************************/
 
 						if(NewestFitness > GameServer()->m_FNN_best_fitness)
 						{
@@ -567,12 +567,12 @@ void CDummyFNN::OnTick()
 						}
 
 						/***************************************
-						*                                      *
-						*                                      *
-						*         D I S T A N C E              *
-						*         F I N I S H                  *
-						*                                      *
-						****************************************/
+						 *                                      *
+						 *                                      *
+						 *         D I S T A N C E              *
+						 *         F I N I S H                  *
+						 *                                      *
+						 ****************************************/
 
 						if(NewestDistanceFinish < GameServer()->m_FNN_best_distance_finish)
 						{

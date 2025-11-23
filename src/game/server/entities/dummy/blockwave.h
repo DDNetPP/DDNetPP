@@ -8,7 +8,7 @@ class CDummyBlockWave : public CDummyBase
 public:
 	CDummyBlockWave(class CPlayer *pPlayer);
 	virtual void OnTick() override;
-	virtual ~CDummyBlockWave(){};
+	virtual ~CDummyBlockWave() {}
 	const char *ModeStr() override { return "BlockWave"; }
 };
 

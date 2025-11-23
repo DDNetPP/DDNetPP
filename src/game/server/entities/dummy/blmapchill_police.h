@@ -13,7 +13,7 @@ public:
 	CDummyBlmapChillPolice(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
-	virtual ~CDummyBlmapChillPolice(){};
+	virtual ~CDummyBlmapChillPolice() {}
 	const char *ModeStr() override { return "BlmapChill Police"; }
 
 private:

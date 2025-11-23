@@ -33,7 +33,7 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool Fng)
 		return;
 
 #if defined(CONF_DEBUG)
-		//dbg_msg("cBug", "PLAYER '%s' Id=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(Id), Id, weapon, fng);
+	//dbg_msg("cBug", "PLAYER '%s' Id=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(Id), Id, weapon, fng);
 #endif
 
 	//die first to not count death

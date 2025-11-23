@@ -18,7 +18,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyBlmapV3Arena::CDummyBlmapV3Arena(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_BLMAPV3_ARENA)
@@ -39,10 +39,10 @@ void CDummyBlmapV3Arena::OnTick()
 		AimPos(pChr->GetPos());
 
 		/*************************************************
-		*                                                *
-		*                A T T A C K                     *
-		*                                                *
-		**************************************************/
+		 *                                                *
+		 *                A T T A C K                     *
+		 *                                                *
+		 **************************************************/
 
 		//swing enemy up
 		if(GetPos().y < pChr->GetPos().y - 20 && !IsGrounded() && !pChr->isFreezed)
@@ -209,10 +209,10 @@ void CDummyBlmapV3Arena::OnTick()
 		}
 
 		/*************************************************
-		*                                                *
-		*                D E F E N D (move)              *
-		*                                                *
-		**************************************************/
+		 *                                                *
+		 *                D E F E N D (move)              *
+		 *                                                *
+		 **************************************************/
 
 		//########################################
 		//Worst hammer switch code eu west rofl! #
@@ -364,10 +364,10 @@ void CDummyBlmapV3Arena::OnTick()
 		}
 
 		/*************************************************
-		*                                                *
-		*      ChillBlock5 v015 extensions around v3     *
-		*                                                *
-		**************************************************/
+		 *                                                *
+		 *      ChillBlock5 v015 extensions around v3     *
+		 *                                                *
+		 **************************************************/
 
 		// 3 tile freze pit on the floor
 		// right side of v3 arena

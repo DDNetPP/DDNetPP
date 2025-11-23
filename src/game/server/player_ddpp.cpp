@@ -61,8 +61,8 @@ void CPlayer::DestructDDPP()
 void CPlayer::ResetDDPP()
 {
 	/*****************************
-	*        DDNetPP             *
-	******************************/
+	 *        DDNetPP             *
+	 ******************************/
 
 	//ChillerDragon constructor Konstructor init
 	if(g_Config.m_SvTestingCommands)

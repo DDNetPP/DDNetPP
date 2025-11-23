@@ -13,8 +13,8 @@ public:
 	virtual ~CDummyBase() = default;
 	virtual const char *ModeStr() = 0;
 	void Tick(class CCharacter *pChr);
-	virtual void OnDeath(){};
-	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon){};
+	virtual void OnDeath() {}
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon) {}
 	int Mode() const { return m_Mode; }
 
 private:

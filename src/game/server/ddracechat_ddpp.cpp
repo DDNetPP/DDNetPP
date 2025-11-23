@@ -2440,10 +2440,10 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	}
 
 	/***********************************
-	*                                  *
-	*          BLOCK TOURNAMENT        *
-	*                                  *
-	************************************/
+	 *                                  *
+	 *          BLOCK TOURNAMENT        *
+	 *                                  *
+	 ************************************/
 
 	if(!g_Config.m_SvAllowBlockTourna)
 	{
@@ -3395,11 +3395,11 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 		// pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
 		// pSelf->StartQuest(pPlayer->GetCid());
 		/*
-        pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
-        pSelf->m_MissionCurrentLevel = pResult->GetInteger(1);
-        str_format(aBuf, sizeof(aBuf), "updated level unlocked=%d current=%d", pSelf->m_MissionUnlockedLevel, pSelf->m_MissionCurrentLevel);
-        pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
-        pSelf->SaveSinglePlayer();
+	pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
+	pSelf->m_MissionCurrentLevel = pResult->GetInteger(1);
+	str_format(aBuf, sizeof(aBuf), "updated level unlocked=%d current=%d", pSelf->m_MissionUnlockedLevel, pSelf->m_MissionCurrentLevel);
+	pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+	pSelf->SaveSinglePlayer();
 
 		pSelf->m_BlockWaveRound = pResult->GetInteger(0);
 		str_format(aBuf, sizeof(aBuf), "set blockwave level %d", pSelf->m_BlockWaveRound);

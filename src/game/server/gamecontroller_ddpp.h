@@ -70,7 +70,7 @@ public:
 			return true to not run the rest of CGameContext::OnSayNetMessage()
 			which would print it to the chat or run it as a ddrace chat command
 	*/
-	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; };
+	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; }
 
 	/*
 		Function: SnapPlayerFlags7
@@ -84,7 +84,7 @@ public:
 		Returns:
 			return the new flags value that should be snapped to the SnappingClient
 	*/
-	virtual int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) { return PlayerFlags7; };
+	virtual int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) { return PlayerFlags7; }
 
 	/*
 		Function: SnapPlayer6
@@ -100,7 +100,7 @@ public:
 			pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 			pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 	*/
-	virtual void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo){};
+	virtual void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) {}
 
 	/*
 		Function: SnapPlayerScore
@@ -117,7 +117,7 @@ public:
 	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore);
 	virtual int SnapScoreLimit(int SnappingClient);
 
-	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo){};
+	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo) {}
 
 	/*
 		Function: ServerInfoClientScoreValue
@@ -155,12 +155,12 @@ public:
 			or also at a later point in time (after human verification)
 			if the anti flood is on
 	*/
-	virtual void PrintJoinMessage(CPlayer *pPlayer){};
+	virtual void PrintJoinMessage(CPlayer *pPlayer) {}
 
 	// flags only work if the ddnet++ gamecontroller is active
 	// which should always be the case because not even sv_gametype can load pure ddnet
-	virtual void DropFlag(int FlagId, int Dir = 1){};
-	virtual void ChangeFlagOwner(int FlagId, int ClientId){};
+	virtual void DropFlag(int FlagId, int Dir = 1) {}
+	virtual void ChangeFlagOwner(int FlagId, int ClientId) {}
 
 	// returns true if the character had the flag and it got dropped
 	// returns false if the character did not have the flag and nothing happend
@@ -169,7 +169,7 @@ public:
 	// returns -1 if the player has no flag
 	// returns 0 of the player has the red flag
 	// returns 1 if the player has the blue flag
-	virtual int HasFlag(CCharacter *pChr) { return -1; };
+	virtual int HasFlag(CCharacter *pChr) { return -1; }
 
 	/*
 		Function: GetCarriedFlag
@@ -184,7 +184,7 @@ public:
 			FLAG_RED  0
 			FLAG_BLUE 2
 	*/
-	virtual int GetCarriedFlag(CPlayer *pPlayer) { return FLAG_NONE; };
+	virtual int GetCarriedFlag(CPlayer *pPlayer) { return FLAG_NONE; }
 
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER

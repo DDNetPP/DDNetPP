@@ -17,7 +17,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyChillBlock5Balance::CDummyChillBlock5Balance(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BALANCE)

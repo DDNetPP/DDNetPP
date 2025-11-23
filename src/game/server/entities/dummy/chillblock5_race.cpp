@@ -14,7 +14,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyChillBlock5Race::CDummyChillBlock5Race(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_RACE)
@@ -996,7 +996,7 @@ void CDummyChillBlock5Race::OnTick()
 		3				final stage of doing the part -> jumpin' and unfreeze pChr with hammerhit
 		4				jump in freeze and let the mate help
 
-		5				go on edge if pChr dragged u through the part 
+		5				go on edge if pChr dragged u through the part
 		6				if on edge sg and unfreeze mate
 
 		*/
@@ -1132,7 +1132,7 @@ void CDummyChillBlock5Race::OnTick()
 						if(m_Dummy_2p_state == 0) //prepare doing the part (gettin right pos)
 						{
 							Right(); //walking right until state 1 gets triggerd
-								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [1]");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [1]");
 						}
 						else if(m_Dummy_2p_state == 1) //starting to do the part -> walking left and hammerin'
 						{
@@ -1640,7 +1640,7 @@ void CDummyChillBlock5Race::OnTick()
 							//maybe add some weapon changes or change m_Input.m_TargetX a bit
 
 							Left(); //ye just walk untill an emergency gets called xD
-								//ik pro trick but it moves the bot around
+							//ik pro trick but it moves the bot around
 						}
 
 						//Emergency takes over here if the bot got in a dangerous situation!
@@ -2036,7 +2036,7 @@ void CDummyChillBlock5Race::OnTick()
 						else
 						{
 							m_Dummy_hh_hook = false; //reset hook if bot is freeze
-								//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
+							//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
 						}
 					}
 				}

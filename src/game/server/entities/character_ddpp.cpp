@@ -2931,7 +2931,7 @@ bool CCharacter::ForceFreeze(int Seconds)
 				if(m_Core.m_aWeapons[i].m_Got)
 				{
 					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
-						//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()),i, m_aWeaponsBackup[i][1]);
+					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()),i, m_aWeaponsBackup[i][1]);
 					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}

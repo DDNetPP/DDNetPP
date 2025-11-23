@@ -61,20 +61,20 @@ public:
 	// so only initialize variables here
 	// do not write code here that should run at max once
 	// on server start
-	virtual void OnInit(){};
+	virtual void OnInit() {}
 
 	// do your cleanup here
-	virtual void OnShutdown(){};
+	virtual void OnShutdown() {}
 
 	// will be called every tick
-	virtual void Tick(){};
+	virtual void Tick() {}
 
 	// will be called every 600 ticks
-	virtual void SlowTick(){};
+	virtual void SlowTick() {}
 
 	// called every time the server builds a snap
 	// register your custom snap items here
-	virtual void Snap(int SnappingClient){};
+	virtual void Snap(int SnappingClient) {}
 
 	// This already implements logic in the minigame base
 	// it is unlikely that you need to override it!
@@ -85,30 +85,30 @@ public:
 	virtual void SnapSavedPositions(int SnappingClient);
 
 	// will be called every 600 ticks for every player
-	virtual void PlayerSlowTick(CPlayer *pPlayer){};
+	virtual void PlayerSlowTick(CPlayer *pPlayer) {}
 
 	// will be called every tick for every alive player
-	virtual void CharacterTick(CCharacter *pChr){};
+	virtual void CharacterTick(CCharacter *pChr) {}
 
 	// Called for all connected players once per tick
 	// the pPlayer pointer is never invalid
-	virtual void PlayerTick(CPlayer *pPlayer){};
+	virtual void PlayerTick(CPlayer *pPlayer) {}
 
 	// Will be called for every client that tries to selfkill
 	// can be overwritten to disallow selfkill during the minigame
 	virtual bool AllowSelfKill(int ClientId) { return true; }
 
 	// Will be called when the CCharacter dies
-	virtual void OnDeath(CCharacter *pChr, int Killer, int Weapon){};
+	virtual void OnDeath(CCharacter *pChr, int Killer, int Weapon) {}
 
 	// Will be called after the CCharacter spawned
-	virtual void PostSpawn(CCharacter *pChr){};
+	virtual void PostSpawn(CCharacter *pChr) {}
 
 	// Will be called once for every player that connects
-	virtual void OnPlayerConnect(class CPlayer *pPlayer){};
+	virtual void OnPlayerConnect(class CPlayer *pPlayer) {}
 
 	// Will be called once for every player that disconnects
-	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason){};
+	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) {}
 
 	// return true if you want to set a spawnpoint
 	// return false if you want to default to normal spawn
@@ -121,7 +121,7 @@ public:
 	//
 	// return true if you want to abort the other tile checks
 	// useful when calling Die() to avoid crashes
-	virtual bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) { return false; };
+	virtual bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) { return false; }
 
 	// Returns true if the ClientId is playing the minigame
 	virtual bool IsActive(int ClientId) = 0;
@@ -129,7 +129,7 @@ public:
 	// Called when the player IsActive() and typed /leave into the chat
 	// Returns true when the player did leave the game
 	// Returns false when the leave failed
-	virtual bool OnChatCmdLeave(CPlayer *pPlayer) { return true; };
+	virtual bool OnChatCmdLeave(CPlayer *pPlayer) { return true; }
 
 	// If your minigame is race based
 	// you probably want to overwrite this method
@@ -148,12 +148,12 @@ public:
 	// alter the pGameData object if needed, its values are already filled
 	// it includes the flag carriers from the main game
 	// but you can also have your own custom flags in the minigame by overwriting it
-	virtual void SnapGameData(CPlayer *pPlayer, CNetObj_GameData *pGameData){};
+	virtual void SnapGameData(CPlayer *pPlayer, CNetObj_GameData *pGameData) {}
 
 	// alter the pGameData object if needed, its values are already filled
 	// it includes the flag carriers from the main game
 	// but you can also have your own custom flags in the minigame by overwriting it
-	virtual void SnapGameDataFlag7(CPlayer *pPlayer, protocol7::CNetObj_GameDataFlag *pGameData){};
+	virtual void SnapGameDataFlag7(CPlayer *pPlayer, protocol7::CNetObj_GameDataFlag *pGameData) {}
 
 	// Presist player position when joining the minigame
 	// to be later able to load it again

@@ -1,8 +1,8 @@
 /*************************************
-*                                    *
-*             DDNet++                *
-*                                    *
-**************************************/
+ *                                    *
+ *             DDNet++                *
+ *                                    *
+ **************************************/
 
 #ifndef ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H
 #define ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H

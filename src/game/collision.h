@@ -159,7 +159,7 @@ public:
 	vec2 GetTileAtNum(int Tile, int Num);
 	vec2 GetSurvivalSpawn(int Num);
 	vec2 GetBlockTournamentSpawn(int Num);
-	int CountSurvivalSpawns() const { return m_NumSurvivalSpawns; };
+	int CountSurvivalSpawns() const { return m_NumSurvivalSpawns; }
 	void ModifyTile(int x, int y, int Group, int Layer, int Index, int Flags);
 	bool FirstNonEmpty(int x, int y, int *pGroupOut, int *pLayerOut);
 

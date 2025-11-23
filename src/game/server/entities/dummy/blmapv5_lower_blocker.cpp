@@ -13,7 +13,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyBlmapV5LowerBlocker::CDummyBlmapV5LowerBlocker(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_BLMAPV5_LOWER_BLOCKER)

@@ -14,7 +14,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyShopBot::CDummyShopBot(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_SHOPBOT)

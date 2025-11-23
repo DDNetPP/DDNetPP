@@ -534,8 +534,8 @@ public:
 	std::vector<std::vector<CDropPickup *>> m_vDropLimit;
 
 	/*****************
-	*     TRADE      *
-	******************/
+	 *     TRADE      *
+	 ******************/
 	//  --- selll
 	int TradePrepareSell(const char *pToName, int FromId, const char *pItemName, int Price, bool IsPublic);
 	int TradeSellCheckUser(const char *pToName, int FromId);

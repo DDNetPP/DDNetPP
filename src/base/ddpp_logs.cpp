@@ -15,9 +15,9 @@ char aDDPPLogs[DDPP_NUM_LOGS][DDPP_LOG_SIZE][128] = {{{0}}};
 void ddpp_log_print(int type)
 {
 	/*
-        start from the oldest log
-        so the last line printed in the console is the latest log
-        scroll up to go in the past
+	start from the oldest log
+	so the last line printed in the console is the latest log
+	scroll up to go in the past
     */
 	for(int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
 	{

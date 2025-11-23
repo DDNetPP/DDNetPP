@@ -16,7 +16,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 #ifdef CONF_DUMMY_TEST
 #define print_once(uuid, text) \

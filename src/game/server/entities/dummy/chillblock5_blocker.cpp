@@ -17,7 +17,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyChillBlock5Blocker::CDummyChillBlock5Blocker(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BLOCKER)
@@ -64,7 +64,7 @@ void CDummyChillBlock5Blocker::OnTick()
 {
 	Hook(0);
 	Jump(0); //this is 29 only the mode 18 had no jump resett hope it works ... it shoudl omg
-		//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "HALLO ICH BIN 29!");
+	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "HALLO ICH BIN 29!");
 
 	//Check ob dem bot langweilig geworden is :)
 
@@ -1430,7 +1430,7 @@ void CDummyChillBlock5Blocker::OnTick()
 								if(GetPos().x > pChr->m_Pos.x - 45) //zu weit rechts von hammer position
 								{
 									Left(); //gehe links
-										//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
 								}
 								else if(GetPos().x < pChr->m_Pos.x - 39) // zu weit links von hammer position
 								{

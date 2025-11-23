@@ -98,7 +98,7 @@ public:
 	int m_DummyFinishes;
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
-	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
+	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); }
 	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon dupe of CEntitiy::GetPos() ??
 	vec2 GetVel() { return m_Core.m_Vel; }
 	void SetHealth(int Health) { m_Health = Health; }
@@ -323,7 +323,7 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-	CNetObj_PlayerInput *Input() { return &m_Input; };
+	CNetObj_PlayerInput *Input() { return &m_Input; }
 	void Fire(bool Fire = true);
 	int GetReloadTimer() { return m_ReloadTimer; }
 	void MineTeeBreakBlock();

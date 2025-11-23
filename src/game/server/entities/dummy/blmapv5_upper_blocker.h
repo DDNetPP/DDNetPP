@@ -9,7 +9,7 @@ public:
 	CDummyBlmapV5UpperBlocker(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
-	virtual ~CDummyBlmapV5UpperBlocker(){};
+	virtual ~CDummyBlmapV5UpperBlocker() {}
 	const char *ModeStr() override { return "BlmapV5 upper"; }
 
 private:

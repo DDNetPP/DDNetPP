@@ -21,65 +21,65 @@ protected:
 	int m_NeededLevel;
 
 	/*
-        m_Active
+	m_Active
 
-        Shop items can be deactivated in rcon
-        then they wont be listed in the shop
+	Shop items can be deactivated in rcon
+	then they wont be listed in the shop
     */
 	bool m_Active;
 
 	/*
-        m_aTitle
+	m_aTitle
 
-        fancy formatted title shown in the motd
-        shop menu
+	fancy formatted title shown in the motd
+	shop menu
     */
 	char m_aTitle[64];
 
 	/*
-        m_aName
+	m_aName
 
-        Short name shown the compressed shop
-        and used for /buy commands
+	Short name shown the compressed shop
+	and used for /buy commands
     */
 	char m_aName[64];
 
 	/*
-        m_aDescription
+	m_aDescription
 
-        Description shown in the motd shop menu
+	Description shown in the motd shop menu
     */
 	char m_aDescription[1024];
 
 	/*
-        m_aOwnUntil
+	m_aOwnUntil
 
-        String holding the time as human readable string
-        for how long the shop item can be used.
+	String holding the time as human readable string
+	for how long the shop item can be used.
 
-        values:
+	values:
 
-            dead
-            disconnect
-            forever
+	    dead
+	    disconnect
+	    forever
     */
 	char m_aOwnUntil[64];
 
 	/*
-        m_aPriceStr
+	m_aPriceStr
 
-        Holding the m_Price as string.
-        Make it more readable by splitting every 3 digits.
+	Holding the m_Price as string.
+	Make it more readable by splitting every 3 digits.
     */
 	char m_aPriceStr[64];
 
 	/*
-        m_aNeededLevelStr
+	m_aNeededLevelStr
 
-        Holding the m_NeededLevel as string.
+	Holding the m_NeededLevel as string.
 
-        Can also hold a police level as value in the format of
-        Police[level]
+	Can also hold a police level as value in the format of
+	Police[level]
     */
 	char m_aNeededLevelStr[64];
 
@@ -101,7 +101,7 @@ public:
 		So if you want changing prices add that logic in PriceStr().
 	*/
 	virtual int Price(int ClientId = -1);
-	virtual const char *PriceStr(int ClientId = -1) { return m_aPriceStr; };
+	virtual const char *PriceStr(int ClientId = -1) { return m_aPriceStr; }
 	void SetPrice(const char *pPrice) { str_copy(m_aPriceStr, pPrice, sizeof(m_aPriceStr)); }
 	void SetDescription(const char *pDescription) { str_copy(m_aDescription, pDescription, sizeof(m_aDescription)); }
 	void SetNeededLevel(int Level) { m_NeededLevel = Level; }

@@ -12,7 +12,7 @@ public:
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
 	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon) override;
-	virtual ~CDummyFNN(){};
+	virtual ~CDummyFNN() {}
 	const char *ModeStr() override { return "FNN"; }
 
 	int m_RandDirection = 0;

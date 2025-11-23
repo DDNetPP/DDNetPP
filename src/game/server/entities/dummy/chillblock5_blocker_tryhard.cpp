@@ -18,7 +18,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyChillBlock5BlockerTryHard::CDummyChillBlock5BlockerTryHard(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD)
@@ -932,7 +932,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 							if(GetPos().x > pChr->GetPos().x - 45) //zu weit rechts von hammer position
 							{
 								Left(); //gehe links
-									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
 							}
 							else if(GetPos().x < pChr->GetPos().x - 39) // zu weit links von hammer position
 							{
@@ -1075,7 +1075,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									else
 									{
 										StopMoving(); // aber nicht zu weit
-											//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "ja ich bin das!");
+										//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "ja ich bin das!");
 									}
 								}
 							}

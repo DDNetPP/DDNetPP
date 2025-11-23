@@ -7,7 +7,7 @@
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
-#define RAW(pos) ((pos)*32)
+#define RAW(pos) ((pos) * 32)
 
 CDummyBlockWave::CDummyBlockWave(class CPlayer *pPlayer) :
 	CDummyBase(pPlayer, DUMMYMODE_BLOCKWAVE)

@@ -11,7 +11,7 @@ public:
 	CDummyChillBlock5BlockerTryHard(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
-	virtual ~CDummyChillBlock5BlockerTryHard(){};
+	virtual ~CDummyChillBlock5BlockerTryHard() {}
 	const char *ModeStr() override { return "ChillBlock5 Blocker TryHard"; }
 
 private:

@@ -2,13 +2,13 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
 /******************************************************
-*													  *
-*				map_chiller.cpp						  *
-*			Map Generator Tool by QshaR				  *
-*		      modded by ChillerDragon				  *
-*													  *
-*													  *
-*******************************************************/
+ *													  *
+ *				map_chiller.cpp						  *
+ *			Map Generator Tool by QshaR				  *
+ *		      modded by ChillerDragon				  *
+ *													  *
+ *													  *
+ *******************************************************/
 
 /*
 
