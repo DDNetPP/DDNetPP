@@ -22,6 +22,13 @@ extend-ignore-re = [
 	'einZug-',
 	'hax0r',
 	'einFISCH',
+	'hax',
+	'hax_me_admin_mummy',
+	'vor', # TODO: remove german comments
+	'ein',
+	'als',
+	'ende',
+	'effekt',
 
 	# ddnet
 	'lod',
