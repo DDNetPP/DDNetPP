@@ -497,12 +497,11 @@ void CClient::EnterGame(int Conn)
 	m_CurrentServerNextPingTime = time_get() + time_freq() / 2;
 }
 
-void CClient::OnPostConnect(int Conn, bool Dummy)
+void CClient::OnPostConnect(int Conn)
 {
 	if(!m_ServerCapabilities.m_ChatTimeoutCode)
 		return;
 
-	char aBuf[128];
 	char aBufMsg[256];
 	if(!g_Config.m_ClRunOnJoin[0] && !g_Config.m_ClDummyDefaultEyes && !g_Config.m_ClPlayerDefaultEyes)
 		str_format(aBufMsg, sizeof(aBufMsg), "/timeout %s", m_aTimeoutCodes[Conn]);
@@ -511,39 +510,29 @@ void CClient::OnPostConnect(int Conn, bool Dummy)
 
 	if(g_Config.m_ClDummyDefaultEyes || g_Config.m_ClPlayerDefaultEyes)
 	{
-		int Emote = ((g_Config.m_ClDummy) ? !Dummy : Dummy) ? g_Config.m_ClDummyDefaultEyes : g_Config.m_ClPlayerDefaultEyes;
-		char aBufEmote[128];
-		aBufEmote[0] = '\0';
-		switch(Emote)
+		int Emote = Conn == CONN_DUMMY ? g_Config.m_ClDummyDefaultEyes : g_Config.m_ClPlayerDefaultEyes;
+
+		if(Emote != EMOTE_NORMAL)
 		{
-		case EMOTE_NORMAL:
-			break;
-		case EMOTE_PAIN:
-			str_format(aBufEmote, sizeof(aBufEmote), "emote pain %d", g_Config.m_ClEyeDuration);
-			break;
-		case EMOTE_HAPPY:
-			str_format(aBufEmote, sizeof(aBufEmote), "emote happy %d", g_Config.m_ClEyeDuration);
-			break;
-		case EMOTE_SURPRISE:
-			str_format(aBufEmote, sizeof(aBufEmote), "emote surprise %d", g_Config.m_ClEyeDuration);
-			break;
-		case EMOTE_ANGRY:
-			str_format(aBufEmote, sizeof(aBufEmote), "emote angry %d", g_Config.m_ClEyeDuration);
-			break;
-		case EMOTE_BLINK:
-			str_format(aBufEmote, sizeof(aBufEmote), "emote blink %d", g_Config.m_ClEyeDuration);
-			break;
-		}
-		if(aBufEmote[0])
-		{
-			str_format(aBuf, sizeof(aBuf), ";%s", aBufEmote);
+			char aBuf[32];
+			static const char *s_EMOTE_NAMES[] = {
+				"pain",
+				"happy",
+				"surprise",
+				"angry",
+				"blink",
+			};
+			static_assert(std::size(s_EMOTE_NAMES) == NUM_EMOTES - 1, "The size of EMOTE_NAMES must match NUM_EMOTES - 1");
+
+			str_append(aBufMsg, ";");
+			str_format(aBuf, sizeof(aBuf), "emote %s %d", s_EMOTE_NAMES[Emote - 1], g_Config.m_ClEyeDuration);
 			str_append(aBufMsg, aBuf);
 		}
 	}
 	if(g_Config.m_ClRunOnJoin[0])
 	{
-		str_format(aBuf, sizeof(aBuf), ";%s", g_Config.m_ClRunOnJoin);
-		str_append(aBufMsg, aBuf);
+		str_append(aBufMsg, ";");
+		str_append(aBufMsg, g_Config.m_ClRunOnJoin);
 	}
 	if(IsSixup())
 	{
@@ -1373,7 +1362,7 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 				return;
 			break;
 		default:
-			dbg_assert(false, "unknown serverinfo type");
+			dbg_assert_failed("unknown serverinfo type");
 		}
 
 		if(SavedType == SERVERINFO_EXTENDED)
@@ -2032,7 +2021,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 					unsigned char aTmpBuffer3[CSnapshot::MAX_SIZE];
 					CSnapshot *pTmpBuffer3 = (CSnapshot *)aTmpBuffer3; // Fix compiler warning for strict-aliasing
 
-					// reset snapshoting
+					// reset snapshotting
 					m_aSnapshotParts[Conn] = 0;
 
 					// find snapshot that we should use as delta
@@ -2217,7 +2206,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 
 					if(m_aReceivedSnapshots[Conn] > GameTickSpeed() && !m_aDidPostConnect[Conn])
 					{
-						OnPostConnect(Conn, Dummy);
+						OnPostConnect(Conn);
 						m_aDidPostConnect[Conn] = true;
 					}
 
@@ -2276,7 +2265,8 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			m_ExpectedMaplistEntries = -1;
 		}
 	}
-	else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0)
+	// the client handles only vital messages https://github.com/ddnet/ddnet/issues/11178
+	else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 || Msg == NETMSGTYPE_SV_PREINPUT)
 	{
 		// game message
 		if(!Dummy)
@@ -2571,6 +2561,17 @@ void CClient::PumpNetwork()
 			SetLoadingStateDetail(IClient::LOADING_STATE_DETAIL_INITIAL);
 			SendInfo(CONN_MAIN);
 		}
+
+		// progress on dummy connect when the connection is online
+		if(m_DummySendConnInfo && m_aNetClient[CONN_DUMMY].State() == NETSTATE_ONLINE)
+		{
+			m_DummySendConnInfo = false;
+			SendInfo(CONN_DUMMY);
+			m_aNetClient[CONN_DUMMY].Update();
+			SendReady(CONN_DUMMY);
+			GameClient()->SendDummyInfo(true);
+			SendEnterGame(CONN_DUMMY);
+		}
 	}
 
 	// process packets
@@ -2665,7 +2666,7 @@ void CClient::UpdateDemoIntraTimers()
 	m_aGameIntraTick[0] = pInfo->m_IntraTick;
 	m_aGameTickTime[0] = pInfo->m_TickTime;
 	m_aGameIntraTickSincePrev[0] = pInfo->m_IntraTickSincePrev;
-};
+}
 
 void CClient::Update()
 {
@@ -3198,17 +3199,6 @@ void CClient::Run()
 			m_aCmdEditMap[0] = 0;
 		}
 
-		// progress on dummy connect when the connection is online
-		if(m_DummySendConnInfo && m_aNetClient[CONN_DUMMY].State() == NETSTATE_ONLINE)
-		{
-			m_DummySendConnInfo = false;
-			SendInfo(CONN_DUMMY);
-			m_aNetClient[CONN_DUMMY].Update();
-			SendReady(CONN_DUMMY);
-			GameClient()->SendDummyInfo(true);
-			SendEnterGame(CONN_DUMMY);
-		}
-
 		// update input
 		if(Input()->Update())
 		{
@@ -3422,7 +3412,7 @@ bool CClient::InitNetworkClient(char *pError, size_t ErrorSize)
 	BindAddr.type = NETTYPE_ALL;
 	for(unsigned int i = 0; i < std::size(m_aNetClient); i++)
 	{
-		int &PortRef = i == CONN_MAIN ? g_Config.m_ClPort : i == CONN_DUMMY ? g_Config.m_ClDummyPort : g_Config.m_ClContactPort;
+		int &PortRef = i == CONN_MAIN ? g_Config.m_ClPort : (i == CONN_DUMMY ? g_Config.m_ClDummyPort : g_Config.m_ClContactPort);
 		if(PortRef < 1024) // Reject users setting ports that we don't want to use
 		{
 			PortRef = 0;
@@ -4194,7 +4184,7 @@ int CClient::HandleChecksum(int Conn, CUuid Uuid, CUnpacker *pUnpacker)
 	if(Start <= (int)sizeof(m_Checksum.m_aBytes))
 	{
 		mem_zero(&m_Checksum.m_Data.m_Config, sizeof(m_Checksum.m_Data.m_Config));
-#define CHECKSUM_RECORD(Flags) (((Flags)&CFGFLAG_CLIENT) == 0 || ((Flags)&CFGFLAG_INSENSITIVE) != 0)
+#define CHECKSUM_RECORD(Flags) (((Flags) & CFGFLAG_CLIENT) == 0 || ((Flags) & CFGFLAG_INSENSITIVE) != 0)
 #define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
 	if(CHECKSUM_RECORD(Flags)) \
 	{ \
@@ -4275,7 +4265,7 @@ void CClient::ConchainWindowScreen(IConsole::IResult *pResult, void *pUserData, 
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
 		if(g_Config.m_GfxScreen != pResult->GetInteger(0))
-			pSelf->Graphics()->SwitchWindowScreen(pResult->GetInteger(0));
+			pSelf->Graphics()->SwitchWindowScreen(pResult->GetInteger(0), true);
 	}
 	else
 		pfnCallback(pResult, pCallbackUserData);

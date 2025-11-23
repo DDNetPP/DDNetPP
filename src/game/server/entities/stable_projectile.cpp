@@ -44,8 +44,8 @@ void CStableProjectile::CalculateVel()
 	case WEAPON_GRENADE:
 		if(!TuneZone)
 		{
-			Curvature = GameServer()->Tuning()->m_GrenadeCurvature;
-			Speed = GameServer()->Tuning()->m_GrenadeSpeed;
+			Curvature = GameServer()->GlobalTuning()->m_GrenadeCurvature;
+			Speed = GameServer()->GlobalTuning()->m_GrenadeSpeed;
 		}
 		else
 		{
@@ -58,8 +58,8 @@ void CStableProjectile::CalculateVel()
 	case WEAPON_SHOTGUN:
 		if(!TuneZone)
 		{
-			Curvature = GameServer()->Tuning()->m_ShotgunCurvature;
-			Speed = GameServer()->Tuning()->m_ShotgunSpeed;
+			Curvature = GameServer()->GlobalTuning()->m_ShotgunCurvature;
+			Speed = GameServer()->GlobalTuning()->m_ShotgunSpeed;
 		}
 		else
 		{
@@ -72,8 +72,8 @@ void CStableProjectile::CalculateVel()
 	case WEAPON_GUN:
 		if(!TuneZone)
 		{
-			Curvature = GameServer()->Tuning()->m_GunCurvature;
-			Speed = GameServer()->Tuning()->m_GunSpeed;
+			Curvature = GameServer()->GlobalTuning()->m_GunCurvature;
+			Speed = GameServer()->GlobalTuning()->m_GunSpeed;
 		}
 		else
 		{

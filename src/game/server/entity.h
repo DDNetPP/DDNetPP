@@ -62,7 +62,7 @@ public: // TODO: Maybe make protected
 	/* Objects */
 	std::vector<SSwitchers> &Switchers() { return m_pGameWorld->m_Core.m_vSwitchers; }
 	CGameWorld *GameWorld() { return m_pGameWorld; }
-	CTuningParams *Tuning() { return GameWorld()->Tuning(); }
+	CTuningParams *GlobalTuning() { return &GameWorld()->TuningList()[0]; }
 	CTuningParams *TuningList() { return GameWorld()->TuningList(); }
 	CTuningParams *GetTuning(int i) { return GameWorld()->GetTuning(i); }
 	class CConfig *Config() { return m_pGameWorld->Config(); }
@@ -171,7 +171,7 @@ public: // TODO: Maybe make protected
 	bool NetworkClippedLine(int SnappingClient, vec2 StartPos, vec2 EndPos) const;
 
 	bool GameLayerClipped(vec2 CheckPos);
-	virtual bool CanCollide(int ClientId) { return true; };
+	virtual bool CanCollide(int ClientId) { return true; }
 
 	// DDRace
 

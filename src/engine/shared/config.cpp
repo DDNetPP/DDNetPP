@@ -119,19 +119,11 @@ void SColorConfigVariable::CommandCallback(IConsole::IResult *pResult, void *pUs
 			return;
 
 		const auto Color = pResult->GetColor(0, pData->m_DarkestLighting);
-		if(Color)
-		{
-			const unsigned Value = Color->Pack(pData->m_DarkestLighting, pData->m_Alpha);
+		const unsigned Value = Color.Pack(pData->m_DarkestLighting, pData->m_Alpha);
 
-			*pData->m_pVariable = Value;
-			if(pResult->m_ClientId != IConsole::CLIENT_ID_GAME)
-				pData->m_OldValue = Value;
-		}
-		else
-		{
-			str_format(aBuf, sizeof(aBuf), "%s is not a valid color.", pResult->GetString(0));
-			pData->m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "config", aBuf);
-		}
+		*pData->m_pVariable = Value;
+		if(pResult->m_ClientId != IConsole::CLIENT_ID_GAME)
+			pData->m_OldValue = Value;
 	}
 	else
 	{
@@ -303,7 +295,7 @@ void CConfigManager::Init()
 	{ \
 		const size_t HelpSize = (size_t)str_length(Desc) + 32; \
 		char *pHelp = static_cast<char *>(m_ConfigHeap.Allocate(HelpSize)); \
-		const bool Alpha = ((Flags)&CFGFLAG_COLALPHA) != 0; \
+		const bool Alpha = ((Flags) & CFGFLAG_COLALPHA) != 0; \
 		str_format(pHelp, HelpSize, "%s (default: $%0*X)", Desc, Alpha ? 8 : 6, color_cast<ColorRGBA>(ColorHSLA(Def, Alpha)).Pack(Alpha)); \
 		AddVariable(m_ConfigHeap.Allocate<SColorConfigVariable>(m_pConsole, #ScriptName, SConfigVariable::VAR_COLOR, Flags, pHelp, &g_Config.m_##Name, Def)); \
 	}
@@ -362,7 +354,7 @@ void CConfigManager::SetReadOnly(const char *pScriptName, bool ReadOnly)
 			return;
 		}
 	}
-	dbg_assert(false, "Invalid command for SetReadOnly: '%s'", pScriptName);
+	dbg_assert_failed("Invalid command for SetReadOnly: '%s'", pScriptName);
 }
 
 void CConfigManager::SetGameSettingsReadOnly(bool ReadOnly)
@@ -505,7 +497,7 @@ void CConfigManager::Con_Toggle(IConsole::IResult *pResult, void *pUserData)
 		else if(pVariable->m_Type == SConfigVariable::VAR_COLOR)
 		{
 			SColorConfigVariable *pColorVariable = static_cast<SColorConfigVariable *>(pVariable);
-			const bool EqualToFirst = *pColorVariable->m_pVariable == pResult->GetColor(1, pColorVariable->m_DarkestLighting).value_or(ColorHSLA(0, 0, 0)).Pack(pColorVariable->m_DarkestLighting, pColorVariable->m_Alpha);
+			const bool EqualToFirst = *pColorVariable->m_pVariable == pResult->GetColor(1, pColorVariable->m_DarkestLighting).Pack(pColorVariable->m_DarkestLighting, pColorVariable->m_Alpha);
 			const std::optional<ColorHSLA> Value = pResult->GetColor(EqualToFirst ? 2 : 1, pColorVariable->m_DarkestLighting);
 			pColorVariable->SetValue(Value.value_or(ColorHSLA(0, 0, 0)).Pack(pColorVariable->m_DarkestLighting, pColorVariable->m_Alpha));
 		}

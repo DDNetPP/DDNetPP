@@ -5,7 +5,7 @@ from datatypes import Enum, Flags, NetArray, NetBool, NetEvent, NetEventEx, NetI
 from datatypes import NetMessage, NetMessageEx, NetObject, NetObjectEx, NetString, NetStringHalfStrict, NetStringStrict, NetTick
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
-PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM", "SPEC_CAM"]
+PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM", "SPEC_CAM", "INPUT_ABSOLUTE", "INPUT_MANUAL"]
 GameFlags = ["TEAMS", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED", "RACETIME"]
 CharacterFlags = ["SOLO", "JETPACK", "COLLISION_DISABLED", "ENDLESS_HOOK", "ENDLESS_JUMP", "SUPER",
@@ -328,6 +328,10 @@ Objects = [
 		NetIntRange("m_SpectatorCount", 0, 'MAX_CLIENTS-1', default=0),
 	]),
 
+	NetObjectEx("SpectatorCount", "spectator-count@netobj.ddnet.org", [
+		NetIntRange("m_NumSpectators", 0, 'max_int'),
+	]),
+
 	## Events
 
 	NetEvent("Common", [
@@ -645,6 +649,10 @@ Messages = [
 
 	NetMessageEx("Sv_ModeratorAlert", "moderator-alert@netmsg.ddnet.org", [
 		NetString("m_pMessage"),
+	]),
+
+	NetMessageEx("Cl_EnableSpectatorCount", "enable-spectator-count@netmsg.ddnet.org", [
+		NetBool("m_Enable"),
 	]),
 ]
 

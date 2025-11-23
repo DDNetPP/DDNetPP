@@ -164,7 +164,7 @@ void CGameControllerDDNetPP::FlagTick()
 				}
 
 				//Gravity
-				pFlag->m_Vel.y += GameServer()->Tuning()->m_Gravity;
+				pFlag->m_Vel.y += GameServer()->GlobalTuning()->m_Gravity;
 
 				//Speedups
 				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos)))

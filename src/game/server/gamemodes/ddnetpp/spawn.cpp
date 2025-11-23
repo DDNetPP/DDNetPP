@@ -6,9 +6,14 @@
 
 #include <game/mapitems_ddpp.h>
 #include <game/server/gamecontroller.h>
+#include <game/server/player.h>
 
-bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam)
+bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, int ClientId)
 {
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+		return false;
+
 	// spectators can't spawn
 	if(Team == TEAM_SPECTATORS)
 		return false;
@@ -88,18 +93,18 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 	}
 	else if(pPlayer->m_IsInstaArena_gdm)
 	{
-		EvaluateSpawnType(&Eval, SPAWNTYPE_RED, DDTeam);
+		EvaluateSpawnType(&Eval, SPAWNTYPE_RED, pPlayer->GetCid());
 	}
 	else if(pPlayer->m_IsInstaArena_idm)
 	{
-		EvaluateSpawnType(&Eval, SPAWNTYPE_BLUE, DDTeam);
+		EvaluateSpawnType(&Eval, SPAWNTYPE_BLUE, pPlayer->GetCid());
 	}
 	else if(pPlayer->m_IsSurvivaling)
 	{
 		int Id = pPlayer->GetCid();
 		Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);
 		if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
-			EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
+			EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, pPlayer->GetCid());
 		else
 			Eval.m_Got = true;
 	}
@@ -257,12 +262,12 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 					pPlayer->m_IsNoboSpawn = false;
 					str_copy(aBuf, "[NoboSpawn] Welcome to the real spawn!", sizeof(aBuf));
 					GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
-					EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
+					EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, pPlayer->GetCid());
 				}
 			}
 			else
 			{
-				EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, DDTeam);
+				EvaluateSpawnType(&Eval, SPAWNTYPE_DEFAULT, pPlayer->GetCid());
 			}
 		}
 	}
@@ -273,5 +278,5 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pP
 		return true;
 	}
 
-	return CGameControllerDDRace::CanSpawn(Team, pOutPos, pPlayer, DDTeam);
+	return CGameControllerDDRace::CanSpawn(Team, pOutPos, pPlayer->GetCid());
 }

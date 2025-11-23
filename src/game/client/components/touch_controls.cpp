@@ -133,7 +133,7 @@ CTouchControls::CUnitRect CTouchControls::CalculateHitbox(const CUnitRect &Rect,
 		}
 		return Hitbox;
 	}
-	default: dbg_assert(false, "Unhandled shape");
+	default: dbg_assert_failed("Unhandled shape");
 	}
 }
 
@@ -219,8 +219,7 @@ vec2 CTouchControls::CTouchButton::ClampTouchPosition(vec2 TouchPosition) const
 		break;
 	}
 	default:
-		dbg_assert(false, "Unhandled shape");
-		break;
+		dbg_assert_failed("Unhandled shape");
 	}
 	return TouchPosition;
 }
@@ -234,7 +233,7 @@ bool CTouchControls::CTouchButton::IsInside(vec2 TouchPosition) const
 	case EButtonShape::CIRCLE:
 		return distance(TouchPosition, m_ScreenRect.Center()) <= minimum(m_ScreenRect.w, m_ScreenRect.h) / 2.0f;
 	default:
-		dbg_assert(false, "Unhandled shape");
+		dbg_assert_failed("Unhandled shape");
 		return false;
 	}
 }
@@ -302,8 +301,7 @@ void CTouchControls::CTouchButton::Render(std::optional<bool> Selected, std::opt
 		break;
 	}
 	default:
-		dbg_assert(false, "Unhandled shape");
-		break;
+		dbg_assert_failed("Unhandled shape");
 	}
 
 	const float FontSize = 22.0f;
@@ -396,7 +394,7 @@ void CTouchControls::CTouchButtonBehavior::SetActive(const IInput::CTouchFingerS
 	}
 	else
 	{
-		dbg_assert(false, "Touch button must be inactive or use same finger");
+		dbg_assert_failed("Touch button must be inactive or use same finger");
 	}
 }
 
@@ -617,6 +615,7 @@ void CTouchControls::CJoystickTouchButtonBehavior::OnUpdate()
 		vec2 WorldScreenSize;
 		m_pTouchControls->Graphics()->CalcScreenParams(m_pTouchControls->Graphics()->ScreenAspect(), m_pTouchControls->GameClient()->m_Camera.m_Zoom, &WorldScreenSize.x, &WorldScreenSize.y);
 		Controls.m_aMousePos[g_Config.m_ClDummy] += -m_AccumulatedDelta * WorldScreenSize;
+		Controls.m_aMouseInputType[g_Config.m_ClDummy] = CControls::EMouseInputType::RELATIVE;
 		Controls.m_aMousePos[g_Config.m_ClDummy].x = std::clamp(Controls.m_aMousePos[g_Config.m_ClDummy].x, -201.0f * 32, (m_pTouchControls->Collision()->GetWidth() + 201.0f) * 32.0f);
 		Controls.m_aMousePos[g_Config.m_ClDummy].y = std::clamp(Controls.m_aMousePos[g_Config.m_ClDummy].y, -201.0f * 32, (m_pTouchControls->Collision()->GetHeight() + 201.0f) * 32.0f);
 		m_AccumulatedDelta = vec2(0.0f, 0.0f);
@@ -625,6 +624,7 @@ void CTouchControls::CJoystickTouchButtonBehavior::OnUpdate()
 	{
 		const vec2 AbsolutePosition = (m_ActivePosition - vec2(0.5f, 0.5f)) * 2.0f;
 		Controls.m_aMousePos[g_Config.m_ClDummy] = AbsolutePosition * (Controls.GetMaxMouseDistance() - Controls.GetMinMouseDistance()) + normalize(AbsolutePosition) * Controls.GetMinMouseDistance();
+		Controls.m_aMouseInputType[g_Config.m_ClDummy] = CControls::EMouseInputType::ABSOLUTE;
 		if(length(Controls.m_aMousePos[g_Config.m_ClDummy]) < 0.001f)
 		{
 			Controls.m_aMousePos[g_Config.m_ClDummy].x = 0.001f;
@@ -935,8 +935,7 @@ int CTouchControls::NextActiveAction(int Action) const
 	case ACTION_HOOK:
 		return ACTION_FIRE;
 	default:
-		dbg_assert(false, "Action invalid for NextActiveAction");
-		dbg_break();
+		dbg_assert_failed("Action invalid for NextActiveAction");
 	}
 }
 
@@ -951,8 +950,7 @@ int CTouchControls::NextDirectTouchAction() const
 		case EDirectTouchSpectateMode::AIM:
 			return ACTION_AIM;
 		default:
-			dbg_assert(false, "m_DirectTouchSpectate invalid");
-			return NUM_ACTIONS;
+			dbg_assert_failed("m_DirectTouchSpectate invalid");
 		}
 	}
 	else
@@ -970,8 +968,7 @@ int CTouchControls::NextDirectTouchAction() const
 		case EDirectTouchIngameMode::HOOK:
 			return ACTION_HOOK;
 		default:
-			dbg_assert(false, "m_DirectTouchIngame invalid");
-			return NUM_ACTIONS;
+			dbg_assert_failed("m_DirectTouchIngame invalid");
 		}
 	}
 }
@@ -1161,12 +1158,14 @@ void CTouchControls::UpdateButtonsGame(const std::vector<IInput::CTouchFingerSta
 		if(GameClient()->m_Snap.m_SpecInfo.m_Active)
 		{
 			Controls.m_aMousePos[g_Config.m_ClDummy] += -DirectFingerState.m_Delta * WorldScreenSize;
+			Controls.m_aMouseInputType[g_Config.m_ClDummy] = CControls::EMouseInputType::RELATIVE;
 			Controls.m_aMousePos[g_Config.m_ClDummy].x = std::clamp(Controls.m_aMousePos[g_Config.m_ClDummy].x, -201.0f * 32, (Collision()->GetWidth() + 201.0f) * 32.0f);
 			Controls.m_aMousePos[g_Config.m_ClDummy].y = std::clamp(Controls.m_aMousePos[g_Config.m_ClDummy].y, -201.0f * 32, (Collision()->GetHeight() + 201.0f) * 32.0f);
 		}
 		else
 		{
 			Controls.m_aMousePos[g_Config.m_ClDummy] = (DirectFingerState.m_Position - vec2(0.5f, 0.5f)) * WorldScreenSize;
+			Controls.m_aMouseInputType[g_Config.m_ClDummy] = CControls::EMouseInputType::ABSOLUTE;
 		}
 	}
 

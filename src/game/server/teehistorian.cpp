@@ -24,7 +24,7 @@ private:
 static const char TEEHISTORIAN_NAME[] = "teehistorian@ddnet.tw";
 static const CUuid TEEHISTORIAN_UUID = CalculateUuid(TEEHISTORIAN_NAME);
 static const char TEEHISTORIAN_VERSION[] = "2";
-static const char TEEHISTORIAN_VERSION_MINOR[] = "16";
+static const char TEEHISTORIAN_VERSION_MINOR[] = "17";
 
 #define UUID(id, name) static const CUuid UUID_##id = CalculateUuid(name);
 #include <engine/shared/teehistorian_ex_chunks.h>
@@ -162,7 +162,7 @@ void CTeeHistorian::WriteHeader(const CGameInfo *pGameInfo)
 	bool First = true;
 
 #define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
-	if((Flags)&CFGFLAG_SERVER && !((Flags)&CFGFLAG_NONTEEHISTORIC) && pGameInfo->m_pConfig->m_##Name != (Def)) \
+	if((Flags) & CFGFLAG_SERVER && !((Flags) & CFGFLAG_NONTEEHISTORIC) && pGameInfo->m_pConfig->m_##Name != (Def)) \
 	{ \
 		str_format(aJson, sizeof(aJson), "%s\"%s\":\"%d\"", \
 			First ? "" : ",", \
@@ -175,7 +175,7 @@ void CTeeHistorian::WriteHeader(const CGameInfo *pGameInfo)
 #define MACRO_CONFIG_COL(Name, ScriptName, Def, Flags, Desc) MACRO_CONFIG_INT(Name, ScriptName, Def, 0, 0, Flags, Desc)
 
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
-	if((Flags)&CFGFLAG_SERVER && !((Flags)&CFGFLAG_NONTEEHISTORIC) && str_comp(pGameInfo->m_pConfig->m_##Name, (Def)) != 0) \
+	if((Flags) & CFGFLAG_SERVER && !((Flags) & CFGFLAG_NONTEEHISTORIC) && str_comp(pGameInfo->m_pConfig->m_##Name, (Def)) != 0) \
 	{ \
 		str_format(aJson, sizeof(aJson), "%s\"%s\":\"%s\"", \
 			First ? "" : ",", \
@@ -197,7 +197,7 @@ void CTeeHistorian::WriteHeader(const CGameInfo *pGameInfo)
 	First = true;
 
 #define MACRO_TUNING_PARAM(Name, ScriptName, Value, Description) \
-	if(pGameInfo->m_pTuning->m_##Name.Get() != (int)((Value)*100)) \
+	if(pGameInfo->m_pTuning->m_##Name.Get() != (int)((Value) * 100)) \
 	{ \
 		str_format(aJson, sizeof(aJson), "%s\"%s\":\"%d\"", \
 			First ? "" : ",", \
@@ -761,9 +761,9 @@ void CTeeHistorian::RecordDDNetVersion(int ClientId, CUuid ConnectionId, int DDN
 
 	if(m_Debug)
 	{
-		char aConnnectionId[UUID_MAXSTRSIZE];
-		FormatUuid(ConnectionId, aConnnectionId, sizeof(aConnnectionId));
-		dbg_msg("teehistorian", "ddnetver cid=%d connection_id=%s ddnet_version=%d ddnet_version_str=%s", ClientId, aConnnectionId, DDNetVersion, pDDNetVersionStr);
+		char aConnectionId[UUID_MAXSTRSIZE];
+		FormatUuid(ConnectionId, aConnectionId, sizeof(aConnectionId));
+		dbg_msg("teehistorian", "ddnetver cid=%d connection_id=%s ddnet_version=%d ddnet_version_str=%s", ClientId, aConnectionId, DDNetVersion, pDDNetVersionStr);
 	}
 
 	WriteExtra(UUID_TEEHISTORIAN_DDNETVER, Buffer.Data(), Buffer.Size());

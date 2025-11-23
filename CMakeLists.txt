@@ -2512,6 +2512,8 @@ if(CLIENT)
     layer_selector.h
     map_grid.cpp
     map_grid.h
+    map_object.cpp
+    map_object.h
     map_view.cpp
     map_view.h
     mapitems.h
@@ -2519,6 +2521,7 @@ if(CLIENT)
     mapitems/envelope.h
     mapitems/image.cpp
     mapitems/image.h
+    mapitems/layer.cpp
     mapitems/layer.h
     mapitems/layer_front.cpp
     mapitems/layer_front.h
@@ -3242,6 +3245,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     prng.cpp
     score.cpp
     secure_random.cpp
+    server.cpp
     serverbrowser.cpp
     serverinfo.cpp
     shell_execute.cpp
@@ -3257,6 +3261,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     timestamp.cpp
     unix.cpp
     uuid.cpp
+    vmath.cpp
   )
   set(TESTS_EXTRA
     src/engine/client/blocklist_driver.cpp

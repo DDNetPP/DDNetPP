@@ -35,8 +35,8 @@ void CPlant::CalculateVel()
 	float Curvature = 0;
 	float Speed = 0;
 
-	Curvature = GameServer()->Tuning()->m_ShotgunCurvature;
-	Speed = GameServer()->Tuning()->m_ShotgunSpeed;
+	Curvature = GameServer()->GlobalTuning()->m_ShotgunCurvature;
+	Speed = GameServer()->GlobalTuning()->m_ShotgunSpeed;
 
 	m_VelX = ((m_Pos.x - m_LastResetPos.x) / Time / Speed) * 100;
 	m_VelY = ((m_Pos.y - m_LastResetPos.y) / Time / Speed - Time * Speed * Curvature / 10000) * 100;

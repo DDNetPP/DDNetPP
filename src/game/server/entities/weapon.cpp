@@ -212,7 +212,7 @@ void CWeapon::Tick()
 
 	IsShieldNear();
 
-	m_Vel.y += GameServer()->Tuning()->m_Gravity;
+	m_Vel.y += GameServer()->GlobalTuning()->m_Gravity;
 
 	//Friction
 	bool Grounded = false;

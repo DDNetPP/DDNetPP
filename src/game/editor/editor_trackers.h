@@ -39,7 +39,7 @@ public:
 private:
 	std::vector<int> m_vSelectedQuads;
 	int m_SelectedQuadPoints;
-	std::map<int, std::vector<CPoint>> m_InitalPoints;
+	std::map<int, std::vector<CPoint>> m_InitialPoints;
 
 	bool m_Tracking = false;
 	std::shared_ptr<CLayerQuads> m_pLayer;
@@ -117,14 +117,6 @@ private:
 		CPoint m_OriginalPoint;
 	};
 	SData m_Data;
-
-	enum EState
-	{
-		STATE_BEGIN,
-		STATE_EDITING,
-		STATE_END
-	};
-	void HandlePointMove(EState State);
 };
 
 struct SPropTrackerHelper
@@ -201,7 +193,7 @@ class CLayerPropTracker : public CPropTracker<CLayer, ELayerProp>
 {
 public:
 	CLayerPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayer, ELayerProp>(pEditor){};
+		CPropTracker<CLayer, ELayerProp>(pEditor) {}
 
 protected:
 	void OnEnd(ELayerProp Prop, int Value) override;
@@ -212,7 +204,7 @@ class CLayerTilesPropTracker : public CPropTracker<CLayerTiles, ETilesProp>
 {
 public:
 	CLayerTilesPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerTiles, ETilesProp>(pEditor){};
+		CPropTracker<CLayerTiles, ETilesProp>(pEditor) {}
 
 protected:
 	void OnStart(ETilesProp Prop) override;
@@ -229,7 +221,7 @@ class CLayerTilesCommonPropTracker : public CPropTracker<CLayerTiles, ETilesComm
 {
 public:
 	CLayerTilesCommonPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerTiles, ETilesCommonProp>(pEditor){};
+		CPropTracker<CLayerTiles, ETilesCommonProp>(pEditor) {}
 
 protected:
 	void OnStart(ETilesCommonProp Prop) override;
@@ -250,7 +242,7 @@ class CLayerGroupPropTracker : public CPropTracker<CLayerGroup, EGroupProp>
 {
 public:
 	CLayerGroupPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerGroup, EGroupProp>(pEditor){};
+		CPropTracker<CLayerGroup, EGroupProp>(pEditor) {}
 
 protected:
 	void OnEnd(EGroupProp Prop, int Value) override;
@@ -261,7 +253,7 @@ class CLayerQuadsPropTracker : public CPropTracker<CLayerQuads, ELayerQuadsProp>
 {
 public:
 	CLayerQuadsPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerQuads, ELayerQuadsProp>(pEditor){};
+		CPropTracker<CLayerQuads, ELayerQuadsProp>(pEditor) {}
 
 protected:
 	void OnEnd(ELayerQuadsProp Prop, int Value) override;
@@ -272,7 +264,7 @@ class CLayerSoundsPropTracker : public CPropTracker<CLayerSounds, ELayerSoundsPr
 {
 public:
 	CLayerSoundsPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerSounds, ELayerSoundsProp>(pEditor){};
+		CPropTracker<CLayerSounds, ELayerSoundsProp>(pEditor) {}
 
 protected:
 	void OnEnd(ELayerSoundsProp Prop, int Value) override;

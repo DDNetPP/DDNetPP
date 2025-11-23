@@ -377,7 +377,7 @@ protected:
 	bool UpdateNeeded(CGameClient &This, const CNamePlateData &Data) override
 	{
 		m_Visible = Data.m_ShowClan;
-		if(!m_Visible)
+		if(!m_Visible && Data.m_aClan[0] != '\0')
 			return false;
 		m_Color = Data.m_Color;
 		return m_FontSize != Data.m_FontSizeClan || str_comp(m_aText, Data.m_aClan) != 0;
@@ -503,7 +503,7 @@ private:
 		}
 	}
 	template<typename PartType, typename... ArgsType>
-	void AddPart(CGameClient &This, ArgsType &&... Args)
+	void AddPart(CGameClient &This, ArgsType &&...Args)
 	{
 		m_vpParts.push_back(std::make_unique<PartType>(This, std::forward<ArgsType>(Args)...));
 	}
@@ -706,8 +706,7 @@ void CNamePlates::RenderNamePlateGame(vec2 Position, const CNetObj_PlayerInfo *p
 		Data.m_ShowDirection = pPlayerInfo->m_Local;
 		break;
 	default:
-		dbg_assert(false, "ShowDirectionConfig invalid");
-		dbg_break();
+		dbg_assert_failed("ShowDirectionConfig invalid");
 	}
 	if(Data.m_ShowDirection)
 	{
@@ -797,10 +796,10 @@ void CNamePlates::RenderNamePlatePreview(vec2 Position, int Dummy)
 
 	Data.m_ShowClan = Data.m_ShowName && g_Config.m_ClNamePlatesClan;
 	const char *pClan = Dummy == 0 ? g_Config.m_PlayerClan : g_Config.m_ClDummyClan;
-	if(pClan[0] == '\0')
-		pClan = "Clan Name";
 	str_copy(Data.m_aClan, str_utf8_skip_whitespaces(pClan));
 	str_utf8_trim_right(Data.m_aClan);
+	if(Data.m_aClan[0] == '\0')
+		str_copy(Data.m_aClan, "Clan Name");
 	Data.m_FontSizeClan = FontSizeClan;
 
 	Data.m_ShowDirection = g_Config.m_ClShowDirection != 0 ? true : false;

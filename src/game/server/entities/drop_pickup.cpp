@@ -147,7 +147,7 @@ void CDropPickup::Tick()
 	if(m_PickupDelay <= 0 || IsCharacterNear() != m_Owner)
 		Pickup();
 
-	m_Vel.y += GameServer()->Tuning()->m_Gravity;
+	m_Vel.y += GameServer()->GlobalTuning()->m_Gravity;
 
 	//Friction
 	bool Grounded = false;

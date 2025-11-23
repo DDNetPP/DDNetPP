@@ -47,7 +47,7 @@ class CTuningParams
 public:
 	CTuningParams()
 	{
-#define MACRO_TUNING_PARAM(Name, ScriptName, Value, Description) m_##Name.Set((int)((Value)*100.0f));
+#define MACRO_TUNING_PARAM(Name, ScriptName, Value, Description) m_##Name.Set((int)((Value) * 100.0f));
 #include "tuning.h"
 #undef MACRO_TUNING_PARAM
 	}
@@ -169,7 +169,6 @@ public:
 		return m_pPrng->RandomBits() % BelowThis;
 	}
 
-	CTuningParams m_aTuning[2];
 	class CCharacterCore *m_apCharacters[MAX_CLIENTS];
 	CPrng *m_pPrng;
 
@@ -183,8 +182,8 @@ class CCharacterCore
 	CCollision *m_pCollision;
 
 public:
-	static constexpr float PhysicalSize() { return 28.0f; };
-	static constexpr vec2 PhysicalSizeVec2() { return vec2(28.0f, 28.0f); };
+	static constexpr float PhysicalSize() { return 28.0f; }
+	static constexpr vec2 PhysicalSizeVec2() { return vec2(28.0f, 28.0f); }
 	vec2 m_Pos;
 	vec2 m_Vel;
 

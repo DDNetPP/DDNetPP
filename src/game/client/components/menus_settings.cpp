@@ -252,10 +252,11 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 		m_Dummy = true;
 	}
 
-	if(Client()->State() == IClient::STATE_ONLINE && GameClient()->m_NextChangeInfo && GameClient()->m_NextChangeInfo > Client()->GameTick(g_Config.m_ClDummy))
+	if(Client()->State() == IClient::STATE_ONLINE &&
+		GameClient()->m_aNextChangeInfo[m_Dummy] > Client()->GameTick(m_Dummy))
 	{
 		char aChangeInfo[128], aTimeLeft[32];
-		str_format(aTimeLeft, sizeof(aTimeLeft), Localize("%ds left"), (GameClient()->m_NextChangeInfo - Client()->GameTick(g_Config.m_ClDummy) + Client()->GameTickSpeed() - 1) / Client()->GameTickSpeed());
+		str_format(aTimeLeft, sizeof(aTimeLeft), Localize("%ds left"), (GameClient()->m_aNextChangeInfo[m_Dummy] - Client()->GameTick(m_Dummy) + Client()->GameTickSpeed() - 1) / Client()->GameTickSpeed());
 		str_format(aChangeInfo, sizeof(aChangeInfo), "%s: %s", Localize("Player info change cooldown"), aTimeLeft);
 		Ui()->DoLabel(&ChangeInfo, aChangeInfo, 10.f, TEXTALIGN_ML);
 	}
@@ -383,10 +384,11 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		m_SkinListScrollToSelected = true;
 	}
 
-	if(Client()->State() == IClient::STATE_ONLINE && GameClient()->m_NextChangeInfo && GameClient()->m_NextChangeInfo > Client()->GameTick(g_Config.m_ClDummy))
+	if(Client()->State() == IClient::STATE_ONLINE &&
+		GameClient()->m_aNextChangeInfo[m_Dummy] > Client()->GameTick(m_Dummy))
 	{
 		char aChangeInfo[128], aTimeLeft[32];
-		str_format(aTimeLeft, sizeof(aTimeLeft), Localize("%ds left"), (GameClient()->m_NextChangeInfo - Client()->GameTick(g_Config.m_ClDummy) + Client()->GameTickSpeed() - 1) / Client()->GameTickSpeed());
+		str_format(aTimeLeft, sizeof(aTimeLeft), Localize("%ds left"), (GameClient()->m_aNextChangeInfo[m_Dummy] - Client()->GameTick(m_Dummy) + Client()->GameTickSpeed() - 1) / Client()->GameTickSpeed());
 		str_format(aChangeInfo, sizeof(aChangeInfo), "%s: %s", Localize("Player info change cooldown"), aTimeLeft);
 		Ui()->DoLabel(&ChangeInfo, aChangeInfo, 10.f, TEXTALIGN_ML);
 	}
@@ -975,7 +977,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		s_ScreenDropDownState.m_SelectionPopupContext.m_pScrollRegion = &s_ScreenDropDownScrollRegion;
 		const int NewScreen = Ui()->DoDropDown(&ScreenDropDown, g_Config.m_GfxScreen, s_vpScreenNames.data(), s_vpScreenNames.size(), s_ScreenDropDownState);
 		if(NewScreen != g_Config.m_GfxScreen)
-			Graphics()->SwitchWindowScreen(NewScreen);
+			Graphics()->SwitchWindowScreen(NewScreen, true);
 	}
 
 	MainView.HSplitTop(2.0f, nullptr, &MainView);
@@ -1506,7 +1508,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 	}
 	else
 	{
-		dbg_assert(false, "ui_settings_page invalid");
+		dbg_assert_failed("ui_settings_page invalid");
 	}
 
 	if(NeedRestart)
@@ -1811,7 +1813,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 	for(int Tab = APPEARANCE_TAB_HUD; Tab < NUMBER_OF_APPEARANCE_TABS; ++Tab)
 	{
 		TabBar.VSplitLeft(TabWidth, &Button, &TabBar);
-		const int Corners = Tab == APPEARANCE_TAB_HUD ? IGraphics::CORNER_L : Tab == NUMBER_OF_APPEARANCE_TABS - 1 ? IGraphics::CORNER_R : IGraphics::CORNER_NONE;
+		const int Corners = Tab == APPEARANCE_TAB_HUD ? IGraphics::CORNER_L : (Tab == NUMBER_OF_APPEARANCE_TABS - 1 ? IGraphics::CORNER_R : IGraphics::CORNER_NONE);
 		if(DoButton_MenuTab(&s_aPageTabs[Tab], apTabNames[Tab], s_CurTab == Tab, &Button, Corners, nullptr, nullptr, nullptr, nullptr, 4.0f))
 		{
 			s_CurTab = Tab;
@@ -2507,7 +2509,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderMap()->RenderTile(HookTileRect.x, HookTileRect.y, TILE_SOLID, TileScale, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-		// ***** Hook Dummy Preivew *****
+		// ***** Hook Dummy Preview *****
 		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
@@ -2516,7 +2518,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &DummySkinInfo, 0, vec2(1.0f, 0.0f), DummyRenderPos);
 		RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1.0f, 0.0f), TeeRenderPos);
 
-		// ***** Hook Dummy Reverse Preivew *****
+		// ***** Hook Dummy Reverse Preview *****
 		RightView.HSplitTop(50.0f, &PreviewColl, &RightView);
 		RightView.HSplitTop(4 * MarginSmall, nullptr, &RightView);
 		TeeRenderPos = vec2(PreviewColl.x + LeftMargin, PreviewColl.y + PreviewColl.h / 2.0f);
@@ -2763,7 +2765,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	}
 
 	Left.HSplitTop(20.0f, &Button, &Left);
-	if(DoButton_CheckBox(&g_Config.m_ClShowQuads, Localize("Show quads"), g_Config.m_ClShowQuads, &Button))
+	if(DoButton_CheckBox(&g_Config.m_ClShowQuads, Localize("Show background quads"), g_Config.m_ClShowQuads, &Button))
 	{
 		g_Config.m_ClShowQuads ^= 1;
 	}

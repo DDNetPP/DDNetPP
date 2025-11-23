@@ -84,14 +84,14 @@ void COneVsOneBlock::OnTeleportSuccess(CGameState *pGameState, CPlayer *pPlayer)
 		pGameState->m_DDRaceTeam = EmptyTeam.value();
 	}
 
-	const char *pError = nullptr;
 	Controller()->Teams().SetTeamLock(pGameState->m_DDRaceTeam, false);
 	Controller()->Teams().ChangeTeamState(pGameState->m_DDRaceTeam, ETeamState::OPEN);
-	pError = Controller()->Teams().SetCharacterTeam(pPlayer->GetCid(), pGameState->m_DDRaceTeam);
-	if(pError)
+	char aError[512];
+	
+	if(!Controller()->Teams().SetCharacterTeam(pPlayer->GetCid(), pGameState->m_DDRaceTeam, aError, sizeof(aError)))
 	{
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted joining team failed: %s", pError);
+		str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted joining team failed: %s", aError);
 		SendChatTarget(pPlayer->GetCid(), aBuf);
 		SendChatTarget(pGameState->OtherPlayer(pPlayer)->GetCid(), aBuf);
 		OnRoundEnd(pGameState);

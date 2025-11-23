@@ -49,7 +49,7 @@ public:
 	void DetectReconnectFlood();
 
 	// spawn.cpp
-	bool CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam) override;
+	bool CanSpawn(int Team, vec2 *pOutPos, int ClientId) override;
 
 	// flags.cpp
 	void FlagTick();

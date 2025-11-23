@@ -65,7 +65,7 @@ float CTuningParams::GetWeaponFireDelay(int Weapon) const
 	case WEAPON_GRENADE: return (float)m_GrenadeFireDelay / 1000.0f;
 	case WEAPON_LASER: return (float)m_LaserFireDelay / 1000.0f;
 	case WEAPON_NINJA: return (float)m_NinjaFireDelay / 1000.0f;
-	default: dbg_assert(false, "invalid weapon"); return 0.0f; // this value should not be reached
+	default: dbg_assert_failed("invalid weapon");
 	}
 }
 
@@ -136,9 +136,6 @@ void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore
 
 	m_pTeams = pTeams;
 	m_Id = -1;
-
-	// fail safe, if core's tuning didn't get updated at all, just fallback to world tuning.
-	m_Tuning = m_pWorld->m_aTuning[g_Config.m_ClDummy];
 }
 
 void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams)

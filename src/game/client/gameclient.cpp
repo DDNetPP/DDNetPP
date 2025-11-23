@@ -320,8 +320,7 @@ void CGameClient::OnInit()
 			pMessage = Localize("Loading demo file from storage");
 			break;
 		default:
-			dbg_assert(false, "Invalid callback loading detail");
-			dbg_break();
+			dbg_assert_failed("Invalid callback loading detail");
 		}
 		m_Menus.RenderLoading(pTitle, pMessage, 0);
 	});
@@ -665,7 +664,7 @@ void CGameClient::OnReset()
 	for(auto &Stats : m_aStats)
 		Stats.Reset();
 
-	m_NextChangeInfo = 0;
+	std::fill(std::begin(m_aNextChangeInfo), std::end(m_aNextChangeInfo), -1);
 	std::fill(std::begin(m_aLocalIds), std::end(m_aLocalIds), -1);
 	m_DummyInput = {};
 	m_HammerInput = {};
@@ -682,6 +681,7 @@ void CGameClient::OnReset()
 
 	std::fill(std::begin(m_aDDRaceMsgSent), std::end(m_aDDRaceMsgSent), false);
 	std::fill(std::begin(m_aShowOthers), std::end(m_aShowOthers), SHOW_OTHERS_NOT_SET);
+	std::fill(std::begin(m_aEnableSpectatorCount), std::end(m_aEnableSpectatorCount), -1);
 	std::fill(std::begin(m_aLastUpdateTick), std::end(m_aLastUpdateTick), 0);
 
 	m_PredictedDummyId = -1;
@@ -917,6 +917,7 @@ void CGameClient::OnDummyDisconnect()
 	m_aLocalIds[1] = -1;
 	m_aDDRaceMsgSent[1] = false;
 	m_aShowOthers[1] = SHOW_OTHERS_NOT_SET;
+	m_aEnableSpectatorCount[1] = -1;
 	m_aLastNewPredictedTick[1] = -1;
 	m_PredictedDummyId = -1;
 }
@@ -1013,7 +1014,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 		{
 			// 31 is the magic number index of laser_damage
 			// which was removed in 0.7
-			// also in 0.6 it is unsed so we just set it to 0
+			// also in 0.6 it is unused so we just set it to 0
 			const int Value = (Client()->IsSixup() && i == 30) ? 0 : pUnpacker->GetInt();
 
 			// check for unpacking errors
@@ -1043,6 +1044,13 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 			str_format(aBuf, sizeof(aBuf), "dropped weird message '%s' (%d), failed on '%s'", m_NetObjHandler.GetMsgName(MsgId), MsgId, m_NetObjHandler.FailedMsgOn());
 			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
 		}
+		return;
+	}
+
+	if(MsgId == NETMSGTYPE_SV_CHANGEINFOCOOLDOWN)
+	{
+		CNetMsg_Sv_ChangeInfoCooldown *pMsg = (CNetMsg_Sv_ChangeInfoCooldown *)pRawMsg;
+		m_aNextChangeInfo[Conn] = pMsg->m_WaitUntil;
 		return;
 	}
 
@@ -1169,7 +1177,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 				if(CCharacter *pChar = m_GameWorld.GetCharacterById(i))
 				{
 					pChar->ResetPrediction();
-					vStrongWeakSorted.emplace_back(i, pMsg->m_First == i ? MAX_CLIENTS : pChar ? pChar->GetStrongWeakId() : 0);
+					vStrongWeakSorted.emplace_back(i, pMsg->m_First == i ? MAX_CLIENTS : (pChar ? pChar->GetStrongWeakId() : 0));
 				}
 				m_GameWorld.ReleaseHooked(i);
 			}
@@ -1179,11 +1187,6 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 		{
 			m_CharOrder.GiveWeak(Id.first);
 		}
-	}
-	else if(MsgId == NETMSGTYPE_SV_CHANGEINFOCOOLDOWN)
-	{
-		CNetMsg_Sv_ChangeInfoCooldown *pMsg = (CNetMsg_Sv_ChangeInfoCooldown *)pRawMsg;
-		m_NextChangeInfo = pMsg->m_WaitUntil;
 	}
 	else if(MsgId == NETMSGTYPE_SV_MAPSOUNDGLOBAL)
 	{
@@ -1300,7 +1303,7 @@ void CGameClient::RenderShutdownMessage()
 	else if(Client()->State() == IClient::STATE_RESTARTING)
 		pMessage = Localize("Restarting. Please wait…");
 	else
-		dbg_assert(false, "Invalid client state for quitting message");
+		dbg_assert_failed("Invalid client state for quitting message");
 
 	// This function only gets called after the render loop has already terminated, so we have to call Swap manually.
 	Graphics()->Clear(0.0f, 0.0f, 0.0f);
@@ -1357,8 +1360,9 @@ void CGameClient::ProcessEvents()
 	{
 		const IClient::CSnapItem Item = Client()->SnapGetItem(SnapType, Index);
 
-		// We don't have enough info about us, others, to know a correct alpha value.
-		float Alpha = 1.0f;
+		// TODO: We don't have enough info about us, others, to know a correct alpha or volume value.
+		const float Alpha = 1.0f;
+		const float Volume = 1.0f;
 
 		if(Item.m_Type == NETEVENTTYPE_DAMAGEIND)
 		{
@@ -1373,7 +1377,7 @@ void CGameClient::ProcessEvents()
 		else if(Item.m_Type == NETEVENTTYPE_HAMMERHIT)
 		{
 			const CNetEvent_HammerHit *pEvent = (const CNetEvent_HammerHit *)Item.m_pData;
-			m_Effects.HammerHit(vec2(pEvent->m_X, pEvent->m_Y), Alpha);
+			m_Effects.HammerHit(vec2(pEvent->m_X, pEvent->m_Y), Alpha, Volume);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_BIRTHDAY)
 		{
@@ -1388,7 +1392,7 @@ void CGameClient::ProcessEvents()
 		else if(Item.m_Type == NETEVENTTYPE_SPAWN)
 		{
 			const CNetEvent_Spawn *pEvent = (const CNetEvent_Spawn *)Item.m_pData;
-			m_Effects.PlayerSpawn(vec2(pEvent->m_X, pEvent->m_Y), Alpha);
+			m_Effects.PlayerSpawn(vec2(pEvent->m_X, pEvent->m_Y), Alpha, Volume);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_DEATH)
 		{
@@ -1856,7 +1860,10 @@ void CGameClient::OnNewSnapshot()
 				m_Snap.m_SpecInfo.m_Zoom = pDDNetSpecInfo->m_Zoom / 1000.0f;
 				m_Snap.m_SpecInfo.m_Deadzone = pDDNetSpecInfo->m_Deadzone;
 				m_Snap.m_SpecInfo.m_FollowFactor = pDDNetSpecInfo->m_FollowFactor;
-				m_Snap.m_SpecInfo.m_SpectatorCount = pDDNetSpecInfo->m_SpectatorCount;
+			}
+			else if(Item.m_Type == NETOBJTYPE_SPECTATORCOUNT)
+			{
+				m_Snap.m_pSpectatorCount = (const CNetObj_SpectatorCount *)Item.m_pData;
 			}
 			else if(Item.m_Type == NETOBJTYPE_GAMEINFO)
 			{
@@ -2173,6 +2180,21 @@ void CGameClient::OnNewSnapshot()
 		m_aShowOthers[g_Config.m_ClDummy] = g_Config.m_ClShowOthers;
 	}
 
+	if(m_aEnableSpectatorCount[0] == -1 || m_aEnableSpectatorCount[0] != g_Config.m_ClShowhudSpectatorCount)
+	{
+		CNetMsg_Cl_EnableSpectatorCount Msg;
+		Msg.m_Enable = g_Config.m_ClShowhudSpectatorCount;
+		Client()->SendPackMsg(0, &Msg, MSGFLAG_VITAL);
+		m_aEnableSpectatorCount[0] = g_Config.m_ClShowhudSpectatorCount;
+	}
+	if(Client()->DummyConnected() && (m_aEnableSpectatorCount[1] == -1 || m_aEnableSpectatorCount[1] != g_Config.m_ClShowhudSpectatorCount))
+	{
+		CNetMsg_Cl_EnableSpectatorCount Msg;
+		Msg.m_Enable = g_Config.m_ClShowhudSpectatorCount;
+		Client()->SendPackMsg(1, &Msg, MSGFLAG_VITAL);
+		m_aEnableSpectatorCount[1] = g_Config.m_ClShowhudSpectatorCount;
+	}
+
 	float ShowDistanceZoom = m_Camera.m_Zoom;
 	float Zoom = m_Camera.m_Zoom;
 	if(m_Camera.m_Zooming)
@@ -2190,7 +2212,7 @@ void CGameClient::OnNewSnapshot()
 
 	if(m_Snap.m_SpecInfo.m_Active)
 	{
-		// don't send camera infomation when spectating
+		// don't send camera information when spectating
 		Zoom = m_LastZoom;
 		Deadzone = m_LastDeadzone;
 		FollowFactor = m_LastFollowFactor;
@@ -2276,7 +2298,8 @@ void CGameClient::OnNewSnapshot()
 				float Alpha = 1.0f;
 				if(IsOtherTeam(i))
 					Alpha = g_Config.m_ClShowOthersAlpha / 100.0f;
-				m_Effects.AirJump(Pos, Alpha);
+				const float Volume = 1.0f; // TODO snd_game_volume_others
+				m_Effects.AirJump(Pos, Alpha, Volume);
 			}
 
 	if(g_Config.m_ClFreezeStars && !m_SuppressEvents)
@@ -2544,7 +2567,7 @@ void CGameClient::OnPredict()
 			int Events = pLocalChar->Core()->m_TriggeredEvents;
 			if(g_Config.m_ClPredict && !m_SuppressEvents)
 				if(Events & COREEVENT_AIR_JUMP)
-					m_Effects.AirJump(Pos, 1.0f);
+					m_Effects.AirJump(Pos, 1.0f, 1.0f);
 			if(g_Config.m_SndGame && !m_SuppressEvents)
 			{
 				if(Events & COREEVENT_GROUND_JUMP)
@@ -2564,7 +2587,7 @@ void CGameClient::OnPredict()
 			int Events = pDummyChar->Core()->m_TriggeredEvents;
 			if(g_Config.m_ClPredict && !m_SuppressEvents)
 				if(Events & COREEVENT_AIR_JUMP)
-					m_Effects.AirJump(Pos, 1.0f);
+					m_Effects.AirJump(Pos, 1.0f, 1.0f);
 		}
 	}
 
@@ -3163,7 +3186,7 @@ IGameClient *CreateGameClient()
 	return new CGameClient();
 }
 
-int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int OwnId)
+int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int OwnId, vec2 *pPlayerPosition)
 {
 	float Distance = 0.0f;
 	int ClosestId = -1;
@@ -3201,6 +3224,8 @@ int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, in
 					NewPos2 = ClosestPoint;
 					ClosestId = i;
 					Distance = distance(HookPos, Position);
+					if(pPlayerPosition)
+						*pPlayerPosition = Position;
 				}
 			}
 		}
@@ -3226,8 +3251,6 @@ void CGameClient::UpdateLocalTuning()
 		return;
 
 	vec2 LocalPos = m_Snap.m_pLocalCharacter ? vec2(m_Snap.m_pLocalCharacter->m_X, m_Snap.m_pLocalCharacter->m_Y) : vec2(m_Snap.m_pSpectatorInfo->m_X, m_Snap.m_pSpectatorInfo->m_Y);
-
-	m_GameWorld.m_Core.m_aTuning[g_Config.m_ClDummy] = m_aTuning[g_Config.m_ClDummy];
 
 	// update the tuning at the local position with the latest tunings received before the new snapshot
 	if(m_GameWorld.m_WorldConfig.m_UseTuneZones)
@@ -3285,19 +3308,12 @@ void CGameClient::UpdateLocalTuning()
 		}
 		else
 		{
-			// if we have processed what we need, and the tuning is still wrong due to out of order messege
+			// if we have processed what we need, and the tuning is still wrong due to out of order message
 			// fix our tuning by using the current one
 			m_GameWorld.TuningList()[TuneZone] = m_aTuning[g_Config.m_ClDummy];
 			m_aExpectingTuningSince[g_Config.m_ClDummy] = 0;
 			m_aReceivedTuning[g_Config.m_ClDummy] = false;
 		}
-	}
-
-	// if ddnetcharacter is available, ignore server-wide tunings for hook and collision
-	if(m_Snap.m_aCharacters[m_Snap.m_LocalClientId].m_HasExtendedData)
-	{
-		m_GameWorld.m_Core.m_aTuning[g_Config.m_ClDummy].m_PlayerCollision = 1;
-		m_GameWorld.m_Core.m_aTuning[g_Config.m_ClDummy].m_PlayerHooking = 1;
 	}
 }
 
@@ -3651,7 +3667,6 @@ void CGameClient::DetectStrongHook()
 		ToCharCur.Read(&m_Snap.m_aCharacters[ToPlayer].m_Cur);
 
 		CWorldCore World;
-		World.m_aTuning[g_Config.m_ClDummy] = m_aTuning[g_Config.m_ClDummy];
 
 		for(int Direction = 0; Direction < 2; Direction++)
 		{
@@ -4565,7 +4580,7 @@ void CGameClient::ConMapbug(IConsole::IResult *pResult, void *pUserData)
 		log_debug("mapbugs", "unknown map bug '%s', ignoring", pMapBugName);
 		break;
 	default:
-		dbg_assert(false, "unreachable");
+		dbg_assert_failed("unreachable");
 	}
 }
 
@@ -4999,18 +5014,35 @@ void CGameClient::OnSaveCodeNetMessage(const CNetMsg_Sv_SaveCode *pMsg)
 	{
 		if(pMsg->m_pCode[0] == '\0')
 		{
-			str_format(aBuf,
-				sizeof(aBuf),
+			str_format(aBuf, sizeof(aBuf),
 				Localize("Team save in progress. You'll be able to load with '/load %s'"),
-				Config()->m_ClStreamerMode == 1 ? "*** *** ***" : pMsg->m_pGeneratedCode);
+				pMsg->m_pGeneratedCode);
 		}
 		else
 		{
-			str_format(aBuf,
-				sizeof(aBuf),
+			str_format(aBuf, sizeof(aBuf),
 				Localize("Team save in progress. You'll be able to load with '/load %s' if save is successful or with '/load %s' if it fails"),
-				Config()->m_ClStreamerMode == 1 ? "***" : pMsg->m_pCode,
-				Config()->m_ClStreamerMode == 1 ? "*** *** ***" : pMsg->m_pGeneratedCode);
+				pMsg->m_pCode,
+				pMsg->m_pGeneratedCode);
+		}
+		m_Chat.AddLine(-1, TEAM_ALL, aBuf);
+	}
+	else if(State == SAVESTATE_DONE)
+	{
+		if(pMsg->m_pServerName[0] == '\0')
+		{
+			str_format(aBuf, sizeof(aBuf),
+				"Team successfully saved by %s. Use '/load %s' to continue",
+				pMsg->m_pSaveRequester,
+				pMsg->m_pCode[0] ? pMsg->m_pCode : pMsg->m_pGeneratedCode);
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf),
+				"Team successfully saved by %s. Use '/load %s' on %s to continue",
+				pMsg->m_pSaveRequester,
+				pMsg->m_pCode[0] ? pMsg->m_pCode : pMsg->m_pGeneratedCode,
+				pMsg->m_pServerName);
 		}
 		m_Chat.AddLine(-1, TEAM_ALL, aBuf);
 	}
@@ -5018,21 +5050,17 @@ void CGameClient::OnSaveCodeNetMessage(const CNetMsg_Sv_SaveCode *pMsg)
 	{
 		if(pMsg->m_pServerName[0] == '\0')
 		{
-			str_format(
-				aBuf,
-				sizeof(aBuf),
+			str_format(aBuf, sizeof(aBuf),
 				Localize("Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue"),
 				pMsg->m_pSaveRequester,
-				Config()->m_ClStreamerMode == 1 ? "*** *** ***" : pMsg->m_pGeneratedCode);
+				pMsg->m_pGeneratedCode);
 		}
 		else
 		{
-			str_format(
-				aBuf,
-				sizeof(aBuf),
+			str_format(aBuf, sizeof(aBuf),
 				Localize("Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue"),
 				pMsg->m_pSaveRequester,
-				Config()->m_ClStreamerMode == 1 ? "*** *** ***" : pMsg->m_pGeneratedCode,
+				pMsg->m_pGeneratedCode,
 				pMsg->m_pServerName);
 		}
 		m_Chat.AddLine(-1, TEAM_ALL, aBuf);
@@ -5044,7 +5072,7 @@ void CGameClient::OnSaveCodeNetMessage(const CNetMsg_Sv_SaveCode *pMsg)
 
 	if(State != SAVESTATE_PENDING && State != SAVESTATE_ERROR && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 	{
-		StoreSave(pMsg->m_pTeamMembers, pMsg->m_pGeneratedCode);
+		StoreSave(pMsg->m_pTeamMembers, pMsg->m_pCode[0] ? pMsg->m_pCode : pMsg->m_pGeneratedCode);
 	}
 }
 

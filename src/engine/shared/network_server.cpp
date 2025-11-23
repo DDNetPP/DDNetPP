@@ -701,7 +701,7 @@ int CNetServer::Send(CNetChunk *pChunk)
 		int Flags = 0;
 		dbg_assert(
 			pChunk->m_ClientId >= 0 && pChunk->m_ClientId < MaxClients(),
-			"erroneous client id %d",
+			"Invalid pChunk->m_ClientId: %d",
 			pChunk->m_ClientId);
 
 		if(pChunk->m_Flags & NETSENDFLAG_VITAL)
@@ -711,10 +711,6 @@ int CNetServer::Send(CNetChunk *pChunk)
 		{
 			if(pChunk->m_Flags & NETSENDFLAG_FLUSH)
 				m_aSlots[pChunk->m_ClientId].m_Connection.Flush();
-		}
-		else
-		{
-			//Drop(pChunk->m_ClientId, "Error sending data");
 		}
 	}
 	return 0;

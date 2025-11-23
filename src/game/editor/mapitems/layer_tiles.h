@@ -86,8 +86,7 @@ protected:
 			}
 			break;
 		default:
-			dbg_assert(false, "Direction invalid: %d", (int)Direction);
-			break;
+			dbg_assert_failed("Direction invalid: %d", (int)Direction);
 		}
 	}
 	template<typename T>
@@ -106,7 +105,7 @@ protected:
 	}
 
 public:
-	CLayerTiles(CEditor *pEditor, int w, int h);
+	CLayerTiles(CEditorMap *pMap, int w, int h);
 	CLayerTiles(const CLayerTiles &Other);
 	~CLayerTiles() override;
 

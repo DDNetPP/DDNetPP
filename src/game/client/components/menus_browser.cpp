@@ -744,7 +744,7 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 		const float OldWidth = Flag.w;
 		Flag.w = Flag.h * 2.0f;
 		Flag.x += (OldWidth - Flag.w) / 2.0f;
-		GameClient()->m_CountryFlags.Render(g_Config.m_BrFilterCountryIndex, ColorRGBA(1.0f, 1.0f, 1.0f, Ui()->HotItem() == &g_Config.m_BrFilterCountryIndex ? 1.0f : g_Config.m_BrFilterCountry ? 0.9f : 0.5f), Flag.x, Flag.y, Flag.w, Flag.h);
+		GameClient()->m_CountryFlags.Render(g_Config.m_BrFilterCountryIndex, ColorRGBA(1.0f, 1.0f, 1.0f, Ui()->HotItem() == &g_Config.m_BrFilterCountryIndex ? 1.0f : (g_Config.m_BrFilterCountry ? 0.9f : 0.5f)), Flag.x, Flag.y, Flag.w, Flag.h);
 
 		if(Ui()->DoButtonLogic(&g_Config.m_BrFilterCountryIndex, 0, &Flag, BUTTONFLAG_LEFT))
 		{
@@ -1489,8 +1489,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 			str_format(aBuf, sizeof(aBuf), Localize("Offline (%d)", "friends (server browser)"), (int)m_avFriends[FriendType].size());
 			break;
 		default:
-			dbg_assert(false, "FriendType invalid");
-			break;
+			dbg_assert_failed("FriendType invalid");
 		}
 		Ui()->DoLabel(&GroupLabel, aBuf, FontSize, TEXTALIGN_ML);
 		if(Ui()->DoButtonLogic(&s_aListExtended[FriendType], 0, &Header, BUTTONFLAG_LEFT))
@@ -1788,8 +1787,7 @@ void CMenus::RenderServerbrowserToolBox(CUIRect ToolBox)
 		RenderServerbrowserFriends(ToolBox);
 		return;
 	default:
-		dbg_assert(false, "ui_toolbox_page invalid");
-		return;
+		dbg_assert_failed("ui_toolbox_page invalid");
 	}
 }
 
@@ -1816,9 +1814,10 @@ void CMenus::RenderServerbrowser(CUIRect MainView)
 		GameClient()->m_MenuBackground.ChangePosition(g_Config.m_UiPage - PAGE_FAVORITE_COMMUNITY_1 + CMenuBackground::POS_BROWSER_CUSTOM0);
 		break;
 	default:
-		dbg_assert(false, "ui_page invalid for RenderServerbrowser");
+		dbg_assert_failed("ui_page invalid for RenderServerbrowser");
 	}
 
+	// clang-format off
 	/*
 		+---------------------------+ +---communities---+
 		|                           | |                 |
@@ -1829,6 +1828,7 @@ void CMenus::RenderServerbrowser(CUIRect MainView)
 		+---------------------------+ |                 |
 		        status box            +-----------------+
 	*/
+	// clang-format on
 
 	CUIRect ServerList, StatusBox, ToolBox, TabBar;
 	MainView.Draw(ms_ColorTabbarActive, IGraphics::CORNER_B, 10.0f);

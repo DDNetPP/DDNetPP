@@ -168,7 +168,7 @@ void CNetBase::SendPacket(NETSOCKET Socket, NETADDR *pAddr, CNetPacketConstruct 
 {
 	dbg_assert(IsValidConnectionOrientedPacket(pPacket), "Invalid packet to send. Flags=%d Ack=%d NumChunks=%d Size=%d",
 		pPacket->m_Flags, pPacket->m_Ack, pPacket->m_NumChunks, pPacket->m_DataSize);
-	dbg_assert((pPacket->m_Flags & NET_PACKETFLAG_COMPRESSION) == 0, "Do not set NET_PACKETFLAG_COMPRESSION, it will be set automatically when approriate");
+	dbg_assert((pPacket->m_Flags & NET_PACKETFLAG_COMPRESSION) == 0, "Do not set NET_PACKETFLAG_COMPRESSION, it will be set automatically when appropriate");
 
 	unsigned char aBuffer[NET_MAX_PACKETSIZE];
 
@@ -389,7 +389,7 @@ void CNetBase::SendControlMsgWithToken7(NETSOCKET Socket, NETADDR *pAddr, TOKEN 
 	aRequestTokenBuf[0] = (MyToken >> 24) & 0xff;
 	aRequestTokenBuf[1] = (MyToken >> 16) & 0xff;
 	aRequestTokenBuf[2] = (MyToken >> 8) & 0xff;
-	aRequestTokenBuf[3] = (MyToken)&0xff;
+	aRequestTokenBuf[3] = (MyToken) & 0xff;
 	const int Size = Extended ? sizeof(aRequestTokenBuf) : sizeof(TOKEN);
 	CNetBase::SendControlMsg(Socket, pAddr, Ack, ControlMsg, aRequestTokenBuf, Size, Token, true);
 }

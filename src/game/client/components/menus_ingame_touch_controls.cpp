@@ -87,7 +87,7 @@ void CMenusIngameTouchControls::RenderTouchButtonEditor(CUIRect MainView)
 	case EElementType::LAYOUT: Changed |= RenderLayoutSettingBlock(Block); break;
 	case EElementType::VISIBILITY: Changed |= RenderVisibilitySettingBlock(Block); break;
 	case EElementType::BEHAVIOR: Changed |= RenderBehaviorSettingBlock(Block); break;
-	default: dbg_assert(false, "Unknown m_EditElement = %d.", (int)m_EditElement);
+	default: dbg_assert_failed("Unknown m_EditElement = %d.", (int)m_EditElement);
 	}
 
 	// Save & Cancel & Hint.
@@ -350,9 +350,9 @@ bool CMenusIngameTouchControls::RenderBehaviorSettingBlock(CUIRect Block)
 			Ui()->DoLabel(&LeftButton, aBuf, FONTSIZE, TEXTALIGN_ML);
 			static CUi::SDropDownState s_ButtonPredefinedDropDownState;
 			static CScrollRegion s_ButtonPredefinedDropDownScrollRegion;
-			const char **apPredefineds = PredefinedNames();
+			const char **apPredefinedNames = PredefinedNames();
 			s_ButtonPredefinedDropDownState.m_SelectionPopupContext.m_pScrollRegion = &s_ButtonPredefinedDropDownScrollRegion;
-			const EPredefinedType NewPredefined = (EPredefinedType)Ui()->DoDropDown(&MiddleButton, (int)m_PredefinedBehaviorType, apPredefineds, std::size(BEHAVIOR_FACTORIES_EDITOR), s_ButtonPredefinedDropDownState);
+			const EPredefinedType NewPredefined = (EPredefinedType)Ui()->DoDropDown(&MiddleButton, (int)m_PredefinedBehaviorType, apPredefinedNames, std::size(BEHAVIOR_FACTORIES_EDITOR), s_ButtonPredefinedDropDownState);
 			if(NewPredefined != m_PredefinedBehaviorType)
 			{
 				m_PredefinedBehaviorType = NewPredefined;
@@ -641,8 +641,8 @@ void CMenusIngameTouchControls::RenderTouchButtonBrowser(CUIRect MainView)
 	if(GameClient()->m_Menus.DoButton_Menu(&s_NewButton, Localize("New button"), 0, &LeftButton))
 		NewVirtualButton();
 	EditBox.VSplitLeft(SUBMARGIN, nullptr, &MiddleButton);
-	static CButtonContainer s_SelecteButton;
-	if(GameClient()->m_Menus.DoButton_Menu(&s_SelecteButton, Localize("Select button by touch"), 0, &MiddleButton))
+	static CButtonContainer s_SelectedButton;
+	if(GameClient()->m_Menus.DoButton_Menu(&s_SelectedButton, Localize("Select button by touch"), 0, &MiddleButton))
 		GameClient()->m_Menus.SetActive(false);
 
 	MainView.HSplitBottom(ROWSIZE, &MainView, &EditBox);
@@ -1101,7 +1101,7 @@ void CMenusIngameTouchControls::DoPopupType(CTouchControls::CPopupParam PopupPar
 	case CTouchControls::EPopupType::NO_SPACE: NoSpaceForOverlappingButton(); break;
 	case CTouchControls::EPopupType::BUTTON_INVISIBLE: SelectedButtonNotVisible(); break;
 	// The NUM_POPUPS will not call the function.
-	default: dbg_assert(false, "Unknown popup type = %d.", (int)PopupParam.m_PopupType);
+	default: dbg_assert_failed("Unknown popup type = %d.", (int)PopupParam.m_PopupType);
 	}
 }
 
@@ -1246,7 +1246,7 @@ void CMenusIngameTouchControls::CacheAllSettingsFromTarget(CTouchControls::CTouc
 				m_PredefinedBehaviorType = EPredefinedType::EXTRA_MENU;
 			else
 				m_PredefinedBehaviorType = (EPredefinedType)CalculatePredefinedType(pPredefinedType);
-			dbg_assert(m_PredefinedBehaviorType != EPredefinedType::NUM_PREDEFINEDS, "Detected out of bound m_PredefinedBehaviorType. pPredefinedType = %s", pPredefinedType);
+			dbg_assert(m_PredefinedBehaviorType != EPredefinedType::NUM_PREDEFINEDTYPES, "Detected out of bound m_PredefinedBehaviorType. pPredefinedType = %s", pPredefinedType);
 
 			if(m_PredefinedBehaviorType == EPredefinedType::EXTRA_MENU)
 			{
@@ -1255,14 +1255,14 @@ void CMenusIngameTouchControls::CacheAllSettingsFromTarget(CTouchControls::CTouc
 			}
 		}
 		else // Empty
-			dbg_assert(false, "Detected out of bound value in m_EditBehaviorType");
+			dbg_assert_failed("Detected out of bound value in m_EditBehaviorType");
 	}
 }
 
 // Will override everything in the button. If nullptr is passed, a new button will be created.
 void CMenusIngameTouchControls::SaveCachedSettingsToTarget(CTouchControls::CTouchButton *pTargetButton) const
 {
-	dbg_assert(pTargetButton != nullptr, "Target button to recieve is nullptr.");
+	dbg_assert(pTargetButton != nullptr, "Target button to receive is nullptr.");
 	pTargetButton->m_UnitRect.m_W = std::clamp(m_InputW.GetInteger(), CTouchControls::BUTTON_SIZE_MINIMUM, CTouchControls::BUTTON_SIZE_MAXIMUM);
 	pTargetButton->m_UnitRect.m_H = std::clamp(m_InputH.GetInteger(), CTouchControls::BUTTON_SIZE_MINIMUM, CTouchControls::BUTTON_SIZE_MAXIMUM);
 	pTargetButton->m_UnitRect.m_X = std::clamp(m_InputX.GetInteger(), 0, CTouchControls::BUTTON_SIZE_SCALE - pTargetButton->m_UnitRect.m_W);
@@ -1301,7 +1301,7 @@ void CMenusIngameTouchControls::SaveCachedSettingsToTarget(CTouchControls::CTouc
 	}
 	else
 	{
-		dbg_assert(false, "Unknown m_EditBehaviorType = %d", (int)m_EditBehaviorType);
+		dbg_assert_failed("Invalid m_EditBehaviorType: %d", static_cast<int>(m_EditBehaviorType));
 	}
 	pTargetButton->UpdatePointers();
 }
@@ -1371,7 +1371,7 @@ void CMenusIngameTouchControls::ResolveIssues()
 				break;
 			}
 			case(int)CTouchControls::EIssueType::CACHE_POSITION: SetPosInputs(aIssues[Current].m_pTargetButton->m_UnitRect); break;
-			default: dbg_assert(false, "Unknown Issue type: %d", Current);
+			default: dbg_assert_failed("Unknown Issue type: %d", Current);
 			}
 		}
 	}
@@ -1381,12 +1381,12 @@ void CMenusIngameTouchControls::ResolveIssues()
 int CMenusIngameTouchControls::CalculatePredefinedType(const char *pType) const
 {
 	int IntegerType;
-	for(IntegerType = (int)EPredefinedType::EXTRA_MENU; IntegerType < (int)EPredefinedType::NUM_PREDEFINEDS; IntegerType++)
+	for(IntegerType = (int)EPredefinedType::EXTRA_MENU; IntegerType < (int)EPredefinedType::NUM_PREDEFINEDTYPES; IntegerType++)
 	{
 		if(str_comp(pType, BEHAVIOR_FACTORIES_EDITOR[IntegerType].m_pId) == 0)
 			return IntegerType;
 	}
-	dbg_assert(false, "Unknown predefined type %s.", pType == nullptr ? "nullptr" : pType);
+	dbg_assert_failed("Unknown predefined type %s.", pType == nullptr ? "nullptr" : pType);
 }
 
 std::string CMenusIngameTouchControls::DetermineTouchButtonCommandLabel(CTouchControls::CTouchButton *pButton) const
@@ -1405,8 +1405,8 @@ std::string CMenusIngameTouchControls::DetermineTouchButtonCommandLabel(CTouchCo
 	{
 		auto *pTargetBehavior = static_cast<CTouchControls::CPredefinedTouchButtonBehavior *>(pButton->m_pBehavior.get());
 		const char *pPredefinedType = pTargetBehavior->GetPredefinedType();
-		const char **apPredefineds = PredefinedNames();
-		std::string Command = apPredefineds[CalculatePredefinedType(pPredefinedType)];
+		const char **apPredefinedNames = PredefinedNames();
+		std::string Command = apPredefinedNames[CalculatePredefinedType(pPredefinedType)];
 		if(str_comp(pPredefinedType, CTouchControls::CExtraMenuTouchButtonBehavior::BEHAVIOR_ID) == 0)
 		{
 			const auto *pExtraMenuBehavior = static_cast<CTouchControls::CExtraMenuTouchButtonBehavior *>(pTargetBehavior);
@@ -1417,7 +1417,7 @@ std::string CMenusIngameTouchControls::DetermineTouchButtonCommandLabel(CTouchCo
 	}
 	else
 	{
-		dbg_assert(false, "Detected unknown behavior type in CMenusIngameTouchControls::GetCommand()");
+		dbg_assert_failed("Detected unknown behavior type in CMenusIngameTouchControls::GetCommand()");
 	}
 }
 
@@ -1496,17 +1496,17 @@ const char **CMenusIngameTouchControls::VisibilityNames() const
 
 const char **CMenusIngameTouchControls::PredefinedNames() const
 {
-	static const char *s_apPredefineds[10];
-	s_apPredefineds[0] = Localize("Ingame Menu", "Predefined touch button behaviors");
-	s_apPredefineds[1] = Localize("Extra Menu", "Predefined touch button behaviors");
-	s_apPredefineds[2] = Localize("Emoticon", "Predefined touch button behaviors");
-	s_apPredefineds[3] = Localize("Spectate", "Predefined touch button behaviors");
-	s_apPredefineds[4] = Localize("Swap Action", "Predefined touch button behaviors");
-	s_apPredefineds[5] = Localize("Use Action", "Predefined touch button behaviors");
-	s_apPredefineds[6] = Localize("Joystick Action", "Predefined touch button behaviors");
-	s_apPredefineds[7] = Localize("Joystick Aim", "Predefined touch button behaviors");
-	s_apPredefineds[8] = Localize("Joystick Fire", "Predefined touch button behaviors");
-	s_apPredefineds[9] = Localize("Joystick Hook", "Predefined touch button behaviors");
-	dbg_assert(std::size(s_apPredefineds) == std::size(BEHAVIOR_FACTORIES_EDITOR), "Insufficient predefined names");
-	return s_apPredefineds;
+	static const char *s_apPredefined[10];
+	s_apPredefined[0] = Localize("Ingame Menu", "Predefined touch button behaviors");
+	s_apPredefined[1] = Localize("Extra Menu", "Predefined touch button behaviors");
+	s_apPredefined[2] = Localize("Emoticon", "Predefined touch button behaviors");
+	s_apPredefined[3] = Localize("Spectate", "Predefined touch button behaviors");
+	s_apPredefined[4] = Localize("Swap Action", "Predefined touch button behaviors");
+	s_apPredefined[5] = Localize("Use Action", "Predefined touch button behaviors");
+	s_apPredefined[6] = Localize("Joystick Action", "Predefined touch button behaviors");
+	s_apPredefined[7] = Localize("Joystick Aim", "Predefined touch button behaviors");
+	s_apPredefined[8] = Localize("Joystick Fire", "Predefined touch button behaviors");
+	s_apPredefined[9] = Localize("Joystick Hook", "Predefined touch button behaviors");
+	dbg_assert(std::size(s_apPredefined) == std::size(BEHAVIOR_FACTORIES_EDITOR), "Insufficient predefined names");
+	return s_apPredefined;
 }

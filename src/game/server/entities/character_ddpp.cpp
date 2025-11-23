@@ -1253,7 +1253,7 @@ bool CCharacter::DDPP_Respawn()
 {
 	vec2 SpawnPos;
 
-	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCid())))
+	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, GetPlayer()->GetCid()))
 		return false;
 
 	if(Server()->IsRecording(m_pPlayer->GetCid()))
@@ -2353,7 +2353,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		{
 			float FireDelay;
 			if(!m_TuneZone)
-				GameServer()->Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+				GameServer()->GlobalTuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 			else
 				GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 			m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
@@ -2464,7 +2464,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		{
 			float a = angle(Direction);
 			a += Spreading[i + 1];
-			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCid(), 0);
+			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->GlobalTuning()->m_LaserReach, m_pPlayer->GetCid(), 0);
 		}
 
 		// summon meteor
@@ -2487,14 +2487,14 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			float a = angle(Direction);
 			a += Spreading[i + 2];
 			float v = 1 - (absolute(i) / (float)ShotSpread);
-			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
+			float Speed = mix((float)GameServer()->GlobalTuning()->m_ShotgunSpeeddiff, 1.0f, v);
 			CProjectile *pProj = new CProjectile(
 				GameWorld(),
 				WEAPON_SHOTGUN, // Type
 				m_pPlayer->GetCid(), // Owner
 				ProjStartPos, // Pos
 				vec2(cosf(a), sinf(a)) * Speed, // Dir
-				(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime), // Span
+				(int)(Server()->TickSpeed() * GameServer()->GlobalTuning()->m_ShotgunLifetime), // Span
 				true, // Freeze
 				false, //Explosive
 				-1, // SoundImpact,
@@ -2651,7 +2651,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 			float Strength;
 			if(!m_TuneZone)
-				Strength = GameServer()->Tuning()->m_HammerStrength;
+				Strength = GameServer()->GlobalTuning()->m_HammerStrength;
 			else
 				Strength = GameServer()->TuningList()[m_TuneZone].m_HammerStrength;
 
@@ -2693,7 +2693,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 		{
 			float FireDelay;
 			if(!m_TuneZone)
-				FireDelay = GameServer()->Tuning()->m_HammerHitFireDelay;
+				FireDelay = GameServer()->GlobalTuning()->m_HammerHitFireDelay;
 			else
 				FireDelay = GameServer()->TuningList()[m_TuneZone].m_HammerHitFireDelay;
 			m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
@@ -2707,7 +2707,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 		{
 			int Lifetime;
 			if(!m_TuneZone)
-				Lifetime = (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GunLifetime);
+				Lifetime = (int)(Server()->TickSpeed() * GameServer()->GlobalTuning()->m_GunLifetime);
 			else
 				Lifetime = (int)(Server()->TickSpeed() * GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
@@ -2768,7 +2768,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	{
 		float FireDelay;
 		if(!m_TuneZone)
-			GameServer()->Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+			GameServer()->GlobalTuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 		else
 			GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
