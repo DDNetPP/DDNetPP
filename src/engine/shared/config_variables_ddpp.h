@@ -1,12 +1,9 @@
+// This file can be included several times.
 /*************************************
  *                                    *
  *             DDNet++                *
  *                                    *
  **************************************/
-
-#ifndef ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H
-#define ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H
-#undef ENGINE_SHARED_CONFIG_VARIABLES_DDPP_H // this file will be included several times
 
 #ifndef MACRO_CONFIG_INT
 #error "The config macros must be defined"
@@ -277,5 +274,3 @@ MACRO_CONFIG_INT(SvCaptchaRoom, sv_captcha_room, 0, 0, 1, CFGFLAG_SERVER, "needs
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
 //MACRO_CONFIG_STR(SvFilterLogString, sv_filter_log_str, 256, "", CFGFLAG_SERVER, "Is used to filter the server log depending on sv_filter_log_state")
-
-#endif
