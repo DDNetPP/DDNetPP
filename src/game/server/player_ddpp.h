@@ -183,7 +183,7 @@ public:
 	//bool m_IsBombReady;
 	//moved to gamecontext.cpp
 	//int m_BombColor;
-	//bool m_bwff; //black whithe flip flip
+	//bool m_bwff; //black white flip flip
 
 	// bomb
 	int m_BombTicksUnready;
@@ -480,7 +480,7 @@ public:
 	//              2             6                  = Block a tee which is on a 5 tees blocking spree [LEVEL 6]
 	//              2             7                  = Block 11 tees without getting blocked [LEVEL 7]
 	//              2             8                  = Block 3 tees without using hook [LEVEL 8]
-	//              2             9                  = Block 11 tees without dieing while holding the flag [LEVEL 9]   //TODO: die = fail
+	//              2             9                  = Block 11 tees without dying while holding the flag [LEVEL 9]   //TODO: die = fail
 
 	//              3             0                  = Finish race [LEVEL 0]
 	//              3             1                  = Finish race under cfg_time1 [LEVEL 1]

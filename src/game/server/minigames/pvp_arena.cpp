@@ -87,7 +87,7 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 	vec2 OldPos;
 	if(!GetSavedPosition(pPlayer, &OldPos))
 	{
-		SendChatTarget(pPlayer->GetCid(), "[PVP] Your old position was lost. This really should not have happend sorry you are stuck.");
+		SendChatTarget(pPlayer->GetCid(), "[PVP] Your old position was lost. This really should not have happened sorry you are stuck.");
 		return;
 	}
 

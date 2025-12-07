@@ -10,7 +10,7 @@ public:
 	CGameControllerDDNetPP(class CGameContext *pGameServer);
 	~CGameControllerDDNetPP() override;
 
-	// convience accessors to copy code from gamecontext
+	// convenience accessors to copy code from gamecontext
 	class IServer *Server() const { return GameServer()->Server(); }
 	class CConfig *Config() { return GameServer()->Config(); }
 	class IConsole *Console() { return GameServer()->Console(); }

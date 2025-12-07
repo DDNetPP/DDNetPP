@@ -64,7 +64,7 @@ public:
 	/*
 		Function: OnChatMessage
 			hooks into CGameContext::OnSayNetMessage()
-			after unicode check and teehistorian already happend
+			after unicode check and teehistorian already happened
 
 		Returns:
 			return true to not run the rest of CGameContext::OnSayNetMessage()
@@ -163,7 +163,7 @@ public:
 	virtual void ChangeFlagOwner(int FlagId, int ClientId) {}
 
 	// returns true if the character had the flag and it got dropped
-	// returns false if the character did not have the flag and nothing happend
+	// returns false if the character did not have the flag and nothing happened
 	virtual bool CharacterDropFlag(CCharacter *pChr) { return false; }
 
 	// returns -1 if the player has no flag

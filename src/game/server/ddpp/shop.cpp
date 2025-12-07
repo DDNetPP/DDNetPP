@@ -193,7 +193,7 @@ void CShop::OnInit()
 		"Taser replaces your unfreeze rifle with a rifle that freezes\n"
 		"other tees. You can toggle it using '/taser <on/off>'.\n"
 		"For more information about the taser and your taser stats,\n"
-		"plase visit '/taser info'.",
+		"please visit '/taser info'.",
 		"forever",
 		m_pGameContext));
 	m_vItems.push_back(new CShopItemPvpArenaTicket(

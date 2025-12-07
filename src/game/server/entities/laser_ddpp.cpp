@@ -71,9 +71,9 @@ bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
 
 void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 {
-	// only check for quests in case both the hitter and the hitted are alive
+	// only check for quests in case both the hitter and the hit are alive
 	// currently all quests are related to the quester hitting tees
-	// but make sure when you add a quest where the quester gets hitted
+	// but make sure when you add a quest where the quester gets hit
 	// for example: "quest: get hit by rifle", "quest: block 3 tees without getting hit by rilfe"
 	// if this becomes a thing and somebody wallshot hits the quester and kills/leaves before hit it wont be tracked.
 

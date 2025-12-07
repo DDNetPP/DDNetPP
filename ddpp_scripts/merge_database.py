@@ -6,7 +6,7 @@
 # !!! WARNING !!!
 # this is totally unfisnished
 # untested and probably dangerous lul
-# ony use this with test databases
+# only use this with test databases
 
 import sqlite3
 import os.path

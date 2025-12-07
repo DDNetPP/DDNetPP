@@ -346,7 +346,7 @@ void CTdmBlock::Join(CPlayer *pPlayer)
 
 	// TODO: this should actually be only incremented after teleport
 	//       but we do not teleport yet with cooldown we just respawn into the area
-	//       if this is changed also on leave we need to only decrement if teleport happend
+	//       if this is changed also on leave we need to only decrement if teleport happened
 	pPlayer->m_pBlockTdmState->m_NumTeleportedPlayers++;
 
 	pPlayer->m_IsBlockTdming = true;

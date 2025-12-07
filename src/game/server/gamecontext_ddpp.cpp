@@ -1686,7 +1686,7 @@ void CGameContext::DDPP_Tick()
 
 void CGameContext::LogoutAllPlayers()
 {
-	dbg_msg("ddnet++", "loggin out all players (not working yet...)");
+	dbg_msg("ddnet++", "logging out all players (not working yet...)");
 	for(auto &Player : m_apPlayers)
 	{
 		if(!Player)

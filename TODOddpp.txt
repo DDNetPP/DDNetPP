@@ -19,7 +19,7 @@ this can also fuck some dummymodes idk better check it on time
 
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.
-But for example /shop doesnt need it change it but be carefull it can cause crashbugs
+But for example /shop doesnt need it change it but be careful it can cause crashbugs
 
 ## instagib killingspree (sv_intsa 1) ##
 if you get killed by a player who left the game things get crazy even in vanilla

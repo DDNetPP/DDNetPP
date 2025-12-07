@@ -78,7 +78,7 @@ void CDummySample::OnTick()
 
 	// is the same as if(GetPos().x < 10 * 32)
 	// use the X macro to reduce typing effort
-	// when working whith whole tiles
+	// when working with whole tiles
 	if(X < 10)
 		Right();
 
@@ -86,7 +86,7 @@ void CDummySample::OnTick()
 	// save it in the variable pChr
 	CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), false, m_pCharacter);
 
-	// Check wether there is a player
+	// Check whether there is a player
 	// And if it is alive
 	if(pChr && pChr->IsAlive())
 	{

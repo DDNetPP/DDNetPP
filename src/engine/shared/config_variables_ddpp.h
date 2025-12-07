@@ -32,7 +32,7 @@ MACRO_CONFIG_INT(SvMaxShopMessages, sv_max_shop_messages, 3, -1, 1000, CFGFLAG_S
 MACRO_CONFIG_INT(SvDummyMapOffsetX, sv_dummy_map_offset_x, 0, -99999, 99999, CFGFLAG_SERVER | CFGFLAG_GAME, "move the dummyhardcoded moves x tiles (only for supported modes)")
 MACRO_CONFIG_INT(SvDummyMapOffsetY, sv_dummy_map_offset_y, 0, -99999, 99999, CFGFLAG_SERVER | CFGFLAG_GAME, "move the dummyhardcoded moves y tiles (only for supported modes)")
 MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")
-MACRO_CONFIG_INT(SvMaxDrops, sv_max_drops, 600, 5, 800, CFGFLAG_SERVER, "Maximum amount of dropped healt and ammo (used for survival and admin commands)")
+MACRO_CONFIG_INT(SvMaxDrops, sv_max_drops, 600, 5, 800, CFGFLAG_SERVER, "Maximum amount of dropped health and ammo (used for survival and admin commands)")
 
 MACRO_CONFIG_INT(SvMinAdminPing, sv_min_admin_ping, 0, 0, 1024, CFGFLAG_SERVER, "remove admin ping from messages that are shorter than x (0=allow all admin pings)")
 
@@ -235,7 +235,7 @@ MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", 
 MACRO_CONFIG_INT(SvCfgTile1, sv_cfg_tile_1, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 MACRO_CONFIG_INT(SvCfgTile2, sv_cfg_tile_2, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 
-MACRO_CONFIG_INT(SvFreezeFarm, sv_freeze_farm, 1, 0, 1, CFGFLAG_SERVER, "wether tees have to be unfrozen or not to use money/xp tiles")
+MACRO_CONFIG_INT(SvFreezeFarm, sv_freeze_farm, 1, 0, 1, CFGFLAG_SERVER, "whether tees have to be unfrozen or not to use money/xp tiles")
 MACRO_CONFIG_INT(SvMaxPoliceFarmPlayers, sv_max_police_farm_players, 0, 0, 64, CFGFLAG_SERVER, "deactivates all police tiles if too many players are on them (0 = no limit)")
 MACRO_CONFIG_INT(SvTeleportationDelay, sv_teleportation_delay, 1, 0, 1, CFGFLAG_SERVER, "force players to stand still a few seconds before joining minigames")
 
@@ -266,7 +266,7 @@ MACRO_CONFIG_INT(SvMaxLoginPerIp, sv_max_login_per_ip, 12, 4, 128, CFGFLAG_SERVE
 MACRO_CONFIG_INT(SvMaxNameChangesPerIp, sv_max_namechanges_per_ip, 2, 1, 120, CFGFLAG_SERVER, "how many times one ip can change the name (hourly) before the msg gets hidden")
 MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
 MACRO_CONFIG_INT(SvShowConnectionMessages, sv_show_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)")
-MACRO_CONFIG_INT(SvAutoAntiReconnectFlood, sv_auto_anti_reconnect_flood, 0, 0, 1, CFGFLAG_SERVER, "delay join/leave messages if too many connections happend (see also sv_show_connection_msg)")
+MACRO_CONFIG_INT(SvAutoAntiReconnectFlood, sv_auto_anti_reconnect_flood, 0, 0, 1, CFGFLAG_SERVER, "delay join/leave messages if too many connections happened (see also sv_show_connection_msg)")
 MACRO_CONFIG_STR(SvHideConnectionMessagesPattern, sv_hide_connection_msg_pattern, 64, "", CFGFLAG_SERVER, "Names matching this regex pattern won't appear in chat on connect/disconnect/spec (\"\"=off))")
 MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLAG_SERVER, "after how many failed rcon attempts in a row should it be reported")
 MACRO_CONFIG_INT(SvCaptchaRoom, sv_captcha_room, 0, 0, 1, CFGFLAG_SERVER, "needs captcha spawn and verify tile in the map")

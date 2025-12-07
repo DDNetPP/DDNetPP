@@ -41,6 +41,11 @@ extend-ignore-re = [
 	'plattform',
 	'dran',
 	'passt',
+	'sie',
+	# funny english
+	'mede',
+	# bam
+	'rc /fo',
 
 	# ddnet
 	'lod',

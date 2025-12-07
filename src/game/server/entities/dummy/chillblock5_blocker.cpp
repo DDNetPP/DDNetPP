@@ -1183,7 +1183,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 
-				//TODO(1): keep this structure in mind this makes not much sence
+				//TODO(1): keep this structure in mind this makes not much sense
 				// the bool m_Dummy_happy is just true if a enemy is in the ruler area because all code below depends on a enemy in ruler area
 				// maybe rework this shit
 

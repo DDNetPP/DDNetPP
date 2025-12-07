@@ -63,7 +63,7 @@ with open(file_path, "r") as f:
     # print("line[" + str(ln) + "] " + str(line))
     ln += 1
 
-print("=== total imputs ===")
+print("=== total inputs ===")
 print("jumps: " + str(actual_jumps) + " (ticks " + str(jumps) + ")")
 print("hooks: " + str(actual_hooks) + " (ticks " + str(hooks) + ")")
 print("avg(targX): " + str(round((sum(targetXs) / float(len(targetXs))), 2)))

@@ -375,10 +375,10 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 			Jump();
 	}
 
-	//jump over the police underground from entry to enty
-	if(GetPos().y > m_LovedY) //only if beloved place is an upper one
+	// jump over the police underground from entry to entry
+	if(GetPos().y > m_LovedY) // only if beloved place is an upper one
 	{
-		if(X > 415 && X < 418) //right side
+		if(X > 415 && X < 418) // right side
 		{
 			if(GetVel().x < -0.02f && IsGrounded())
 			{
@@ -387,7 +387,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 					Jump(0);
 			}
 		}
-		else if(X > 398 && X < 401) //left side
+		else if(X > 398 && X < 401) // left side
 		{
 			if(GetVel().x > 0.02f && IsGrounded())
 			{
@@ -397,7 +397,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 			}
 		}
 
-		//do the doublejump
+		// do the doublejump
 		if(GetVel().y > 6.9f && Y > 430 && X < 433 && !m_IsDJUsed) //falling and not too high to hit roof with head
 		{
 			Jump();

@@ -2654,7 +2654,7 @@ void CGameContext::ConPay(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 	int PayId = pSelf->GetCidByName(aUsername);
 
-	//COUDL DO:
+	// COULD DO:
 	// add a blocker to pay money to ur self... but me funny mede it pozzible
 
 	if(Amount > pPlayer->GetMoney())
@@ -3605,7 +3605,7 @@ void CGameContext::ConPoop(IConsole::IResult *pResult, void *pUserData)
 
 	if(Amount < 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "You can't poop negative?! Imagine some1 is tring to push shit back in ur anus... wtf.");
+		pSelf->SendChatTarget(pResult->m_ClientId, "You can't poop negative?! Imagine some1 is trying to push shit back in ur anus... wtf.");
 		return;
 	}
 	if(Amount == 0)
@@ -3703,12 +3703,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 
 	//the ASC problem is if a SuperModerator is also rcon_mod he only has rcon_mod powerZ
 
-	//COUDL DO:
-	//Im unsure to check if GiveId is logged in.
-	//Pros:
-	//- moderators can make random players happy and they dont have to spend time to login
-	//Cons:
-	//- missing motivation to create an account
+	// COULD DO:
+	// Im unsure to check if GiveId is logged in.
+	// Pros:
+	// - moderators can make random players happy and they dont have to spend time to login
+	// Cons:
+	// - missing motivation to create an account
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) == AUTHED_ADMIN)
 	{

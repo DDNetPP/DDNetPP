@@ -116,7 +116,7 @@ CHAT_COMMAND("lang", "s[en|ru]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLang, this, "
 CHAT_COMMAND("poop", "?ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoop, this, "throw shit at the player r. Warning: you lose that shit.")
 
 CHAT_COMMAND("room", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRoom, this, "supermoderator command '/room help' for help")
-CHAT_COMMAND("spawn", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawn, this, "teleport to spawn without dieing (costs money)")
+CHAT_COMMAND("spawn", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawn, this, "teleport to spawn without dying (costs money)")
 
 CHAT_COMMAND("quest", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConQuest, this, "play little quest and earn rewards.")
 CHAT_COMMAND("bounty", "?sii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBounty, this, "blocker hitman command")

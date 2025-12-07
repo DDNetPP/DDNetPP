@@ -24,7 +24,7 @@ bool CCaptcha::CheckGenerate()
 	if(m_aQuestion[0])
 		return false;
 
-	SendChat("type '/captcha <answer>' to responde.");
+	SendChat("type '/captcha <answer>' to respond.");
 	Generate();
 	return true;
 }

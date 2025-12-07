@@ -528,7 +528,7 @@ public:
 
 	int m_BombFinalColor;
 	int m_BombColor;
-	bool m_bwff; //black whithe flip flip
+	bool m_bwff; // black white flip flip
 
 	// drop pickups
 	std::vector<std::vector<CDropPickup *>> m_vDropLimit;
