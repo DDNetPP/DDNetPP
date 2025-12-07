@@ -171,7 +171,7 @@ public:
 	int m_SendExtraVoteMenuIndex;
 
 	//zCatch ChillerDragon
-	int m_aCatchedId[64];
+	int m_aCaughtId[64];
 
 	//###########
 	//minigames
