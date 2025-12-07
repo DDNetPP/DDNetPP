@@ -63,7 +63,7 @@ void CDummyChillBlock5Blocker::OnDeath()
 void CDummyChillBlock5Blocker::OnTick()
 {
 	Hook(0);
-	Jump(0); //this is 29 only the mode 18 had no jump resett hope it works ... it shoudl omg
+	Jump(0); //this is 29 only the mode 18 had no jump reset hope it works ... it should omg
 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "HALLO ICH BIN 29!");
 
 	//Check ob dem bot langweilig geworden is :)
@@ -110,7 +110,7 @@ void CDummyChillBlock5Blocker::OnTick()
 
 	Mode18 is a tryhard ruler he wayblocks as good as he can and blocks if somebody manages to get in his area
 
-	Mode29 is a blocker which is not dat tryhard he doesnt wayblock and does more random stuff and trys freezeblock tricks
+	Mode29 is a blocker which is not dat tryhard he doesnt wayblock and does more random stuff and tries freezeblock tricks
 
 
 
@@ -411,7 +411,7 @@ void CDummyChillBlock5Blocker::OnTick()
 	{
 		// if (mode18_main_init)
 		// {
-		// 	//initialzing main mode...
+		// 	//initializing main mode...
 		// 	//resetting stuff...
 		// 	Hook(0);
 		// }
@@ -508,7 +508,7 @@ void CDummyChillBlock5Blocker::OnTick()
 		// 	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
 		// }
 
-		// if (GetPos().y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unsued version (this code makes no sense at all)
+		// if (GetPos().y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unused version (this code makes no sense at all)
 		// {
 		// 	AimX(200);
 		// 	AimY(-80);
@@ -752,7 +752,7 @@ void CDummyChillBlock5Blocker::OnTick()
 				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
 			}
 
-			if(GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1 && GetPos().x > 352 * 32) //always suicide on freeze if not reached teh block area yet AND dont suicide in spawn area because new spawn sys can get pretty freezy
+			if(GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1 && GetPos().x > 352 * 32) //always suicide on freeze if not reached the block area yet AND dont suicide in spawn area because new spawn sys can get pretty freezy
 			{
 				Die();
 				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze und links der block area");
@@ -762,14 +762,14 @@ void CDummyChillBlock5Blocker::OnTick()
 			/*
 			NEW MOVEMENT TO BLOCK AREA STRUCTURE :)
 
-			After spawning the bot thinks about what way he shoudl choose.
-			After he found one he stopps thinking until he respawns agian.
+			After spawning the bot thinks about what way he should choose.
+			After he found one he stops thinking until he respawns again.
 
 			if he thinks the tunnel is shit he goes trough the window
 
 			*/
 
-			//new spawn do something agianst hookers
+			//new spawn do something against hookers
 			if(GetPos().x < 380 * 32 && GetPos().x > 322 * 32 && GetVel().x < -0.001f)
 			{
 				Hook();
@@ -798,7 +798,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							SetWeapon(0);
 						}
 					}
-					//old spawn do something agianst way blockers (roof protection)
+					//old spawn do something against way blockers (roof protection)
 					if(GetPos().y > 206 * 32 + 4 && GetPos().y < 208 * 32 && GetVel().y < -4.4f)
 					{
 						Jump();
@@ -858,7 +858,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						}
 					}
 				}
-				else //not needed but safty xD when the bot managed it to get into the ruler area change to old movement
+				else //not needed but safety xD when the bot managed it to get into the ruler area change to old movement
 				{
 					m_Dummy_movement_to_block_area_style_window = false;
 				}
@@ -882,7 +882,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						AimX(pChr->GetPos().x - GetPos().x);
 						AimY(pChr->GetPos().y - GetPos().y);
 
-						if(pChr->GetPos().x < 407 * 32 && pChr->GetPos().y > 212 * 32 && pChr->GetPos().y < 215 * 32 && pChr->GetPos().x > GetPos().x) //wenn ein im weg stehender tee auf der spawn plattform gefunden wurde
+						if(pChr->GetPos().x < 407 * 32 && pChr->GetPos().y > 212 * 32 && pChr->GetPos().y < 215 * 32 && pChr->GetPos().x > GetPos().x) //wenn ein im weg stehender tee auf der spawn platform gefunden wurde
 						{
 							SetWeapon(0); //hol den hammer raus!
 							if(pChr->GetPos().x - GetPos().x < 30) //wenn der typ nahe bei dem bot ist
@@ -1008,7 +1008,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						//---> hol schwung für den jump
 						Left();
 
-						//new hammer agressive in the walkdirection to free the way
+						//new hammer aggressive in the walkdirection to free the way
 						if(!m_pCharacter->m_FreezeTime)
 						{
 							AimX(-200);
