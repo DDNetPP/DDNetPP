@@ -55,7 +55,7 @@ bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
 			else
 			{
 				pHit->UnFreeze();
-				if(pOwnerChar->GetPlayer()->m_IsVanillaCompetetive)
+				if(pOwnerChar->GetPlayer()->m_IsVanillaCompetitive)
 				{
 					pHit->TakeDamage(vec2(0.f, 0.f), 5, m_Owner, WEAPON_LASER);
 				}

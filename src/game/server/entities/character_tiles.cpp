@@ -114,7 +114,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_pPlayer->m_IsVanillaModeByTile = true;
 			m_pPlayer->m_IsVanillaDmg = true;
 			m_pPlayer->m_IsVanillaWeapons = true;
-			m_pPlayer->m_IsVanillaCompetetive = true;
+			m_pPlayer->m_IsVanillaCompetitive = true;
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You entered a vanilla area.");
 		}
 	}
@@ -130,7 +130,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_pPlayer->m_IsVanillaModeByTile = false;
 			m_pPlayer->m_IsVanillaDmg = false;
 			m_pPlayer->m_IsVanillaWeapons = false;
-			m_pPlayer->m_IsVanillaCompetetive = false;
+			m_pPlayer->m_IsVanillaCompetitive = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You entered a ddrace area.");
 		}
 	}

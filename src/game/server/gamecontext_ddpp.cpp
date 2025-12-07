@@ -471,7 +471,7 @@ void CGameContext::OnClientEnterDDPP(int ClientId)
 		{
 			m_apPlayers[ClientId]->m_IsVanillaDmg = true;
 			m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
-			m_apPlayers[ClientId]->m_IsVanillaCompetetive = true;
+			m_apPlayers[ClientId]->m_IsVanillaCompetitive = true;
 		}
 	}
 	else if(IsDDPPgametype("fng"))
@@ -2752,7 +2752,7 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyT
 	{
 		m_apPlayers[DummyId]->m_IsVanillaDmg = true;
 		m_apPlayers[DummyId]->m_IsVanillaWeapons = true;
-		m_apPlayers[DummyId]->m_IsVanillaCompetetive = true;
+		m_apPlayers[DummyId]->m_IsVanillaCompetitive = true;
 	}
 
 	m_apPlayers[DummyId]->m_SilentJoinMessage = Silent;

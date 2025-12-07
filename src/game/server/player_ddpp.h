@@ -108,7 +108,7 @@ public:
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
-	bool m_IsVanillaCompetetive;
+	bool m_IsVanillaCompetitive;
 	// admin cheat to be invisble
 	bool m_IsHiddenTee = false;
 	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
@@ -401,7 +401,7 @@ public:
 	char m_aTradeOffer[256];
 
 	int64_t m_ShopBotAntiSpamTick;
-	int m_ShopBotMesssagesRecieved;
+	int m_ShopBotMessagesReceived;
 
 	void JailPlayer(int seconds);
 	float TaserFreezeTime();

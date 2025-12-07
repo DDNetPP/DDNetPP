@@ -195,7 +195,7 @@ void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=i
 		m_apPlayers[ClientId]->m_IsSurvivaling = false;
 		m_apPlayers[ClientId]->m_IsVanillaDmg = false;
 		m_apPlayers[ClientId]->m_IsVanillaWeapons = false;
-		m_apPlayers[ClientId]->m_IsVanillaCompetetive = false;
+		m_apPlayers[ClientId]->m_IsVanillaCompetitive = false;
 		m_apPlayers[ClientId]->m_IsSurvivalAlive = false;
 		m_apPlayers[ClientId]->Pause(CPlayer::PAUSE_NONE, true);
 	}
@@ -205,7 +205,7 @@ void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=i
 		m_apPlayers[ClientId]->m_IsSurvivaling = true;
 		m_apPlayers[ClientId]->m_IsVanillaDmg = true;
 		m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
-		m_apPlayers[ClientId]->m_IsVanillaCompetetive = true;
+		m_apPlayers[ClientId]->m_IsVanillaCompetitive = true;
 		m_apPlayers[ClientId]->m_IsSurvivalLobby = true;
 		if(!m_survivalgamestate) //no game running --> start lobby
 		{
@@ -219,7 +219,7 @@ void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=i
 		m_apPlayers[ClientId]->m_IsSurvivaling = true;
 		m_apPlayers[ClientId]->m_IsVanillaDmg = true;
 		m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
-		m_apPlayers[ClientId]->m_IsVanillaCompetetive = true;
+		m_apPlayers[ClientId]->m_IsVanillaCompetitive = true;
 		m_apPlayers[ClientId]->m_IsSurvivalLobby = false;
 		m_apPlayers[ClientId]->m_IsSurvivalWinner = false;
 	}

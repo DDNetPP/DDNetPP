@@ -1280,7 +1280,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	{
 		m_pPlayer->m_IsVanillaDmg = true;
 		m_pPlayer->m_IsVanillaWeapons = true;
-		m_pPlayer->m_IsVanillaCompetetive = true;
+		m_pPlayer->m_IsVanillaCompetitive = true;
 	}
 
 	if(m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == DUMMYMODE_CHILLINTELLIGENCE) //chillintelligenz
@@ -1494,7 +1494,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		{
 			Dmg = maximum(1, Dmg / 2);
 
-			if(m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_LASER)
+			if(m_pPlayer->m_IsVanillaCompetitive && Weapon == WEAPON_LASER)
 			{
 				// used to be "false" as in no damage but now its true as in ddnet++ damage used
 				return true; //no rifle self damage in competetive vanilla games (for example survival)
@@ -2850,12 +2850,12 @@ void CCharacter::PostFireWeapon()
 
 void CCharacter::SendShopMessage(const char *pMsg)
 {
-	int Recv = m_pPlayer->m_ShopBotMesssagesRecieved / 2; // 2 messages = enter + leave
+	int Recv = m_pPlayer->m_ShopBotMessagesReceived / 2; // 2 messages = enter + leave
 	if(g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= Recv)
 		return;
 
 	GameServer()->SendChat(GameServer()->GetShopBot(), TEAM_ALL, pMsg, -1, CGameContext::FLAG_SIX | CGameContext::FLAG_SIXUP, m_pPlayer->GetCid());
-	m_pPlayer->m_ShopBotMesssagesRecieved++;
+	m_pPlayer->m_ShopBotMessagesReceived++;
 }
 
 bool CCharacter::IsInDDRaceTeam()
