@@ -41,7 +41,7 @@ void CDummyChillBlock5Blocker::OnDeath()
 	m_Dummy_AttackedOnSpawn = false;
 	m_Dummy_bored_cuz_nothing_happens = false;
 	m_Dummy_movement_to_block_area_style_window = false;
-	m_Dummy_planned_movment = false;
+	m_Dummy_planned_movement = false;
 	m_Dummy_jumped = false;
 	m_Dummy_hooked = false;
 	m_Dummy_moved_left = false;
@@ -819,7 +819,7 @@ void CDummyChillBlock5Blocker::OnTick()
 				Aim(-200, 0);
 			}
 
-			if(!m_Dummy_planned_movment)
+			if(!m_Dummy_planned_movement)
 			{
 				CCharacter *pChrTunnel = GameServer()->m_World.ClosestCharTypeTunnel(GetPos(), true, m_pCharacter);
 				if(pChrTunnel && pChrTunnel->IsAlive())
@@ -830,7 +830,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 
-				m_Dummy_planned_movment = true;
+				m_Dummy_planned_movement = true;
 			}
 
 			if(m_Dummy_movement_to_block_area_style_window)
