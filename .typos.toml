@@ -30,6 +30,8 @@ extend-ignore-re = [
 	'ende',
 	'effekt',
 	'ist',
+	'oder',
+	'alle',
 
 	# ddnet
 	'lod',
