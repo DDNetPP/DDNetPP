@@ -432,7 +432,7 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 	}
 	if(pChr->IsInDDRaceTeam())
 	{
-		SendChatTarget(ClientId, "[1vs1] you can't use this command while in a ddrace team.");
+		SendChatTarget(ClientId, GameServer()->Loc("[1vs1] you can't use this command while in a ddrace team.", ClientId));
 		return;
 	}
 

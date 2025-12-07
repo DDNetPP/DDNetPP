@@ -119,6 +119,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 				return "[JOIN] Вы уже присоединились к турниру блоков";
 			if(!str_comp("[EVENT] BLOCK IN %d SECONDS\n%d joined (min %d)\n/join to participate", pStr))
 				return "[ИВЕНТ] БЛОК ТУРНИР ЧЕРЕЗ %d\n%d Зашли (мин %d)\nИспользуйте /join";
+			if(!str_comp("[1vs1] you can't use this command while in a ddrace team.", pStr))
+				return "[1vs1] Вы не можете использовать эту команду, находясь в команде ddrace.";
 		}
 		if(pStr[0] == 'A')
 		{
@@ -158,6 +160,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 				return "У вас уже есть максимальный уровень для появления дробовика.";
 			if(!str_comp("You already own this item.", pStr))
 				return "У вас уже имееться этот предмет";
+			if(!str_comp("You can not join teams while a teleportation request is pending.", pStr))
+				return "Вы не можете войти в команду пока ожидаете запрос на телепортацию.";
 		}
 	}
 	return pStr;

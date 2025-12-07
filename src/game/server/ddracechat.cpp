@@ -1182,7 +1182,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		}
 		if(pPlayer->GetCharacter()->m_TeleRequest.IsActive())
 		{
-			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while a teleportation request is pending.");
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", Loc("You can not join teams while a teleportation request is pending.", ClientId));
 			return;
 		}
 	}
