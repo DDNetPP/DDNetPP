@@ -32,7 +32,7 @@ private:
 	int m_Dummy_2p_state; //Maybe cool stuff coming with it
 	int m_Dummy_mode23; //yes dummymode23 has his own modes o.O
 	int m_Dummy_nothing_happens_counter; // counts all the nonaction lol
-	int m_Dummy_panic_weapon; // if the bot has panic (nothing happens -> panic mate coudl get bored)  change the wepaon to this var value
+	int m_Dummy_panic_weapon; // if the bot has panic (nothing happens -> panic mate could get bored)  change the wepaon to this var value
 	int m_Dummy_sent_chat_msg; // 0 == noMsgDisTick 1 == MsgDisTick              [to send a chat message just 1 time]
 	int m_Dummy_mate_help_mode; //how the bot should help
 	int m_Dummy_movement_mode23; //a movement mode for mode23

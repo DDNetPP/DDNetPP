@@ -189,7 +189,7 @@ void CDummyFNN::OnTick()
 		//	m_Dummy_nn_touched_by_humans = true;
 		//	GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "[FNN] dont get in my hook -.-");
 		//}
-		//selfmade noob code check if pChr is too near and coudl touched the bot
+		//selfmade noob code check if pChr is too near and could touched the bot
 		CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), true);
 		if(pChr && pChr->IsAlive() && pChr != m_pCharacter)
 		{

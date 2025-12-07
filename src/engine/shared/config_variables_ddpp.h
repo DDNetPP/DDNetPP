@@ -84,7 +84,7 @@ MACRO_CONFIG_INT(SvNoboSpawnX, sv_nobo_spawn_x, 328, 0, 1000, CFGFLAG_SERVER | C
 MACRO_CONFIG_INT(SvNoboSpawnY, sv_nobo_spawn_y, 160, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y coord for the nobo spawn")
 MACRO_CONFIG_INT(SvNoboSpawnTime, sv_nobo_spawn_time, 0, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "how many minutes the nobo spawn lasts 0=off")
 
-MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(coudl fuck server but idk)")
+MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(could fuck server but idk)")
 
 MACRO_CONFIG_INT(SvAllowBomb, sv_allow_bomb, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=on")
 MACRO_CONFIG_INT(SvAllowBombSelfkill, sv_allow_bomb_selfkill, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=on suicide in '/bomb' games")

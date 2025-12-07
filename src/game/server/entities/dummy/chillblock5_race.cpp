@@ -650,22 +650,22 @@ void CDummyChillBlock5Race::OnTick()
 			}
 		}
 
-		//Hammerfly
+		// Hammerfly
 		if(GetPos().x > 447 * 32)
 		{
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), true, m_pCharacter);
 			if(pChr && pChr->IsAlive())
 			{
-				//unfreezemates on platform
+				// unfreezemates on platform
 
-				//Get closer to the mate
+				// Get closer to the mate
 				if(pChr->GetPos().y == GetPos().y && GetPos().x > 450 * 32 && GetPos().x < 457 * 32 && pChr->m_FreezeTime > 0)
 				{
-					if(pChr->GetPos().x > GetPos().x + 70) //if friend is on the right of the bot
+					if(pChr->GetPos().x > GetPos().x + 70) // if friend is on the right of the bot
 					{
 						Right();
 					}
-					else if(pChr->GetPos().x < GetPos().x - 70) //if firend is on the left of the bot
+					else if(pChr->GetPos().x < GetPos().x - 70) // if friend is on the left of the bot
 					{
 						Left();
 					}
@@ -1284,7 +1284,7 @@ void CDummyChillBlock5Race::OnTick()
 					//if (m_Dummy_mate_failed && m_Dummy_2p_state < 1)    <--- added m_Dummy_mate_failed to the state checks
 					if(m_Dummy_mate_failed)
 					{
-						//The bot coudl fall of the plattform and hurt but this var helps to activate and accident
+						//The bot could fall of the plattform and hurt but this var helps to activate and accident
 						//sometimes the special stage causes a jump on purpose and the var gets true so no emergency can be called
 						//to make this possible again reset this var every tick here
 						//m_Dummy_help_no_emergency is used to allow the emergency help
@@ -1360,14 +1360,14 @@ void CDummyChillBlock5Race::OnTick()
 											}
 											AimX(GetTargetX() - 5);
 										}
-										if(m_Dummy_nothing_happens_counter > 4) //warning long time nothing happend! do crazy stuff
+										if(m_Dummy_nothing_happens_counter > 4) //warning long time nothing happened! do crazy stuff
 										{
 											if(m_pCharacter->m_FreezeTime == 0)
 											{
 												Fire();
 											}
 										}
-										if(m_Dummy_nothing_happens_counter > 5) //high warning mate coudl get bored --> switch through all weapons and move angel back
+										if(m_Dummy_nothing_happens_counter > 5) //high warning mate could get bored --> switch through all weapons and move angel back
 										{
 											SetWeapon(m_Dummy_panic_weapon);
 											m_Dummy_panic_weapon++;

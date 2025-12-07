@@ -252,7 +252,7 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 			}
 			else
 			{
-				//if (!pOwnerChar->GetPlayer()->m_QuestProgressBool) //not used anymore because whole system updated. Old was [hit a tee and block exactly this tee] New system [Block the the you hitted last]. Because you can hit multiple tees and change ur block destination i swapped from a 10progress to a 5 progress (not counting the rifle hits only block kills)
+				//if (!pOwnerChar->GetPlayer()->m_QuestProgressBool) //not used anymore because whole system updated. Old was [hit a tee and block exactly this tee] New system [Block the the you hit last]. Because you can hit multiple tees and change ur block destination i swapped from a 10progress to a 5 progress (not counting the rifle hits only block kills)
 				//{
 				//	//GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCid(), 10, pOwnerChar->GetPlayer()->m_QuestProgressValue2 + 1); //crazy limit stuff not needed cuz of ze bool
 				//	GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCid(), 10);

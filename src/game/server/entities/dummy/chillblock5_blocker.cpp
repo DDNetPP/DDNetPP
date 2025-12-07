@@ -2113,7 +2113,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						}
 					}
 
-					//second freeze from the right --> goto singel palttform
+					//second freeze from the right --> goto single palttform
 					if(GetPos().x > 464 * 32 && Jumped() > 2 && GetPos().x < 468 * 32)
 					{
 						Right();
