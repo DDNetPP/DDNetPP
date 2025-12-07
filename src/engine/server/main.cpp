@@ -1,5 +1,6 @@
 #include <base/logger.h>
 #include <base/system.h>
+#include <base/windows.h>
 
 #include <engine/console.h>
 #include <engine/engine.h>
@@ -172,6 +173,7 @@ int main(int argc, const char **argv)
 	pConfigManager->SetReadOnly("sv_rescue", true);
 	pConfigManager->SetReadOnly("sv_port", true);
 	pConfigManager->SetReadOnly("bindaddr", true);
+	pConfigManager->SetReadOnly("logfile", true);
 
 	if(g_Config.m_Logfile[0])
 	{

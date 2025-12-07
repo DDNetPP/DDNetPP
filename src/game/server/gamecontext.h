@@ -146,7 +146,7 @@ class CGameContext : public IGameServer
 	CCollision m_Collision;
 	protocol7::CNetObjHandler m_NetObjHandler7;
 	CNetObjHandler m_NetObjHandler;
-	CTuningParams m_aTuningList[NUM_TUNEZONES];
+	CTuningParams m_aTuningList[TuneZone::NUM];
 	std::vector<std::string> m_vCensorlist;
 
 	bool m_TeeHistorianActive;
@@ -200,8 +200,6 @@ class CGameContext : public IGameServer
 	static void ConchainPracticeByDefaultUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConDumpLog(IConsole::IResult *pResult, void *pUserData);
 
-	void Construct(int Resetting);
-	void Destruct(int Resetting);
 	void AddVote(const char *pDescription, const char *pCommand);
 	static int MapScan(const char *pName, int IsDir, int DirType, void *pUserData);
 
@@ -233,8 +231,7 @@ public:
 	CNetObjHandler *GetNetObjHandler() override { return &m_NetObjHandler; }
 	protocol7::CNetObjHandler *GetNetObjHandler7() override { return &m_NetObjHandler7; }
 
-	CGameContext();
-	CGameContext(int Reset);
+	CGameContext(bool Resetting = false);
 	~CGameContext() override;
 
 	void Clear();
@@ -279,8 +276,8 @@ public:
 	char m_aVoteReason[VOTE_REASON_LENGTH];
 	int m_NumVoteOptions;
 	int m_VoteEnforce;
-	char m_aaZoneEnterMsg[NUM_TUNEZONES][256]; // 0 is used for switching from or to area without tunings
-	char m_aaZoneLeaveMsg[NUM_TUNEZONES][256];
+	char m_aaZoneEnterMsg[TuneZone::NUM][256]; // 0 is used for switching from or to area without tunings
+	char m_aaZoneLeaveMsg[TuneZone::NUM][256];
 
 	void CreateAllEntities(bool Initial);
 	CPlayer *CreatePlayer(int ClientId, int StartTeam, bool Afk, int LastWhisperTo);
@@ -336,6 +333,7 @@ public:
 	void SendServerAlert(const char *pMessage);
 	void SendModeratorAlert(const char *pMessage, int ToClientId);
 	void SendBroadcast(const char *pText, int ClientId, int Importance = 1, bool IsSupermod = false);
+	void SendSkinChange7(int ClientId);
 
 	void List(int ClientId, const char *pFilter);
 

@@ -1,27 +1,29 @@
 #ifndef GAME_EDITOR_EDITOR_TRACKERS_H
 #define GAME_EDITOR_EDITOR_TRACKERS_H
 
+#include <game/client/ui.h>
+#include <game/editor/map_object.h>
 #include <game/editor/mapitems.h>
-#include <game/editor/mapitems/layer_quads.h>
 #include <game/mapitems.h>
 
 #include <map>
 #include <memory>
 #include <vector>
 
-class CEditor;
-class CLayerTiles;
+class CLayer;
 class CLayerGroup;
+class CLayerQuads;
 class CLayerSounds;
+class CLayerTiles;
 class CSoundSource;
 
-class CQuadEditTracker
+class CQuadEditTracker : public CMapObject
 {
 public:
-	CQuadEditTracker();
-	~CQuadEditTracker();
+	explicit CQuadEditTracker(CEditorMap *pMap);
 
 	bool QuadPointChanged(const std::vector<CPoint> &vCurrentPoints, int QuadIndex);
+	bool QuadColorChanged(const std::vector<CColor> &vCurrentColors, int QuadIndex);
 
 	void BeginQuadTrack(const std::shared_ptr<CLayerQuads> &pLayer, const std::vector<int> &vSelectedQuads, int GroupIndex = -1, int LayerIndex = -1);
 	void EndQuadTrack();
@@ -34,12 +36,11 @@ public:
 	void EndQuadPointPropTrack(EQuadPointProp Prop);
 	void EndQuadPointPropTrackAll();
 
-	CEditor *m_pEditor;
-
 private:
 	std::vector<int> m_vSelectedQuads;
 	int m_SelectedQuadPoints;
 	std::map<int, std::vector<CPoint>> m_InitialPoints;
+	std::map<int, std::vector<CColor>> m_InitialColors;
 
 	bool m_Tracking = false;
 	std::shared_ptr<CLayerQuads> m_pLayer;
@@ -71,16 +72,15 @@ enum class ESoundSourceOp
 	OP_CONTEXT_MENU,
 };
 
-class CEnvelopeEditorOperationTracker
+class CEnvelopeEditorOperationTracker : public CMapObject
 {
 public:
-	CEnvelopeEditorOperationTracker() = default;
+	explicit CEnvelopeEditorOperationTracker(CEditorMap *pMap) :
+		CMapObject(pMap) {}
 
 	void Begin(EEnvelopeEditorOp Operation);
 	void Stop(bool Switch = true);
 	void Reset() { m_TrackedOp = EEnvelopeEditorOp::OP_NONE; }
-
-	CEditor *m_pEditor;
 
 private:
 	EEnvelopeEditorOp m_TrackedOp = EEnvelopeEditorOp::OP_NONE;
@@ -98,16 +98,15 @@ private:
 	void HandlePointDragEnd(bool Switch);
 };
 
-class CSoundSourceOperationTracker
+class CSoundSourceOperationTracker : public CMapObject
 {
 public:
-	CSoundSourceOperationTracker(CEditor *pEditor);
+	explicit CSoundSourceOperationTracker(CEditorMap *pMap);
 
 	void Begin(CSoundSource *pSource, ESoundSourceOp Operation, int LayerIndex);
 	void End();
 
 private:
-	CEditor *m_pEditor;
 	CSoundSource *m_pSource;
 	ESoundSourceOp m_TrackedOp;
 	int m_LayerIndex;
@@ -121,18 +120,23 @@ private:
 
 struct SPropTrackerHelper
 {
-	static int GetDefaultGroupIndex(CEditor *pEditor);
-	static int GetDefaultLayerIndex(CEditor *pEditor);
+	static int GetDefaultGroupIndex(CEditorMap *pMap);
+	static int GetDefaultLayerIndex(CEditorMap *pMap);
 };
 
 template<typename T, typename E>
-class CPropTracker
+class CPropTracker : public CMapObject
 {
 public:
-	virtual ~CPropTracker() = default;
-	CPropTracker(CEditor *pEditor) :
-		m_pEditor(pEditor), m_OriginalValue(0), m_pObject(nullptr), m_OriginalLayerIndex(-1), m_OriginalGroupIndex(-1), m_CurrentLayerIndex(-1), m_CurrentGroupIndex(-1), m_Tracking(false) {}
-	CEditor *m_pEditor;
+	explicit CPropTracker(CEditorMap *pMap) :
+		CMapObject(pMap),
+		m_OriginalValue(0),
+		m_pObject(nullptr),
+		m_OriginalLayerIndex(-1),
+		m_OriginalGroupIndex(-1),
+		m_CurrentLayerIndex(-1),
+		m_CurrentGroupIndex(-1),
+		m_Tracking(false) {}
 
 	void Begin(T *pObject, E Prop, EEditState State, int GroupIndex = -1, int LayerIndex = -1)
 	{
@@ -140,8 +144,8 @@ public:
 			return;
 		m_pObject = pObject;
 
-		m_OriginalGroupIndex = GroupIndex < 0 ? SPropTrackerHelper::GetDefaultGroupIndex(m_pEditor) : GroupIndex;
-		m_OriginalLayerIndex = LayerIndex < 0 ? SPropTrackerHelper::GetDefaultLayerIndex(m_pEditor) : LayerIndex;
+		m_OriginalGroupIndex = GroupIndex < 0 ? SPropTrackerHelper::GetDefaultGroupIndex(Map()) : GroupIndex;
+		m_OriginalLayerIndex = LayerIndex < 0 ? SPropTrackerHelper::GetDefaultLayerIndex(Map()) : LayerIndex;
 		m_CurrentGroupIndex = m_OriginalGroupIndex;
 		m_CurrentLayerIndex = m_OriginalLayerIndex;
 
@@ -159,8 +163,8 @@ public:
 		if(!m_Tracking || Prop == static_cast<E>(-1))
 			return;
 
-		m_CurrentGroupIndex = GroupIndex < 0 ? SPropTrackerHelper::GetDefaultGroupIndex(m_pEditor) : GroupIndex;
-		m_CurrentLayerIndex = LayerIndex < 0 ? SPropTrackerHelper::GetDefaultLayerIndex(m_pEditor) : LayerIndex;
+		m_CurrentGroupIndex = GroupIndex < 0 ? SPropTrackerHelper::GetDefaultGroupIndex(Map()) : GroupIndex;
+		m_CurrentLayerIndex = LayerIndex < 0 ? SPropTrackerHelper::GetDefaultLayerIndex(Map()) : LayerIndex;
 
 		if(State == EEditState::END || State == EEditState::ONE_GO)
 		{
@@ -192,8 +196,8 @@ protected:
 class CLayerPropTracker : public CPropTracker<CLayer, ELayerProp>
 {
 public:
-	CLayerPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayer, ELayerProp>(pEditor) {}
+	explicit CLayerPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayer, ELayerProp>(pMap) {}
 
 protected:
 	void OnEnd(ELayerProp Prop, int Value) override;
@@ -203,8 +207,8 @@ protected:
 class CLayerTilesPropTracker : public CPropTracker<CLayerTiles, ETilesProp>
 {
 public:
-	CLayerTilesPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerTiles, ETilesProp>(pEditor) {}
+	explicit CLayerTilesPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayerTiles, ETilesProp>(pMap) {}
 
 protected:
 	void OnStart(ETilesProp Prop) override;
@@ -220,8 +224,8 @@ private:
 class CLayerTilesCommonPropTracker : public CPropTracker<CLayerTiles, ETilesCommonProp>
 {
 public:
-	CLayerTilesCommonPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerTiles, ETilesCommonProp>(pEditor) {}
+	explicit CLayerTilesCommonPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayerTiles, ETilesCommonProp>(pMap) {}
 
 protected:
 	void OnStart(ETilesCommonProp Prop) override;
@@ -241,8 +245,8 @@ public:
 class CLayerGroupPropTracker : public CPropTracker<CLayerGroup, EGroupProp>
 {
 public:
-	CLayerGroupPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerGroup, EGroupProp>(pEditor) {}
+	explicit CLayerGroupPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayerGroup, EGroupProp>(pMap) {}
 
 protected:
 	void OnEnd(EGroupProp Prop, int Value) override;
@@ -252,8 +256,8 @@ protected:
 class CLayerQuadsPropTracker : public CPropTracker<CLayerQuads, ELayerQuadsProp>
 {
 public:
-	CLayerQuadsPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerQuads, ELayerQuadsProp>(pEditor) {}
+	explicit CLayerQuadsPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayerQuads, ELayerQuadsProp>(pMap) {}
 
 protected:
 	void OnEnd(ELayerQuadsProp Prop, int Value) override;
@@ -263,8 +267,8 @@ protected:
 class CLayerSoundsPropTracker : public CPropTracker<CLayerSounds, ELayerSoundsProp>
 {
 public:
-	CLayerSoundsPropTracker(CEditor *pEditor) :
-		CPropTracker<CLayerSounds, ELayerSoundsProp>(pEditor) {}
+	explicit CLayerSoundsPropTracker(CEditorMap *pMap) :
+		CPropTracker<CLayerSounds, ELayerSoundsProp>(pMap) {}
 
 protected:
 	void OnEnd(ELayerSoundsProp Prop, int Value) override;
@@ -274,8 +278,8 @@ protected:
 class CSoundSourcePropTracker : public CPropTracker<CSoundSource, ESoundProp>
 {
 public:
-	CSoundSourcePropTracker(CEditor *pEditor) :
-		CPropTracker<CSoundSource, ESoundProp>(pEditor) {}
+	explicit CSoundSourcePropTracker(CEditorMap *pMap) :
+		CPropTracker<CSoundSource, ESoundProp>(pMap) {}
 
 protected:
 	void OnEnd(ESoundProp Prop, int Value) override;
@@ -285,8 +289,8 @@ protected:
 class CSoundSourceRectShapePropTracker : public CPropTracker<CSoundSource, ERectangleShapeProp>
 {
 public:
-	CSoundSourceRectShapePropTracker(CEditor *pEditor) :
-		CPropTracker<CSoundSource, ERectangleShapeProp>(pEditor) {}
+	explicit CSoundSourceRectShapePropTracker(CEditorMap *pMap) :
+		CPropTracker<CSoundSource, ERectangleShapeProp>(pMap) {}
 
 protected:
 	void OnEnd(ERectangleShapeProp Prop, int Value) override;
@@ -296,8 +300,8 @@ protected:
 class CSoundSourceCircleShapePropTracker : public CPropTracker<CSoundSource, ECircleShapeProp>
 {
 public:
-	CSoundSourceCircleShapePropTracker(CEditor *pEditor) :
-		CPropTracker<CSoundSource, ECircleShapeProp>(pEditor) {}
+	explicit CSoundSourceCircleShapePropTracker(CEditorMap *pMap) :
+		CPropTracker<CSoundSource, ECircleShapeProp>(pMap) {}
 
 protected:
 	void OnEnd(ECircleShapeProp Prop, int Value) override;

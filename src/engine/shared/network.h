@@ -578,7 +578,7 @@ class CNetClient
 	CStun *m_pStun = nullptr;
 
 public:
-	NETSOCKET m_Socket;
+	NETSOCKET m_Socket = nullptr;
 	// openness
 	bool Open(NETADDR BindAddr);
 	void Close();

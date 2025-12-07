@@ -11,6 +11,7 @@
 #include <game/editor/mapitems/layer_sounds.h>
 #include <game/editor/mapitems/layer_tiles.h>
 #include <game/editor/mapitems/sound.h>
+#include <game/editor/references.h>
 
 void CEditorMap::CMapInfo::Reset()
 {
@@ -255,6 +256,11 @@ void CEditorMap::Clean()
 
 	m_MapInfo.Reset();
 	m_MapInfoTmp.Reset();
+
+	m_EditorHistory.Clear();
+	m_EnvelopeEditorHistory.Clear();
+	m_ServerSettingsHistory.Clear();
+	m_EnvOpTracker.Reset();
 
 	m_SelectedImage = 0;
 	m_SelectedSound = 0;
