@@ -902,7 +902,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientId, int Importance
 	}
 	else //non rcon broadcast
 	{
-		if(!m_apPlayers[ClientId]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
+		if(!m_apPlayers[ClientId]) //ddpp added by ChillerDragon because we handle player variables here and idk why we should send it to non existing players anyways
 		{
 			//dbg_msg("cBug", "returned id=%d", ClientId);
 			return;
@@ -1429,7 +1429,7 @@ void CGameContext::OnTick()
 				if(VetoStop || (m_VoteWillPass && Veto))
 					SendChat(-1, TEAM_ALL, "Vote failed because of veto. Find an empty server instead", -1, FLAG_SIX);
 				else if(m_IsDDPPVetoVote)
-					SendChat(-1, TEAM_ALL, "Vote failed because someone voted agianst it. (Veto Vote)", -1, FLAG_SIX);
+					SendChat(-1, TEAM_ALL, "Vote failed because someone voted against it. (Veto Vote)", -1, FLAG_SIX);
 				else
 					SendChat(-1, TEAM_ALL, "Vote failed", -1, FLAG_SIX);
 			}

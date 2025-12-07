@@ -232,7 +232,7 @@ void CDummyBase::AvoidFreezeWeapons()
 			if(JumpedTotal() == Jumps() - 1)
 			{
 				Fire();
-				// TODO: priotize weapons the bot actually has
+				// TODO: prioritize weapons the bot actually has
 				int PanicWeapon = (rand() % 2 == 0) ? WEAPON_GRENADE : WEAPON_LASER;
 				if(TicksPassed(10))
 					SetWeapon(PanicWeapon);

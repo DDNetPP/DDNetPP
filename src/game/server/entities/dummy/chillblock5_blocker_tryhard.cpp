@@ -337,7 +337,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 	{
 		//if (mode18_main_init)
 		//{
-		//	//initialzing main mode...
+		//	//initializing main mode...
 		//	//resetting stuff...
 		//	Hook(0);
 		//}
@@ -438,7 +438,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
 		}
 
-		if(GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+		if(GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) //always suicide on freeze if not reached the block area yet
 		{
 			Die();
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze und links der block area");
@@ -464,7 +464,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 				AimX(pChr->GetPos().x - GetPos().x);
 				AimY(pChr->GetPos().y - GetPos().y);
 
-				if(pChr->GetPos().x < 407 * 32 && pChr->GetPos().y > 212 * 32 && pChr->GetPos().y < 215 * 32 && pChr->GetPos().x > GetPos().x) //wenn ein im weg stehender tee auf der spawn plattform gefunden wurde
+				if(pChr->GetPos().x < 407 * 32 && pChr->GetPos().y > 212 * 32 && pChr->GetPos().y < 215 * 32 && pChr->GetPos().x > GetPos().x) //wenn ein im weg stehender tee auf der spawn platform gefunden wurde
 				{
 					SetWeapon(0); //hol den hammer raus!
 					if(pChr->GetPos().x - GetPos().x < 30) //wenn der typ nahe bei dem bot ist
@@ -549,7 +549,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(GetPos().x > 413 * 32 && GetPos().x < 415 * 32) // in den tunnel springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 				//Jump(0);
 			}
 			else if(GetPos().x > 428 * 32 - 20 && GetPos().y > 213 * 32) // im tunnel springen
@@ -561,14 +561,14 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(GetPos().x > 428 * 32 && GetPos().y > 213 * 32) // im tunnel springen nicht mehr springen
 			{
 				Jump(0);
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 			}
 
 			//nochmal extern weil springen während springen
 			if(GetPos().x > 430 * 32 && GetPos().y > 213 * 32) // im tunnel springen springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 			}
 
 			if(GetPos().x > 431 * 32 && GetPos().y > 213 * 32) //jump refillen für wayblock spot
@@ -680,7 +680,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 				}
 			}
 
-			//TODO(1): keep this structur in mind this makes not much sence
+			//TODO(1): keep this structure in mind this makes not much sence
 			// the bool m_Dummy_happy is just true if a enemy is in the ruler area because all code below depends on a enemy in ruler area
 			// maybe rework this shit
 			//
@@ -1058,7 +1058,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 							if(pChr->GetPos().y < 213 * 32 + 10 && pChr->GetPos().x < 430 * 32 && pChr->GetPos().y > 210 * 32 && pChr->GetPos().x > 416 * 32 + 32) // wenn ein spieler auf der linken seite in der ruler area is
 							{
-								//wenn der typ über dem freze irgendwo rum fliegt
+								//wenn der typ über dem freeze irgendwo rum fliegt
 
 								if(pChr->GetPos().y < 212 * 32 - 10) //wenn er jedoch zu hoch zum schieben ist
 								{

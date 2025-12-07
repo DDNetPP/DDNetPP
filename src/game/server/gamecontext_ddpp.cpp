@@ -952,7 +952,7 @@ bool CGameContext::IsPosition(int playerId, int pos)
 			return true;
 		}
 	}
-	else if(pos == 3) //configurated spawn area
+	else if(pos == 3) //configured spawn area
 	{
 		if(GetPlayerChar(playerId)->m_Pos.x > g_Config.m_SvSpawnareaLowX * 32 && GetPlayerChar(playerId)->m_Pos.x < g_Config.m_SvSpawnareaHighX * 32 && GetPlayerChar(playerId)->m_Pos.y > g_Config.m_SvSpawnareaLowY * 32 && GetPlayerChar(playerId)->m_Pos.y < g_Config.m_SvSpawnareaHighY * 32)
 		{
@@ -1267,7 +1267,7 @@ void CGameContext::ShowInstaStats(int RequestingId, int RequestedId) const
 	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_Account.m_GrenadeShots - pPlayer->m_Account.m_GrenadeShotsNoRJ);
 	SendChatTarget(RequestingId, aBuf);
-	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_Account.m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
+	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_Account.m_GrenadeKills); //can be negative with double and triple kills but this isnt a bug its a feature xd
 	//SendChatTarget(requestId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Rifle instagib ~~~", Server()->ClientName(pPlayer->GetCid()));
 	SendChatTarget(RequestingId, aBuf);
@@ -1742,7 +1742,7 @@ void CGameContext::DDPP_SlowTick()
 		if(pPlayer->IsQuesting())
 		{
 			NumQuesting++;
-			if(pPlayer->m_QuestPlayerId != -1) //if player is on a <specfic player> quest
+			if(pPlayer->m_QuestPlayerId != -1) //if player is on a <specific player> quest
 			{
 				if(!m_apPlayers[pPlayer->m_QuestPlayerId])
 				{
@@ -1788,7 +1788,7 @@ void CGameContext::DDPP_SlowTick()
 
 	if(StopSurvival)
 	{
-		m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
+		m_survivalgamestate = 0; //don't waste resource on lobby checks if nobody is playing
 	}
 	if(g_Config.m_SvAllowGlobalChat)
 	{

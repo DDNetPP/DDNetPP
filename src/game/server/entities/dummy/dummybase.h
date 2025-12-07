@@ -101,7 +101,7 @@ protected:
 	void AvoidFreezeWeapons();
 	/*
 		Function: RightAntiStuck
-		Walks right and trys to avoid getting stuck in simple obstacles
+		Walks right and tries to avoid getting stuck in simple obstacles
 		can jump over collision in the way and go back if there is collision on top
 	*/
 	void RightAntiStuck();

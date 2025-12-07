@@ -158,7 +158,7 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 					pOwnerChar->GetPlayer()->m_QuestProgressBool = true;
 				}
 
-				if(pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerId == pHit->GetPlayer()->GetCid()) //hitting the same player agian
+				if(pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerId == pHit->GetPlayer()->GetCid()) //hitting the same player again
 				{
 					GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCid(), "[QUEST] rifle a different tee");
 				}

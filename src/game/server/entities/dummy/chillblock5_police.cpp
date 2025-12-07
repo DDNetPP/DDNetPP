@@ -126,11 +126,11 @@ void CDummyChillBlock5Police::OnTick()
 
 		Structure:
 
-		* [STRUC][1]: Check what sub-mode shoudl be used
+		* [STRUCT][1]: Check what sub-mode should be used
 
-		* [STRUC][2]: Do stuff depending on sub-modes
+		* [STRUCT][2]: Do stuff depending on sub-modes
 
-		* [STRUC][3]: Do basic movement depending on sub-modes ( step 2 for all modes higher than 3)
+		* [STRUCT][3]: Do basic movement depending on sub-modes ( step 2 for all modes higher than 3)
 
 
 		modes:
@@ -144,7 +144,7 @@ void CDummyChillBlock5Police::OnTick()
 		*/
 
 		//##############################################
-		//[STRUC][1]: Check what sub-mode shoudl be used
+		//[STRUCT][1]: Check what sub-mode should be used
 		//##############################################
 		if(m_Dummy_ClosestPolice) //police
 		{
@@ -177,7 +177,7 @@ void CDummyChillBlock5Police::OnTick()
 		}
 
 		//##############################################
-		//[STRUC][2]: Do stuff depending on sub - modes
+		//[STRUCT][2]: Do stuff depending on sub - modes
 		//##############################################
 
 		if(m_Dummy_dmm31 == 0) //nothing is going on
@@ -210,7 +210,7 @@ void CDummyChillBlock5Police::OnTick()
 
 			if(m_Dummy_AttackMode == 0) //default mode
 			{
-				if(GetPos().x < 466 * 32 - 5) //only get bored on lovley place
+				if(GetPos().x < 466 * 32 - 5) //only get bored on lovely place
 				{
 					SetDirection(rand() % 2);
 					if(IsGrounded())
@@ -308,7 +308,7 @@ void CDummyChillBlock5Police::OnTick()
 				Hook(0);
 			}
 		}
-		else if(m_Dummy_dmm31 == 3) //EXTERNAL: Enemy attack (rigt side /jail side)
+		else if(m_Dummy_dmm31 == 3) //EXTERNAL: Enemy attack (right side /jail side)
 		{
 			if(GetPos().x < 461 * 32)
 			{
@@ -343,13 +343,13 @@ void CDummyChillBlock5Police::OnTick()
 			AimPos(pChr->GetPos());
 			if(Server()->Tick() % 120 == 0)
 			{
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "error: unknow sub-mode for this dummymode set.");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "error: unknown sub-mode for this dummymode set.");
 			}
 		}
 	}
 
 	//##############################################
-	//[STRUC][3]: Do basic movement depending on sub - modes
+	//[STRUCT][3]: Do basic movement depending on sub - modes
 	//##############################################
 
 	//The basic movements depending on the dummysubmodes
@@ -406,7 +406,7 @@ void CDummyChillBlock5Police::OnTick()
 					}
 				}
 
-				//gets false in the big esle m_Dummy_GotStuck = false;
+				//gets false in the big else m_Dummy_GotStuck = false;
 			}
 			else
 			{

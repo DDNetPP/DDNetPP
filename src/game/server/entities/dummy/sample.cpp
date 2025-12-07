@@ -83,7 +83,7 @@ void CDummySample::OnTick()
 		Right();
 
 	// Get the closest player to the bot
-	// save it in the varialbe pChr
+	// save it in the variable pChr
 	CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), false, m_pCharacter);
 
 	// Check wether there is a player

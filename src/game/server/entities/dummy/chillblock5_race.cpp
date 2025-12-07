@@ -331,7 +331,7 @@ void CDummyChillBlock5Race::OnTick()
 				}
 			}
 		}
-		else //sonst normal relativ schnell killen
+		else //sonst normal relative schnell killen
 		{
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), true, m_pCharacter);
 			if(pChr && pChr->IsAlive())
@@ -382,7 +382,7 @@ void CDummyChillBlock5Race::OnTick()
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze becken unter area");
 		}
 
-		if((GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) && (GetPos().x > 350 * 32)) //always suicide on freeze if not reached teh block area yet             (new) AND not coming from the new spawn and falling through the freeze
+		if((GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) && (GetPos().x > 350 * 32)) //always suicide on freeze if not reached the block area yet             (new) AND not coming from the new spawn and falling through the freeze
 		{
 			Die();
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze und links der block area");
@@ -391,7 +391,7 @@ void CDummyChillBlock5Race::OnTick()
 		//Movement bis zur ruler area:
 		/*
 		NEW! Movement modes for the basic move till hammerfly!
-		m_Dummy_movement_mode23 is a int to check which movement style the bot shoudl used
+		m_Dummy_movement_mode23 is a int to check which movement style the bot should used
 
 		0					normal old basic mode
 		1					new mode jump left side up into ruler area [ALPHA]
@@ -447,7 +447,7 @@ void CDummyChillBlock5Race::OnTick()
 			if(GetPos().x > 413 * 32 && GetPos().x < 415 * 32) // in den tunnel springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 				//Jump(0);
 			}
 			else if(GetPos().x > 428 * 32 - 20 && GetPos().y > 213 * 32) // im tunnel springen
@@ -459,14 +459,14 @@ void CDummyChillBlock5Race::OnTick()
 			if(GetPos().x > 428 * 32 && GetPos().y > 213 * 32) // im tunnel springen nicht mehr springen
 			{
 				Jump(0);
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 			}
 
 			//nochmal extern weil springen während springen
 			if(GetPos().x > 430 * 32 && GetPos().y > 213 * 32) // im tunnel springen springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 			}
 
 			if(GetPos().x > 431 * 32 && GetPos().y > 213 * 32) //jump refillen für wayblock spot
@@ -983,14 +983,14 @@ void CDummyChillBlock5Race::OnTick()
 		/*
 		Struct:
 
-		STRUCT[1]: Check if bot shoudl change m_Dummy_2p_state
+		STRUCT[1]: Check if bot should change m_Dummy_2p_state
 
 		STRUCT[2]: Let the bot do stuff depenging on m_Dummy_2p_state
 
 		States:
 		-2				Help pChr out of freeze
 		-1				do nothing
-		0				prepare for making the part (gettin in the right position)
+		0				prepare for making the part (getting in the right position)
 		1				starting to do the part -> walking left and hammerin'
 		2				keep going doing the part -> hookin' and walking to the right
 		3				final stage of doing the part -> jumpin' and unfreeze pChr with hammerhit
@@ -1054,7 +1054,7 @@ void CDummyChillBlock5Race::OnTick()
 							m_Dummy_2p_hook = false;
 						}
 
-						//STRUCT[1]: Check if bot shoudl change m_Dummy_2p_state
+						//STRUCT[1]: Check if bot should change m_Dummy_2p_state
 						if(GetPos().x < 477 * 32 || m_Dummy_mate_failed) //TODO: add if pChr wants to make the part
 						{
 							m_Dummy_2p_state = -1;
@@ -1129,9 +1129,9 @@ void CDummyChillBlock5Race::OnTick()
 
 						//STRUCT[2]: Let the bot do stuff depenging on m_Dummy_2p_state
 
-						if(m_Dummy_2p_state == 0) //prepare doing the part (gettin right pos)
+						if(m_Dummy_2p_state == 0) //prepare doing the part (getting right pos)
 						{
-							Right(); //walking right until state 1 gets triggerd
+							Right(); //walking right until state 1 gets triggered
 							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [1]");
 						}
 						else if(m_Dummy_2p_state == 1) //starting to do the part -> walking left and hammerin'
@@ -1169,7 +1169,7 @@ void CDummyChillBlock5Race::OnTick()
 								SetWeapon(0); //hammer
 							}
 
-							if(pChr->m_FreezeTime > 0) //keep holding hook untill pChr is unfreeze
+							if(pChr->m_FreezeTime > 0) //keep holding hook until pChr is unfreeze
 							{
 								Hook();
 							}
@@ -1187,7 +1187,7 @@ void CDummyChillBlock5Race::OnTick()
 						//MOVED TO EXTERN CUZ SPECIAL
 						//else if (m_Dummy_2p_state == 4) //PART geschafft! spring ins freeze
 						//{
-						//	if (GetPos().y < 195 * 32 && GetPos().x > 478 * 32) //wenn der bot noch auf der plattform is
+						//	if (GetPos().y < 195 * 32 && GetPos().x > 478 * 32) //wenn der bot noch auf der platform is
 						//	{
 						//		Left(); //geh links bisse füllst
 						//	}
@@ -1206,7 +1206,7 @@ void CDummyChillBlock5Race::OnTick()
 						AimX(1);
 						AimY(1);
 
-						if(GetPos().y < 195 * 32 && GetPos().x > 478 * 32 - 15) //wenn der bot noch auf der plattform is
+						if(GetPos().y < 195 * 32 && GetPos().x > 478 * 32 - 15) //wenn der bot noch auf der platform is
 						{
 							if(GetPos().x < 480 * 32) //wenn er schon knapp an der kante is
 							{
@@ -1348,7 +1348,7 @@ void CDummyChillBlock5Race::OnTick()
 										Hook();
 									}
 									//reset hook if something went wrong
-									if(Server()->Tick() % 90 == 0 && pChr->GetVel().y == 0.000000f) //if the bot shoudl hook but the mate lays on the ground --> resett hook
+									if(Server()->Tick() % 90 == 0 && pChr->GetVel().y == 0.000000f) //if the bot should hook but the mate lays on the ground --> reset hook
 									{
 										Hook(0);
 										m_Dummy_nothing_happens_counter++;
@@ -1367,7 +1367,7 @@ void CDummyChillBlock5Race::OnTick()
 												Fire();
 											}
 										}
-										if(m_Dummy_nothing_happens_counter > 5) //high warning mate coudl get bored --> swtich through all weapons and move angel back
+										if(m_Dummy_nothing_happens_counter > 5) //high warning mate coudl get bored --> switch through all weapons and move angel back
 										{
 											SetWeapon(m_Dummy_panic_weapon);
 											m_Dummy_panic_weapon++;
@@ -1394,7 +1394,7 @@ void CDummyChillBlock5Race::OnTick()
 										AimY(30);
 										Fire();
 									}
-									else //if mate is too low --> change angel or move depnding on the x position
+									else //if mate is too low --> change angel or move depending on the x position
 									{
 										if(pChr->GetPos().x < 481 * 32 - 4) //left enough to get him with other shotgun angels from the edge
 										{
@@ -1404,12 +1404,12 @@ void CDummyChillBlock5Race::OnTick()
 												Left();
 											}
 											/*
-											[PLANNED BUT NOT NEEDED]: add more help modes and switch trough them. for now just help mode 2 is used and the int to swtich modes is usless
+											[PLANNED BUT NOT NEEDED]: add more help modes and switch trough them. for now just help mode 2 is used and the int to switch modes is useless
 											Then start to help.
 											There are different help modes to have some variations if nothing happens
 											help modes:
 
-											1				Old way of helping try to wallshot staright down (doesnt work)
+											1				Old way of helping try to wallshot straight down (doesnt work)
 											2				New alternative! wallshot the left wall while jumping
 											3				2018 new yolo move with jumping in the air
 
@@ -1628,23 +1628,23 @@ void CDummyChillBlock5Race::OnTick()
 						{
 							//dont switch to hammer because without delay it sucks
 							//and with delay its too slow
-							//the bot shoudl anyways have a hammer ready in this situation
+							//the bot should anyways have a hammer ready in this situation
 							// so ---> just shoot
 							Fire();
 						}
 
 						//do something if nothing happens cuz the bot is stuck somehow
-						if(Server()->Tick() % 100 == 0 && pChr->GetVel().y == 0.000000f && m_Dummy_nothing_happens_counter == 0) //if the mate stands still after 90secs the m_Dummy_nothing_happens_countershoudl get triggerd. but if not this if function turns true
+						if(Server()->Tick() % 100 == 0 && pChr->GetVel().y == 0.000000f && m_Dummy_nothing_happens_counter == 0) //if the mate stands still after 90secs the m_Dummy_nothing_happens_countershoudl get triggered. but if not this if function turns true
 						{
-							//[PLANNED]: this can cause an loop wehre nothing happens..
+							//[PLANNED]: this can cause an loop where nothing happens..
 							//maybe add some weapon changes or change m_Input.m_TargetX a bit
 
-							Left(); //ye just walk untill an emergency gets called xD
+							Left(); //ye just walk until an emergency gets called xD
 							//ik pro trick but it moves the bot around
 						}
 
 						//Emergency takes over here if the bot got in a dangerous situation!
-						//if (GetPos().y > 196 * 32 + 30) //+25 is used for the jump help and with 30 it shoudlnt get any confusuion i hope
+						//if (GetPos().y > 196 * 32 + 30) //+25 is used for the jump help and with 30 it shouldnt get any confusuion i hope
 						if((GetPos().y > 195 * 32 && !m_Dummy_help_no_emergency)) //if the bot left the platform
 						{
 							m_Dummy_help_emergency = true;
@@ -1657,7 +1657,7 @@ void CDummyChillBlock5Race::OnTick()
 
 						if(m_Dummy_help_emergency)
 						{
-							//resett all and let emergency control all xD
+							//reset all and let emergency control all xD
 							Hook(0);
 							Jump(0);
 							StopMoving();
@@ -1791,7 +1791,7 @@ void CDummyChillBlock5Race::OnTick()
 									Hook();
 								}
 
-								//jump if too low && if mate is freeze otherwise it woudl be annoying af
+								//jump if too low && if mate is freeze otherwise it would be annoying af
 								if(GetPos().y > 191 * 32 && pChrFreeze->m_FreezeTime > 0)
 								{
 									Jump();
@@ -1932,7 +1932,7 @@ void CDummyChillBlock5Race::OnTick()
 							}
 
 							//If dummy made it till finish but mate is still freeze on the left side
-							//he automaiclly help. BUT if he fails the hook resett it!
+							//he automaiclly help. BUT if he fails the hook reset it!
 							//left side                                                                                      right side
 							if((GetPos().x > 514 * 32 - 5 && m_pCharacter->m_FreezeTime == 0 && IsFrozen(pChr) && pChr->GetPos().x < 515 * 32) || (GetPos().x > 519 * 32 - 5 && m_pCharacter->m_FreezeTime == 0 && IsFrozen(pChr) && pChr->GetPos().x < 523 * 32))
 							{
@@ -2020,7 +2020,7 @@ void CDummyChillBlock5Race::OnTick()
 								m_Dummy_hh_hook = true;
 							}
 
-							//jump if too low && if mate is freeze otherwise it woudl be annoying af
+							//jump if too low && if mate is freeze otherwise it would be annoying af
 							if(GetPos().y > 191 * 32 && pChr->m_FreezeTime > 0)
 							{
 								Jump();
@@ -2048,11 +2048,11 @@ void CDummyChillBlock5Race::OnTick()
 			}
 		}
 
-		//General bug protection resett hook in freeze
+		//General bug protection reset hook in freeze
 		//if (IsFrozen())
 		if(m_pCharacter->m_FreezeTime > 0)
 		{
-			Hook(0); //resett hook in freeze to prevent bugs with no hooking at last part
+			Hook(0); //reset hook in freeze to prevent bugs with no hooking at last part
 		}
 	}
 

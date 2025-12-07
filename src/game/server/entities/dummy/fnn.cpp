@@ -216,12 +216,12 @@ void CDummyFNN::OnTick()
 			// m_pPlayer->m_TeeInfos.m_Name = "writing...";
 			// m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
 
-			//m_pPlayer->m_Dummy_nn_time++; //maybe use it some day to analys each tick stuff or total trainign time idk
+			//m_pPlayer->m_Dummy_nn_time++; //maybe use it some day to analys each tick stuff or total training time idk
 
 			// random inputs
 			int RandFire = rand() % 2; // 1 0
 			int RandJump = 0;
-			if(rand() % 32 - (IsGrounded() * 6) == 0) // more likley to jump if grounded to avoid spamming dj
+			if(rand() % 32 - (IsGrounded() * 6) == 0) // more likely to jump if grounded to avoid spamming dj
 			{
 				RandJump = 1;
 			}

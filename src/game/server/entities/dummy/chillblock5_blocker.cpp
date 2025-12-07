@@ -1045,7 +1045,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					if(GetPos().x > 413 * 32 && GetPos().x < 415 * 32) // in den tunnel springen
 					{
 						Jump();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 						//Jump(0);
 					}
 					else if(GetPos().x > 428 * 32 - 20 && GetPos().y > 213 * 32) // im tunnel springen
@@ -1058,7 +1058,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					if(GetPos().x > 428 * 32 && GetPos().y > 213 * 32) // im tunnel springen nicht mehr springen
 					{
 						Jump(0);
-						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 					}
 
 					//nochmal extern weil springen während springen
@@ -1066,7 +1066,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					if(GetPos().x > 430 * 32 && GetPos().y > 213 * 32) // im tunnel springen springen
 					{
 						Jump();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggered");
 					}
 
 					if(GetPos().x > 431 * 32 && GetPos().y > 213 * 32) //jump refillen für wayblock spot
@@ -1183,7 +1183,7 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 
-				//TODO(1): keep this structur in mind this makes not much sence
+				//TODO(1): keep this structure in mind this makes not much sence
 				// the bool m_Dummy_happy is just true if a enemy is in the ruler area because all code below depends on a enemy in ruler area
 				// maybe rework this shit
 
@@ -1662,13 +1662,13 @@ void CDummyChillBlock5Blocker::OnTick()
 						if(!m_Dummy_emergency && GetPos().x > 415 && GetPos().y < 213 * 32 && m_DummyFreezeBlockTrick != 0) //as long as no enemy is unfreeze in base --->  do some trickzz
 						{
 							//Trick reset all
-							//resett in the tricks because trick1 doesnt want it
+							//reset in the tricks because trick1 doesnt want it
 							//Hook(0);
 							//Jump(0);
 							//StopMoving();
 							//Fire(0);
 
-							//off tricks when not gud to make tricks#
+							//off tricks when not good to make tricks#
 							if(pChrRuler->m_FreezeTime == 0)
 							{
 								m_DummyFreezeBlockTrick = 0;
@@ -1720,7 +1720,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									Hook(0);
 								}
 							}
-							else if(m_DummyFreezeBlockTrick == 2) //enemy on the right plattform --> swing him away
+							else if(m_DummyFreezeBlockTrick == 2) //enemy on the right platform --> swing him away
 							{
 								Hook(0);
 								Jump(0);
@@ -1832,7 +1832,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									Hook();
 								}
 
-								// if he lands on the right plattform switch trick xD
+								// if he lands on the right platform switch trick xD
 								// doesnt work anysways (now fixed by the stopper hook)
 								if(pChrRuler->m_Pos.x > 433 * 32 && pChrRuler->Core()->m_Vel.y == 0.0f)
 								{
@@ -1912,7 +1912,7 @@ void CDummyChillBlock5Blocker::OnTick()
 									else
 									{
 										Hook(0);
-										m_DummyFreezeBlockTrick = 0; // fuck it too lazy normal stuff shoudl do the rest xD
+										m_DummyFreezeBlockTrick = 0; // fuck it too lazy normal stuff should do the rest xD
 									}
 									if(Server()->Tick() % 7 == 0)
 									{
@@ -1922,7 +1922,7 @@ void CDummyChillBlock5Blocker::OnTick()
 							}
 							else if(m_DummyFreezeBlockTrick == 5) // Hook under blockarea to the left (mostly the end of a trick)
 							{
-								//For now this trick only gets triggerd in trick 3 at the end
+								//For now this trick only gets triggered in trick 3 at the end
 
 								//TODO: this trick needs a tick
 
@@ -2037,12 +2037,12 @@ void CDummyChillBlock5Blocker::OnTick()
 					}
 				}
 			}
-			else // out of the freeze area resett bools
+			else // out of the freeze area reset bools
 			{
 				m_Dummy_speedright = false;
 			}
 
-			// go down on plattform to get dj
+			// go down on platform to get dj
 			// bot always fails going back from right
 			// because he doesnt refills his dj
 
@@ -2064,10 +2064,10 @@ void CDummyChillBlock5Blocker::OnTick()
 
 			// ##########################################
 			//  S P E C I A L    S H I T ! ! !          #
-			// ##########################################             agian...
+			// ##########################################             again...
 
 			// woo special late important new stuff xD
-			// reached hammerfly plattform --> get new movement skills
+			// reached hammerfly platform --> get new movement skills
 			// this area has his own extra codeblock with cool stuff
 
 			if(GetPos().x > 448 * 32)
@@ -2268,7 +2268,7 @@ void CDummyChillBlock5Blocker::OnTick()
 			//  FUCK YOU old ChillerDragon you just wasted my fucking time with this shitty line
 			// im working on another movement where i need jumps at spawn and it took me 20 minutes to find this shitty line u faggot!
 			// wow ofc the bot does shit at spawn because u only said the ruler area is (GetPos().y < 213 * 32) and no check on X omg!
-			// hope this wont happen agian! (talking to you future dragon)
+			// hope this wont happen again! (talking to you future dragon)
 
 			// if (GetPos().x < 407 * 32)
 			// {

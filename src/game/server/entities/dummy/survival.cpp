@@ -156,7 +156,7 @@ void CDummySurvival::OnTick()
 				Hook(0);
 			}
 
-			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1) //collsion in the way
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1) //collision in the way
 			{
 				Right();
 				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
@@ -181,7 +181,7 @@ void CDummySurvival::OnTick()
 
 		if(GetPos().y > pChr->GetPos().y + 50) //too low
 		{
-			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collsion in the way
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collision in the way
 			{
 				SetDirection(m_DummyDir);
 				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
@@ -189,7 +189,7 @@ void CDummySurvival::OnTick()
 		}
 		else if(GetPos().y < pChr->GetPos().y - 50) //high low
 		{
-			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collsion in the way
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collision in the way
 			{
 				SetDirection(m_DummyDir);
 				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);

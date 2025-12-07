@@ -53,7 +53,7 @@ private:
 	/*
 		variable: m_NumPlasma
 
-		Actually created entitys should not exceed m_MaxPlasmas
+		Actually created entities should not exceed m_MaxPlasmas
 	*/
 	int m_NumPlasma;
 };

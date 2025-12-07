@@ -126,7 +126,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 	{
 		// only allow the timeout command in captcha room
 		// otherwise the client does not resend it and timeout protection breaks
-		// timout restore should be safe because it also restores the pending captcha state
+		// timeout restore should be safe because it also restores the pending captcha state
 		//
 		// check for ; to avoid players smuggeling commands through
 		bool IsTimeoutCmd = str_startswith(pCommand, "timeout ") && !str_find(pCommand, ";");
