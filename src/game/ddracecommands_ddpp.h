@@ -71,7 +71,7 @@ CONSOLE_COMMAND("freeze", "v[id] ?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes 
 
 // HACK COMMAND ChillerDragon
 // CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
-CONSOLE_COMMAND("godmode", "v", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
+CONSOLE_COMMAND("godmode", "v[id]", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
 CONSOLE_COMMAND("hide_player", "v", CFGFLAG_SERVER, ConHidePlayer, this, "makes player invisible")
 CONSOLE_COMMAND("verify_player", "v", CFGFLAG_SERVER, ConVerifyPlayer, this, "manually set a targets player human level to max (force solve captcha)")
 
