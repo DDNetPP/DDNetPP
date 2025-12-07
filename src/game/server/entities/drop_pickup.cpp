@@ -53,13 +53,13 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 
 void CDropPickup::Delete()
 {
-	m_EreasePickup = true;
+	m_ErasePickup = true;
 	Reset();
 }
 
 void CDropPickup::Reset()
 {
-	if(m_EreasePickup)
+	if(m_ErasePickup)
 	{
 		for(unsigned i = 0; i < GameServer()->m_vDropLimit[m_Type].size(); i++)
 		{

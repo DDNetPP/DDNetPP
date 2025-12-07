@@ -25,7 +25,7 @@ private:
 	int m_Lifetime;
 
 	int m_PickupDelay;
-	bool m_EreasePickup;
+	bool m_ErasePickup;
 
 	static int const ms_PhysSize = 14;
 	int m_TuneZone;
