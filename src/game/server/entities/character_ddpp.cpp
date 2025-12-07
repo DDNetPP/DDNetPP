@@ -318,7 +318,7 @@ void CCharacter::SnapCharacterDDPP()
 
 void CCharacter::SetSpookyGhost()
 {
-	if(m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)) // no ghost in competetive minigames
+	if(m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)) // no ghost in competitive minigames
 		return;
 
 	if(!m_SpookyGhostWeaponsBackupped)
@@ -848,7 +848,7 @@ void CCharacter::DDPP_Tick()
 		{
 			m_pPlayer->UpdateLastToucher(i);
 
-			//was debugging because somekills at spawn werent recongized. But now i know that the dummys just kill to fast even before getting freeze --> not a block kill. But im ok with it spawnblock farming bots isnt nice anyways
+			//was debugging because somekills at spawn werent recognized. But now i know that the dummys just kill to fast even before getting freeze --> not a block kill. But im ok with it spawnblock farming bots isnt nice anyways
 			//dbg_msg("debug", "[%d:%s] hooked [%d:%s]", i, Server()->ClientName(i), m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()));
 		}
 	}
@@ -1002,7 +1002,7 @@ void CCharacter::DDPP_Tick()
 			if(!IsOnTile(TILE_BANK))
 			{
 				GameServer()->SendBroadcast(" ", m_pPlayer->GetCid(), 0);
-				m_InBank = false; // DDRacePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
+				m_InBank = false; // DDRacePostCoreTick() (which handles tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
 			}
 		}
 		if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))

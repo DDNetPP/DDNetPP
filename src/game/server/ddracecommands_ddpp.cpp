@@ -271,7 +271,7 @@ void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->m_apPlayers[ClientId]->m_disarm ^= true;
 
-		//  kommentiert wegen disarm buggs xD
+		//  kommentiert wegen disarm bugs xD
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientId));

@@ -139,7 +139,7 @@ public:
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 	CClientMask TeamMask();
 
-	bool isFreezed; // TODO: this was added for ddnet++ and should be removed use m_FrezeTime from ddnet instead
+	bool isFreezed; // TODO: this was added for ddnet++ and should be removed use m_FreezeTime from ddnet instead
 	CCharacterCore *Core() { return &m_Core; } // ddnet++ added non const override
 	int m_NeededFaketuning; // sowwy ChillerDragon made it public
 	void SetPosition(const vec2 &Position);
