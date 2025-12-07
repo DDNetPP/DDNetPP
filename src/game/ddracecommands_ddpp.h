@@ -66,8 +66,8 @@ CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Giv
 CONSOLE_COMMAND("heartgun", "v", CFGFLAG_SERVER, ConHeartGun, this, "Gives a player heart gun")
 
 // SarKro
-CONSOLE_COMMAND("unfreeze", "v", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
-CONSOLE_COMMAND("freeze", "v?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
+CONSOLE_COMMAND("unfreeze", "v[id]", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
+CONSOLE_COMMAND("freeze", "v[id] ?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
 
 // HACK COMMAND ChillerDragon
 // CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
