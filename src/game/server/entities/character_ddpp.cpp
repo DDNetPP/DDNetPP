@@ -1307,8 +1307,8 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
 	Killer = BlockPointsMain(Killer, Weapon, FngScore);
 	XpOnKill(Killer);
 	BlockSpawnProt(Killer); // idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
-	// BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
-	BlockQuestSubDieFuncDeath(Killer); // only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
+	// BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handles block kills
+	BlockQuestSubDieFuncDeath(Killer); // only handling quest failed (using external func because the other player is needed and its good to extract it in another func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	KillingSpree(Killer); // previously called BlockKillingSpree()
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	for(auto &Minigame : GameServer()->m_vMinigames)
@@ -1497,7 +1497,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			if(m_pPlayer->m_IsVanillaCompetitive && Weapon == WEAPON_LASER)
 			{
 				// used to be "false" as in no damage but now its true as in ddnet++ damage used
-				return true; //no rifle self damage in competetive vanilla games (for example survival)
+				return true; //no rifle self damage in competitive vanilla games (for example survival)
 			}
 		}
 
@@ -1851,7 +1851,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 			if(!m_pPlayer->m_HideQuestWarning)
 			{
 				GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
-				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] your dummy doesn't count."); // send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] your dummy doesn't count."); // send it both so that he receives the message. i know this can be weird on lanpartys but fuck it xd
 			}
 		}
 		else
@@ -2025,7 +2025,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 		//#################
 		// KILLER (blocker)
 		//#################
-		if((m_pPlayer->m_IsDummy && g_Config.m_SvSpreeCountBots) || //only count bots if configurated
+		if((m_pPlayer->m_IsDummy && g_Config.m_SvSpreeCountBots) || //only count bots if configured
 			(!m_pPlayer->m_IsDummy)) //count all humans in killingsprees
 		{
 			if(!GameServer()->GetDDRaceTeam(Killer)) // only allow increasing spree from team 0
@@ -2052,7 +2052,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 			}
 		}
 	}
-	m_pPlayer->m_KillStreak = 0; //Important always clear killingspree of ded dude
+	m_pPlayer->m_KillStreak = 0; //Important always clear killingspree of dead dude
 }
 
 void CCharacter::CITick()
@@ -2534,7 +2534,7 @@ void CCharacter::MineTeeBreakBlock()
 		Msg.m_Flags = 0;
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 
-		// update collsion server side
+		// update collision server side
 		Collision()->ModifyTile(Msg.m_X, Msg.m_Y, Msg.m_Group, Msg.m_Layer, Msg.m_Index, Msg.m_Flags);
 	}
 }

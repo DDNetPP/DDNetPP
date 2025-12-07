@@ -44,7 +44,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 						if(GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter())
 						{
 							// this 200 * tickspeed / 1000
-							// evalutes to 10 and matches ddnet-insta sv_on_fire_mode
+							// evaluates to 10 and matches ddnet-insta sv_on_fire_mode
 							GameServer()->m_apPlayers[From]->GetCharacter()->m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
 						}
 					}
@@ -70,7 +70,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			GameServer()->DoInstaScore(1, From);
 
 			//save the kill
-			//if (!m_pPlayer->m_IsInstaArena_fng) //damage is only a hit not a kill in insta ---> well move it complety al to kill makes more performance sense
+			//if (!m_pPlayer->m_IsInstaArena_fng) //damage is only a hit not a kill in insta ---> well move it completely al to kill makes more performance sense
 			//{
 			//	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
 			//	{
@@ -131,7 +131,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 				}
 
 				//Save The Player in catch array
-				GameServer()->m_apPlayers[From]->m_aCatchedId[m_pPlayer->GetCid()] = 1;
+				GameServer()->m_apPlayers[From]->m_aCaughtId[m_pPlayer->GetCid()] = 1;
 			}
 		}
 	}
@@ -307,7 +307,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 					GameServer()->SendSpreeMessage(pKiller->GetCid(), pKiller->m_KillStreak);
 
 				//Finish time if cfg val reached
-				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
+				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we activate this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
 				{
 					CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
 					Controller->Teams().OnCharacterFinish(pKiller->GetCid());
@@ -336,5 +336,5 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 		}
 	}
 	if(pVictim && pVictim->GetPlayer())
-		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
+		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of dead dude
 }

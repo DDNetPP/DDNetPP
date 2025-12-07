@@ -210,7 +210,7 @@ public:
 	bool ForceFreeze(int Seconds);
 
 	CTeleportationRequest m_TeleRequest;
-	// Choses random tile if Offset is -1
+	// Chooses random tile if Offset is -1
 	CTeleportationRequest &RequestTeleToTile(int Tile, int Offset = -1);
 	CTeleportationRequest &RequestTeleToPos(vec2 Pos);
 

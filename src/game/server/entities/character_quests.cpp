@@ -249,7 +249,7 @@ void CCharacter::QuestFireWeapon()
 {
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK)
 	{
-		if(m_pPlayer->m_QuestStateLevel == 4) // Block 10 tees without fireing a weapon
+		if(m_pPlayer->m_QuestStateLevel == 4) // Block 10 tees without firing a weapon
 		{
 			GameServer()->QuestFailed(m_pPlayer->GetCid());
 		}

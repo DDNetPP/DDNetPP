@@ -232,7 +232,7 @@ void CCharacter::OnTileStart()
 		}
 		else if(GetPlayer()->m_QuestStateLevel == 9 && GetPlayer()->m_QuestFailed)
 		{
-			// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "[QUEST] running agian.");
+			// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "[QUEST] running again.");
 			GetPlayer()->m_QuestFailed = false;
 		}
 	}
