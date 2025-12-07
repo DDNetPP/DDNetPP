@@ -29,6 +29,7 @@ extend-ignore-re = [
 	'als',
 	'ende',
 	'effekt',
+	'ist',
 
 	# ddnet
 	'lod',
