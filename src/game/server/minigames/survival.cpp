@@ -231,7 +231,7 @@ void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=i
 	}
 	else
 	{
-		dbg_msg("survival", "WARNING setted undefined mode %d", Mode);
+		dbg_msg("survival", "WARNING set undefined mode %d", Mode);
 	}
 }
 
@@ -327,7 +327,7 @@ void CGameContext::SurvivalSetGameState(int State)
 				SetPlayerSurvival(Player->GetCid(), SURVIVAL_INGAME);
 			}
 		}
-		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
+		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implement a afk state it should only count the active ones.
 	}
 	else if(State == SURVIVAL_DM_COUNTDOWN)
 	{

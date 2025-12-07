@@ -132,7 +132,7 @@ void CPlayer::ResetDDPP()
 	m_SendExtraVoteMenuIndex = -1;
 
 	//dbg_msg("debug", "init player showhide='%s'", m_Account.m_aShowHideConfig);
-	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
+	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually because the gamecontext function cant be called here
 	m_HideBlockXp = GameServer()->CharToBool(m_Account.m_aShowHideConfig[1]);
 	m_xpmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[2]);
 	m_hidejailmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[3]);
@@ -509,7 +509,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 			GetCharacter()->m_TimesShot = 0;
 	}
 
-	if(GetCharacter() && GetCharacter()->m_IsBomb) // bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
+	if(GetCharacter() && GetCharacter()->m_IsBomb) // bomb (keep bomb 1st. Because bomb over all rainbow and other stuff should be ignored if bomb)
 	{
 		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -720,7 +720,7 @@ int CPlayer::GetScoreValue(int ReceivingClientId)
 			else
 				DDRaceScore = -m_Score.value();
 		}
-		// in the master server the score is postivie
+		// in the master server the score is positive
 		else
 		{
 			DDRaceScore = m_Score.value();
@@ -761,7 +761,7 @@ void CPlayer::Save(int SetLoggedIn)
 
 	m_Account.m_IsLoggedIn = SetLoggedIn;
 
-	// Proccess Clan Data...
+	// Process Clan Data...
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientId), sizeof(aClan));
 
@@ -773,7 +773,7 @@ void CPlayer::Save(int SetLoggedIn)
 		str_format(m_Account.m_aClan1, sizeof(m_Account.m_aClan1), "%s", aClan);
 	}
 
-	// Proccess IP ADDR...
+	// Process IP ADDR...
 	const char *pIp = Server()->ClientAddrString(GetCid(), false);
 
 	if(str_comp(pIp, m_Account.m_aIp_1) && str_comp(pIp, m_Account.m_aIp_2) && str_comp(pIp, m_Account.m_aIp_3))
@@ -784,7 +784,7 @@ void CPlayer::Save(int SetLoggedIn)
 		str_format(m_Account.m_aIp_1, sizeof(m_Account.m_aIp_1), "%s", pIp);
 	}
 
-	// Proccess IngameName Data...
+	// Process IngameName Data...
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientId), sizeof(aName));
 
@@ -1172,7 +1172,7 @@ void CPlayer::chidraqul3_GameTick()
 			}
 		}
 
-		//Check for hittin stuff
+		//Check for hitting stuff
 		//collecting gold
 		if(m_GoldPos == m_HashPos && m_HashPosY == 0)
 		{
@@ -1375,7 +1375,7 @@ void CPlayer::GiveBlockPoints(int Points)
 	{
 		if(!IsLoggedIn())
 		{
-			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
+			// after 5 and 10 unsaved kills and no messages activated --> inform the player about accounts
 			if(m_Account.m_BlockPoints == 5 || m_Account.m_BlockPoints == 10)
 			{
 				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_Account.m_BlockPoints);

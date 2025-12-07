@@ -65,7 +65,7 @@ public:
 	void SetLanguage(int Lang) { m_Language = Lang; }
 	void SetLanguage(const char *pLang);
 
-	// usefull everywhere
+	// useful everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame() const;
 	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
@@ -109,9 +109,9 @@ public:
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetitive;
-	// admin cheat to be invisble
+	// admin cheat to be invisible
 	bool m_IsHiddenTee = false;
-	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
+	// bool m_IsGodMode; //no damage (only useful in vanilla or pvp based subgametypes)
 	bool m_MapSaveLoaded;
 	CTeeInfo m_LastToucherTeeInfos;
 	int m_ScoreStartTick;
@@ -323,7 +323,7 @@ public:
 	/*
 		PlayerHumanLevel
 
-		The higher the value the less likley it is that this player is a robot.
+		The higher the value the less likely it is that this player is a robot.
 		To unlock the next level a player has to master all previous ones.
 
 		This human level then can be used to unlock features like registering an account or uing the chat
@@ -430,8 +430,8 @@ public:
 	bool m_ShowInstaScoreBroadcast;
 
 	// quests
-	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests untill unlocked
-	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels untill unlocked
+	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests until unlocked
+	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels until unlocked
 	int m_QuestState; // current quest 0 = not questing
 	int m_QuestStateLevel; // current quest level (difficulty)
 	int m_QuestLastQuestedPlayerId; // store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
@@ -480,7 +480,7 @@ public:
 	//              2             6                  = Block a tee which is on a 5 tees blocking spree [LEVEL 6]
 	//              2             7                  = Block 11 tees without getting blocked [LEVEL 7]
 	//              2             8                  = Block 3 tees without using hook [LEVEL 8]
-	//              2             9                  = Block 11 tees whithout dieing while holding the flag [LEVEL 9]   //TODO: die = fail
+	//              2             9                  = Block 11 tees without dieing while holding the flag [LEVEL 9]   //TODO: die = fail
 
 	//              3             0                  = Finish race [LEVEL 0]
 	//              3             1                  = Finish race under cfg_time1 [LEVEL 1]
@@ -564,7 +564,7 @@ public:
 		SetDummyMode
 
 		returns false on error
-		error is usually non existant dummy mode
+		error is usually non existent dummy mode
 	*/
 	bool SetDummyMode(EDummyMode Mode);
 	int DummyMode() { return m_DummyMode; }
@@ -622,7 +622,7 @@ public:
 	//dummy rainbow
 	int m_DummyRainbowOfferAmount;
 
-	// cosmetic backups (used to store cosmetics temprorary for example in competetive games)
+	// cosmetic backups (used to store cosmetics temporary for example in competitive games)
 	bool m_IsBackupBloody;
 	bool m_IsBackupStrongBloody;
 	bool m_IsBackupRainbow;

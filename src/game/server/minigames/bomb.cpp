@@ -105,7 +105,7 @@ void CGameContext::CheckStartBomb()
 			}
 		}
 	}
-	//if (CountReadyBombPlayers() == CountBombPlayers()) //eats more ressources than the other way
+	//if (CountReadyBombPlayers() == CountBombPlayers()) //eats more resources than the other way
 	if(AllReady)
 	{
 		if(m_BombStartCountDown > 1)

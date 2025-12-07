@@ -138,7 +138,7 @@ public:
 
 	/*
 		Function: ServerInfoClientScoreKind
-			This method detemines the value of the key
+			This method determines the value of the key
 			"client_score_kind" in the master server info.
 			Officially supported values are "points" and "time".
 			See also `ServerInfoClientScoreValue` to find the matching value.

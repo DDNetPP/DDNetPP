@@ -167,14 +167,14 @@ public:
 	void RunDeferredCommands();
 
 	// runs the command as rcon console command
-	// after the server is fully intitialized
+	// after the server is fully initialized
 	void DeferCommand(const char *pCommand);
 
 	// gets decremented every tick
 	// if it hits 0 all commands registered with "defer" will be executed
 	int m_TicksUntilDefer = 10;
 
-	//usefull everywhere
+	//useful everywhere
 	CPlayer *GetPlayerByAccountId(int AccountId);
 	void AbuseMotd(const char *pMsg, int ClientId);
 
@@ -539,7 +539,7 @@ public:
 	//  --- selll
 	int TradePrepareSell(const char *pToName, int FromId, const char *pItemName, int Price, bool IsPublic);
 	int TradeSellCheckUser(const char *pToName, int FromId);
-	//int TradeSellCheckItem(const char *pItemName, int FromId); //unused! keept just as backup if the new system isnt good
+	//int TradeSellCheckItem(const char *pItemName, int FromId); //unused! kept just as backup if the new system isnt good
 	//  --- buy
 	int TradePrepareBuy(int BuyerId, const char *pSellerName, int ItemId);
 
@@ -560,7 +560,7 @@ public:
 	/*
 		CallVetoVote
 
-		Veto votes only pass if nobody voted agianst it
+		Veto votes only pass if nobody voted against it
 		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 	*/
 	void CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);

@@ -40,10 +40,10 @@ void CGameControllerDDNetPP::Tick()
 	}
 }
 
-void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacer, int Progress)
+void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacter, int Progress)
 {
-	if(!pCharacer->GetPlayer()->m_IsVanillaDmg)
-		CGameControllerDDRace::SetArmorProgress(pCharacer, Progress);
+	if(!pCharacter->GetPlayer()->m_IsVanillaDmg)
+		CGameControllerDDRace::SetArmorProgress(pCharacter, Progress);
 }
 
 bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize)

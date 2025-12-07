@@ -187,7 +187,7 @@ void CGameContext::StartQuest(int ClientId)
 	char aBuf[256];
 	QuestReset(ClientId); //not needed but save clearup (should already be cleared up on every quest exit but save is save)
 	int Level = m_apPlayers[ClientId]->m_QuestStateLevel;
-	int Quest = m_apPlayers[ClientId]->m_QuestState; //old and bad because with many quests this can take forever and easts ressources of server or players have to do quests over and over agian rand() % 4 + 1; //valid quests + 1
+	int Quest = m_apPlayers[ClientId]->m_QuestState; //old and bad because with many quests this can take forever and easts resources of server or players have to do quests over and over again rand() % 4 + 1; //valid quests + 1
 	str_copy(m_apPlayers[ClientId]->m_aQuestString, "ERROR invalid quest loaded");
 
 	if(Quest == 0)
@@ -501,7 +501,7 @@ int CGameContext::PickQuestPlayer(int ClientId)
 	{
 		if(!pPlayer)
 		{
-			// dbg_msg("QUEST", "<PickPlayer> warning not exsisting player found");
+			// dbg_msg("QUEST", "<PickPlayer> warning not existing player found");
 			continue;
 		}
 		if(pPlayer->GetTeam() == TEAM_SPECTATORS)
@@ -512,7 +512,7 @@ int CGameContext::PickQuestPlayer(int ClientId)
 		if(IsSameIp(pPlayer->GetCid(), ClientId))
 		{
 			// dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
-			// this will be triggerd for all serverside dummys if ur playing local -.-
+			// this will be triggered for all serverside dummys if ur playing local -.-
 			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(pPlayer->GetCid()));
 			continue;
 		}

@@ -32,7 +32,7 @@ protected:
 	int m_State;
 
 	//
-	// convienience getters/wrappers in minigame scope
+	// convenience getters/wrappers in minigame scope
 	//
 
 	CGameContext *GameServer();

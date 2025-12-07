@@ -226,7 +226,7 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 				// by the time the OnFailure callback is run
 				//
 				// uglies hack ever to check if the game is still running
-				// the current character is guranteed to exist because its tick
+				// the current character is guaranteed to exist because its tick
 				// is triggering the failure
 				// and its player only ever points to valid game states
 				//
@@ -407,7 +407,7 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 
 	if(!g_Config.m_SvAllowBlockOneVsOne)
 	{
-		SendChatTarget(ClientId, "[1vs1] this command is disabled by an administator.");
+		SendChatTarget(ClientId, "[1vs1] this command is disabled by an administrator.");
 		return;
 	}
 
@@ -451,7 +451,7 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[1vs1] '%s' invited you to a duel accpet using the chat command: /1vs1 %s", pName, pName);
+		str_format(aBuf, sizeof(aBuf), "[1vs1] '%s' invited you to a duel accept using the chat command: /1vs1 %s", pName, pName);
 		SendChatTarget(InvitedId, aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "[1vs1] you invited '%s' to a duel waiting for accept.", pInvitedName);

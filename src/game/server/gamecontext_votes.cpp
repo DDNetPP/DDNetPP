@@ -31,5 +31,5 @@ void CGameContext::VotedNo(CCharacter *pChr)
 	if(Shop()->VoteNo(pChr->GetPlayer()->GetCid()))
 		return;
 	if(g_Config.m_SvAllowDroppingWeapons)
-		pChr->DropWeapon(pChr->GetActiveWeapon()); // drop the weapon youre holding.
+		pChr->DropWeapon(pChr->GetActiveWeapon()); // drop the weapon your holding.
 }

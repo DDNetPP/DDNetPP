@@ -8,7 +8,7 @@
 #include <engine/shared/protocol.h>
 
 // TODO: this should be a highly configurable system like the shop
-//       where admins can remove and add entrys they want to display
+//       where admins can remove and add entries they want to display
 //       also there should probably be a way to turn the entire thing off
 //       and if no entries are being displayed the refresh should do nothing
 

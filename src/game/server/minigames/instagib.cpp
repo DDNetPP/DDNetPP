@@ -33,7 +33,7 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool Fng)
 		return;
 
 #if defined(CONF_DEBUG)
-	//dbg_msg("cBug", "PLAYER '%s' Id=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(Id), Id, weapon, fng);
+	//dbg_msg("cBug", "PLAYER '%s' Id=%d JOINED INSTAGIB WITH WEAPON = %d AND FNG = %d", Server()->ClientName(Id), Id, weapon, fng);
 #endif
 
 	//die first to not count death
@@ -174,7 +174,7 @@ void CGameContext::WinInsta1on1(int WinnerId, int LooserId)
 		m_apPlayers[LooserId]->m_Insta1on1_score = 0;
 		if(m_apPlayers[LooserId]->GetCharacter())
 		{
-			m_apPlayers[LooserId]->GetCharacter()->Die(LooserId, WEAPON_SELF); //needed for /insta leave where the looser culd be alive
+			m_apPlayers[LooserId]->GetCharacter()->Die(LooserId, WEAPON_SELF); //needed for /insta leave where the looser could be alive
 		}
 	}
 
@@ -351,7 +351,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int Id)
 		SendBroadcast(aBuf, Id);
 		m_apPlayers[Id]->m_HasInstaRoundEndPos = false;
 
-		//PlayerArryaId / PlayerTeeworldsId / PlayerScore == 64x2
+		//PlayerArrayId / PlayerTeeworldsId / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
 		for(auto &aScorePlayer : aaScorePlayers) //prepare array
@@ -449,7 +449,7 @@ void CGameContext::InstaRifleRoundEndTick(int Id)
 		SendBroadcast(aBuf, Id);
 		m_apPlayers[Id]->m_HasInstaRoundEndPos = false;
 
-		//PlayerArryaId / PlayerTeeworldsId / PlayerScore == 64x2
+		//PlayerArrayId / PlayerTeeworldsId / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
 		for(auto &aScorePlayer : aaScorePlayers) //prepare array

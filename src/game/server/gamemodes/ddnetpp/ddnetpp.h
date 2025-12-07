@@ -16,7 +16,7 @@ public:
 	class IConsole *Console() { return GameServer()->Console(); }
 	class IStorage *Storage() { return GameServer()->Storage(); }
 
-	void SetArmorProgress(CCharacter *pCharacer, int Progress) override;
+	void SetArmorProgress(CCharacter *pCharacter, int Progress) override;
 
 	void Tick() override;
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;

@@ -28,7 +28,7 @@ void CPvpArena::Join(CPlayer *pPlayer)
 	int ClientId = pPlayer->GetCid();
 	if(GameServer()->IsMinigame(ClientId))
 	{
-		SendChatTarget(ClientId, "[PVP] You can't join becasue your are in another minigame or jail (check '/minigames status')");
+		SendChatTarget(ClientId, "[PVP] You can't join because your are in another minigame or jail (check '/minigames status')");
 		return;
 	}
 

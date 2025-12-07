@@ -146,7 +146,7 @@ void CGameContext::BalanceBattleTick()
 			}
 		}
 	}
-	//else if (m_BalanceBattleState == 2) //ingame //moved to die(); because it is less ressource to avoid it in tick functions
+	//else if (m_BalanceBattleState == 2) //ingame //moved to die(); because it is less resource to avoid it in tick functions
 	//{
 	//	if (m_apPlayers[m_BalanceId1] && m_apPlayers[m_BalanceId2])
 	//	{

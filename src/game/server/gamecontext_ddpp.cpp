@@ -2357,10 +2357,10 @@ void CGameContext::AddEscapeReason(int Id, const char *pReason)
 {
 	//dbg_msg("cBug", "current reaso is %s", m_apPlayers[Id]->m_aEscapeReason);
 
-	//dont add already exsisting reasons agian
+	//dont add already existing reasons again
 	if(str_find(m_apPlayers[Id]->m_aEscapeReason, pReason))
 	{
-		//dbg_msg("cBug", "skipping exsisting reason %s", pReason);
+		//dbg_msg("cBug", "skipping existing reason %s", pReason);
 		return;
 	}
 	//reset all
@@ -2683,7 +2683,7 @@ void CGameContext::CreateBasicDummys()
 	else
 	{
 		CreateNewDummy(DUMMYMODE_DEFAULT);
-		dbg_msg("basic_dummys", "waring map=%s not supported", Server()->GetMapName());
+		dbg_msg("basic_dummys", "warning map=%s not supported", Server()->GetMapName());
 	}
 	if(m_ShopBotTileExists)
 	{
