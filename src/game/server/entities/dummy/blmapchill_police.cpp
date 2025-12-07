@@ -137,7 +137,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 		if(TicksPassed(20))
 			Jump();
 	}
-	// detect lower panic (accedentally fall into the lower police base
+	// detect lower panic (accidentally fall into the lower police base
 	if(!m_LowerPanic && Y > 437 && GetPos().y > m_LovedY)
 	{
 		m_LowerPanic = 1;
@@ -220,7 +220,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 			if(pChr->GetPlayer()->m_PoliceHelper || pChr->GetPlayer()->m_Account.m_PoliceRank)
 				m_IsClosestPolice = true;
 
-			if(pChr->Core()->m_Pos.x > (444 * 32) - 10) // police dude failed too far --> to be reached by hook (set too help mode extream to leave save area)
+			if(pChr->Core()->m_Pos.x > (444 * 32) - 10) // police dude failed too far --> to be reached by hook (set too help mode extreme to leave save area)
 			{
 				m_HelpMode = 2;
 				if(Jumped() > 1 && X > 431) // double jumped and above the freeze
@@ -351,7 +351,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 							GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_SUSHI, -1);
 						}
 					}
-					if(rand() % 5 == 0) //lower middel base
+					if(rand() % 5 == 0) //lower middle base
 					{
 						m_LovedX = RAW(410) + rand() % 64;
 						m_LovedY = RAW(443);
@@ -550,9 +550,9 @@ void CDummyBlmapChillPolice::OnTick()
 			if(GetPos().y < RAW(23) + 20 && GetVel().y < -1.1f)
 				Fire();
 		}
-		else if(X > 75 && X < 135) // gores stuff (the thign with freeze spikes from top and bottom)
+		else if(X > 75 && X < 135) // gores stuff (the thing with freeze spikes from top and bottom)
 		{
-			print_once(gores_stuff_freeze_spikes, "gores stuff (the thign with freeze spikes from top and bottom)");
+			print_once(gores_stuff_freeze_spikes, "gores stuff (the thing with freeze spikes from top and bottom)");
 			Jump(0);
 			Right();
 			// start jump into gores
@@ -714,7 +714,7 @@ void CDummyBlmapChillPolice::OnTick()
 						Hook(0);
 				}
 			}
-			// count not succeding for a long time as fail
+			// count not succeeding for a long time as fail
 			if(TicksPassed(200))
 				m_FailedAttempts++;
 		}
@@ -929,7 +929,7 @@ void CDummyBlmapChillPolice::OnTick()
 					m_HasAlreadyBeenHere = true;
 			}
 		}
-		if(m_HasAlreadyBeenHere) //using grenade to get throug the freeze in this tunnel thingy
+		if(m_HasAlreadyBeenHere) //using grenade to get through the freeze in this tunnel thingy
 		{
 			Left();
 			if(X < 338)
@@ -969,7 +969,7 @@ void CDummyBlmapChillPolice::OnTick()
 		if(TicksPassed(5))
 			SetWeapon(WEAPON_GUN);
 	}
-	// after grenade jump and being down going into the tunnel to police staion
+	// after grenade jump and being down going into the tunnel to police station
 	else if(Y > 328 && Y < 346 && X > 236 && X < 365)
 	{
 		Right();

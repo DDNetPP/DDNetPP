@@ -138,7 +138,7 @@ void CDummyBlmapV3Arena::OnTick()
 			else if(HookState() == HOOK_GRABBED)
 			{
 				Hook();
-				//stay strong and walk agianst hook pull
+				//stay strong and walk against hook pull
 				if(GetPos().x < 392 * 32 + V3_OFFSET_X) //left side
 				{
 					Right();
@@ -369,7 +369,7 @@ void CDummyBlmapV3Arena::OnTick()
 		 *                                                *
 		 **************************************************/
 
-		// 3 tile freze pit on the floor
+		// 3 tile freeze pit on the floor
 		// right side of v3 arena
 		if(GetPos().x > 396 * 32 && GetPos().x < 402 * 32)
 		{
@@ -380,7 +380,7 @@ void CDummyBlmapV3Arena::OnTick()
 				Jump();
 		}
 
-		// 3 tile freze pit on the floor
+		// 3 tile freeze pit on the floor
 		// left side of v3 arena
 		if(GetPos().x > 364 * 32 && GetPos().x < 370 * 32)
 		{

@@ -120,7 +120,7 @@ void CDummyBlockWave::OnTick()
 		else
 			Left();
 
-		//velocity ovrrides
+		//velocity overrides
 		if(GetVel().x > 2.6f)
 			Right();
 		if(GetVel().x < -2.6f)

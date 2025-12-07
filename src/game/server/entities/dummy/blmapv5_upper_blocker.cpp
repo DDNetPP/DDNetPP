@@ -40,10 +40,10 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 		Die();
 	}
 
-	if(BotX > 16 * 32 && GetPos().y < 27 * 32) //lovley wayblock spot
+	if(BotX > 16 * 32 && GetPos().y < 27 * 32) //lovely wayblock spot
 	{
 	}
-	else //not at lovley wayblock spot
+	else //not at lovely wayblock spot
 	{
 		if(Server()->Tick() % 420 == 0)
 		{
