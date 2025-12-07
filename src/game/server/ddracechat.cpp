@@ -1180,6 +1180,11 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while holding the flag.");
 			return;
 		}
+		if(pPlayer->GetCharacter()->m_TeleRequest.IsActive())
+		{
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You can not join teams while a teleportation request is pending.");
+			return;
+		}
 	}
 
 	if(IsRunningKickOrSpecVote(ClientId))

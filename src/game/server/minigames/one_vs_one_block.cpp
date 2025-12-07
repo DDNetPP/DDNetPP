@@ -188,6 +188,13 @@ void COneVsOneBlock::OnRoundStart(CPlayer *pPlayer1, CPlayer *pPlayer2)
 			SendChatTarget(pPlayer2->GetCid(), aBuf);
 			return;
 		}
+		if(pChr->IsInDDRaceTeam())
+		{
+			str_format(aBuf, sizeof(aBuf), "[1vs1] game aborted because '%s' is in a ddrace team", Server()->ClientName(pPlayer->GetCid()));
+			SendChatTarget(pPlayer1->GetCid(), aBuf);
+			SendChatTarget(pPlayer2->GetCid(), aBuf);
+			return;
+		}
 	}
 
 	pPlayer1->m_IsBlockOneVsOneing = true;
@@ -414,6 +421,18 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 	if(pPlayer->m_pBlockOneVsOneState)
 	{
 		SendChatTarget(ClientId, "[1vs1] you are already in a round do /leave first.");
+		return;
+	}
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+	{
+		SendChatTarget(ClientId, "[1vs1] you have to be alive to use this command.");
+		return;
+	}
+	if(pChr->IsInDDRaceTeam())
+	{
+		SendChatTarget(ClientId, "[1vs1] you can't use this command while in a ddrace team.");
 		return;
 	}
 
