@@ -1006,6 +1006,7 @@ private:
 	static void ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
+	// rcon_configs.cpp
 	void RegisterDDNetPPCommands();
 
 	bool DDPPCredits();

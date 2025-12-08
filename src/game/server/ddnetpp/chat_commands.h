@@ -1,9 +1,12 @@
-// DDNet++
-
 // This file can be included several times.
+//
+// DDNet++
+//
 
 #ifndef CHAT_COMMAND
-#define CHAT_COMMAND(name, params, flags, callback, userdata, help)
+#error "The config macros must be defined"
+// This helps IDEs properly syntax highlight the uses of the macro below.
+#define CHAT_COMMAND(name, params, flags, callback, userdata, help) ;
 #endif
 
 // account stuff

@@ -2157,7 +2157,6 @@ set_src(GAME_SHARED GLOB src/game
   collision.h
   collision_ddpp.cpp
   collision_ddpp.h
-  ddracechat_ddpp.h
   ddracecommands_ddpp.h
   gamecore.cpp
   gamecore.h
@@ -2780,6 +2779,8 @@ if(SERVER)
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
     captcha.cpp
     captcha.h
+    ddnetpp/chat_commands.h
+    ddnetpp/rcon_configs.cpp
     ddpp/accounts.cpp
     ddpp/accounts.h
     ddpp/ascii_table.h

@@ -20,19 +20,6 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
-void CGameContext::RegisterDDNetPPCommands()
-{
-#define CHAT_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);
-#include <game/ddracechat_ddpp.h>
-#undef CHAT_COMMAND
-
-#define CONSOLE_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);
-#include <game/ddracecommands_ddpp.h>
-#undef CONSOLE_COMMAND
-	Console()->Chain("sv_captcha_room", ConchainCaptchaRoom, this);
-	Console()->Chain("sv_display_score", ConchainDisplayScore, this);
-}
-
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
