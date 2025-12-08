@@ -34,7 +34,7 @@ CONSOLE_COMMAND("force_jail", "v[player]i[seconds]", CFGFLAG_SERVER, ConForceJai
 CONSOLE_COMMAND("ninjasteam", "v", CFGFLAG_SERVER, Conninjasteam, this, "activates a awesome NINJASTEAM")
 CONSOLE_COMMAND("hammerfightmode", "v", CFGFLAG_SERVER, ConHammerfightMode, this, "activates hammerfightmode for a player")
 CONSOLE_COMMAND("freeze_shotgun", "v", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
-CONSOLE_COMMAND("Damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
+CONSOLE_COMMAND("damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
 
 CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'")
 CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanId, this, "Ban a player from the registration system")
@@ -62,15 +62,11 @@ CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unl
 CONSOLE_COMMAND("freezelaser", "v[id]", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
 CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")
 
-// gun
 CONSOLE_COMMAND("heartgun", "v", CFGFLAG_SERVER, ConHeartGun, this, "Gives a player heart gun")
 
-// SarKro
 CONSOLE_COMMAND("unfreeze", "v[id]", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
 CONSOLE_COMMAND("freeze", "v[id] ?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
 
-// HACK COMMAND ChillerDragon
-// CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
 CONSOLE_COMMAND("godmode", "v[id]", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
 CONSOLE_COMMAND("hide_player", "v[id]", CFGFLAG_SERVER, ConHidePlayer, this, "makes player invisible")
 CONSOLE_COMMAND("verify_player", "v", CFGFLAG_SERVER, ConVerifyPlayer, this, "manually set a targets player human level to max (force solve captcha)")
@@ -80,7 +76,6 @@ CONSOLE_COMMAND("reload_spamfilters", "", CFGFLAG_SERVER, ConReloadSpamfilters, 
 CONSOLE_COMMAND("add_spamfilter", "s[filter]", CFGFLAG_SERVER, ConAddSpamfilter, this, "writes to spamfilters.txt (see also list_spamfilters)")
 CONSOLE_COMMAND("list_spamfilters", "", CFGFLAG_SERVER, ConListSpamfilters, this, "prints active spamfilters (see also reload_spamfilters)")
 
-// ddpp sql
 CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSql_ADD, this, "adds an new column to the table")
 
 CONSOLE_COMMAND("set_shop_item_price", "s[item] s[price]", CFGFLAG_SERVER, ConSetShopItemPrice, this, "sets the price of a shop item")
@@ -94,7 +89,6 @@ CONSOLE_COMMAND("activate_all_shop_items", "", CFGFLAG_SERVER, ConActivateAllSho
 CONSOLE_COMMAND("run_test", "i[test_number]", CFGFLAG_SERVER, ConRunTest, this, "WARNING WILL KILL THE SERVER! run integration tests (used in CI)")
 CONSOLE_COMMAND("defer", "r[command]", CFGFLAG_SERVER, ConDeferCommand, this, "Run a cmd after the server fully initialized. Run cmds from cfg or cli that would crash if executed too early.")
 
-// rcon api commands
 CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayId, this, "RCON API command dont use it") // sends a servermessage to player v
 // adds the column with the name s and the type i. i=0 INTEGER i=1 VARCHAR(4) i=2 VARCHAR(16) i=3 VARCHAR(32) i=4 VARCHAR(64) i=5 VARCHAR(128)
 CONSOLE_COMMAND("rcon_api_alter_table", "i[type]s[column]", CFGFLAG_SERVER, ConRconApiAlterTable, this, "RCON API command dont use it")
