@@ -149,6 +149,14 @@ void CMinigame::LoadPosition(CCharacter *pChr)
 	m_apSavedPositions[pPlayer->GetCid()]->Load(pChr, 0);
 	m_apSavedPositionsDDPP[pPlayer->GetCid()]->Load(pChr);
 	ClearSavedPosition(pPlayer);
+
+	// do not continue hooking players we started to hook
+	// when joining the minigame after we leave it
+	// this can cause some long hooks which could be used
+	// to cheat race parts
+	// https://github.com/DDNetPP/DDNetPP/issues/503
+	if(pChr->Core()->HookedPlayer() != -1)
+		pChr->ReleaseHook();
 }
 
 void CMinigame::SendChatAll(const char *pMessage)
