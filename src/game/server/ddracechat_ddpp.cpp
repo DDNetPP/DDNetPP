@@ -2475,9 +2475,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	}
 	if(NumJoins >= g_Config.m_SvBlockTournaMaxPerIp)
 	{
-		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "[JOIN] Only %d players per ip are allowed to join", g_Config.m_SvBlockTournaMaxPerIp);
-		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+		pSelf->SendChatLoc(pResult->m_ClientId, "[JOIN] Only %d players per ip are allowed to join", g_Config.m_SvBlockTournaMaxPerIp);
 		return;
 	}
 
