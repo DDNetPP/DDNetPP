@@ -11,9 +11,6 @@
 
 #include <game/mapitems.h>
 
-#include <fstream>
-#include <limits>
-
 void CPlayer::OnLogin()
 {
 	//================================
@@ -111,12 +108,6 @@ void CPlayer::OnLogin()
 	{
 		pChr->Core()->m_DDNetPP.m_RestrictionData.m_CanEnterVipPlusOnly = m_Account.m_IsSuperModerator;
 	}
-
-	//========================================
-	// LEAVE THIS CODE LAST!!!!
-	// multiple server account protection stuff
-	//========================================
-	// GameServer()->Accounts()->SetLoggedIn(m_ClientId, 1, m_Account.m_Id, g_Config.m_SvPort);
 }
 
 void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)

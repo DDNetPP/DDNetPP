@@ -496,7 +496,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 
 		if(NumUpdated != 1)
 		{
-			dbg_msg("auth", "Can't set IsLoggedIn, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			log_error("auth", "Can't set IsLoggedIn, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
@@ -519,7 +519,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 
 		if(End)
 		{
-			dbg_msg("auth", "Something wrong, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			log_error("auth", "Something wrong, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
@@ -527,7 +527,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		int CheckCount = pSqlServer->GetInt(1);
 		if(CheckCount != 1)
 		{
-			dbg_msg("auth", "Wrong checked count, Id %d, LastLoginPort %d, CheckCount %d", pResult->m_Account.m_Id, pData->m_Port, CheckCount);
+			log_error("auth", "Wrong checked count, Id %d, LastLoginPort %d, CheckCount %d", pResult->m_Account.m_Id, pData->m_Port, CheckCount);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
