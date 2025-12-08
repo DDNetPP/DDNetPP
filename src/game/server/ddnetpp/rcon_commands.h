@@ -1,6 +1,5 @@
-// DDNet++
-
 // This file can be included several times.
+// DDNet++
 
 #ifndef CONSOLE_COMMAND
 #define CONSOLE_COMMAND(name, params, flags, callback, userdata, help)

@@ -22,7 +22,6 @@ void CGameContext::RegisterDDNetPPCommands()
 
 	// rcon commands
 #define CONSOLE_COMMAND(name, params, flags, callback, userdata, help) Console()->Register(name, params, flags, callback, userdata, help);
-#include <game/ddracecommands_ddpp.h>
+#include <game/server/ddnetpp/rcon_commands.h>
 #undef CONSOLE_COMMAND
 }
-
