@@ -28,19 +28,19 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		if(!str_comp("Money", pStr))
 			return "Деньги";
 		if(!str_comp("S H O P", pStr))
-			return "Магазин Ашота";
+			return "Магазин";
 		if(!str_comp("~ S H O P ~", pStr))
-			return "~ Магазин Ашота ~";
+			return "~ Магазин ~";
 		if(!str_comp("usage", pStr))
 			return "Используй";
 		if(!str_comp("itemname", pStr))
-			return "предмет";
+			return "Предмет";
 		if(!str_comp("Item", pStr))
 			return "Предмет";
 		if(!str_comp("Level", pStr))
 			return "Уровень";
 		if(!str_comp("Needed level", pStr))
-			return "Требуеться лвл";
+			return "Требуется уровень";
 		if(!str_comp("Kills", pStr))
 			return "убийств";
 		if(!str_comp("Deaths", pStr))
@@ -102,19 +102,19 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			if(!str_comp("[ACCOUNT] Use '/accountinfo' for help", pStr))
 				return "[АККАУНТ] Используйте '/accountinfo'";
 			if(!str_comp("[ACCOUNT] You are already logged in", pStr))
-				return "[АККАУНТ] Вы уже вошли в систему";
+				return "[АККАУНТ] Вы уже вошли в аккаунт.";
 			if(!str_comp("[ACCOUNT] Logged out", pStr))
-				return "[АККАУНТ] Вы вышли из системы";
+				return "[АККАУНТ] Вы успешно вышли из аккаунта.";
 			if(!str_comp("[ACCOUNT] Account has been registered", pStr))
 				return "[АККАУНТ] Аккаунт зарегистрирован";
 			if(!str_comp("[ACCOUNT] Login with: /login <name> <pass>", pStr))
-				return "[АККАУНТ] Войдите с помощью: /login <имя> <пароль>";
+				return "[АККАУНТ] Войдите с помощью: /login <логин> <пароль>";
 			if(!str_comp("[JOIN] Block tournaments are deactivated by an admin", pStr))
-				return "[JOIN] Турниры блоков отключены администратором";
+				return "[JOIN] Block Tournament отключен администрацией";
 			if(!str_comp("[JOIN] No block tournament running", pStr))
-				return "[JOIN] Турнир блоков не проводится";
+				return "[JOIN] Block Tournament не проводится";
 			if(!str_comp("[JOIN] You joined a block tournament", pStr))
-				return "[JOIN] Вы присоединились к турниру блоков";
+				return "[JOIN] Вы подали заявку на Block Tournament";
 			if(!str_comp("[JOIN] You already joined the block tournament", pStr))
 				return "[JOIN] Вы уже присоединились к турниру блоков";
 			if(!str_comp("[JOIN] Only %d players per ip are allowed to join", pStr))
@@ -127,11 +127,11 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		if(pStr[0] == 'A')
 		{
 			if(!str_comp("Account Info", pStr))
-				return "Информация аккаунта";
+				return "Информация об аккаунте";
 			if(!str_comp("Accounts are used to save your stats on this server.", pStr))
 				return "Аккаунты чтобы сохранить вашу статистику.";
 			if(!str_comp("Are you sure you want to buy this item?", pStr))
-				return "Вы действительно хотите купить этот предмет?";
+				return "Вы действительно хотите купить этот товар?";
 		}
 		if(pStr[0] == 'P')
 		{
@@ -153,7 +153,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			if(!str_comp("You have to be alive to buy this item.", pStr))
 				return "Вы должны быть живы, чтобы купить этот товар.";
 			if(!str_comp("You already have spooky ghost.", pStr))
-				return "У вас уже есть жуткий призрак.";
+				return "У вас уже есть призрак.";
 			if(!str_comp("You already have maximum level for spawn rifle.", pStr))
 				return "У вас уже есть максимальный уровень для появления винтовки.";
 			if(!str_comp("You already have maximum level for spawn grenade.", pStr))
@@ -161,7 +161,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			if(!str_comp("You already have maximum level for spawn shotgun.", pStr))
 				return "У вас уже есть максимальный уровень для появления дробовика.";
 			if(!str_comp("You already own this item.", pStr))
-				return "У вас уже имееться этот предмет";
+				return "У вас уже имееться этот товар.";
 			if(!str_comp("You can not join teams while a teleportation request is pending.", pStr))
 				return "Вы не можете войти в команду пока ожидаете запрос на телепортацию.";
 		}
