@@ -118,7 +118,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			if(!str_comp("[JOIN] You already joined the block tournament", pStr))
 				return "[JOIN] Вы уже присоединились к турниру блоков";
 			if(!str_comp("[JOIN] Only %d players per ip are allowed to join", pStr))
-				return "[JOIN] К участию допускается только %d игроков с одного IP-адреса";
+				return "[JOIN] К участию допускается только %d игрок с одного IP-адреса";
 			if(!str_comp("[EVENT] BLOCK IN %d SECONDS\n%d joined (min %d)\n/join to participate", pStr))
 				return "[ИВЕНТ] БЛОК ТУРНИР ЧЕРЕЗ %d\n%d Зашли (мин %d)\nИспользуйте /join";
 			if(!str_comp("[1vs1] you can't use this command while in a ddrace team.", pStr))
