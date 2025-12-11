@@ -60,6 +60,7 @@ CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unl
 
 CONSOLE_COMMAND("freezelaser", "v[id]", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
 CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")
+CONSOLE_COMMAND("lasergun", "v[id]", CFGFLAG_SERVER, ConLaserGun, this, "Toggles laser gun on and off for player v")
 
 CONSOLE_COMMAND("heartgun", "v", CFGFLAG_SERVER, ConHeartGun, this, "Gives a player heart gun")
 

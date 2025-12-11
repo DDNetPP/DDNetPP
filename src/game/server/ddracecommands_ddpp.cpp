@@ -17,6 +17,7 @@
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamemodes/DDRace.h>
+#include <game/server/player.h>
 #include <game/server/teams.h>
 #include <game/version.h>
 
@@ -1441,6 +1442,25 @@ void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
 		pChr->m_FreezeHammer ? "got" : "lost");
 
 	pSelf->SendChat(-1, TEAM_ALL, aBuf);
+}
+
+void CGameContext::ConLaserGun(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int Victim = pResult->GetVictim();
+	CPlayer *pPlayer = pSelf->GetPlayerOrNullptr(Victim);
+
+	if(!pPlayer)
+	{
+		log_error("server", "player with id %d not found", Victim);
+		return;
+	}
+
+	pPlayer->m_LaserGun ^= true;
+
+	log_info("server", "'%s' %s lasergun!",
+		pSelf->Server()->ClientName(Victim),
+		pPlayer->m_LaserGun ? "got" : "lost");
 }
 
 void CGameContext::ConHeartGun(IConsole::IResult *pResult, void *pUserData)

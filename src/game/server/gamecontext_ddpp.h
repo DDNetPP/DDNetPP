@@ -82,7 +82,6 @@ public:
 	// it matches the text in server/ddpp/loc.cpp
 	[[gnu::format(printf, 3, 4)]] void SendChatLoc(int ClientId, const char *pFormat, ...) const;
 
-
 	// calls SendChatTarget under the hood
 	// the pFormat string will be translated so make sure
 	// it matches the text in server/ddpp/loc.cpp
@@ -869,9 +868,8 @@ private:
 	//gun
 	static void ConHeartGun(IConsole::IResult *pResult, void *pUserData);
 
-	//hammers
-
 	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConLaserGun(IConsole::IResult *pResult, void *pUserData);
 
 	//spooky ghost
 	static void ConSpookyGhostInfo(IConsole::IResult *pResult, void *pUserData);
