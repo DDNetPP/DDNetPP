@@ -445,7 +445,7 @@ void CCharacter::OnTileMoney()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCid()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +1", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%" PRId64 "]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// money
 		if(VIPBonus)
@@ -567,7 +567,7 @@ void CCharacter::OnTileMoneyPolice()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCid()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%" PRId64 "]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// money
 		if(m_pPlayer->m_Account.m_PoliceRank > 0)
@@ -701,7 +701,7 @@ void CCharacter::OnTileMoneyDouble()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "Money [%" PRId64 "] +4", m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%" PRId64 "]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// xp
 		if(GameServer()->m_pController->HasFlag(this) != -1)
@@ -742,7 +742,7 @@ void CCharacter::OnTileMoneyPlus()
 			sizeof(aBuf),
 			"Money [%" PRId64 "]\n"
 			"XP [%" PRId64 "/%" PRId64 "]\n"
-			"%s [%d]",
+			"%s [%" PRId64 "]",
 			m_pPlayer->GetMoney(),
 			m_pPlayer->GetXP(),
 			m_pPlayer->GetNeededXP(),

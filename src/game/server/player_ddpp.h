@@ -95,7 +95,7 @@ public:
 	void SetXP(int xp);
 	int64_t GetXP() { return m_Account.m_XP; }
 	int64_t GetNeededXP() { return m_neededxp; }
-	int GetLevel() { return m_Account.m_Level; }
+	int64_t GetLevel() { return m_Account.m_Level; }
 	void SetLevel(int Level);
 	int64_t GetMoney() { return m_Account.m_Money; }
 	/*

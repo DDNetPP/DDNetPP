@@ -1333,9 +1333,9 @@ void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 	str_format(aBuf, sizeof(aBuf), "--- %s's %s ---", Server()->ClientName(RequestedId), pStats);
 	SendChatTarget(RequestingId, aBuf);
 	if(pPlayer->GetLevel() == ACC_MAX_LEVEL)
-		str_format(aBuf, sizeof(aBuf), "%s[%d] ( MAX LEVEL ! )", pLevel, pPlayer->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "%s[%" PRId64 "] ( MAX LEVEL ! )", pLevel, pPlayer->GetLevel());
 	else
-		str_format(aBuf, sizeof(aBuf), "%s[%d]", pLevel, pPlayer->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "%s[%" PRId64 "]", pLevel, pPlayer->GetLevel());
 	SendChatTarget(RequestingId, aBuf);
 	if(!pPlayer->IsLoggedIn())
 		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (%s)", pPlayer->GetXP(), Loc("not logged in", RequestingId));
@@ -2448,7 +2448,7 @@ void CGameContext::ShowProfile(int ViewerId, int ViewedId)
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedId]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerId, aBuf);
 		SendChatTarget(ViewerId, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedId]->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "Level: %" PRId64, m_apPlayers[ViewedId]->GetLevel());
 		SendChatTarget(ViewerId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Money: %" PRId64, m_apPlayers[ViewedId]->GetMoney());
 		SendChatTarget(ViewerId, aBuf);
@@ -2494,7 +2494,7 @@ void CGameContext::ShowProfile(int ViewerId, int ViewedId)
 		SendChatTarget(ViewerId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedId]->m_Account.m_PoliceRank);
 		SendChatTarget(ViewerId, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedId]->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "Level: %" PRId64, m_apPlayers[ViewedId]->GetLevel());
 		SendChatTarget(ViewerId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedId]->m_Account.m_Shit);
 		SendChatTarget(ViewerId, aBuf);
