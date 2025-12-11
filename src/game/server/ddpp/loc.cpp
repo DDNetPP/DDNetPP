@@ -52,6 +52,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 			return "Срок";
 		if(!str_comp("Time", pStr))
 			return "Время";
+		if(!str_comp("The account system is turned off.", pStr))
+			return "Система аккаунтов выключена.";
 		if(!str_comp("stats", pStr))
 			return "статистика";
 		if(!str_comp("Use '/pay <amount> <player>' to send money to other players'", pStr))
@@ -96,6 +98,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		}
 		if(pStr[0] == '[')
 		{
+			if(!str_comp("ACCOUNT", pStr))
+				return "АККАУНТ";
 			if(!str_comp("[ACCOUNT] The account system is turned off.", pStr))
 				return "[АККАУНТ] Система аккаунтов выключена.";
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))

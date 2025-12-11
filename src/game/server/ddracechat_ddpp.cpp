@@ -811,7 +811,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvAccounts == 0)
 	{
-		pSelf->SendChatLoc(ClientId, "[ACCOUNT] The account system is turned off.");
+		pSelf->SendChatLocSys(ClientId, "SQL", "The account system is turned off.");
 		return;
 	}
 
@@ -1505,7 +1505,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvAccounts == 0)
 	{
-		pSelf->SendChatLoc(ClientId, "[ACCOUNT] The account system is turned off.");
+		pSelf->SendChatLocSys(ClientId, "ACCOUNT", "The account system is turned off.");
 		return;
 	}
 	/*

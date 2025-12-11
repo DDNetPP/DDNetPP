@@ -82,6 +82,21 @@ public:
 	// it matches the text in server/ddpp/loc.cpp
 	[[gnu::format(printf, 3, 4)]] void SendChatLoc(int ClientId, const char *pFormat, ...) const;
 
+
+	// calls SendChatTarget under the hood
+	// the pFormat string will be translated so make sure
+	// it matches the text in server/ddpp/loc.cpp
+	// ddnet++ often uses [systemname] prefixes for chat messages
+	// to allow sharing translation between systems the system is separat
+	// no square brackets needed for the system name
+	//
+	// Example:
+	//
+	//  SendChatLoc(ClientId, "ACCOUNTS", "You logged in");
+	//
+	// See also `SendChatLoc()` if you need no system prefix.
+	[[gnu::format(printf, 4, 5)]] void SendChatLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const;
+
 	void ShowProfile(int ViewerId, int ViewedId);
 	void ShowAdminWelcome(int ClientId);
 	int PrintSpecialCharUsers(int ClientId);

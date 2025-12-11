@@ -390,6 +390,18 @@ void CGameContext::SendChatLoc(int ClientId, const char *pFormat, ...) const
 	va_end(Args);
 }
 
+void CGameContext::SendChatLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	char aMsg[2048];
+	str_format_v(aMsg, sizeof(aMsg), Loc(pFormat, ClientId), Args);
+	char aFullLine[2048];
+	str_format(aFullLine, sizeof(aFullLine), "[%s] %s", Loc(pSystem, ClientId), aMsg);
+	SendChatTarget(ClientId, aFullLine);
+	va_end(Args);
+}
+
 void CGameContext::OnInitDDPP()
 {
 	m_pDdppHttp = Kernel()->RequestInterface<IHttp>();
