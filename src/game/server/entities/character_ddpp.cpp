@@ -2456,7 +2456,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		);
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask());
 	}
-	else if(m_pPlayer->m_lasergun)
+	else if(m_pPlayer->m_LaserGun)
 	{
 		int RifleSpread = 1;
 		float Spreading[] = {-0.070f, 0, 0.070f};

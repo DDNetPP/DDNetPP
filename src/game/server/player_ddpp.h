@@ -600,7 +600,7 @@ public:
 	//########
 
 	//miscelallaouos
-	bool m_lasergun;
+	bool m_LaserGun;
 
 	//hook
 	int m_HookPower; // 0=off 1=rainbow 2=bloody
