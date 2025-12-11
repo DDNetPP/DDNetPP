@@ -149,6 +149,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		}
 		if(pStr[0] == 'Y')
 		{
+			if(!str_comp("You are now Level %" PRId64 "!   +50money", pStr))
+				return "Теперь твой уровень %" PRId64 "!   +50 монет";
 			if(!str_comp("You can't logout while being frozen.", pStr))
 				return "Вы не можете выйти из аккаунта если заморожены.";
 			if(!str_comp("You can't logout in jail.", pStr))
