@@ -1101,7 +1101,7 @@ void CPlayer::CheckLevel()
 		SetLevel(GetLevel() + 1);
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", GetLevel());
+		str_format(aBuf, sizeof(aBuf), "You are now Level %" PRId64 "!   +50money", GetLevel());
 		GameServer()->SendChatTarget(m_ClientId, aBuf);
 		MoneyTransaction(+50, "level up");
 
