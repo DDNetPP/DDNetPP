@@ -98,8 +98,6 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		}
 		if(pStr[0] == '[')
 		{
-			if(!str_comp("ACCOUNT", pStr))
-				return "АККАУНТ";
 			if(!str_comp("[ACCOUNT] The account system is turned off.", pStr))
 				return "[АККАУНТ] Система аккаунтов выключена.";
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
@@ -133,6 +131,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		}
 		if(pStr[0] == 'A')
 		{
+			if(!str_comp("ACCOUNT", pStr))
+				return "АККАУНТ";
 			if(!str_comp("Account Info", pStr))
 				return "Информация об аккаунте";
 			if(!str_comp("Accounts are used to save your stats on this server.", pStr))
