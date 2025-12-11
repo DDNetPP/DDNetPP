@@ -1528,7 +1528,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 	if(pPlayer->m_Account.m_JailTime)
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] you can't logout in jail.");
+		pSelf->SendChatLocSys(ClientId, "ACCOUNT", "You can't logout in jail.");
 		return;
 	}
 
