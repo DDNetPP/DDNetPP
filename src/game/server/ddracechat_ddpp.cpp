@@ -1552,7 +1552,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->IsMinigame(pResult->m_ClientId) > 0) //all minigames no jail returns bigger than zero
 	{
-		pSelf->SendChatTarget(ClientId, "[ACCOUNT] You can't logout during minigames try '/leave'");
+		pSelf->SendChatLocSys(ClientId, "ACCOUNT", "You can't logout during minigames try '/leave'");
 		return;
 	}
 

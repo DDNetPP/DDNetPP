@@ -155,6 +155,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 				return "Вы не можете выйти из аккаунта если заморожены.";
 			if(!str_comp("You can't logout in jail.", pStr))
 				return "Вы не можете выйти из аккаунта в тюрьме.";
+			if(!str_comp("You can't logout during minigames try '/leave'", pStr))
+				return "Вы не можете выйти из аккаунта во время мини-игр, попробуйте '/leave'";
 			if(!str_comp("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", pStr))
 				return "Tебе нужно войти в аккаунт. \nИспользуй '/register' или '/login'";
 			if(!str_comp("You need to be logged in to play. \nGet an account with '/register <name> <pw> <pw>'", pStr))
