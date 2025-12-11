@@ -233,19 +233,18 @@ void CBlockTournament::Tick()
 				if(!GameServer()->m_apPlayers[i])
 					continue;
 
-				const char *pFormat = GameServer()->Loc(
+				int Importance = 2;
+				bool IsSuperMod = false;
+				GameServer()->SendBroadcastLocImportant(
+					i,
+					Importance,
+					IsSuperMod,
 					"[EVENT] BLOCK IN %d SECONDS\n"
 					"%d joined (min %d)\n"
 					"/join to participate",
-					i);
-
-				str_format(aBuf,
-					sizeof(aBuf),
-					pFormat,
 					m_LobbyTick / Server()->TickSpeed(),
 					Blockers,
 					g_Config.m_SvBlockTournaPlayers);
-				GameServer()->SendBroadcast(aBuf, i, 2);
 			}
 		}
 

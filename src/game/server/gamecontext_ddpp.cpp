@@ -402,6 +402,26 @@ void CGameContext::SendChatLocSys(int ClientId, const char *pSystem, const char 
 	va_end(Args);
 }
 
+void CGameContext::SendBroadcastLoc(int ClientId, const char *pFormat, ...)
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	char aMsg[2048];
+	str_format_v(aMsg, sizeof(aMsg), Loc(pFormat, ClientId), Args);
+	SendBroadcast(aMsg, ClientId);
+	va_end(Args);
+}
+
+void CGameContext::SendBroadcastLocImportant(int ClientId, int Importance, bool IsSuperMod, const char *pFormat, ...)
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	char aMsg[2048];
+	str_format_v(aMsg, sizeof(aMsg), Loc(pFormat, ClientId), Args);
+	SendBroadcast(aMsg, ClientId, Importance, IsSuperMod);
+	va_end(Args);
+}
+
 void CGameContext::OnInitDDPP()
 {
 	m_pDdppHttp = Kernel()->RequestInterface<IHttp>();
