@@ -287,14 +287,20 @@ public:
 	void SQLaccount(int mode, int ClientId, const char *pUsername, const char *pPassword = "");
 	void SQLcleanZombieAccounts(int ClientId);
 
-	bool AdminChatPing(const char *pMsg);
+	// is set to time_get() when sv_accounts was attempted to be set to 1
+	// but it failed because sv_hostname or sv_port were not set yet
+	// if sv_hostname or sv_port are set later with a few seconds delay
+	// we will then activate sv_accounts
+	//
+	// this allows any kind of ordering in semicolon separated rcon commands
+	// and especially any kind of order in autoexec config files
+	//
+	// but it will not turn on sv_accounts if some admin manually
+	// sets sv_hostname or sv_port minutes after the sv_accounts attempt
+	// because that would be weird
+	int64_t m_LastAccountTurnOnAttempt = 0;
 
-	/*
-		m_LastAccountMode
-		keeps track of changes of the sv_accounts config
-		it is used to logout all players
-	*/
-	int m_LastAccountMode;
+	bool AdminChatPing(const char *pMsg);
 
 	//shop
 	int GetShopBot();
@@ -1045,6 +1051,7 @@ private:
 
 	static void ConchainCaptchaRoom(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainDisplayScore(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainAccounts(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
 	// rcon_configs.cpp
 	void RegisterDDNetPPCommands();

@@ -48,6 +48,12 @@ public:
 	}
 
 	/*
+		Function: LogoutAllAccounts
+			Logs out all players on this server.
+	*/
+	virtual void LogoutAllAccounts() {}
+
+	/*
 		Function: OnVoteNetMessage
 			hooks into CGameContext::OnVoteNetMessage()
 			before any spam protection check

@@ -48,6 +48,9 @@ public:
 	// automatic flood detection
 	void DetectReconnectFlood();
 
+	// accounts
+	void LogoutAllAccounts() override;
+
 	// spawn.cpp
 	bool CanSpawn(int Team, vec2 *pOutPos, int ClientId) override;
 

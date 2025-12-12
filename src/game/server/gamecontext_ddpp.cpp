@@ -91,7 +91,6 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_NumLoginBans = 0;
 	m_NumRegisterBans = 0;
 	m_NumNameChangeMutes = 0;
-	m_LastAccountMode = g_Config.m_SvAccounts;
 	m_IsServerEmpty = false;
 	m_IsPoliceFarmActive = true;
 	m_TwblCallbackCtx.m_pGameServer = this;
@@ -495,12 +494,16 @@ void CGameContext::OnInitDDPP()
 		exit(1);
 	}
 #endif
-	m_pAccounts->CreateDatabase();
-	char aBuf[512];
-	str_copy(aBuf,
-		"UPDATE Accounts SET IsLoggedIn = 0 WHERE IsLoggedIn = 1 AND server_ip = ? AND LastLoginPort = ?;",
-		sizeof(aBuf));
-	m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
+
+	if(g_Config.m_SvAccounts)
+	{
+		m_pAccounts->CreateDatabase();
+		char aBuf[512];
+		str_copy(aBuf,
+			"UPDATE Accounts SET IsLoggedIn = 0 WHERE IsLoggedIn = 1 AND server_ip = ? AND LastLoginPort = ?;",
+			sizeof(aBuf));
+		m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
+	}
 
 	ReadSpamfilterList();
 	LoadSinglePlayer();
@@ -1709,15 +1712,6 @@ void CGameContext::DDPP_Tick()
 			continue;
 
 		int PlayerId = Player->GetCid();
-		if(m_LastAccountMode != g_Config.m_SvAccounts)
-		{
-			if(Player->IsLoggedIn())
-			{
-				SendChatTarget(PlayerId, "[ACCOUNT] you have been logged out due to changes in the system");
-				Player->Logout();
-			}
-		}
-
 		ChilliClanTick(PlayerId);
 		AsciiTick(PlayerId);
 		InstaGrenadeRoundEndTick(PlayerId);
@@ -1728,7 +1722,6 @@ void CGameContext::DDPP_Tick()
 		m_InstaGrenadeRoundEndTickTicker--;
 	if(m_InstaRifleRoundEndTickTicker)
 		m_InstaRifleRoundEndTickTicker--;
-	m_LastAccountMode = g_Config.m_SvAccounts;
 
 	if(Server()->Tick() % 600 == 0) //slow ddpp sub tick
 		DDPP_SlowTick();

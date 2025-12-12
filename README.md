@@ -57,7 +57,15 @@ DDNet++ is based on ddnet and uses the same database engine. But it uses a separ
 for the ddrace race records. By default it uses sqlite3 but you can also configure it to use mysql (mariadb).
 
 
-Only accounts are stored in the database. So make sure accounts are turned on using the ``sv_accounts 1`` config.
+Only accounts are stored in the database.
+To enable accounts you need to set a port and hostname in your config. Ideally before you enable accounts.
+
+```
+# your autoexec_server.cfg
+sv_port 8303
+sv_hostname "127.0.0.1" # <-- put your server ip here
+sv_accounts 1
+```
 
 **sqlite3 (default)**
 
