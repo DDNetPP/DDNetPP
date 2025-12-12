@@ -402,6 +402,12 @@ struct CSqlCreateTableRequest : ISqlData
 // 	float m_CurrentRecord;
 // };
 
+enum class ESqlBackend
+{
+	SQLITE3,
+	MYSQL
+};
+
 class CAccounts
 {
 	CDbConnectionPool *m_pPool;
@@ -454,6 +460,9 @@ public:
 	CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool);
 	~CAccounts() = default;
 
+	// hack to avoid editing connection.h in ddnet code
+	static ESqlBackend DetectBackend(IDbConnection *pSqlServer);
+
 	/*
 		Function:
 			Save
@@ -476,6 +485,12 @@ public:
 	void CleanZombieAccounts(int ClientId, int Port, const char *pQuery);
 	void LogoutUsername(const char *pUsername);
 	void ExecuteSql(const char *pQuery);
+
+private:
+	// ddnet-insta styled database helpers
+	static bool AddIntColumn(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, int Default, char *pError, int ErrorSize);
+	static bool AddColumnIntDefault0Sqlite3(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, char *pError, int ErrorSize);
+	static bool AddColumnIntDefault0Mysql(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, char *pError, int ErrorSize);
 };
 
 #endif

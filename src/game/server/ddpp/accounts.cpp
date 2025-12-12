@@ -94,6 +94,12 @@ CAccounts::CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool) :
 {
 }
 
+// hack to avoid editing connection.h in ddnet code
+ESqlBackend CAccounts::DetectBackend(IDbConnection *pSqlServer)
+{
+	return str_comp(pSqlServer->BinaryCollate(), "BINARY") == 0 ? ESqlBackend::SQLITE3 : ESqlBackend::MYSQL;
+}
+
 std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int ClientId)
 {
 	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
@@ -990,10 +996,12 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	if(g_Config.m_SvUseMysqlForAccounts && w == Write::NORMAL)
 		pAutoincrement = "AUTO_INCREMENT";
 
+	const char *pTableName = "Accounts";
+
 	char aBuf[4096];
 	str_format(aBuf,
 		sizeof(aBuf),
-		"CREATE TABLE IF NOT EXISTS Accounts ("
+		"CREATE TABLE IF NOT EXISTS %s ("
 		"  Id                 INTEGER			PRIMARY KEY		%s,"
 		"  Username           VARCHAR(32)		NOT NULL,"
 		"  Password           VARCHAR(128)	NOT NULL,"
@@ -1086,6 +1094,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  AsciiFrame13			VARCHAR(64)		DEFAULT '',"
 		"  AsciiFrame14			VARCHAR(64)		DEFAULT '',"
 		"  AsciiFrame15			VARCHAR(64)		DEFAULT '');",
+		pTableName,
 		pAutoincrement);
 
 	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -1093,5 +1102,108 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		return false;
 	}
 	int NumInserted;
+	if(!pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize))
+	{
+		return false;
+	}
+
+	// apply missing migrations
+	// this is for seamless backwards compatibility
+	// upgrade database schema automatically
+
+	bool (*pfnAddInt)(IDbConnection *, const char *, const char *, char *, int) = nullptr;
+
+	if(DetectBackend(pSqlServer) == ESqlBackend::SQLITE3)
+		pfnAddInt = AddColumnIntDefault0Sqlite3;
+	else if(DetectBackend(pSqlServer) == ESqlBackend::MYSQL)
+		pfnAddInt = AddColumnIntDefault0Mysql;
+
+	if(pfnAddInt)
+	{
+		// pfnAddInt(pSqlServer, pTableName, "new_column", pError, ErrorSize);
+	}
+
+	return true;
+}
+
+bool CAccounts::AddIntColumn(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, int Default, char *pError, int ErrorSize)
+{
+	char aBuf[4096];
+	str_format(
+		aBuf,
+		sizeof(aBuf),
+		"ALTER TABLE %s ADD COLUMN %s INTEGER DEFAULT %d;", pTableName, pColumnName, Default);
+
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return false;
+	}
+	pSqlServer->Print();
+	int NumInserted;
 	return pSqlServer->ExecuteUpdate(&NumInserted, pError, ErrorSize);
+}
+
+bool CAccounts::AddColumnIntDefault0Sqlite3(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, char *pError, int ErrorSize)
+{
+	char aBuf[4096];
+	str_copy(
+		aBuf,
+		"SELECT COUNT(*) FROM pragma_table_info(?) WHERE name = ?;");
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		dbg_msg("sql-thread", "prepare failed query: %s", aBuf);
+		return false;
+	}
+	pSqlServer->BindString(1, pTableName);
+	pSqlServer->BindString(2, pColumnName);
+	pSqlServer->Print();
+
+	bool End;
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_msg("sql-thread", "step failed query: %s", aBuf);
+		return false;
+	}
+
+	if(End)
+	{
+		// we expect 0 or 1 but never nothing
+		dbg_msg("sql-thread", "something went wrong failed query: %s", aBuf);
+		return false;
+	}
+	if(pSqlServer->GetInt(1) == 0)
+	{
+		log_info("sql-thread", "adding missing sqlite3 column '%s' to '%s'", pColumnName, pTableName);
+		return !AddIntColumn(pSqlServer, pTableName, pColumnName, 0, pError, ErrorSize);
+	}
+	return true;
+}
+
+bool CAccounts::AddColumnIntDefault0Mysql(IDbConnection *pSqlServer, const char *pTableName, const char *pColumnName, char *pError, int ErrorSize)
+{
+	char aBuf[4096];
+	str_format(
+		aBuf,
+		sizeof(aBuf),
+		"show columns from %s where Field = ?;",
+		pTableName);
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		dbg_msg("sql-thread", "prepare failed query: %s", aBuf);
+		return false;
+	}
+	pSqlServer->BindString(1, pColumnName);
+	pSqlServer->Print();
+
+	bool End;
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_msg("sql-thread", "step failed query: %s", aBuf);
+		return false;
+	}
+	if(!End)
+		return true;
+
+	log_info("sql-thread", "adding missing mysql column '%s' to '%s'", pColumnName, pTableName);
+	return !AddIntColumn(pSqlServer, pTableName, pColumnName, 0, pError, ErrorSize);
 }
