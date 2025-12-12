@@ -915,16 +915,6 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		str_format(aBuf, sizeof(aBuf), "'%s' SQL-Id: %d", pSelf->Server()->ClientName(SqlId), pSelf->m_apPlayers[SqlId]->GetAccId());
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 	}
-	else if(!str_comp_nocase(aCommand, "help"))
-	{
-		pSelf->SendChatTarget(ClientId, "---- COMMANDS -----");
-		pSelf->SendChatTarget(ClientId, "'/sql getid <clientid>' to get sql id");
-		pSelf->SendChatTarget(ClientId, "'/sql super_mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "'/sql mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "'/sql freeze_acc <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <player name>' additional info");
-	}
 	else if(!str_comp_nocase(aCommand, "supporter"))
 	{
 		if(pResult->NumArguments() < 3)
