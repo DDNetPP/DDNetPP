@@ -111,6 +111,8 @@ public:
 	// See also `SendChatLocSys()` if you want to send a targeted line instead of relying on the logger
 	[[gnu::format(printf, 4, 5)]] void ChatrespLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const;
 
+	[[gnu::format(printf, 3, 4)]] void ChatrespLoc(int ClientId, const char *pFormat, ...) const;
+
 	// calls SendBroadcast under the hood
 	// the pFormat string will be translated so make sure
 	// it matches the text in server/ddpp/loc.cpp

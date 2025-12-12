@@ -868,9 +868,9 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) != AUTHED_ADMIN)
+	if(pSelf->Server()->GetAuthedState(ClientId) != AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "Missing permission.");
+		pSelf->ChatrespLocSys(ClientId, "SQL", "Missing permission.");
 		return;
 	}
 

@@ -28,6 +28,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 	{
 		if(!str_comp("Money", pStr))
 			return "Деньги";
+		if(!str_comp("Missing permission.", pStr))
+			return "Недостаточно прав.";
 		if(!str_comp("S H O P", pStr))
 			return "Магазин";
 		if(!str_comp("~ S H O P ~", pStr))
