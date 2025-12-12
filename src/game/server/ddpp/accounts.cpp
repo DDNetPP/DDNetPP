@@ -9,6 +9,7 @@
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>
 #include <engine/shared/config.h>
+
 #include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
 
 CAdminCommandResult::CAdminCommandResult()
@@ -159,7 +160,8 @@ void CAccounts::ExecUserThread(
 		Tmp->m_AccountData = *pAccountData;
 	else
 		Tmp->m_AccountData = CAccountData();
-	Tmp->m_Port = g_Config.m_SvPort;
+	Tmp->m_ServerPort = g_Config.m_SvPort;
+	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
 
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
@@ -331,22 +333,15 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	str_copy(aBuf,
 		"SELECT "
 		"	Id,"
-		/*  2         3 */
 		"	Username, Password,"
-		/*  4             5           6 */
-		"	RegisterDate, IsLoggedIn, LastLoginPort,"
-		/*  7               8               9               10              11 */
+		"	RegisterDate, IsLoggedIn, server_ip, LastLoginPort,"
 		"	LastLogoutIGN1, LastLogoutIGN2, LastLogoutIGN3, LastLogoutIGN4, LastLogoutIGN5,"
-		/*  12    13    14 */
 		"	IP_1, IP_2, IP_3,"
-		/*  15     16     17 */
 		"	Clan1, Clan2, Clan3,"
-		"	Skin," // 18
-		/*  19     20     21 */
+		"	Skin,"
 		"	Level, Money, Exp,"
-		/*  22    23 */
 		"	Shit, LastGift,"
-		"	PoliceRank," // 24
+		"	PoliceRank,"
 		"	JailTime, EscapeTime,"
 		"	TaserLevel,"
 		"	PvPArenaTickets, PvPArenaGames, PvPArenaKills, PvPArenaDeaths,"
@@ -401,7 +396,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aPassword, sizeof(pResult->m_Account.m_aPassword));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
 		pResult->m_Account.m_IsLoggedIn = pSqlServer->GetInt(Index++);
-		Index++; // 6 LastLoginPort (not needed)
+		Index++; // server_ip (not needed)
+		Index++; // LastLoginPort (not needed)
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN1, sizeof(pResult->m_Account.m_LastLogoutIGN1));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN2, sizeof(pResult->m_Account.m_LastLogoutIGN2));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN3, sizeof(pResult->m_Account.m_LastLogoutIGN3));
@@ -479,15 +475,16 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		}
 
 		str_copy(aBuf,
-			"UPDATE Accounts SET IsLoggedIn = 1, LastLoginPort = ? WHERE Id = ? AND IsLoggedIn = 0;",
+			"UPDATE Accounts SET IsLoggedIn = 1, server_ip = ?, LastLoginPort = ? WHERE Id = ? AND IsLoggedIn = 0;",
 			sizeof(aBuf));
 
 		if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 		{
 			return false;
 		}
-		pSqlServer->BindInt(1, pData->m_Port);
-		pSqlServer->BindInt(2, pResult->m_Account.m_Id);
+		pSqlServer->BindString(1, pData->m_aServerIp);
+		pSqlServer->BindInt(2, pData->m_ServerPort);
+		pSqlServer->BindInt(3, pResult->m_Account.m_Id);
 
 		int NumUpdated;
 		if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
@@ -497,13 +494,13 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 
 		if(NumUpdated != 1)
 		{
-			log_error("auth", "Can't set IsLoggedIn, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			log_error("auth", "Can't set IsLoggedIn, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_ServerPort);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
 
 		str_copy(aBuf,
-			"SELECT COUNT(*) FROM Accounts WHERE Id = ? AND IsLoggedIn = 1 AND LastLoginPort = ?;",
+			"SELECT COUNT(*) FROM Accounts WHERE Id = ? AND IsLoggedIn = 1 AND server_ip = ? AND LastLoginPort = ?;",
 			sizeof(aBuf));
 
 		if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -511,7 +508,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 			return false;
 		}
 		pSqlServer->BindInt(1, pResult->m_Account.m_Id);
-		pSqlServer->BindInt(2, pData->m_Port);
+		pSqlServer->BindString(2, pData->m_aServerIp);
+		pSqlServer->BindInt(3, pData->m_ServerPort);
 
 		if(!pSqlServer->Step(&End, pError, ErrorSize))
 		{
@@ -520,7 +518,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 
 		if(End)
 		{
-			log_error("auth", "Something wrong, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_Port);
+			log_error("auth", "Something wrong, Id %d, LastLoginPort %d", pResult->m_Account.m_Id, pData->m_ServerPort);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
@@ -528,7 +526,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		int CheckCount = pSqlServer->GetInt(1);
 		if(CheckCount != 1)
 		{
-			log_error("auth", "Wrong checked count, Id %d, LastLoginPort %d, CheckCount %d", pResult->m_Account.m_Id, pData->m_Port, CheckCount);
+			log_error("auth", "Wrong checked count, Id %d, LastLoginPort %d, CheckCount %d", pResult->m_Account.m_Id, pData->m_ServerPort, CheckCount);
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
 			return true;
 		}
@@ -777,11 +775,12 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 	return true;
 }
 
-void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
+void CAccounts::CleanZombieAccounts(int ClientId, int ServerPort, const char *pQuery)
 {
 	auto Tmp = std::make_unique<CSqlCleanZombieAccountsData>();
 	Tmp->m_ClientId = ClientId;
-	Tmp->m_Port = Port;
+	Tmp->m_ServerPort = ServerPort;
+	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
 
 	m_pPool->ExecuteWrite(CleanZombieAccountsThread, std::move(Tmp), "clean zombies");
@@ -795,7 +794,7 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 
 	// char aBuf[512];
 	// str_copy(aBuf,
-	// 	"UPDATE Accounts SET IsLoggedIn = 0, LastLoginPort = ?;",
+	// 	"UPDATE Accounts SET IsLoggedIn = 0 WHERE server_ip = ? AND LastLoginPort = ?;",
 	// 	sizeof(aBuf));
 
 	if(!pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
@@ -803,7 +802,8 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 		dbg_assert(false, "CleanZombieAccountsThread failed to prepare statement");
 		return false;
 	}
-	pSqlServer->BindInt(1, pData->m_Port);
+	pSqlServer->BindString(1, pData->m_aServerIp);
+	pSqlServer->BindInt(2, pData->m_ServerPort);
 
 	int NumUpdated;
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
@@ -814,7 +814,7 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	if(NumUpdated)
 	{
 		dbg_msg("ddnet++", "fixed %d zombie accounts", NumUpdated);
-		dbg_msg("ddnet++", "query: %s port=%d", pData->m_aQuery, pData->m_Port);
+		dbg_msg("ddnet++", "query: %s ip=%s port=%d", pData->m_aQuery, pData->m_aServerIp, pData->m_ServerPort);
 	}
 	return true;
 }
@@ -822,7 +822,8 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
 {
 	auto Tmp = std::make_unique<CSqlSetLoginData>();
-	Tmp->m_Port = Port;
+	Tmp->m_ServerPort = Port;
+	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
 	Tmp->m_LoggedIn = LoggedIn;
 	Tmp->m_AccountId = AccountId;
 
@@ -837,7 +838,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 
 	char aBuf[512];
 	str_copy(aBuf,
-		"UPDATE Accounts SET IsLoggedIn = ?, LastLoginPort = ? WHERE Id = ?;",
+		"UPDATE Accounts SET IsLoggedIn = ?, server_ip = ?, LastLoginPort = ? WHERE Id = ?;",
 		sizeof(aBuf));
 
 	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -845,7 +846,8 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		return false;
 	}
 	pSqlServer->BindInt(1, pData->m_LoggedIn);
-	pSqlServer->BindInt(2, pData->m_Port);
+	pSqlServer->BindString(2, pData->m_aServerIp);
+	pSqlServer->BindInt(3, pData->m_ServerPort);
 	pSqlServer->BindInt(3, pData->m_AccountId);
 
 	int NumUpdated;
@@ -859,7 +861,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 			"Set logged in affected %d rows. LoggedIn=%d Port=%d AccountId=%d Query: %s",
 			NumUpdated,
 			pData->m_LoggedIn,
-			pData->m_Port,
+			pData->m_ServerPort,
 			pData->m_AccountId,
 			aBuf);
 	}
@@ -871,7 +873,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 			"set logged in affected %d rows. LoggedIn=%d Port=%d AccountId=%d Query: %s",
 			NumUpdated,
 			pData->m_LoggedIn,
-			pData->m_Port,
+			pData->m_ServerPort,
 			pData->m_AccountId,
 			aBuf);
 		dbg_assert(false, "SetLoggedInThread failed to execute");
@@ -1002,6 +1004,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  Password           VARCHAR(128)	NOT NULL,"
 		"  RegisterDate       VARCHAR(32)		DEFAULT '',"
 		"  IsLoggedIn         INTEGER			DEFAULT 0,"
+		"  server_ip          VARCHAR(64)   NOT NULL DEFAULT '',"
 		"  LastLoginPort      INTEGER			DEFAULT 0,"
 		"  LastLogoutIGN1     VARCHAR(32)		DEFAULT '',"
 		"  LastLogoutIGN2     VARCHAR(32)		DEFAULT '',"
@@ -1106,7 +1109,9 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	// this is for seamless backwards compatibility
 	// upgrade database schema automatically
 
-	// ddnet_db_utils::AddIntColumn(pSqlServer, pTableName, "win_points", 0, pError, ErrorSize);
+	bool Collate = false;
+	bool NotNull = true;
+	ddnet_db_utils::AddStrColumn(pSqlServer, pTableName, "server_ip", 64, Collate, NotNull, "", pError, ErrorSize);
 
 	return true;
 }

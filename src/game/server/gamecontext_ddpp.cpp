@@ -498,7 +498,7 @@ void CGameContext::OnInitDDPP()
 	m_pAccounts->CreateDatabase();
 	char aBuf[512];
 	str_copy(aBuf,
-		"UPDATE Accounts SET IsLoggedIn = 0 WHERE IsLoggedIn = 1 AND LastLoginPort = ?;",
+		"UPDATE Accounts SET IsLoggedIn = 0 WHERE IsLoggedIn = 1 AND server_ip = ? AND LastLoginPort = ?;",
 		sizeof(aBuf));
 	m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
 

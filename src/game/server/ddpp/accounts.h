@@ -329,7 +329,8 @@ struct CSqlAccountRequest : ISqlData
 	char m_aUsername[64];
 	char m_aPassword[64];
 	char m_aNewPassword[64];
-	int m_Port;
+	char m_aServerIp[64];
+	int m_ServerPort;
 };
 
 struct CSqlAdminCommandRequest : ISqlData
@@ -357,7 +358,8 @@ struct CSqlSetLoginData : ISqlData
 
 	int m_AccountId;
 	int m_LoggedIn;
-	int m_Port;
+	char m_aServerIp[64];
+	int m_ServerPort;
 };
 
 struct CSqlCleanZombieAccountsData : ISqlData
@@ -369,7 +371,8 @@ struct CSqlCleanZombieAccountsData : ISqlData
 
 	char m_aQuery[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
 	int m_ClientId;
-	int m_Port;
+	char m_aServerIp[64];
+	int m_ServerPort;
 };
 
 struct CSqlStringData : ISqlData
