@@ -862,6 +862,14 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientId = pResult->m_ClientId;
 
+	// TODO: remove this once the worker thread is no longer bound to a player instance
+	//       so we can use this command from econ
+	if(!CheckClientId(ClientId))
+	{
+		log_error("chatresp", "[SQL] command unavailble to users with invalid client ids");
+		return;
+	}
+
 	if(g_Config.m_SvAccounts == 0)
 	{
 		pSelf->ChatrespLocSys(ClientId, "SQL", "The account system is turned off.");
