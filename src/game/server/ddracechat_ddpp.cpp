@@ -1,6 +1,7 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 
+#include <base/log.h>
 #include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
@@ -859,29 +860,16 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientId(pResult->m_ClientId))
-		return;
-
 	int ClientId = pResult->m_ClientId;
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
-	if(!pPlayer)
-		return;
 
 	if(g_Config.m_SvAccounts == 0)
 	{
-		pSelf->SendChatLocSys(ClientId, "ACCOUNT", "The account system is turned off.");
+		pSelf->ChatrespLocSys(ClientId, "SQL", "The account system is turned off.");
 		return;
 	}
 
-	//if (pResult->NumArguments() < 2)
-	//{
-	//	pSelf->SendChatTarget(ClientId, "Error: si?i");
-	//	return;
-	//}
-
-	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) != AUTHED_ADMIN) //after Arguments check to troll curious users
+	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) != AUTHED_ADMIN)
 	{
-		//pSelf->SendChatTarget(ClientId, "No such command: sql.");
 		pSelf->SendChatTarget(pResult->m_ClientId, "Missing permission.");
 		return;
 	}

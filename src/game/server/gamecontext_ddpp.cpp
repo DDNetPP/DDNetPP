@@ -402,6 +402,16 @@ void CGameContext::SendChatLocSys(int ClientId, const char *pSystem, const char 
 	va_end(Args);
 }
 
+void CGameContext::ChatrespLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	char aMsg[2048];
+	str_format_v(aMsg, sizeof(aMsg), Loc(pFormat, ClientId), Args);
+	log_info("chatresp", "[%s] %s", Loc(pSystem, ClientId), aMsg);
+	va_end(Args);
+}
+
 void CGameContext::SendBroadcastLoc(int ClientId, const char *pFormat, ...)
 {
 	va_list Args;

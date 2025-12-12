@@ -96,6 +96,21 @@ public:
 	// See also `SendChatLoc()` if you need no system prefix.
 	[[gnu::format(printf, 4, 5)]] void SendChatLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const;
 
+	// Uses `log_info("chatresp", "message..");` under the hood
+	// use this to translate replies to commands
+	// if ran from rcon it will reply in rcon and if ran in chat it will reply in chat
+	// if ran in econ it will reply in econ.
+	//
+	// The `ClientId` is only used for translation not to chose the msg target
+	// the message target is chosen by the logging system of ddnet
+	//
+	// Example:
+	//
+	//  ChatrespLocSys("ACCOUNTS", "You logged in");
+	//
+	// See also `SendChatLocSys()` if you want to send a targeted line instead of relying on the logger
+	[[gnu::format(printf, 4, 5)]] void ChatrespLocSys(int ClientId, const char *pSystem, const char *pFormat, ...) const;
+
 	// calls SendBroadcast under the hood
 	// the pFormat string will be translated so make sure
 	// it matches the text in server/ddpp/loc.cpp
