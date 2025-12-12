@@ -9,6 +9,7 @@
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>
 #include <engine/shared/config.h>
+#include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
 
 CAdminCommandResult::CAdminCommandResult()
 {
@@ -1111,17 +1112,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	// this is for seamless backwards compatibility
 	// upgrade database schema automatically
 
-	bool (*pfnAddInt)(IDbConnection *, const char *, const char *, char *, int) = nullptr;
-
-	if(DetectBackend(pSqlServer) == ESqlBackend::SQLITE3)
-		pfnAddInt = AddColumnIntDefault0Sqlite3;
-	else if(DetectBackend(pSqlServer) == ESqlBackend::MYSQL)
-		pfnAddInt = AddColumnIntDefault0Mysql;
-
-	if(pfnAddInt)
-	{
-		// pfnAddInt(pSqlServer, pTableName, "new_column", pError, ErrorSize);
-	}
+	// ddnet_db_utils::AddIntColumn(pSqlServer, pTableName, "win_points", 0, pError, ErrorSize);
 
 	return true;
 }

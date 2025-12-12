@@ -5,3 +5,6 @@
 [submodule "src/external/DDNetPP-bots"]
 	path = src/external/DDNetPP-bots
 	url = https://github.com/DDNetPP/DDNetPP-bots.git
+[submodule "src/game/server/ddnetpp/ddnet_db_utils"]
+	path = src/game/server/ddnetpp/ddnet_db_utils
+	url = https://github.com/ddnet-insta/ddnet_db_utils.git

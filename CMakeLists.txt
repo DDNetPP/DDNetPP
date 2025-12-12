@@ -2779,6 +2779,8 @@ if(SERVER)
     captcha.cpp
     captcha.h
     ddnetpp/chat_commands.h
+    ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
+    ddnetpp/ddnet_db_utils/ddnet_db_utils.h
     ddnetpp/rcon_commands.h
     ddnetpp/rcon_configs.cpp
     ddpp/accounts.cpp
