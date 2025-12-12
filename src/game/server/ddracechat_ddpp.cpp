@@ -876,17 +876,17 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() == 0)
 	{
-		pSelf->SendChatTarget(ClientId, "---- COMMANDS -----");
-		pSelf->SendChatTarget(ClientId, "'/sql getid <clientid>' to get sql id");
-		pSelf->SendChatTarget(ClientId, "'/sql super_mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "'/sql mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "'/sql supporter <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "'/sql freeze_acc <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <player name>' additional info");
-		pSelf->SendChatTarget(ClientId, "'/sql_name' similar command using account names");
-		pSelf->SendChatTarget(ClientId, "'/sql_logout <playername>' sets logout state (risky)");
-		pSelf->SendChatTarget(ClientId, "'/sql_logout_all' sets logout state only for current port (save)");
+		log_info("chatresp", "---- COMMANDS -----");
+		log_info("chatresp", "'/sql getid <clientid>' to get sql id");
+		log_info("chatresp", "'/sql super_mod <sqlid> <val>'");
+		log_info("chatresp", "'/sql mod <sqlid> <val>'");
+		log_info("chatresp", "'/sql supporter <sqlid> <val>'");
+		log_info("chatresp", "'/sql freeze_acc <sqlid> <val>'");
+		log_info("chatresp", "----------------------");
+		log_info("chatresp", "'/acc_info <player name>' additional info");
+		log_info("chatresp", "'/sql_name' similar command using account names");
+		log_info("chatresp", "'/sql_logout <playername>' sets logout state (risky)");
+		log_info("chatresp", "'/sql_logout_all' sets logout state only for current port (save)");
 		return;
 	}
 
@@ -896,13 +896,10 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	char aBuf[128];
-	char aCommand[32];
-	int SqlId;
-	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
-	SqlId = pResult->GetInteger(1);
+	const char *pCommand = pResult->GetString(0);
+	int SqlId = pResult->GetInteger(1);
 
-	if(!str_comp_nocase(aCommand, "getid")) //2 argument commands
+	if(!str_comp_nocase(pCommand, "getid"))
 	{
 		int VictimId = SqlId;
 		if(!CheckClientId(VictimId))
@@ -912,59 +909,56 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		}
 		if(!pSelf->m_apPlayers[VictimId])
 		{
-			str_format(aBuf, sizeof(aBuf), "Can't find player with Id: %d.", VictimId);
-			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+			log_error("chatresp", "[SQL] Can't find player with Id: %d.", VictimId);
 			return;
 		}
 
 		if(!pSelf->m_apPlayers[VictimId]->IsLoggedIn())
 		{
-			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(VictimId));
-			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+			log_error("chatresp", "[SQL] Player '%s' is not logged in.", pSelf->Server()->ClientName(VictimId));
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "'%s' SQL-Id: %d", pSelf->Server()->ClientName(VictimId), pSelf->m_apPlayers[VictimId]->GetAccId());
-		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
+		log_info("chatresp", "[SQL] '%s' SQL-Id: %d", pSelf->Server()->ClientName(VictimId), pSelf->m_apPlayers[VictimId]->GetAccId());
 	}
-	else if(!str_comp_nocase(aCommand, "supporter"))
+	else if(!str_comp_nocase(pCommand, "supporter"))
 	{
 		if(pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
+			log_error("chatresp", "[SQL] Error: sql <command> <id> <value>");
 			return;
 		}
 
 		int Value = pResult->GetInteger(2);
 		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE Id = ?;");
 	}
-	else if(!str_comp_nocase(aCommand, "super_mod"))
+	else if(!str_comp_nocase(pCommand, "super_mod"))
 	{
 		if(pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
+			log_error("chatresp", "[SQL] Error: sql <command> <id> <value>");
 			return;
 		}
 
 		int Value = pResult->GetInteger(2);
 		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE Id = ?;");
 	}
-	else if(!str_comp_nocase(aCommand, "mod"))
+	else if(!str_comp_nocase(pCommand, "mod"))
 	{
 		if(pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
+			log_error("chatresp", "[SQL] Error: sql <command> <id> <value>");
 			return;
 		}
 
 		int Value = pResult->GetInteger(2);
 		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE Id = ?;");
 	}
-	else if(!str_comp_nocase(aCommand, "freeze_acc"))
+	else if(!str_comp_nocase(pCommand, "freeze_acc"))
 	{
 		if(pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
+			log_error("chatresp", "[SQL] Error: sql <command> <id> <value>");
 			return;
 		}
 
@@ -973,7 +967,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(ClientId, "Unknown SQL command. Try '/SQL help' for more help.");
+		log_info("chatresp", "Unknown SQL command. Try just '/sql' for more help.");
 	}
 }
 
