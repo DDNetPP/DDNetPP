@@ -944,10 +944,9 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
 			return;
 		}
-		int value;
-		value = pResult->GetInteger(2);
 
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, value, CAdminCommandResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE Id = ?;");
+		int Value = pResult->GetInteger(2);
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "super_mod"))
 	{
@@ -956,10 +955,9 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
 			return;
 		}
-		int value;
-		value = pResult->GetInteger(2);
 
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, value, CAdminCommandResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE Id = ?;");
+		int Value = pResult->GetInteger(2);
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "mod"))
 	{
@@ -968,10 +966,9 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
 			return;
 		}
-		int value;
-		value = pResult->GetInteger(2);
 
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, value, CAdminCommandResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE Id = ?;");
+		int Value = pResult->GetInteger(2);
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "freeze_acc"))
 	{
@@ -980,10 +977,9 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: sql <command> <id> <value>");
 			return;
 		}
-		int value;
-		value = pResult->GetInteger(2);
 
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, value, CAdminCommandResult::FREEZE_ACC, "UPDATE Accounts SET IsAccFrozen = ? WHERE Id = ?;");
+		int Value = pResult->GetInteger(2);
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::FREEZE_ACC, "UPDATE Accounts SET IsAccFrozen = ? WHERE Id = ?;");
 	}
 	else
 	{
