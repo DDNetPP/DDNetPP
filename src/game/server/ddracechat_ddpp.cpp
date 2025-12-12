@@ -890,6 +890,12 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if(pResult->NumArguments() < 2)
+	{
+		log_info("chatresp", "[SQL] need at least two arguments, or pass none to show help");
+		return;
+	}
+
 	char aBuf[128];
 	char aCommand[32];
 	int SqlId;
