@@ -904,21 +904,27 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 
 	if(!str_comp_nocase(aCommand, "getid")) //2 argument commands
 	{
-		if(!pSelf->m_apPlayers[SqlId])
+		int VictimId = SqlId;
+		if(!CheckClientId(VictimId))
 		{
-			str_format(aBuf, sizeof(aBuf), "Can't find player with Id: %d.", SqlId);
+			log_error("chatresp", "[SQL] invalid client id %d", VictimId);
+			return;
+		}
+		if(!pSelf->m_apPlayers[VictimId])
+		{
+			str_format(aBuf, sizeof(aBuf), "Can't find player with Id: %d.", VictimId);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			return;
 		}
 
-		if(!pSelf->m_apPlayers[SqlId]->IsLoggedIn())
+		if(!pSelf->m_apPlayers[VictimId]->IsLoggedIn())
 		{
-			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(SqlId));
+			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(VictimId));
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "'%s' SQL-Id: %d", pSelf->Server()->ClientName(SqlId), pSelf->m_apPlayers[SqlId]->GetAccId());
+		str_format(aBuf, sizeof(aBuf), "'%s' SQL-Id: %d", pSelf->Server()->ClientName(VictimId), pSelf->m_apPlayers[VictimId]->GetAccId());
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 	}
 	else if(!str_comp_nocase(aCommand, "supporter"))
