@@ -857,10 +857,36 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+static bool BlockAccountRconCmd(CGameContext *pSelf, int ClientId, const char *pOperation)
+{
+	if(!pSelf->m_pController)
+	{
+		log_error("cahtresp", "something went wrong with this rcon command");
+		return true;
+	}
+
+	// allow admins to reset account passwords even if accounts are off
+	// if(!g_Config.m_SvAccounts)
+	// {
+	// 	log_error("chatresp", "accounts are turned off");
+	// 	return true;
+	// }
+
+	char aReason[512];
+	if(pSelf->m_pController->IsAccountRconCmdRatelimited(ClientId, aReason, sizeof(aReason)))
+	{
+		log_error("chatresp", "%s failed because of: %s", pOperation, aReason);
+		return true;
+	}
+	return false;
+}
+
 void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientId = pResult->m_ClientId;
+	if(BlockAccountRconCmd(pSelf, pResult->m_ClientId, "sql"))
+		return;
 
 	// TODO: remove this once the worker thread is no longer bound to a player instance
 	//       so we can use this command from econ

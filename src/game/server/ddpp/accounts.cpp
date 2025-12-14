@@ -109,21 +109,18 @@ void CAccounts::ExecAdminThread(
 	const char *pPassword,
 	const char *pQuery)
 {
-
-	// TODO: add this once the callsite is ratelimited in rcon_commands.cpp
-
-	// if(!GameServer()->m_pController)
-	// {
-	// 	log_error("sql", "FATAL ERROR: can not execute account rcon command during map change.");
-	// 	return;
-	// }
-	// if(GameServer()->m_pController->IsAccountRconCmdRatelimited(AdminClientId, nullptr, 0))
-	// {
-	// 	// this should never be hit!
-	// 	// who ever calls this method should check it first!
-	// 	log_error("sql", "FATAL ERROR: can not execute rcon command. Uncaught ratelimit!");
-	// 	return;
-	// }
+	if(!GameServer()->m_pController)
+	{
+		log_error("sql", "FATAL ERROR: can not execute account rcon command during map change.");
+		return;
+	}
+	if(GameServer()->m_pController->IsAccountRconCmdRatelimited(AdminClientId, nullptr, 0))
+	{
+		// this should never be hit!
+		// who ever calls this method should check it first!
+		log_error("sql", "FATAL ERROR: can not execute rcon command. Uncaught ratelimit!");
+		return;
+	}
 
 	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(AdminClientId);
 	// econ and fifo have no client id but they can still manage accounts using rcon commands
