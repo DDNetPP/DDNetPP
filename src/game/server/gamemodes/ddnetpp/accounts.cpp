@@ -56,7 +56,7 @@ void CGameControllerDDNetPP::ProcessAccountRconCmdResult(CAccountRconCmdResult &
 {
 	if(!Result.m_Success)
 	{
-		log_error("ddnet-insta", "Account rcon command failed. Check the server logs.");
+		log_error("ddnet++", "Account rcon command failed. Check the server logs.");
 		return;
 	}
 
