@@ -430,8 +430,12 @@ class CAccounts
 	static bool ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 
-	// per player queries admin
+	// admin triggered queries that run server side
+	// to support econ, fifo and finish execution even if the
+	// admin leaves after launching the command
+	// and to allow higher ratelimits and a shared worker queue
 	static bool UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 
 	// non ratelimited server side queries
 	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
@@ -481,6 +485,7 @@ public:
 	void AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword);
 
 	void UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAccountRconCmdResult::Variant Type, const char *pQuery);
+	void UpdateAccountStateByUsername(int AdminClientId, const char *pTargetAccountUsername, int State, CAccountRconCmdResult::Variant Type, const char *pQuery);
 
 	void CreateDatabase();
 	void SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port);

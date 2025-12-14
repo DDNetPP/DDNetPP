@@ -554,7 +554,12 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 
 void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAccountRconCmdResult::Variant Type, const char *pQuery)
 {
-	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientId, TargetAccountId, State, Type, "", "", pQuery);
+	ExecAdminThread(UpdateAccountStateThread, "update account state by id", AdminClientId, TargetAccountId, State, Type, "", "", pQuery);
+}
+
+void CAccounts::UpdateAccountStateByUsername(int AdminClientId, const char *pTargetAccountUsername, int State, CAccountRconCmdResult::Variant Type, const char *pQuery)
+{
+	ExecAdminThread(UpdateAccountStateByUsernameThread, "update account state by username", AdminClientId, 0, State, Type, pTargetAccountUsername, "", pQuery);
 }
 
 bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -584,6 +589,74 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
 	{
 		log_error("sql-thread", "UpdateAccountStateThread failed to execute");
+		return false;
+	}
+
+	str_format(pResult->m_aaMessages[0],
+		sizeof(pResult->m_aaMessages[0]),
+		"[ACCOUNT] Successfully updated account state (affected %d row%s)",
+		NumUpdated,
+		NumUpdated == 1 ? "" : "s");
+	return true;
+}
+
+bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAdminCommandRequest *pData = dynamic_cast<const CSqlAdminCommandRequest *>(pGameData);
+	CAccountRconCmdResult *pResult = dynamic_cast<CAccountRconCmdResult *>(pGameData->m_pResult.get());
+	pResult->SetVariant(pData->m_Type, pData);
+	str_copy(pResult->m_aaMessages[0],
+		"[ACCOUNT] Update state failed.",
+		sizeof(pResult->m_aaMessages[0]));
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"SELECT Id FROM Accounts WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return false;
+	}
+	pSqlServer->BindString(1, pData->m_aUsername);
+	bool End;
+	if(!pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		return false;
+	}
+	if(End)
+	{
+		pResult->m_MessageKind = CAccountRconCmdResult::DIRECT;
+		str_format(pResult->m_aaMessages[0],
+			sizeof(pResult->m_aaMessages[0]),
+			"[ACCOUNT] No account with username '%s' found.",
+			pData->m_aUsername);
+		return true;
+	}
+
+	// we fetch the account sql id
+	// for the main thread handler so the code can be the same
+	// for the ById and ByUsername workers
+	pResult->m_TargetAccountId = pSqlServer->GetInt(1);
+
+	// char aBuf[2048];
+	// str_copy(aBuf,
+	// 	"UPDATE Accounts SET "
+	// 	"	IsFrozen = ?"
+	// 	"	WHERE Username = ?;",
+	// 	sizeof(aBuf));
+
+	if(!pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
+	{
+		return false;
+	}
+	pSqlServer->BindInt(1, pData->m_State);
+	pSqlServer->BindString(2, pData->m_aUsername);
+
+	int NumUpdated;
+	if(!pSqlServer->ExecuteUpdate(&NumUpdated, pError, ErrorSize))
+	{
+		log_error("sql-thread", "UpdateAccountStateByUsernameThread failed to execute");
 		return false;
 	}
 

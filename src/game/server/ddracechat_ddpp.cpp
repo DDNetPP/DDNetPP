@@ -826,7 +826,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 	if(pResult->NumArguments() == 0)
 	{
 		pSelf->SendChatTarget(ClientId, "---- COMMANDS -----");
-		//pSelf->SendChatTarget(ClientId, "'/sql_name super_mod <acc_name> <true/false>'"); //coming soon...
+		pSelf->SendChatTarget(ClientId, "'/sql_name super_mod <acc_name> <on/off>'"); //coming soon...
 		//pSelf->SendChatTarget(ClientId, "'/sql_name mod <acc_name> <true/false>'"); //coming soon...
 		//pSelf->SendChatTarget(ClientId, "'/sql_name freeze_acc <acc_name> <true/false>'"); //coming soon...
 		pSelf->SendChatTarget(ClientId, "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
@@ -836,7 +836,23 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(!str_comp_nocase(pResult->GetString(0), "set_passwd"))
+	const char *pUsername = pResult->GetString(1);
+
+	if(!str_comp_nocase(pResult->GetString(0), "super_mod"))
+	{
+		if(pResult->NumArguments() != 3)
+		{
+			pSelf->SendChatTarget(ClientId, "usage: /sql_name super_mod <acc_name> <on/off>");
+			return;
+		}
+		const char *pBoolStr = pResult->GetString(2);
+		bool Value = !str_comp_nocase(pBoolStr, "on") ||
+			     !str_comp_nocase(pBoolStr, "true") ||
+			     !str_comp_nocase(pBoolStr, "1");
+		const char *pQuery = "UPDATE Accounts SET IsSuperModerator = ? WHERE Username = ?;";
+		pSelf->m_pAccounts->UpdateAccountStateByUsername(ClientId, pUsername, Value, CAccountRconCmdResult::SUPER_MODERATOR, pQuery);
+	}
+	else if(!str_comp_nocase(pResult->GetString(0), "set_passwd"))
 	{
 		if(pResult->NumArguments() != 3)
 		{
@@ -849,7 +865,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 			return;
 		}
-		pSelf->m_pAccounts->AdminSetPassword(ClientId, pResult->GetString(1), pResult->GetString(2));
+		pSelf->m_pAccounts->AdminSetPassword(ClientId, pUsername, pResult->GetString(2));
 	}
 	else
 	{
