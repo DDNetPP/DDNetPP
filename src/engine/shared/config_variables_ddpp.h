@@ -118,6 +118,7 @@ MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count
 MACRO_CONFIG_STR(SvDisplayScore, sv_display_score, 512, "time", CFGFLAG_SERVER, "values: time, level, block, current_spree, king_of_the_hill")
 
 MACRO_CONFIG_STR(SvLanguage, sv_language, 16, "en", CFGFLAG_SERVER, "en, ru")
+MACRO_CONFIG_STR(SvEconLanguage, sv_econ_language, 16, "en", CFGFLAG_SERVER, "en, ru")
 // TODO: add chain here that blocks standard gametypes like CTF,DM,LTS and so on
 MACRO_CONFIG_STR(SvGameTypeName, sv_game_type_name, 16, "DDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 0")
 MACRO_CONFIG_STR(SvGameTypeNameTest, sv_game_type_name_test, 24, "TestDDNet++", CFGFLAG_SERVER, "Displayed in server browser when sv_test_cmds is 1")

@@ -802,37 +802,32 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientId(pResult->m_ClientId))
-		return;
-
 	int ClientId = pResult->m_ClientId;
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
-	if(!pPlayer)
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvAccounts == 0)
 	{
-		pSelf->SendChatLocSys(ClientId, "SQL", "The account system is turned off.");
+		pSelf->ChatrespLocSys(ClientId, "SQL", "The account system is turned off.");
 		return;
 	}
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) != AUTHED_ADMIN)
 	{
-		//pSelf->SendChatTarget(ClientId, "No such command: sql_name.");
-		pSelf->SendChatTarget(ClientId, "Missing permission.");
+		pSelf->ChatrespLocSys(ClientId, "SQL", "Missing permission.");
 		return;
 	}
 
 	if(pResult->NumArguments() == 0)
 	{
-		pSelf->SendChatTarget(ClientId, "---- COMMANDS -----");
-		pSelf->SendChatTarget(ClientId, "'/sql_name super_mod <acc_name> <on/off>'"); //coming soon...
-		//pSelf->SendChatTarget(ClientId, "'/sql_name mod <acc_name> <true/false>'"); //coming soon...
-		//pSelf->SendChatTarget(ClientId, "'/sql_name freeze_acc <acc_name> <true/false>'"); //coming soon...
-		pSelf->SendChatTarget(ClientId, "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
-		pSelf->SendChatTarget(ClientId, "----------------------");
-		pSelf->SendChatTarget(ClientId, "'/acc_info <name>' additional info");
-		pSelf->SendChatTarget(ClientId, "'/sql' similar command using sql ids");
+		log_info("chatresp", "---- COMMANDS -----");
+		log_info("chatresp", "'/sql_name super_mod <acc_name> <on/off>'");
+		// log_info("chatresp", "'/sql_name mod <acc_name> <true/false>'"); //coming soon...
+		// log_info("chatresp", "'/sql_name freeze_acc <acc_name> <true/false>'"); //coming soon...
+		log_info("chatresp", "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
+		log_info("chatresp", "----------------------");
+		log_info("chatresp", "'/acc_info <name>' additional info");
+		log_info("chatresp", "'/sql' similar command using sql ids");
 		return;
 	}
 
@@ -842,7 +837,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 	{
 		if(pResult->NumArguments() != 3)
 		{
-			pSelf->SendChatTarget(ClientId, "usage: /sql_name super_mod <acc_name> <on/off>");
+			log_info("chatresp", "usage: /sql_name super_mod <acc_name> <on/off>");
 			return;
 		}
 		bool Value = str_to_bool(pResult->GetString(2));

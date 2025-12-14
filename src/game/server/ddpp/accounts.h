@@ -357,6 +357,7 @@ struct CSqlAdminCommandRequest : ISqlData
 	char m_aPassword[64];
 	char m_aServerIp[64];
 	int m_ServerPort;
+	int m_Language;
 	int m_State;
 	CAccountRconCmdResult::Variant m_Type;
 };

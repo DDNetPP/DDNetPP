@@ -76,6 +76,11 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
+
+	// returns the players language choice
+	// or econ language choice if it is an econ id
+	int GetLanguageForCid(int ClientId) const;
+
 	[[gnu::format_arg(2)]] const char *Loc(const char *pStr, int ClientId) const;
 
 	// calls SendChatTarget under the hood

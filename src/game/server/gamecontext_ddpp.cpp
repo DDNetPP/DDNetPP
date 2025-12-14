@@ -8,6 +8,7 @@
 #include <base/system_ddpp.h>
 #include <base/types.h>
 
+#include <engine/console.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
@@ -30,6 +31,7 @@
 #include <game/server/minigames/pvp_arena.h>
 #include <game/server/minigames/survival.h>
 #include <game/server/minigames/tdm_block.h>
+#include <game/server/player.h>
 #include <game/server/teams.h>
 
 #include <chrono>
@@ -370,6 +372,16 @@ void CGameContext::ModifyTileWorker(CGameContext *pGameServer)
 		pGameServer->m_PendingModifyTilesMutex.unlock();
 	}
 	dbg_msg("ddnet++", "stopped worker thread");
+}
+
+int CGameContext::GetLanguageForCid(int ClientId) const
+{
+	if(ClientId == IConsole::CLIENT_ID_UNSPECIFIED)
+		return str_to_lang_id(g_Config.m_SvEconLanguage);
+	CPlayer *pPlayer = GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+		return LANG_EN;
+	return pPlayer->Language();
 }
 
 const char *CGameContext::Loc(const char *pStr, int ClientId) const

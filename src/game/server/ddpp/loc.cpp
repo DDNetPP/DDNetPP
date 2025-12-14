@@ -18,13 +18,25 @@ CGameContext *CLoc::GameServer() const
 
 const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 {
-	// dbg_msg("lang", "id=%d str=%s", ClientId, pStr);
-	const CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+	const CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
 		return pStr;
-	if(pPlayer->Language() == LANG_EN)
+
+	return str_ddpp_loc(pPlayer->Language(), pStr);
+}
+
+int str_to_lang_id(const char *pLanguage)
+{
+	if(!str_comp_nocase(pLanguage, "ru"))
+		return LANG_RU;
+	return LANG_EN;
+}
+
+const char *str_ddpp_loc(int Language, const char *pStr)
+{
+	if(Language == LANG_EN)
 		return pStr;
-	if(pPlayer->Language() == LANG_RU)
+	if(Language == LANG_RU)
 	{
 		if(!str_comp("Money", pStr))
 			return "Деньги";
@@ -100,6 +112,8 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
 		}
 		if(pStr[0] == '[')
 		{
+			if(!str_comp("[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d", pStr))
+				return "[ACCOUNT] Ошибка обновления учетной записи. Учетная запись '%s' зарегистрирована на сервере %s:%d, но вы находитесь на %s:%d.";
 			if(!str_comp("[ACCOUNT] Please use '/register <name> <password> <password>'.", pStr))
 				return "[АККАУНТ] Пожалуйста, используйте '/register <имя> <пароль> <пароль>'";
 			if(!str_comp("[ACCOUNT] Use '/login <name> <password>'", pStr))

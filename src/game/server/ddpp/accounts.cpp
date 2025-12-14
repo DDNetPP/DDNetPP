@@ -11,6 +11,7 @@
 #include <engine/shared/config.h>
 
 #include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
+#include <game/server/ddpp/loc.h>
 #include <game/server/gamecontroller.h>
 
 CAccountRconCmdResult::CAccountRconCmdResult(uint32_t UniqueClientId) :
@@ -140,6 +141,7 @@ void CAccounts::ExecAdminThread(
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
 	Tmp->m_ServerPort = g_Config.m_SvPort;
 	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
+	Tmp->m_Language = GameServer()->GetLanguageForCid(AdminClientId);
 
 	// TODO: this should be ExecuteWrite
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
@@ -657,7 +659,9 @@ bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, co
 			str_format(
 				pResult->m_aaMessages[0],
 				sizeof(pResult->m_aaMessages[0]),
-				"[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d",
+				str_ddpp_loc(
+					pData->m_Language,
+					"[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d"),
 				pData->m_aUsername,
 				aServerIp,
 				ServerPort,
