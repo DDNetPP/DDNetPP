@@ -110,7 +110,6 @@ class CEditor : public IEditor, public IEnvelopeEval
 	class IClient *m_pClient = nullptr;
 	class IConfigManager *m_pConfigManager = nullptr;
 	class CConfig *m_pConfig = nullptr;
-	class IConsole *m_pConsole = nullptr;
 	class IEngine *m_pEngine = nullptr;
 	class IGraphics *m_pGraphics = nullptr;
 	class ITextRender *m_pTextRender = nullptr;
@@ -153,7 +152,6 @@ public:
 	class IClient *Client() const { return m_pClient; }
 	class IConfigManager *ConfigManager() const { return m_pConfigManager; }
 	class CConfig *Config() const { return m_pConfig; }
-	class IConsole *Console() const { return m_pConsole; }
 	class IEngine *Engine() const { return m_pEngine; }
 	class IGraphics *Graphics() const { return m_pGraphics; }
 	class ISound *Sound() const { return m_pSound; }
@@ -211,9 +209,7 @@ public:
 
 		m_BrushColorEnabled = true;
 
-		m_aFilename[0] = '\0';
-		m_aFilenamePending[0] = '\0';
-		m_ValidSaveFilename = false;
+		m_aFilenamePendingLoad[0] = '\0';
 
 		m_PopupEventActivated = false;
 		m_PopupEventWasActivated = false;
@@ -336,7 +332,6 @@ public:
 	 */
 	float m_LastAutosaveUpdateTime = -1.0f;
 	void HandleAutosave();
-	bool PerformAutosave();
 	void HandleWriterFinishJobs();
 
 	// TODO: The name of the ShowFileDialogError function is not accurate anymore, this is used for generic error messages.
@@ -414,9 +409,10 @@ public:
 
 	bool m_BrushColorEnabled;
 
-	char m_aFilename[IO_MAX_PATH_LENGTH];
-	char m_aFilenamePending[IO_MAX_PATH_LENGTH];
-	bool m_ValidSaveFilename;
+	/**
+	 * File which is pending to be loaded by @link POPEVENT_LOADDROP @endlink.
+	 */
+	char m_aFilenamePendingLoad[IO_MAX_PATH_LENGTH] = "";
 
 	enum
 	{
@@ -577,8 +573,6 @@ public:
 
 	CEditorMap m_Map;
 	std::deque<std::shared_ptr<CDataFileWriterFinishJob>> m_WriterFinishJobs;
-
-	int m_ShiftBy;
 
 	void EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels) override;
 

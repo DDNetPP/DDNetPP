@@ -2001,6 +2001,8 @@ set_src(BASE GLOB_RECURSE src/base
   logger.h
   math.h
   math_ddpp.h
+  mem.cpp
+  mem.h
   rust.h
   str.cpp
   str.h
@@ -3245,7 +3247,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     mapbugs_test.cpp
     mapitems_test.cpp
     math_test.cpp
-    memory_test.cpp
+    mem_test.cpp
     name_ban_test.cpp
     net_test.cpp
     netaddr_test.cpp

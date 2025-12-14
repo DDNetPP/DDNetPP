@@ -75,6 +75,8 @@ public:
 	const CEditor *Editor() const { return m_pEditor; }
 	CEditor *Editor() { return m_pEditor; }
 
+	char m_aFilename[IO_MAX_PATH_LENGTH];
+	bool m_ValidSaveFilename;
 	/**
 	 * Map has unsaved changes for manual save.
 	 */
@@ -136,6 +138,8 @@ public:
 	int m_SelectedImage;
 	int m_SelectedSound;
 
+	int m_ShiftBy;
+
 	std::shared_ptr<CEnvelope> NewEnvelope(CEnvelope::EType Type);
 	void InsertEnvelope(int Index, std::shared_ptr<CEnvelope> &pEnvelope);
 	void UpdateEnvelopeReferences(int Index, std::shared_ptr<CEnvelope> &pEnvelope, std::vector<std::shared_ptr<IEditorEnvelopeReference>> &vpEditorObjectReferences);
@@ -161,6 +165,7 @@ public:
 	bool PerformPreSaveSanityChecks(const FErrorHandler &ErrorHandler);
 	bool Load(const char *pFilename, int StorageType, const FErrorHandler &ErrorHandler);
 	void PerformSanityChecks(const FErrorHandler &ErrorHandler);
+	bool PerformAutosave(const FErrorHandler &ErrorHandler);
 
 	void MakeGameGroup(std::shared_ptr<CLayerGroup> pGroup);
 	void MakeGameLayer(const std::shared_ptr<CLayer> &pLayer);
