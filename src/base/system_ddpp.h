@@ -14,15 +14,16 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* * * * * * * * * * *
  *                   *
  *      DDNet++      *
  *                   *
  * * * * * * * * * * */
+
+bool str_to_bool(const char *pStr);
+
+// returns false on invalid boolean string
+bool str_to_bool_strict(const char *pStr, bool *pOutput);
 
 /*
 	Function: regex_compile
@@ -60,9 +61,5 @@ long get_file_offset(FILE *file);
 		a file position as long long
 */
 // long long fpost_get_pos(fpos_t pos);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

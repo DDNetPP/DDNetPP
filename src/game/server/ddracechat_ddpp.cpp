@@ -845,10 +845,7 @@ void CGameContext::ConSqlName(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "usage: /sql_name super_mod <acc_name> <on/off>");
 			return;
 		}
-		const char *pBoolStr = pResult->GetString(2);
-		bool Value = !str_comp_nocase(pBoolStr, "on") ||
-			     !str_comp_nocase(pBoolStr, "true") ||
-			     !str_comp_nocase(pBoolStr, "1");
+		bool Value = str_to_bool(pResult->GetString(2));
 		const char *pQuery = "UPDATE Accounts SET IsSuperModerator = ? WHERE Username = ?;";
 		pSelf->m_pAccounts->UpdateAccountStateByUsername(ClientId, pUsername, Value, CAccountRconCmdResult::SUPER_MODERATOR, pQuery);
 	}

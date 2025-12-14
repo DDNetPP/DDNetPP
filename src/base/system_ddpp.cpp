@@ -1,5 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+#include "system_ddpp.h"
+
 #include "ddpp_logs.h"
 #include "system.h"
 
@@ -13,13 +15,43 @@
 #include <cstring>
 #include <ctime>
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 #if defined(CONF_FAMILY_UNIX)
 #include <regex.h>
 #endif
+
+bool str_to_bool(const char *pStr)
+{
+	bool Output = false;
+	str_to_bool_strict(pStr, &Output);
+	return Output;
+}
+
+bool str_to_bool_strict(const char *pStr, bool *pOutput)
+{
+	if(!str_comp_nocase(pStr, "on") ||
+		!str_comp_nocase(pStr, "enable") ||
+		!str_comp_nocase(pStr, "activate") ||
+		!str_comp_nocase(pStr, "yes") ||
+		!str_comp_nocase(pStr, "true") ||
+		!str_comp_nocase(pStr, "1"))
+	{
+		if(pOutput)
+			*pOutput = true;
+		return true;
+	}
+	if(!str_comp_nocase(pStr, "off") ||
+		!str_comp_nocase(pStr, "disable") ||
+		!str_comp_nocase(pStr, "deactivate") ||
+		!str_comp_nocase(pStr, "no") ||
+		!str_comp_nocase(pStr, "false") ||
+		!str_comp_nocase(pStr, "0"))
+	{
+		if(pOutput)
+			*pOutput = false;
+		return true;
+	}
+	return false;
+}
 
 int regex_compile(const char *pPattern, const char *pStr)
 {
@@ -99,7 +131,3 @@ long get_file_offset(FILE *file)
 // 	return pos.__pos;
 // #endif
 // }
-
-#if defined(__cplusplus)
-}
-#endif
