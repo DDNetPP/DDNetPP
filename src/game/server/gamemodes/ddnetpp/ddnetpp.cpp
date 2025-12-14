@@ -38,6 +38,27 @@ void CGameControllerDDNetPP::Tick()
 		if(!GameServer()->m_TicksUntilDefer)
 			GameServer()->RunDeferredCommands();
 	}
+
+	// holy fuck c++
+	// iterates all pending rcon cmd sql worker thread results
+	// should be max one per player and all completed ones get processed
+	// here and then deleted from the vector
+	GameServer()->m_vAccountRconCmdQueryResults.erase(
+		std::remove_if(
+			GameServer()->m_vAccountRconCmdQueryResults.begin(),
+			GameServer()->m_vAccountRconCmdQueryResults.end(),
+			[this](std::shared_ptr<CAccountRconCmdResult> pResult) {
+				// this should not be null ever anyways?
+				if(!pResult)
+					return true;
+				if(!pResult->m_Completed)
+					return false;
+
+				ProcessAccountRconCmdResult(*pResult);
+				pResult = nullptr;
+				return true;
+			}),
+		GameServer()->m_vAccountRconCmdQueryResults.end());
 }
 
 void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacter, int Progress)
@@ -370,4 +391,12 @@ bool CGameControllerDDNetPP::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int C
 	}
 
 	return false;
+}
+
+CPlayer *CGameControllerDDNetPP::GetPlayerByUniqueId(uint32_t UniqueId)
+{
+	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+		if(pPlayer && pPlayer->GetUniqueCid() == UniqueId)
+			return pPlayer;
+	return nullptr;
 }

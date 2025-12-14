@@ -938,7 +938,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		int Value = pResult->GetInteger(2);
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE Id = ?;");
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAccountRconCmdResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(pCommand, "super_mod"))
 	{
@@ -949,7 +949,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		int Value = pResult->GetInteger(2);
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE Id = ?;");
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAccountRconCmdResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(pCommand, "mod"))
 	{
@@ -960,7 +960,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		int Value = pResult->GetInteger(2);
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE Id = ?;");
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAccountRconCmdResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE Id = ?;");
 	}
 	else if(!str_comp_nocase(pCommand, "freeze_acc"))
 	{
@@ -971,7 +971,7 @@ void CGameContext::ConSql(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		int Value = pResult->GetInteger(2);
-		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAdminCommandResult::FREEZE_ACC, "UPDATE Accounts SET IsAccFrozen = ? WHERE Id = ?;");
+		pSelf->m_pAccounts->UpdateAccountState(ClientId, SqlId, Value, CAccountRconCmdResult::FREEZE_ACC, "UPDATE Accounts SET IsAccFrozen = ? WHERE Id = ?;");
 	}
 	else
 	{

@@ -54,6 +54,25 @@ public:
 	virtual void LogoutAllAccounts() {}
 
 	/*
+		Function: IsAccountRconCmdRatelimited
+			If the user is ratelimited and can not run any account related rcon
+			commands that operate on the database.
+
+			This blocks rcon commands such as "acc_set_password"
+			if it returns true.
+
+		Arguments:
+			ClientId - id of the player to check
+			pReason - buffer the reason for ratelimit will be written to (can be null) will be an empty string if not ratelimited
+			ReasonSize - size of the pReason in bytes
+
+		Returns:
+			true - if all rcon account operations (not affecting own account only rcon commands)
+			false - if all rcon account operations are allowed
+	*/
+	virtual bool IsAccountRconCmdRatelimited(int ClientId, char *pReason, int ReasonSize) { return false; }
+
+	/*
 		Function: OnVoteNetMessage
 			hooks into CGameContext::OnVoteNetMessage()
 			before any spam protection check

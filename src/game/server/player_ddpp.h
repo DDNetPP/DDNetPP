@@ -46,9 +46,7 @@ public:
 	void DestructDDPP();
 
 	void DDPPProcessScoreResult(CAccountResult &Result);
-	void DDPPProcessAdminCommandResult(CAdminCommandResult &Result);
 	std::shared_ptr<CAccountResult> m_AccountQueryResult;
-	std::shared_ptr<CAdminCommandResult> m_AdminCommandQueryResult;
 
 	void ResetDDPP();
 	void DDPPTick();

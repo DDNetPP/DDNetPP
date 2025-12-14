@@ -257,9 +257,10 @@ struct CAccountData
 	char m_aAsciiFrame[MAX_ASCII_FRAMES][64];
 };
 
-struct CAdminCommandResult : ISqlResult
+struct CAccountRconCmdResult : ISqlResult
 {
-	CAdminCommandResult();
+	// @param UniqueClientId the unique client id of the admin who launched the request
+	CAccountRconCmdResult(uint32_t UniqueClientId);
 
 	enum
 	{
@@ -278,10 +279,19 @@ struct CAdminCommandResult : ISqlResult
 		LOG_ONLY,
 	} m_MessageKind;
 
+	// admin that ran the rcon command
+	// not a regular client id but a unique id
+	uint32_t m_UniqueClientId = 0;
+
+	// the client id of the player that ran the command
+	int m_AdminClientId;
+
+	// the sql database id of the account that
+	// is being operated on
+	int m_TargetAccountId;
+
 	char m_aaMessages[MAX_MESSAGES][512];
 	char m_aBroadcast[1024];
-	int m_AdminClientId;
-	int m_TargetAccountId;
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
@@ -335,7 +345,7 @@ struct CSqlAccountRequest : ISqlData
 
 struct CSqlAdminCommandRequest : ISqlData
 {
-	CSqlAdminCommandRequest(std::shared_ptr<CAdminCommandResult> pResult) :
+	CSqlAdminCommandRequest(std::shared_ptr<CAccountRconCmdResult> pResult) :
 		ISqlData(std::move(pResult))
 	{
 	}
@@ -346,7 +356,7 @@ struct CSqlAdminCommandRequest : ISqlData
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
-	CAdminCommandResult::Variant m_Type;
+	CAccountRconCmdResult::Variant m_Type;
 };
 
 struct CSqlSetLoginData : ISqlData
@@ -432,8 +442,6 @@ class CAccounts
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
 	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientId);
-	std::shared_ptr<CAdminCommandResult> NewSqlAdminCommandResult(int ClientId);
-	// Creates for player bound database requests (1 request max at a time per player)
 	void ExecUserThread(
 		bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 		const char *pThreadName,
@@ -448,7 +456,7 @@ class CAccounts
 		int AdminClientId,
 		int TargetAccountId,
 		int State,
-		CAdminCommandResult::Variant Type,
+		CAccountRconCmdResult::Variant Type,
 		const char *pUsername,
 		const char *pPassword,
 		const char *pQuery);
@@ -472,7 +480,7 @@ public:
 	void ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
 	void AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword);
 
-	void UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAdminCommandResult::Variant Type, const char *pQuery);
+	void UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAccountRconCmdResult::Variant Type, const char *pQuery);
 
 	void CreateDatabase();
 	void SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port);

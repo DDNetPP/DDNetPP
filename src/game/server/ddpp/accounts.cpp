@@ -11,15 +11,17 @@
 #include <engine/shared/config.h>
 
 #include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
+#include <game/server/gamecontroller.h>
 
-CAdminCommandResult::CAdminCommandResult()
+CAccountRconCmdResult::CAccountRconCmdResult(uint32_t UniqueClientId) :
+	m_UniqueClientId(UniqueClientId)
 {
 	SetVariant(Variant::DIRECT, NULL);
 }
 
 // TODO: remove SetVariant and use constructor instead.
-//       we are not doing any union magic in the CAdminCommandResult
-void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *pRequest)
+//       we are not doing any union magic in the CAccountRconCmdResult
+void CAccountRconCmdResult::SetVariant(Variant v, const CSqlAdminCommandRequest *pRequest)
 {
 	if(pRequest)
 	{
@@ -96,29 +98,41 @@ CAccounts::CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool) :
 {
 }
 
-std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int ClientId)
-{
-	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
-	if(pCurPlayer->m_AdminCommandQueryResult != nullptr) // TODO: send player a message: "too many requests"
-		return nullptr;
-	pCurPlayer->m_AdminCommandQueryResult = std::make_shared<CAdminCommandResult>();
-	return pCurPlayer->m_AdminCommandQueryResult;
-}
-
 void CAccounts::ExecAdminThread(
 	bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 	const char *pThreadName,
 	int AdminClientId,
 	int TargetAccountId,
 	int State,
-	CAdminCommandResult::Variant Type,
+	CAccountRconCmdResult::Variant Type,
 	const char *pUsername,
 	const char *pPassword,
 	const char *pQuery)
 {
-	auto pResult = NewSqlAdminCommandResult(AdminClientId);
-	if(pResult == nullptr)
-		return;
+
+	// TODO: add this once the callsite is ratelimited in rcon_commands.cpp
+
+	// if(!GameServer()->m_pController)
+	// {
+	// 	log_error("sql", "FATAL ERROR: can not execute account rcon command during map change.");
+	// 	return;
+	// }
+	// if(GameServer()->m_pController->IsAccountRconCmdRatelimited(AdminClientId, nullptr, 0))
+	// {
+	// 	// this should never be hit!
+	// 	// who ever calls this method should check it first!
+	// 	log_error("sql", "FATAL ERROR: can not execute rcon command. Uncaught ratelimit!");
+	// 	return;
+	// }
+
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(AdminClientId);
+	// econ and fifo have no client id but they can still manage accounts using rcon commands
+	// TODO: use unspecified variable if this gets merged https://github.com/ddnet/ddnet/pull/11434
+	uint32_t UniqueClientId = pPlayer == nullptr ? 0 : pPlayer->GetUniqueCid();
+
+	std::shared_ptr<CAccountRconCmdResult> pResult = std::make_shared<CAccountRconCmdResult>(UniqueClientId);
+	GameServer()->m_vAccountRconCmdQueryResults.emplace_back(pResult);
+
 	auto Tmp = std::make_unique<CSqlAdminCommandRequest>(pResult);
 	Tmp->m_AdminClientId = AdminClientId;
 	Tmp->m_TargetAccountId = TargetAccountId;
@@ -128,6 +142,7 @@ void CAccounts::ExecAdminThread(
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
 
+	// TODO: this should be ExecuteWrite
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
@@ -540,7 +555,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	return true;
 }
 
-void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAdminCommandResult::Variant Type, const char *pQuery)
+void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAccountRconCmdResult::Variant Type, const char *pQuery)
 {
 	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientId, TargetAccountId, State, Type, "", "", pQuery);
 }
@@ -548,7 +563,7 @@ void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int S
 bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
 {
 	const CSqlAdminCommandRequest *pData = dynamic_cast<const CSqlAdminCommandRequest *>(pGameData);
-	CAdminCommandResult *pResult = dynamic_cast<CAdminCommandResult *>(pGameData->m_pResult.get());
+	CAccountRconCmdResult *pResult = dynamic_cast<CAccountRconCmdResult *>(pGameData->m_pResult.get());
 	pResult->SetVariant(pData->m_Type, pData);
 	str_copy(pResult->m_aaMessages[0],
 		"[ACCOUNT] Update state failed.",

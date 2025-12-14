@@ -33,6 +33,7 @@
 
 #include <atomic>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -299,6 +300,10 @@ public:
 	// sets sv_hostname or sv_port minutes after the sv_accounts attempt
 	// because that would be weird
 	int64_t m_LastAccountTurnOnAttempt = 0;
+
+	// results of the sql worker thread
+	// for rcon commands operating on accounts
+	std::vector<std::shared_ptr<CAccountRconCmdResult>> m_vAccountRconCmdQueryResults;
 
 	bool AdminChatPing(const char *pMsg);
 

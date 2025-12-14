@@ -34,6 +34,7 @@ public:
 	bool OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId) override;
 	bool OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId) override;
 	bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) override;
+	CPlayer *GetPlayerByUniqueId(uint32_t UniqueId);
 
 	int64_t m_NextMinuteReset = 0;
 	int64_t m_Next10MinutesReset = 0;
@@ -50,6 +51,8 @@ public:
 
 	// accounts
 	void LogoutAllAccounts() override;
+	bool IsAccountRconCmdRatelimited(int ClientId, char *pReason, int ReasonSize) override;
+	void ProcessAccountRconCmdResult(CAccountRconCmdResult &Result);
 
 	// spawn.cpp
 	bool CanSpawn(int Team, vec2 *pOutPos, int ClientId) override;
