@@ -138,6 +138,8 @@ void CAccounts::ExecAdminThread(
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
+	Tmp->m_ServerPort = g_Config.m_SvPort;
+	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
 
 	// TODO: this should be ExecuteWrite
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
@@ -611,7 +613,7 @@ bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, co
 
 	char aBuf[2048];
 	str_copy(aBuf,
-		"SELECT Id FROM Accounts WHERE Username = ?;",
+		"SELECT Id, IsLoggedIn, LastLoginPort, server_ip FROM Accounts WHERE Username = ?;",
 		sizeof(aBuf));
 
 	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -638,6 +640,32 @@ bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, co
 	// for the main thread handler so the code can be the same
 	// for the ById and ByUsername workers
 	pResult->m_TargetAccountId = pSqlServer->GetInt(1);
+
+	bool IsLoggedIn = pSqlServer->GetInt(2);
+	int ServerPort = pSqlServer->GetInt(3);
+	char aServerIp[128];
+	pSqlServer->GetString(4, aServerIp, sizeof(aServerIp));
+
+	if(IsLoggedIn)
+	{
+		// if the account is logged in on another server that is still running
+		// we can not ensure the state change won't be reverted on logout there
+		// to avoid causing bugs the admin has to be on the same server
+		if(str_comp(aServerIp, pData->m_aServerIp) || ServerPort != pData->m_ServerPort)
+		{
+			pResult->m_MessageKind = CAccountRconCmdResult::DIRECT;
+			str_format(
+				pResult->m_aaMessages[0],
+				sizeof(pResult->m_aaMessages[0]),
+				"[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d",
+				pData->m_aUsername,
+				aServerIp,
+				ServerPort,
+				pData->m_aServerIp,
+				pData->m_ServerPort);
+			return true;
+		}
+	}
 
 	// char aBuf[2048];
 	// str_copy(aBuf,
