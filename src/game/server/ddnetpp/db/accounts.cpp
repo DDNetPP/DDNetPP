@@ -655,12 +655,11 @@ bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, co
 		if(str_comp(aServerIp, pData->m_aServerIp) || ServerPort != pData->m_ServerPort)
 		{
 			pResult->m_MessageKind = CAccountRconCmdResult::DIRECT;
-			str_format(
+			str_ddpp_loc_to_buf(
+				pData->m_Language,
 				pResult->m_aaMessages[0],
 				sizeof(pResult->m_aaMessages[0]),
-				str_ddpp_loc(
-					pData->m_Language,
-					"[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d"),
+				"[ACCOUNT] Account update failed. Account '%s' is logged in on server %s:%d but you are on %s:%d",
 				pData->m_aUsername,
 				aServerIp,
 				ServerPort,

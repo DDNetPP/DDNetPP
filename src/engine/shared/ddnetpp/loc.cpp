@@ -13,6 +13,14 @@ int str_to_lang_id(const char *pLanguage)
 	return LANG_EN;
 }
 
+void str_ddpp_loc_to_buf(int Language, char *pLocalized, int LocalizedSize, const char *pFormat, ...)
+{
+	va_list Args;
+	va_start(Args, pFormat);
+	str_format_v(pLocalized, LocalizedSize, str_ddpp_loc(Language, pFormat), Args);
+	va_end(Args);
+}
+
 const char *str_ddpp_loc(int Language, const char *pStr)
 {
 	if(Language == LANG_EN)
