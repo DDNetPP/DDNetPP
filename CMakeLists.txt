@@ -2781,12 +2781,12 @@ if(SERVER)
     captcha.cpp
     captcha.h
     ddnetpp/chat_commands.h
+    ddnetpp/db/accounts.cpp
+    ddnetpp/db/accounts.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
     ddnetpp/rcon_commands.h
     ddnetpp/rcon_configs.cpp
-    ddpp/accounts.cpp
-    ddpp/accounts.h
     ddpp/ascii_table.h
     ddpp/dummymode.h
     ddpp/enums.cpp
