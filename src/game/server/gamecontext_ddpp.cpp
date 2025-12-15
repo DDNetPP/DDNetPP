@@ -11,6 +11,7 @@
 #include <engine/console.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <engine/shared/ddnetpp/loc.h>
 #include <engine/shared/linereader.h>
 #include <engine/shared/protocol.h>
 
@@ -19,7 +20,6 @@
 #include <game/mapitems.h>
 #include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/ddpp/enums.h>
-#include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/balance.h>
@@ -54,7 +54,6 @@ using namespace std::chrono_literals;
 void CGameContext::ConstructDDPP(int Resetting)
 {
 	m_pShop = nullptr;
-	m_pLoc = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
 	// minigames
@@ -111,11 +110,6 @@ void CGameContext::DestructDDPP()
 	{
 		delete m_pShop;
 		m_pShop = nullptr;
-	}
-	if(m_pLoc)
-	{
-		delete m_pLoc;
-		m_pLoc = nullptr;
 	}
 	if(m_pLetters)
 	{
@@ -386,9 +380,11 @@ int CGameContext::GetLanguageForCid(int ClientId) const
 
 const char *CGameContext::Loc(const char *pStr, int ClientId) const
 {
-	if(m_pLoc)
-		return m_pLoc->DDPPLocalize(pStr, ClientId);
-	return pStr;
+	const CPlayer *pPlayer = GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+		return pStr;
+
+	return str_ddpp_loc(pPlayer->Language(), pStr);
 }
 
 void CGameContext::SendChatLoc(int ClientId, const char *pFormat, ...) const
@@ -461,8 +457,6 @@ void CGameContext::OnInitDDPP()
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
-	if(!m_pLoc)
-		m_pLoc = new CLoc(this);
 	if(!m_pLetters)
 		m_pLetters = new CLetters(this);
 

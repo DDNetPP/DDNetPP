@@ -6,25 +6,6 @@
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
-CLoc::CLoc(CGameContext *pGameContext)
-{
-	m_pGameContext = pGameContext;
-}
-
-CGameContext *CLoc::GameServer() const
-{
-	return m_pGameContext;
-}
-
-const char *CLoc::DDPPLocalize(const char *pStr, int ClientId) const
-{
-	const CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
-	if(!pPlayer)
-		return pStr;
-
-	return str_ddpp_loc(pPlayer->Language(), pStr);
-}
-
 int str_to_lang_id(const char *pLanguage)
 {
 	if(!str_comp_nocase(pLanguage, "ru"))

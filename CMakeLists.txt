@@ -2072,6 +2072,8 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   csv.h
   datafile.cpp
   datafile.h
+  ddnetpp/loc.cpp
+  ddnetpp/loc.h
   demo.cpp
   demo.h
   econ.cpp
@@ -2794,8 +2796,6 @@ if(SERVER)
     ddpp/http.cpp
     ddpp/letters.cpp
     ddpp/letters.h
-    ddpp/loc.cpp
-    ddpp/loc.h
     ddpp/minigame_player_state.cpp
     ddpp/minigame_player_state.h
     ddpp/shop.cpp

@@ -7,6 +7,7 @@
 #include <base/system.h>
 
 #include <engine/shared/config.h>
+#include <engine/shared/ddnetpp/loc.h>
 #include <engine/shared/protocol.h>
 
 #include <generated/protocol.h>
@@ -14,7 +15,6 @@
 #include <game/mapitems.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
-#include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/entities/dummy/minigame_balance.h>
 #include <game/server/gamecontroller.h>

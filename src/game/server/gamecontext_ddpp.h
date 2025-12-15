@@ -43,7 +43,6 @@ class CGameContext : public IGameServer
 
 	class CAccounts *m_pAccounts;
 	class CShop *m_pShop;
-	class CLoc *m_pLoc;
 
 	// See the setter and getter for documentation
 	// `SetReconnectFlood()` and `ReconnectFlood()`

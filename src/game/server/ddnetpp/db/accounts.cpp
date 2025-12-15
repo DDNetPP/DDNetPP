@@ -7,9 +7,9 @@
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>
 #include <engine/shared/config.h>
+#include <engine/shared/ddnetpp/loc.h>
 
 #include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
-#include <game/server/ddpp/loc.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 
