@@ -19,6 +19,7 @@
 
 #include <game/mapitems.h>
 #include <game/server/ddnetpp/db/accounts.h>
+#include <game/server/ddnetpp/db/bans.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontroller.h>
@@ -56,6 +57,7 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_pShop = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
+	m_pDbBans = nullptr;
 	// minigames
 	m_pBlockTournament = nullptr;
 	m_pBalance = nullptr;
@@ -120,6 +122,11 @@ void CGameContext::DestructDDPP()
 	{
 		delete m_pAccounts;
 		m_pAccounts = nullptr;
+	}
+	if(m_pDbBans)
+	{
+		delete m_pDbBans;
+		m_pDbBans = nullptr;
 	}
 	for(auto &Minigame : m_vMinigames)
 	{
@@ -455,6 +462,8 @@ void CGameContext::OnInitDDPP()
 
 	if(!m_pAccounts)
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
+	if(!m_pDbBans)
+		m_pDbBans = new CDbBans(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
 	if(!m_pLetters)
@@ -510,6 +519,10 @@ void CGameContext::OnInitDDPP()
 			sizeof(aBuf));
 		m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
 	}
+
+	// not implemented yet
+	if(false)
+		m_pDbBans->CreateDatabase();
 
 	ReadSpamfilterList();
 	LoadSinglePlayer();

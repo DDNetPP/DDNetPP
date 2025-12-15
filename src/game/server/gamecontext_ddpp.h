@@ -37,11 +37,13 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+
 class CGameContext : public IGameServer
 {
 #endif
 
 	class CAccounts *m_pAccounts;
+	class CDbBans *m_pDbBans;
 	class CShop *m_pShop;
 
 	// See the setter and getter for documentation

@@ -2785,6 +2785,8 @@ if(SERVER)
     ddnetpp/chat_commands.h
     ddnetpp/db/accounts.cpp
     ddnetpp/db/accounts.h
+    ddnetpp/db/bans.cpp
+    ddnetpp/db/bans.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
     ddnetpp/rcon_commands.h
