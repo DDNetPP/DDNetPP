@@ -1,6 +1,6 @@
 #include <base/log.h>
 
-#include <game/server/ddpp/accounts.h>
+#include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/gamemodes/ddnetpp/ddnetpp.h>
 
 void CGameControllerDDNetPP::LogoutAllAccounts()

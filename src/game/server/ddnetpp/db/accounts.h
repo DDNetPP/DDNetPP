@@ -1,12 +1,11 @@
 #ifndef GAME_SERVER_DDNETPP_DB_ACCOUNTS_H
 #define GAME_SERVER_DDNETPP_DB_ACCOUNTS_H
 
-#include "../save.h"
-
 #include <engine/map.h>
 #include <engine/server/databases/connection_pool.h>
 
 #include <game/prng.h>
+#include <game/server/save.h>
 #include <game/voting.h>
 
 #include <atomic>

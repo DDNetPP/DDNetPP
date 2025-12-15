@@ -5,11 +5,11 @@
 
 // this include should perhaps be removed
 #include "captcha.h"
-#include "ddpp/accounts.h"
 #include "entities/character.h"
 
 #include <generated/protocol.h>
 
+#include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/minigame_player_state.h>
 #include <game/server/minigames/one_vs_one_block.h>

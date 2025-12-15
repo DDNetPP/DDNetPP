@@ -13,7 +13,7 @@
 #include <generated/protocol7.h>
 
 #include <game/alloc.h>
-#include <game/server/ddpp/accounts.h>
+#include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/minigame_player_state.h>

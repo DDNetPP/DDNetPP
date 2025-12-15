@@ -1,8 +1,6 @@
 // ddnet++ accounts
 #include "accounts.h"
 
-#include "../gamecontext.h"
-
 #include <base/log.h>
 #include <base/system.h>
 
@@ -12,6 +10,7 @@
 
 #include <game/server/ddnetpp/ddnet_db_utils/ddnet_db_utils.h>
 #include <game/server/ddpp/loc.h>
+#include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 
 CAccountRconCmdResult::CAccountRconCmdResult(uint32_t UniqueClientId) :

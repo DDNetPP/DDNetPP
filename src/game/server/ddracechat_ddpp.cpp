@@ -14,7 +14,7 @@
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/server/captcha.h>
-#include <game/server/ddpp/accounts.h>
+#include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/entities/laser_text.h>

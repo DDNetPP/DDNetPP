@@ -17,7 +17,7 @@
 #include <generated/protocol.h>
 
 #include <game/mapitems.h>
-#include <game/server/ddpp/accounts.h>
+#include <game/server/ddnetpp/db/accounts.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
