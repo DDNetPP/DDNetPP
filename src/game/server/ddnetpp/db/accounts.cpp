@@ -1115,8 +1115,8 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		sizeof(aBuf),
 		"CREATE TABLE IF NOT EXISTS %s ("
 		"  Id                 INTEGER           PRIMARY KEY %s,"
-		"  Username           VARCHAR(32)       NOT NULL,"
-		"  Password           VARCHAR(128)      NOT NULL,"
+		"  Username           VARCHAR(32)       COLLATE %s NOT NULL,"
+		"  Password           VARCHAR(128)      COLLATE %s NOT NULL,"
 		"  RegisterDate       VARCHAR(32)       DEFAULT '',"
 		"  IsLoggedIn         INTEGER           DEFAULT 0,"
 		"  server_ip          VARCHAR(64)       NOT NULL DEFAULT '',"
@@ -1129,9 +1129,9 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  IP_1               VARCHAR(32)       DEFAULT '',"
 		"  IP_2               VARCHAR(32)       DEFAULT '',"
 		"  IP_3               VARCHAR(32)       DEFAULT '',"
-		"  Clan1              VARCHAR(32)       DEFAULT '',"
-		"  Clan2              VARCHAR(32)       DEFAULT '',"
-		"  Clan3              VARCHAR(32)       DEFAULT '',"
+		"  Clan1              VARCHAR(32)       COLLATE %s DEFAULT '',"
+		"  Clan2              VARCHAR(32)       COLLATE %s DEFAULT '',"
+		"  Clan3              VARCHAR(32)       COLLATE %s DEFAULT '',"
 		"  Skin               VARCHAR(32)       DEFAULT '',"
 		"  Level              INTEGER           DEFAULT 0,"
 		"  Money              INTEGER           DEFAULT 0,"
@@ -1208,7 +1208,12 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		"  AsciiFrame14			VARCHAR(64)		DEFAULT '',"
 		"  AsciiFrame15			VARCHAR(64)		DEFAULT '');",
 		pTableName,
-		pAutoincrement);
+		pAutoincrement,
+		pSqlServer->BinaryCollate(), // username
+		pSqlServer->BinaryCollate(), // password
+		pSqlServer->BinaryCollate(), // Clan1
+		pSqlServer->BinaryCollate(), // Clan2
+		pSqlServer->BinaryCollate()); // Clan3
 
 	if(!pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
 	{
