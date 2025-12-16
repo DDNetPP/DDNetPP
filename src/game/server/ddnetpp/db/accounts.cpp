@@ -1096,6 +1096,8 @@ void CAccounts::CreateDatabase()
 
 bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w == Write::BACKUP_FIRST || w == Write::NORMAL_SUCCEEDED)
+		return true;
 	if(w == Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CreateTableThread failed to write");
@@ -1232,6 +1234,40 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	bool Collate = false;
 	bool NotNull = true;
 	ddnet_db_utils::AddStrColumn(pSqlServer, pTableName, "server_ip", 64, Collate, NotNull, "", pError, ErrorSize);
+
+	class CSqlStrColumn
+	{
+	public:
+		// column name
+		const char *m_pName;
+
+		// number of bytes used for the varchar
+		int m_VarcharSize;
+
+		// optional properties such as "NOT NULL"
+		// or "NOT NULL DEFAULT ''"
+		const char *m_pProperties;
+	};
+
+	CSqlStrColumn aColumns[] = {
+		{.m_pName = "Username", .m_VarcharSize = 32, .m_pProperties = "NOT NULL"},
+		{.m_pName = "Password", .m_VarcharSize = 128, .m_pProperties = "NOT NULL"},
+		{.m_pName = "Clan1", .m_VarcharSize = 32, .m_pProperties = "DEFAULT ''"},
+		{.m_pName = "Clan2", .m_VarcharSize = 32, .m_pProperties = "DEFAULT ''"},
+		{.m_pName = "Clan3", .m_VarcharSize = 32, .m_pProperties = "DEFAULT ''"},
+	};
+
+	for(const CSqlStrColumn &Column : aColumns)
+	{
+		ddnet_db_utils::AddBinaryCollateToVarcharColumn(
+			pSqlServer,
+			pTableName,
+			Column.m_pName,
+			Column.m_VarcharSize,
+			Column.m_pProperties,
+			pError,
+			ErrorSize);
+	}
 
 	return true;
 }

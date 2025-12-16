@@ -512,6 +512,7 @@ void CGameContext::OnInitDDPP()
 
 	if(g_Config.m_SvAccounts)
 	{
+		log_info("ddnet++", "creating database...");
 		m_pAccounts->CreateDatabase();
 		char aBuf[512];
 		str_copy(aBuf,

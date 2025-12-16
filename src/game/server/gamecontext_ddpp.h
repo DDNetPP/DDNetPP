@@ -93,7 +93,7 @@ public:
 	// the pFormat string will be translated so make sure
 	// it matches the text in server/ddpp/loc.cpp
 	// ddnet++ often uses [systemname] prefixes for chat messages
-	// to allow sharing translation between systems the system is separat
+	// to allow sharing translation between systems the system is separate
 	// no square brackets needed for the system name
 	//
 	// Example:
