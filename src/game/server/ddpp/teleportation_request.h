@@ -45,6 +45,7 @@ class CTeleportationRequest
 	FTeleRequestSuccess m_pfnPreSuccess = nullptr;
 	FTeleRequestSuccess m_pfnPostSuccess = nullptr;
 	int m_Seconds = 10;
+	bool m_DropFlag = true;
 	vec2 m_DestinationPos;
 	int64_t m_RequestStartTick = 0;
 	bool m_MoveWarningPrinted = false;
@@ -62,6 +63,7 @@ public:
 	CTeleportationRequest &OnPreSuccess(const FTeleRequestSuccess &pfnSuccess);
 	CTeleportationRequest &OnPostSuccess(const FTeleRequestSuccess &pfnSuccess);
 	CTeleportationRequest &DelayInSeconds(int Seconds);
+	CTeleportationRequest &KeepFlag(bool Keep);
 
 	void Tick();
 	bool IsActive() const { return m_IsActive; }

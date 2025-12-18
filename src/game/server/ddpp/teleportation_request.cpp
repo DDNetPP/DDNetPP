@@ -9,6 +9,7 @@
 #include <game/server/entities/character.h>
 #include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
+#include <game/server/gamecontroller.h>
 
 CTeleportationRequest &CTeleportationRequest::TeleportToPos(CCharacter *pCharacter, vec2 Pos)
 {
@@ -90,6 +91,12 @@ CTeleportationRequest &CTeleportationRequest::DelayInSeconds(int Seconds)
 	return *this;
 }
 
+CTeleportationRequest &CTeleportationRequest::KeepFlag(bool Keep)
+{
+	m_DropFlag = !Keep;
+	return *this;
+}
+
 void CTeleportationRequest::OnDeath()
 {
 	if(!IsActive())
@@ -126,6 +133,12 @@ void CTeleportationRequest::Tick()
 		}
 	}
 
+	if(m_DropFlag)
+	{
+		if(m_pCharacter->GameServer()->m_pController)
+			m_pCharacter->GameServer()->m_pController->CharacterDropFlag(m_pCharacter);
+	}
+
 	if(m_aErrorMsgShort[0])
 	{
 		TeleportFailure(m_aErrorMsgShort, m_aErrorMsgLong);
@@ -157,6 +170,12 @@ void CTeleportationRequest::TeleportSuccess()
 {
 	if(!IsActive())
 		return;
+
+	if(m_DropFlag)
+	{
+		if(m_pCharacter->GameServer()->m_pController)
+			m_pCharacter->GameServer()->m_pController->CharacterDropFlag(m_pCharacter);
+	}
 
 	m_pfnPreSuccess();
 
