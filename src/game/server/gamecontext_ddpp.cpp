@@ -166,7 +166,7 @@ void CGameContext::RunDeferredCommands()
 	dbg_msg("defer", "running deferred commands ...");
 	for(const std::string &Command : m_vDeferQueue)
 	{
-		Console()->ExecuteLine(Command.c_str());
+		Console()->ExecuteLine(Command.c_str(), IConsole::CLIENT_ID_UNSPECIFIED);
 	}
 	m_vDeferQueue.clear();
 }
@@ -175,7 +175,7 @@ void CGameContext::DeferCommand(const char *pCommand)
 {
 	if(!m_TicksUntilDefer)
 	{
-		Console()->ExecuteLine(pCommand);
+		Console()->ExecuteLine(pCommand, IConsole::CLIENT_ID_UNSPECIFIED);
 		return;
 	}
 	m_vDeferQueue.emplace_back(pCommand);
@@ -1917,7 +1917,7 @@ void CGameContext::ChilliClanTick(int i)
 				{
 					char aRcon[128];
 					str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
-					Console()->ExecuteLine(aRcon);
+					Console()->ExecuteLine(aRcon, IConsole::CLIENT_ID_UNSPECIFIED);
 				}
 			}
 			else

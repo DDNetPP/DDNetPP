@@ -747,7 +747,7 @@ void CGameTeams::OnFinish(CPlayer *pPlayer, int TimeTicks, const char *pTimestam
 		return;
 
 	float Time = TimeTicks / (float)Server()->TickSpeed();
-	OnFinishDDPP(Player, Time);
+	OnFinishDDPP(pPlayer, Time);
 
 	// TODO:DDRace:btd: this ugly
 	const int ClientId = pPlayer->GetCid();
