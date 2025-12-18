@@ -99,6 +99,10 @@ const char *str_ddpp_loc(int Language, const char *pStr)
 				return "'%s' совершил серию из %d убийств!";
 			if(!str_comp("'%s's killing spree was ended by '%s' (%d kills)", pStr))
 				return "Серия убийств игрока '%s' была завершена игроком '%s' (%d убийств)";
+			if(!str_comp("'%s' invited you to a duel accept using the chat command: /1vs1 %s", pStr))
+				return "'%s' вызвал тебя на дуэль. Используй /1vs1 для принятия.";
+			if(!str_comp("'%s' accepted your invite.", pStr))
+				return "'%s' принял твою заявку.";
 		}
 		if(pStr[0] == '%')
 		{
@@ -160,6 +164,10 @@ const char *str_ddpp_loc(int Language, const char *pStr)
 		}
 		if(pStr[0] == 'Y')
 		{
+			if(!str_comp("You accepted '%s' invite.", pStr))
+				return "Ты принял заявку от '%s'.";
+			if(!str_comp("You invited '%s' to a duel waiting for accept.", pStr))
+				return "Ты вызвал '%s' на дуэль.";
 			if(!str_comp("You are now Level %" PRId64 "!   +50money", pStr))
 				return "Теперь твой уровень %" PRId64 "!   +50 монет";
 			if(!str_comp("You can't logout while being frozen.", pStr))

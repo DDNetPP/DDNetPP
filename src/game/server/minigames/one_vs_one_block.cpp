@@ -460,21 +460,15 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 	CPlayer *pInvitedPlayer = GameServer()->m_apPlayers[InvitedId];
 	if(pInvitedPlayer->m_BlockOneVsOneRequestedId == ClientId)
 	{
-		str_format(aBuf, sizeof(aBuf), "[1vs1] you accepted '%s' invite.", pInvitedName);
-		SendChatTarget(ClientId, aBuf);
-
-		str_format(aBuf, sizeof(aBuf), "[1vs1] '%s' accepted your invite.", pName);
-		SendChatTarget(InvitedId, aBuf);
+		GameServer()->SendChatLocSys(ClientId, "1vs1", "You accepted '%s' invite.", pInvitedName);
+		GameServer()->SendChatLocSys(InvitedId, "1vs1", "'%s' accepted your invite.", pName);
 
 		OnRoundStart(pPlayer, pInvitedPlayer);
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[1vs1] '%s' invited you to a duel accept using the chat command: /1vs1 %s", pName, pName);
-		SendChatTarget(InvitedId, aBuf);
-
-		str_format(aBuf, sizeof(aBuf), "[1vs1] you invited '%s' to a duel waiting for accept.", pInvitedName);
-		SendChatTarget(ClientId, aBuf);
+		GameServer()->SendChatLocSys(InvitedId, "1vs1", "'%s' invited you to a duel accept using the chat command: /1vs1 %s", pName, pName);
+		GameServer()->SendChatLocSys(ClientId, "1vs1", "You invited '%s' to a duel waiting for accept.", pInvitedName);
 
 		// 2 minutes time to accept invite
 		pPlayer->m_BlockOneVsOneInviteExpire = time_get() + time_freq() * 120;
