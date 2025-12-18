@@ -243,11 +243,6 @@ public:
 		m_SelectedTangentOutPoint = std::pair(-1, -1);
 		m_CurrentQuadIndex = -1;
 
-		m_QuadKnifeActive = false;
-		m_QuadKnifeCount = 0;
-		m_QuadKnifeSelectedQuadIndex = -1;
-		std::fill(std::begin(m_aQuadKnifePoints), std::end(m_aQuadKnifePoints), vec2(0.0f, 0.0f));
-
 		for(size_t i = 0; i < std::size(m_aSavedColors); ++i)
 		{
 			m_aSavedColors[i] = color_cast<ColorRGBA>(ColorHSLA(i / (float)std::size(m_aSavedColors), 1.0f, 0.5f));
@@ -541,11 +536,6 @@ public:
 	std::pair<int, int> m_SelectedTangentOutPoint;
 	bool m_UpdateEnvPointInfo;
 
-	bool m_QuadKnifeActive;
-	int m_QuadKnifeCount;
-	int m_QuadKnifeSelectedQuadIndex;
-	vec2 m_aQuadKnifePoints[4];
-
 	// Color palette and pipette
 	ColorRGBA m_aSavedColors[8];
 	ColorRGBA m_PipetteColor = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
@@ -574,7 +564,7 @@ public:
 	CEditorMap m_Map;
 	std::deque<std::shared_ptr<CDataFileWriterFinishJob>> m_WriterFinishJobs;
 
-	void EnvelopeEval(int TimeOffsetMillis, int Env, ColorRGBA &Result, size_t Channels) override;
+	void EnvelopeEval(int TimeOffsetMillis, int EnvelopeIndex, ColorRGBA &Result, size_t Channels) override;
 
 	CLineInputBuffered<256> m_SettingsCommandInput;
 	CMapSettingsBackend m_MapSettingsBackend;
