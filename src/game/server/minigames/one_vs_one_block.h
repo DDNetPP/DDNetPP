@@ -79,6 +79,10 @@ public:
 	// send a chat message to both players
 	void SendChat(CGameState *pGameState, const char *pMessage);
 
+	// send a chat message to both players, localized
+	// also prepends the "[1vs1]" prefix
+	void SendChatLoc(CGameState *pGameState, const char *pMessage);
+
 	// given the player that received the invite
 	// find the player that sent the invite
 	CPlayer *GetInviteSender(const CPlayer *pPlayer);

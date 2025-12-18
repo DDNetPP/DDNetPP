@@ -27,6 +27,10 @@ const char *str_ddpp_loc(int Language, const char *pStr)
 		return pStr;
 	if(Language == LANG_RU)
 	{
+		if(!str_comp("no block arena found.", pStr))
+			return "Отмена, арена не найдена.";
+		if(!str_comp("game aborted. No winners.", pStr))
+			return "Дуэль отменена.";
 		if(!str_comp("Money", pStr))
 			return "Деньги";
 		if(!str_comp("Missing permission.", pStr))

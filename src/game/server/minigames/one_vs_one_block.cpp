@@ -310,7 +310,7 @@ void COneVsOneBlock::OnGameAbort(CGameState *pGameState, CPlayer *pAbortingPlaye
 	// if nobody did a score yet the game has no winner
 	if(!Score1 && !Score2)
 	{
-		SendChat(pGameState, "[1vs1] game aborted. No winners.");
+		SendChatLoc(pGameState, "game aborted. No winners.");
 		OnRoundEnd(pGameState);
 		return;
 	}
@@ -386,7 +386,7 @@ vec2 COneVsOneBlock::GetNextArenaSpawn(CGameState *pGameState)
 
 	if(Spawn == vec2(-1, -1))
 	{
-		SendChat(pGameState, "[1vs1] no block arena found.");
+		SendChatLoc(pGameState, "no block arena found.");
 		OnRoundEnd(pGameState);
 	}
 	return Spawn;
@@ -626,6 +626,14 @@ void COneVsOneBlock::SendChat(CGameState *pGameState, const char *pMessage)
 
 	SendChatTarget(pGameState->m_pPlayer1->GetCid(), pMessage);
 	SendChatTarget(pGameState->m_pPlayer2->GetCid(), pMessage);
+}
+
+void COneVsOneBlock::SendChatLoc(CGameState *pGameState, const char *pMessage)
+{
+	dbg_assert(pGameState, "missing gamestate");
+
+	GameServer()->SendChatLocSys(pGameState->m_pPlayer1->GetCid(), "1vs1", "%s", pMessage);
+	GameServer()->SendChatLocSys(pGameState->m_pPlayer2->GetCid(), "1vs1", "%s", pMessage);
 }
 
 CPlayer *COneVsOneBlock::GetInviteSender(const CPlayer *pPlayer)
