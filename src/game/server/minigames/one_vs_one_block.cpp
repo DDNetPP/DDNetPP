@@ -414,7 +414,7 @@ void COneVsOneBlock::OnChatCmdInvite(CPlayer *pPlayer, const char *pInvitedName)
 
 	if(!g_Config.m_SvAllowBlockOneVsOne)
 	{
-		SendChatTarget(ClientId, "[1vs1] this command is disabled by an administrator.");
+		GameServer()->SendChatLocSys(ClientId, "1vs1", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 

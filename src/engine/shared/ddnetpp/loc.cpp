@@ -57,6 +57,8 @@ const char *str_ddpp_loc(int Language, const char *pStr)
 			return "БЛОК";
 		if(!str_comp("Owned until", pStr))
 			return "Срок";
+		if(!str_comp("this command is deactivated by an administrator.", pStr))
+			return "Система отключена администрацией.";
 		if(!str_comp("Time", pStr))
 			return "Время";
 		if(!str_comp("The account system is turned off.", pStr))

@@ -1868,7 +1868,7 @@ void CGameContext::ConBalance(IConsole::IResult *pResult, void *pUserData)
 
 	if(!g_Config.m_SvAllowBalance)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[BALANCE] this command is deactivated by an administrator");
+		pSelf->SendChatLocSys(pResult->m_ClientId, "BALANCE", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 
@@ -1975,7 +1975,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 
 	if(!g_Config.m_SvAllowInsta)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[INSTA] this command is deactivated by an administrator.");
+		pSelf->SendChatLocSys(pResult->m_ClientId, "INSTA", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 
@@ -7240,7 +7240,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 
 	if(!g_Config.m_SvAllowTrade)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[TRADE] this command is deactivated by an administrator.");
+		pSelf->SendChatLocSys(pResult->m_ClientId, "TRADE", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 
@@ -7473,7 +7473,7 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 
 	if(!g_Config.m_SvAllowTrade)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[TRADE] this command is deactivated by an administrator.");
+		pSelf->SendChatLocSys(pResult->m_ClientId, "TRADE", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 
@@ -7612,7 +7612,7 @@ void CGameContext::ConBlockWave(IConsole::IResult *pResult, void *pUserData)
 
 	if(!g_Config.m_SvAllowBlockWave)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientId, "[BlockWave] this command is disabled by an administrator.");
+		pSelf->SendChatLocSys(pResult->m_ClientId, "BlockWave", "%s", "this command is deactivated by an administrator.");
 		return;
 	}
 
