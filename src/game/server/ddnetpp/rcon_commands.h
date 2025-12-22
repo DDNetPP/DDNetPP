@@ -32,7 +32,7 @@ CONSOLE_COMMAND("force_unjail", "v[id]", CFGFLAG_SERVER, ConForceUnJail, this, "
 CONSOLE_COMMAND("force_jail", "v[id] i[seconds]", CFGFLAG_SERVER, ConForceJail, this, "jails player by adminforce")
 CONSOLE_COMMAND("ninjasteam", "v[id]", CFGFLAG_SERVER, Conninjasteam, this, "activates a awesome NINJASTEAM")
 CONSOLE_COMMAND("hammerfightmode", "v[id]", CFGFLAG_SERVER, ConHammerfightMode, this, "activates hammerfightmode for a player")
-CONSOLE_COMMAND("freeze_shotgun", "v[id]", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
+CONSOLE_COMMAND("freezeshotgun", "v[id]", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
 CONSOLE_COMMAND("damage", "v[id]", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
 
 CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'")
