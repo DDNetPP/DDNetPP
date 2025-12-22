@@ -4,10 +4,11 @@
 
 #include <game/server/gamecontext.h>
 
-CMeteor::CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos) :
+CMeteor::CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos, int LifeSpan) :
 	CStableProjectile(pGameWorld, WEAPON_SHOTGUN, OwnerId, Pos)
 {
 	m_Vel = vec2(0.1f, 0.1f);
+	m_LifeSpan = LifeSpan;
 }
 
 void CMeteor::Tick()
@@ -25,4 +26,9 @@ void CMeteor::Tick()
 	}
 	m_Pos += m_Vel;
 	m_Vel *= 1.f - Friction;
+
+	if(m_LifeSpan > -1)
+		m_LifeSpan--;
+	else
+		m_MarkedForDestroy = true;
 }

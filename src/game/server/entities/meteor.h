@@ -6,11 +6,12 @@
 class CMeteor : public CStableProjectile
 {
 	vec2 m_Vel;
+	int m_LifeSpan;
 
 public:
-	CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos = vec2());
+	CMeteor(CGameWorld *pGameWorld, int OwnerId, vec2 Pos, int LifeSpan);
 
-	virtual void Tick() override;
+	void Tick() override;
 };
 
 #endif

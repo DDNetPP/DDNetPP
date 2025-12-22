@@ -181,6 +181,7 @@ MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG
 MACRO_CONFIG_INT(SvMeteorFriction, sv_meteor_friction, 5000, 0, 1000000, CFGFLAG_SERVER, "meteor friction")
 MACRO_CONFIG_INT(SvMeteorMaxAccel, sv_meteor_max_accel, 2000, 0, 1000000, CFGFLAG_SERVER, "max meteor acceleration per player in pixel/tick^2")
 MACRO_CONFIG_INT(SvMeteorAccelPreserve, sv_meteor_accel_preserve, 100000, 0, 1000000, CFGFLAG_SERVER, "how much acceleration is preserved with growing distance to the player")
+MACRO_CONFIG_INT(SvMeteorLifetime, sv_meteor_lifetime, 100, 0, 1000000, CFGFLAG_SERVER, "how many ticks a meteor will be in the world before it despawns")
 
 //survival
 MACRO_CONFIG_INT(SvNameplates, sv_nameplates, 0, 0, 1, CFGFLAG_SERVER, "hide or show nameplates in survival games")

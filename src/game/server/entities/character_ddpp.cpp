@@ -23,6 +23,7 @@
 #include <game/server/ddpp/shop.h>
 #include <game/server/ddpp/teleportation_request.h>
 #include <game/server/entities/laser_text.h>
+#include <game/server/entities/meteor.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
@@ -2468,7 +2469,11 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		}
 
 		// summon meteor
-		//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
+		new CMeteor(
+			GameWorld(),
+			GetPlayer()->GetCid(),
+			ProjStartPos,
+			g_Config.m_SvMeteorLifetime);
 	}
 	else
 		return false;
