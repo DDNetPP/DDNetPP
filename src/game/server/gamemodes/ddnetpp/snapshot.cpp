@@ -129,8 +129,7 @@ void CGameControllerDDNetPP::FakeSnap(int SnappingClient)
 
 // SnappingClient - Client Id of the player that will receive the snapshot
 // pPlayer - CPlayer that is being snapped
-// DDRaceScore - Current value of the score set by the ddnet code
-int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore)
+int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer)
 {
 	return pPlayer->GetScoreValue(SnappingClient);
 }

@@ -22,7 +22,6 @@ jobs:
           cmake-args: -G Ninja
           cmake-init-env: CXXFLAGS=-Werror
           package-file: "*-linux_x86_64.tar.xz"
-          workaround-issue10203-run-after-configure:
         - name: macOS-latest
           os: macOS-latest
           workaround-issue10203-run-after-configure:

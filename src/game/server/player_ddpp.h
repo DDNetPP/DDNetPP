@@ -533,6 +533,10 @@ public:
 	int m_AllowTimeScore;
 	CMinigamePlayerState m_Minigame;
 
+	// this used to be a ddnet variable but it got removed there
+	// so now it is a ddnet++ specific variable
+	std::optional<int> m_Score;
+
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;
 	bool m_IsTest;

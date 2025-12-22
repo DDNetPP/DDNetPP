@@ -426,7 +426,7 @@ public:
 	bool PlayerExists(int ClientId) const override { return m_apPlayers[ClientId]; }
 	// Returns true if someone is actively moderating.
 	bool PlayerModerating() const;
-	void ForceVote(int EnforcerId, bool Success);
+	void ForceVote(bool Success);
 
 	// Checks if player can vote and notify them about the reason
 	bool RateLimitPlayerVote(int ClientId);
@@ -665,7 +665,7 @@ public:
 	bool IsRunningKickOrSpecVote(int ClientId) const;
 
 	void SendRecord(int ClientId);
-	void SendFinish(int ClientId, float Time, float PreviousBestTime);
+	void SendFinish(int ClientId, float Time, std::optional<float> PreviousBestTime);
 	void SendSaveCode(int Team, int TeamSize, int State, const char *pError, const char *pSaveRequester, const char *pServerName, const char *pGeneratedCode, const char *pCode);
 	void OnSetAuthed(int ClientId, int Level) override;
 

@@ -126,20 +126,6 @@ public:
 			pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 	*/
 	virtual void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) {}
-
-	/*
-		Function: SnapPlayerScore
-			Warning its value could be overwritten by `SnapPlayer6()`
-
-		Arguments:
-			SnappingClient - Client Id of the player that will receive the snapshot
-			pPlayer - CPlayer that is being snapped
-			DDRaceScore - Current value of the score set by the ddnet code
-
-		Returns:
-			return the new score value that will be included in the snapshot
-	*/
-	virtual int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer, int DDRaceScore);
 	virtual int SnapScoreLimit(int SnappingClient);
 
 	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo) {}
