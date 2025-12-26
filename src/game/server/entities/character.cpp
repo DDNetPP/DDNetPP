@@ -1451,6 +1451,9 @@ void CCharacter::Snap(int SnappingClient)
 
 	// OVERRIDE_NONE is the default value, SnapNewItem zeroes the object, so it would incorrectly become 0
 	pDDNetCharacter->m_TuneZoneOverride = TuneZone::OVERRIDE_NONE;
+
+	// ddnet++
+	GameServer()->m_pController->SnapDDNetCharacter(SnappingClient, this, pDDNetCharacter);
 }
 
 void CCharacter::PostGlobalSnap()
