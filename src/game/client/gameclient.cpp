@@ -267,6 +267,7 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("cl_download_skins", ConchainRefreshSkins, this);
 	Console()->Chain("cl_download_community_skins", ConchainRefreshSkins, this);
 	Console()->Chain("cl_vanilla_skins_only", ConchainRefreshSkins, this);
+	Console()->Chain("events", ConchainRefreshEventSkins, this);
 
 	Console()->Chain("cl_dummy", ConchainSpecialDummy, this);
 
@@ -3661,7 +3662,7 @@ void CGameClient::UpdateRenderedCharacters()
 				vec2(m_aClients[i].m_RenderCur.m_X, m_aClients[i].m_RenderCur.m_Y),
 				m_aClients[i].m_IsPredicted ? Client()->PredIntraGameTick(g_Config.m_ClDummy) : Client()->IntraGameTick(g_Config.m_ClDummy));
 
-			if(i == m_Snap.m_LocalClientId)
+			if(i == m_Snap.m_LocalClientId || (PredictDummy() && i == m_aLocalIds[!g_Config.m_ClDummy]))
 			{
 				m_aClients[i].m_IsPredictedLocal = true;
 				if(AntiPingGunfire() && ((pChar->m_NinjaJetpack && pChar->m_FreezeTime == 0) || m_Snap.m_aCharacters[i].m_Cur.m_Weapon != WEAPON_NINJA || m_Snap.m_aCharacters[i].m_Cur.m_Weapon == m_aClients[i].m_Predicted.m_ActiveWeapon))
@@ -4531,6 +4532,17 @@ void CGameClient::ConchainRefreshSkins(IConsole::IResult *pResult, void *pUserDa
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments() && pThis->m_Menus.IsInit())
 	{
+		pThis->RefreshSkins(CSkinDescriptor::FLAG_SIX);
+	}
+}
+
+void CGameClient::ConchainRefreshEventSkins(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	CGameClient *pThis = static_cast<CGameClient *>(pUserData);
+	pfnCallback(pResult, pCallbackUserData);
+	if(pResult->NumArguments() && pThis->m_Menus.IsInit())
+	{
+		pThis->m_Skins.RefreshEventSkins();
 		pThis->RefreshSkins(CSkinDescriptor::FLAG_SIX);
 	}
 }
