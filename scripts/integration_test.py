@@ -133,6 +133,7 @@ class TestRunner:
 					error = env.format_valgrind_memcheck_errors()
 					if error:
 						error = error + env.format_stdout_stderr()
+						tmp_dir_cleanup = False
 					else:
 						error = None
 		finally:
@@ -442,6 +443,7 @@ class Client(Runnable):
 				test_env.ddnet,
 				f"cl_input_fifo {self.fifo_name}",
 				"gfx_fullscreen 0",
+				"cl_save_settings 0",
 			]
 			+ extra_args,
 		)
@@ -502,8 +504,25 @@ class Server(Runnable):
 
 
 class Mastersrv(Runnable):
-	def __init__(self, test_env, extra_args=[]):  # noqa: B006 mutable-default-arguments
+	def __init__(self, test_env, extra_args=[], config=None, communities_json=None):  # noqa: B006 mutable-default-arguments
 		name = f"mastersrv{test_env.num_mastersrvs}"
+		if communities_json is not None:
+			communities_json_filename = f"{name}-communities.json"
+			with open(os.path.join(test_env.tmp_dir, communities_json_filename), "w", encoding="utf-8") as f:
+				f.write(communities_json)
+			config = config + f"""\
+[communities]
+json = {communities_json_filename!r}
+"""
+		if config is not None:
+			config_filename = f"{name}.toml"
+			with open(os.path.join(test_env.tmp_dir, config_filename), "w", encoding="utf-8") as f:
+				f.write(config)
+			extra_args = extra_args + [
+				"--config",
+				config_filename,
+			]
+
 		super().__init__(
 			test_env,
 			name,
@@ -643,7 +662,7 @@ def open_editor(test_env):
 
 @test
 def smoke_test(test_env):
-	client1 = test_env.client(["logfile client1.log", "player_name client1"])
+	client1 = test_env.client(["logfile client1.log", "player_name client1", "cl_save_settings 1"])
 	server = test_env.server(["logfile server.log", "sv_demo_chat 1", "sv_map coverage", "sv_tee_historian 1"])
 	wait_for_startup([client1, server])
 	# Start client2 after client1 to avoid fetching resources twice.
@@ -764,9 +783,10 @@ def smoke_test(test_env):
 
 	if not ranks:
 		raise AssertionError("no ranks found")
-	# TODO: why do the results under valgrind differ?
-	if not test_env.runner.valgrind_memcheck and ranks != expected_ranks:
-		raise AssertionError(f"unexpected ranks:\n{ranks}\n\n{expected_ranks}")
+	if ranks != expected_ranks:
+		ranks_string = "\n".join([str(rank) for rank in ranks])
+		expected_ranks_string = "\n".join([str(rank) for rank in expected_ranks])
+		raise AssertionError(f"unexpected ranks.\n\nactual:\n{ranks_string}\n\nexpected:\n{expected_ranks_string}")
 
 
 @test(requires_mastersrv=True)
@@ -832,6 +852,53 @@ def server_can_register_tw_0_6(test_env):
 @test(requires_mastersrv=True)
 def server_can_register_tw_0_7(test_env):
 	server_can_register_protocol(test_env, "tw0.7/ipv6", "7/ipv6", "tw-0.7+udp")
+
+
+@test(requires_mastersrv=True)
+def server_can_register_community(test_env):
+	CONFIG = """\
+[communities.tokens]
+ddvc_6DnZq51fypqX9ldrEFCF9aJdpi6wjgh6YA = "ddnet"
+"""
+	COMMUNITIES_JSON = """\
+[
+    {
+        "id": "ddnet",
+        "name": "DDraceNetwork",
+        "has_finishes": true,
+        "icon": {
+            "sha256": "267f137cd7fc4e3843e54b6e6bf664e50da77826abe1675d1d3e87a18a5952de",
+            "url": "https://info.ddnet.org/icons/ddnet.png"
+        },
+        "contact_urls": [
+            "https://discord.gg/ddracenetwork",
+            "https://ddnet.org/discord"
+        ]
+    }
+]
+"""
+	mastersrv = test_env.mastersrv(config=CONFIG, communities_json=COMMUNITIES_JSON)
+	wait_for_startup([mastersrv])
+	server = test_env.server([
+		"http_allow_insecure 1",
+		"sv_register tw0.6/ipv6",
+		"sv_register_community_token ddtc_6DnZq5Ix0J2kvDHbkPNtb6bsZxOVQg4ly2jw",
+		f"sv_register_url http://[::1]:{mastersrv.port}/ddnet/15/register",
+	])
+	wait_for_startup([server])
+	server.wait_for_log_suffix("successfully registered", timeout=5)
+	servers_json = mastersrv.servers_json()
+	if len(servers_json["servers"]) != 1 or servers_json["servers"][0]["info"]["map"]["name"] != "Tutorial" or len(servers_json["servers"][0]["addresses"]) != 1:
+		raise AssertionError(f"unexpected servers.json\n{servers_json}")
+	if servers_json["servers"][0]["community"] != "ddnet":
+		raise AssertionError(f"servers.json didn't have \"community\" key\n{servers_json}")
+	server.exit()
+	mastersrv.wait_for_log_prefix("mastersrv: successfully removed", timeout=5)
+	servers_json = mastersrv.servers_json()
+	if len(servers_json["servers"]) != 0:
+		raise AssertionError(f"unexpected servers.json\n{servers_json}")
+	mastersrv.exit()
+	mastersrv.wait_for_exit()
 
 
 EXE_SUFFIX = ""

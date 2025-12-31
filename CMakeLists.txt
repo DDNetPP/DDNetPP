@@ -92,9 +92,7 @@ set(AUTO_DEPENDENCIES_DEFAULT OFF)
 set(AUTO_VULKAN_BACKEND ON)
 if(TARGET_OS STREQUAL "windows")
   set(AUTO_DEPENDENCIES_DEFAULT ON)
-  if(TARGET_CPU_ARCHITECTURE STREQUAL "x86")
-    set(AUTO_VULKAN_BACKEND OFF)
-  endif()
+  set(AUTO_VULKAN_BACKEND OFF)
 elseif(TARGET_OS STREQUAL "mac")
   set(AUTO_VULKAN_BACKEND OFF)
 endif()
@@ -310,6 +308,8 @@ if(NOT MSVC AND NOT HAIKU)
 
   if(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND NOT DEV)
     add_cxx_compiler_flag_if_supported(OUR_FLAGS -ffile-prefix-map=${CMAKE_SOURCE_DIR}=/${CMAKE_PROJECT_NAME})
+    add_cxx_compiler_flag_if_supported(OUR_FLAGS -ffile-prefix-map=${PROJECT_BINARY_DIR}=/${CMAKE_PROJECT_NAME})
+    add_cxx_compiler_flag_if_supported(OUR_FLAGS -fno-ident)
   endif()
 
   if(TARGET_OS STREQUAL "mac")
@@ -693,7 +693,7 @@ if(CLIENT AND NOT(SDL2_FOUND))
   message(SEND_ERROR "You must install SDL2 to compile the ${CMAKE_PROJECT_NAME} client")
 endif()
 if(TARGET_OS STREQUAL "android" AND NOT(CRYPTO_FOUND))
-  message(SEND_ERROR "You must install OpenSSL to compile ${CMAKE_PROJECT_NAME}")
+  message(SEND_ERROR "You must install BoringSSL to compile ${CMAKE_PROJECT_NAME} for Android")
 endif()
 if(NOT(GTEST_FOUND))
   if(DOWNLOAD_GTEST)
@@ -1987,6 +1987,8 @@ set_src(BASE GLOB_RECURSE src/base
   color.cpp
   color.h
   crashdump.cpp
+  dbg.cpp
+  dbg.h
   ddpp_logs.cpp
   ddpp_logs.h
   detect.h
@@ -2014,6 +2016,8 @@ set_src(BASE GLOB_RECURSE src/base
   system.h
   system_ddpp.cpp
   system_ddpp.h
+  time.cpp
+  time.h
   tl/threading.h
   types.h
   unicode/confusables.cpp
