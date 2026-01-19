@@ -2937,7 +2937,6 @@ if(SERVER)
     gamecontroller.h
     gamecontroller_ddpp.cpp
     gamecontroller_ddpp.h
-    gamemodes/DDRace_ddpp.cpp
     gamemodes/ctf.cpp
     gamemodes/ddnet.cpp
     gamemodes/ddnet.h

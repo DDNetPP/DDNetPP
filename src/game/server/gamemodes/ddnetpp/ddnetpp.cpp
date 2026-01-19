@@ -61,6 +61,27 @@ void CGameControllerDDNetPP::Tick()
 		GameServer()->m_vAccountRconCmdQueryResults.end());
 }
 
+bool CGameControllerDDNetPP::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
+{
+	CGameControllerDDNet::OnEntity(Index, x, y, Layer, Flags, Initial, Number);
+
+	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
+	int Team = -1;
+	if(Index == ENTITY_FLAGSTAND_RED)
+		Team = TEAM_RED;
+	if(Index == ENTITY_FLAGSTAND_BLUE)
+		Team = TEAM_BLUE;
+	if(Team == -1 || m_apFlags[Team])
+		return false;
+
+	CFlag *F = new CFlag(&GameServer()->m_World, Team);
+	F->m_StandPos = Pos;
+	F->m_Pos = Pos;
+	m_apFlags[Team] = F;
+	GameServer()->m_World.InsertEntity(F);
+	return true;
+}
+
 void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacter, int Progress)
 {
 	if(!pCharacter->GetPlayer()->m_IsVanillaDmg)

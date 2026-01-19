@@ -9,9 +9,6 @@ class CScore;
 class CGameControllerDDNet : public IGameController
 {
 public:
-	// TODO: remove this ddnet++ diff
-	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
-
 	CGameControllerDDNet(class CGameContext *pGameServer);
 	~CGameControllerDDNet() override;
 
