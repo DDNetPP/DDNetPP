@@ -222,6 +222,8 @@ void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const ch
 	}
 
 	CGameControllerDDNet::OnPlayerDisconnect(pPlayer, pReason, Silent);
+
+	pPlayer->OnDisconnectDDPP();
 }
 
 void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)

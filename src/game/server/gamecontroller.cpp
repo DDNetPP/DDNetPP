@@ -485,7 +485,6 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientId, Server()->ClientName(ClientId));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 	}
-	pPlayer->OnDisconnectDDPP();
 }
 
 void IGameController::EndRound()
