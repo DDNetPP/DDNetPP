@@ -111,7 +111,7 @@ class TestRunner:
 		self.timeout_multiplier = timeout_multiplier
 		self.valgrind_memcheck = valgrind_memcheck
 		if self.valgrind_memcheck:
-			self.timeout_multiplier *= 10
+			self.timeout_multiplier *= 20
 
 	def run_test(self, test):
 		tmp_dir = tempfile.mkdtemp(prefix=f"integration_{test.name}_", dir=self.test_dir)
@@ -140,6 +140,9 @@ class TestRunner:
 			if tmp_dir_cleanup:
 				shutil.rmtree(tmp_dir)
 				tmp_dir = None
+			elif error:
+				with open(os.path.join(tmp_dir, "test_failure.log"), "w", encoding="utf-8") as test_failure_file:
+					test_failure_file.write(error)
 		return relpath(tmp_dir) if tmp_dir is not None else None, error
 
 	def run_tests(self, tests):
@@ -675,7 +678,7 @@ def smoke_test(test_env):
 	client1.command("stdout_output_level 2; loglevel 2")
 	client1.command(f"connect localhost:{server.port}")
 	server.wait_for_log_prefix("server: player has entered the game", timeout=10)
-	client1.wait_for_log_exact("client: state change. last=2 current=3", timeout=10)
+	client1.wait_for_log_exact("client: state change. last=2 current=3", timeout=15)
 	client1.command("stdout_output_level 0; loglevel 0")
 	client1.command("debug 0")
 	client1.command("record client1")

@@ -13,7 +13,7 @@
 #include <game/mapitems_ddpp.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 
 bool CCharacter::IsOnTile(int Tile) const
@@ -43,7 +43,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0)
 	// {
 
-	// 	if ((GameServer()->m_pController->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this)
+	// 	if ((GameServer()->m_pController->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDNet*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this)
 	// 	{
 	// 	}
 	// 	else
@@ -65,7 +65,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0)
 	// {
 
-	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this) {
+	// 	if (((CGameControllerDDNet*)GameServer()->m_pController)->m_apFlags[1]->GetCarrier() == this || ((CGameControllerDDNet*)GameServer()->m_pController)->m_apFlags[0]->GetCarrier() == this) {
 	// 	}
 	// 	else {
 	// 		/*

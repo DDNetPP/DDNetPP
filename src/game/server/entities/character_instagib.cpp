@@ -12,7 +12,7 @@
 #include <generated/protocol.h>
 
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 
 void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
@@ -309,7 +309,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 				//Finish time if cfg val reached
 				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we activate this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
 				{
-					CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
+					CGameControllerDDNet *Controller = (CGameControllerDDNet *)GameServer()->m_pController;
 					Controller->Teams().OnCharacterFinish(pKiller->GetCid());
 				}
 			}

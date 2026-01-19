@@ -32,14 +32,14 @@ public:
 	void *FindItem(int Type, int Id) override;
 	int NumItems() const override;
 
-	[[nodiscard]] bool Load(const char *pMapName) override;
+	[[nodiscard]] bool Load(const char *pMapName, int StorageType) override;
 	void Unload() override;
 	bool IsLoaded() const override;
 	IOHANDLE File() const override;
 
 	SHA256_DIGEST Sha256() const override;
 	unsigned Crc() const override;
-	int MapSize() const override;
+	int Size() const override;
 
 	static void ExtractTiles(class CTile *pDest, size_t DestSize, const class CTile *pSrc, size_t SrcSize);
 };

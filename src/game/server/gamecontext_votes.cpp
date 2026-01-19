@@ -1,7 +1,7 @@
 // gamecontext scoped votes ddnet++ methods
 
 #include "gamecontext.h"
-#include "gamemodes/DDRace.h"
+#include "gamemodes/ddnet.h"
 
 #include <engine/shared/config.h>
 

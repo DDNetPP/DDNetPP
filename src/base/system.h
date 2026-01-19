@@ -1144,6 +1144,22 @@ int fs_makedir_rec_for(const char *path);
 int fs_storage_path(const char *appname, char *path, int max);
 
 /**
+ * Gets the absolute path to the executable.
+ *
+ * @ingroup Filesystem
+ *
+ * @param buffer Buffer that will receive the path of the executable.
+ * @param buffer_size Size of the buffer.
+ *
+ * @return `0` on success. Negative value on failure.
+ *
+ * @remark The executable name is included in the result.
+ *
+ * @remark The strings are treated as null-terminated strings.
+ */
+int fs_executable_path(char *buffer, int buffer_size);
+
+/**
  * Checks if a file exists.
  *
  * @ingroup Filesystem
@@ -1544,17 +1560,6 @@ void secure_random_password(char *buffer, unsigned length, unsigned pw_length);
  * @param length Length of the buffer.
  */
 void secure_random_fill(void *bytes, unsigned length);
-
-/**
- * Returns random `int`.
- *
- * @ingroup Secure-Random
- *
- * @return Random int.
- *
- * @remark Can be used as a replacement for the `rand` function.
- */
-int secure_rand();
 
 /**
  * Returns a random nonnegative integer below the given number,

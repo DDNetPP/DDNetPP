@@ -7,13 +7,13 @@
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
 #include <game/race_state.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 
 void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int MapIndex)
 {
 	if(g_Config.m_SvOffDDPP)
 	{
-		CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
+		CGameControllerDDNet::HandleCharacterTiles(pChr, MapIndex);
 		return;
 	}
 
@@ -63,7 +63,7 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	if(HandleTilesThatCanKill(pChr))
 		return;
 
-	CGameControllerDDRace::HandleCharacterTiles(pChr, MapIndex);
+	CGameControllerDDNet::HandleCharacterTiles(pChr, MapIndex);
 }
 
 void CGameControllerDDNetPP::HandleCharacterTilesDDPP(

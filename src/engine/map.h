@@ -36,14 +36,14 @@ class IEngineMap : public IMap
 {
 	MACRO_INTERFACE("enginemap")
 public:
-	[[nodiscard]] virtual bool Load(const char *pMapName) = 0;
+	[[nodiscard]] virtual bool Load(const char *pMapName, int StorageType) = 0;
 	virtual void Unload() = 0;
 	virtual bool IsLoaded() const = 0;
 	virtual IOHANDLE File() const = 0;
 
 	virtual SHA256_DIGEST Sha256() const = 0;
 	virtual unsigned Crc() const = 0;
-	virtual int MapSize() const = 0;
+	virtual int Size() const = 0;
 };
 
 extern IEngineMap *CreateEngineMap();

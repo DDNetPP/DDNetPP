@@ -454,7 +454,7 @@ int CServer::LoadMapLive(const char *pMapName)
 	if(!GameServer()->OnMapChange(aBuf, sizeof(aBuf)))
 		return 0;
 
-	if(!m_pMap->Load(aBuf))
+	if(!m_pMap->Load(aBuf, IStorage::TYPE_ALL))
 		return 0;
 
 	// reinit snapshot ids

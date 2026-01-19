@@ -1,10 +1,10 @@
 #ifndef GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 #define GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 
-#include "../DDRace.h"
+#include "../ddnet.h"
 #include "game/race_state.h"
 
-class CGameControllerDDNetPP : public CGameControllerDDRace
+class CGameControllerDDNetPP : public CGameControllerDDNet
 {
 public:
 	CGameControllerDDNetPP(class CGameContext *pGameServer);

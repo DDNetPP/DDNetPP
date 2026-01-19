@@ -7,7 +7,7 @@
 #include <generated/protocol.h>
 
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
 #include <game/version.h>

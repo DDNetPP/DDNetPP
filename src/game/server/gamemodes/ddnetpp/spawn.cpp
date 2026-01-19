@@ -278,5 +278,5 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, int ClientId)
 		return true;
 	}
 
-	return CGameControllerDDRace::CanSpawn(Team, pOutPos, pPlayer->GetCid());
+	return CGameControllerDDNet::CanSpawn(Team, pOutPos, pPlayer->GetCid());
 }

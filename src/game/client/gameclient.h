@@ -85,7 +85,7 @@ public:
 	bool m_AllowHookColl;
 	bool m_AllowZoom;
 
-	bool m_BugDDRaceGhost;
+	bool m_Bugddnet.host;
 	bool m_BugDDRaceInput;
 	bool m_BugFNGLaserRange;
 	bool m_BugVanillaBounce;
@@ -654,6 +654,8 @@ public:
 	void SendKill() const;
 	void SendReadyChange7();
 
+	void ApplyPreInputs(int Tick, bool Direct, CGameWorld &GameWorld);
+
 	int m_aNextChangeInfo[NUM_DUMMIES];
 
 	// DDRace
@@ -880,6 +882,8 @@ public:
 	void ResetMultiView();
 	int FindFirstMultiViewId();
 	void CleanMultiViewId(int ClientId);
+	int m_MapBestTimeSeconds;
+	int m_MapBestTimeMillis;
 
 private:
 	std::vector<CSnapEntities> m_vSnapEntities;

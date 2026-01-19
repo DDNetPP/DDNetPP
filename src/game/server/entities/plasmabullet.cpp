@@ -9,7 +9,7 @@
 
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/teams.h>
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
@@ -101,7 +101,7 @@ void CPlasmaBullet::Tick()
 				WEAPON_GRENADE,
 				true,
 				m_ResponsibleTeam,
-				((CGameControllerDDRace *)GameServer()->m_pController)->Teams().TeamMask(m_ResponsibleTeam));
+				((CGameControllerDDNet *)GameServer()->m_pController)->Teams().TeamMask(m_ResponsibleTeam));
 
 		if(m_Bloody)
 		{

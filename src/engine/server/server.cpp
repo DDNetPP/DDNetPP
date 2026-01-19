@@ -262,7 +262,6 @@ CServer::CServer()
 
 	m_ServerInfoFirstRequest = 0;
 	m_ServerInfoNumRequests = 0;
-	m_ServerInfoNeedsUpdate = false;
 
 #ifdef CONF_FAMILY_UNIX
 	m_ConnLoggingSocketCreated = false;
@@ -2616,6 +2615,12 @@ void CServer::ExpireServerInfo()
 	m_ServerInfoNeedsUpdate = true;
 }
 
+void CServer::ExpireServerInfoAndQueueResend()
+{
+	m_ServerInfoNeedsUpdate = true;
+	m_ServerInfoNeedsResend = false;
+}
+
 void CServer::UpdateRegisterServerInfo()
 {
 	// count the players
@@ -2783,6 +2788,7 @@ void CServer::UpdateServerInfo(bool Resend)
 				}
 			}
 		}
+		m_ServerInfoNeedsResend = false;
 	}
 
 	m_ServerInfoNeedsUpdate = false;
@@ -2921,7 +2927,7 @@ int CServer::LoadMap(const char *pMapName)
 	{
 		return 0;
 	}
-	if(!m_pMap->Load(aBuf))
+	if(!m_pMap->Load(aBuf, IStorage::TYPE_ALL))
 	{
 		return 0;
 	}
@@ -3034,7 +3040,7 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 			Client.m_DebugDummyAddr.ip[11] = 0x00;
 			uint_to_bytes_be(&Client.m_DebugDummyAddr.ip[12], ClientId);
 			// Port: random like normal clients
-			Client.m_DebugDummyAddr.port = (secure_rand() % (65535 - 1024)) + 1024;
+			Client.m_DebugDummyAddr.port = secure_rand_below(65535 - 1024) + 1024;
 			net_addr_str(&Client.m_DebugDummyAddr, Client.m_aDebugDummyAddrString.data(), Client.m_aDebugDummyAddrString.size(), true);
 			net_addr_str(&Client.m_DebugDummyAddr, Client.m_aDebugDummyAddrStringNoPort.data(), Client.m_aDebugDummyAddrStringNoPort.size(), false);
 
@@ -3192,7 +3198,7 @@ int CServer::Run()
 
 		m_GameStartTime = time_get();
 
-		UpdateServerInfo();
+		UpdateServerInfo(false);
 		while(m_RunServer < STOPPING)
 		{
 			if(NonActive)
@@ -3272,7 +3278,7 @@ int CServer::Run()
 					{
 						break;
 					}
-					UpdateServerInfo(true);
+					ExpireServerInfo();
 				}
 				else
 				{
@@ -3360,7 +3366,9 @@ int CServer::Run()
 				m_pRegister->Update();
 
 				if(m_ServerInfoNeedsUpdate)
-					UpdateServerInfo();
+				{
+					UpdateServerInfo(m_ServerInfoNeedsResend);
+				}
 
 				Antibot()->OnEngineTick();
 
@@ -4137,7 +4145,7 @@ void CServer::ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserD
 	{
 		CServer *pThis = static_cast<CServer *>(pUserData);
 		str_clean_whitespaces(pThis->Config()->m_SvName);
-		pThis->UpdateServerInfo(true);
+		pThis->ExpireServerInfoAndQueueResend();
 	}
 }
 

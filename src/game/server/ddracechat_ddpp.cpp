@@ -18,7 +18,7 @@
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/entities/laser_text.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/minigames/minigame_base.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>

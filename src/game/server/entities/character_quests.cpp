@@ -9,7 +9,7 @@
 #include <engine/shared/config.h>
 
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 
 void CCharacter::QuestHammerHit(CCharacter *pTarget)
@@ -146,7 +146,7 @@ void CCharacter::QuestHammerHit(CCharacter *pTarget)
 			}
 			else if(m_pPlayer->m_QuestStateLevel == 9)
 			{
-				if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+				if(((CGameControllerDDNet *)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
 				{
 					if(m_pPlayer->m_QuestLastQuestedPlayerId == pTarget->GetPlayer()->GetCid())
 					{

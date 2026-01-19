@@ -1,6 +1,6 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 /* Based on Race mod stuff and tweaked by GreYFoX@GTi and others to fit our DDRace needs. */
-#include "DDRace.h"
+#include "ddnet.h"
 
 #include <engine/server.h>
 #include <engine/shared/config.h>
@@ -12,7 +12,7 @@
 
 #include <cmath>
 
-bool CGameControllerDDRace::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
+bool CGameControllerDDNet::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
 {
 	IGameController::OnEntity(Index, x, y, Layer, Flags, Initial, Number);
 

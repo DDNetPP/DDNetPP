@@ -8,13 +8,13 @@
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/minigames/minigame_base.h>
 #include <game/server/player.h>
 
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
-	CGameControllerDDRace::Snap(SnappingClient);
+	CGameControllerDDNet::Snap(SnappingClient);
 	SnapFlags(SnappingClient);
 	// FakeSnap(SnappingClient);
 
@@ -141,7 +141,7 @@ int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
 
 	CPlayer *pSnapReceiver = GameServer()->m_apPlayers[SnappingClient];
 	if(!pSnapReceiver)
-		return CGameControllerDDRace::SnapScoreLimit(SnappingClient);
+		return CGameControllerDDNet::SnapScoreLimit(SnappingClient);
 
 	if(pSnapReceiver->IsInstagibMinigame())
 	{
@@ -158,7 +158,7 @@ int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
 	if(pMinigame)
 		return pMinigame->ScoreLimit(pSnapReceiver);
 
-	return CGameControllerDDRace::SnapScoreLimit(SnappingClient);
+	return CGameControllerDDNet::SnapScoreLimit(SnappingClient);
 }
 
 void CGameControllerDDNetPP::SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo)

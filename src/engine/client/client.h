@@ -154,13 +154,12 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_MapdownloadCrc = 0;
 	int m_MapdownloadAmount = -1;
 	int m_MapdownloadTotalsize = -1;
-	bool m_MapdownloadSha256Present = false;
-	SHA256_DIGEST m_MapdownloadSha256 = SHA256_ZEROED;
+	std::optional<SHA256_DIGEST> m_MapdownloadSha256;
 
 	bool m_MapDetailsPresent = false;
 	char m_aMapDetailsName[256] = "";
 	int m_MapDetailsCrc = 0;
-	SHA256_DIGEST m_MapDetailsSha256 = SHA256_ZEROED;
+	SHA256_DIGEST m_MapDetailsSha256;
 	char m_aMapDetailsUrl[256] = "";
 
 	EInfoState m_InfoState = EInfoState::ERROR;
@@ -370,8 +369,8 @@ public:
 	const char *DummyName() override;
 	const char *ErrorString() const override;
 
-	const char *LoadMap(const char *pName, const char *pFilename, SHA256_DIGEST *pWantedSha256, unsigned WantedCrc);
-	const char *LoadMapSearch(const char *pMapName, SHA256_DIGEST *pWantedSha256, int WantedCrc);
+	const char *LoadMap(const char *pName, const char *pFilename, const std::optional<SHA256_DIGEST> &WantedSha256, unsigned WantedCrc);
+	const char *LoadMapSearch(const char *pMapName, const std::optional<SHA256_DIGEST> &WantedSha256, int WantedCrc);
 
 	int TranslateSysMsg(int *pMsgId, bool System, CUnpacker *pUnpacker, CPacker *pPacker, CNetChunk *pPacket, bool *pIsExMsg);
 
@@ -472,7 +471,7 @@ public:
 	void RegisterCommands();
 
 	const char *DemoPlayer_Play(const char *pFilename, int StorageType) override;
-	void DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int Recorder, bool Verbose = false) override;
+	void DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int Recorder) override;
 	void DemoRecorder_HandleAutoStart() override;
 	void DemoRecorder_UpdateReplayRecorder() override;
 	void DemoRecorder_AddDemoMarker(int Recorder);

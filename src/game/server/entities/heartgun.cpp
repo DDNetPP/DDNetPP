@@ -11,7 +11,7 @@
 #include <generated/server_data.h>
 
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
+#include <game/server/gamemodes/ddnet.h>
 #include <game/server/teams.h>
 
 CHeartGun::CHeartGun(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,

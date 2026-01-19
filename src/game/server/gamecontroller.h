@@ -3,10 +3,13 @@
 #ifndef GAME_SERVER_GAMECONTROLLER_H
 #define GAME_SERVER_GAMECONTROLLER_H
 
+#include <base/dbg.h>
 #include <base/vmath.h>
 
 #include <engine/map.h>
 #include <engine/shared/protocol.h>
+
+#include <generated/protocol.h>
 
 #include <game/server/teams.h>
 
@@ -187,6 +190,15 @@ public:
 	 * @return The time split into seconds and the milliseconds remainder, use CFinishTime::Unset if you want the server to prefer scores.
 	 */
 	virtual CFinishTime SnapPlayerTime(int SnappingClient, CPlayer *pPlayer) { return CFinishTime::Unset(); }
+
+	/**
+	 * Snaps the current server record / best time of the current map.
+	 *
+	 * @param SnappingClient Client ID of the player that will receive the snapshot.
+	 *
+	 * @return The the map best time split into seconds and the milliseconds remainder, use CFinishTime::Unset if you want the server to prefer scores.
+	 */
+	virtual CFinishTime SnapMapBestTime(int SnappingClient) { return CFinishTime::Unset(); }
 
 	// spawn
 	virtual bool CanSpawn(int Team, vec2 *pOutPos, int ClientId);
