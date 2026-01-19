@@ -153,6 +153,12 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	// LoadScoreThreaded() instead
 	Score()->LoadPlayerData(ClientId);
 
+	PrintConnect(pPlayer, Server()->ClientName(pPlayer->GetCid()));
+	if(!Server()->ClientPrevIngame(ClientId))
+	{
+		PrintModWelcome(pPlayer);
+	}
+
 	if(!Server()->ClientPrevIngame(ClientId))
 	{
 		char aBuf[512];
@@ -201,7 +207,17 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	}
 }
 
+// this method should be kept as slim as possible
+// all logic should be moved to DDNetPPDisconnect
+// so controllers inheriting can easier reimplement parts they want
 void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
+{
+	DDNetPPDisconnect(pPlayer, pReason, Silent);
+	pPlayer->OnDisconnect();
+	PrintDisconnect(pPlayer, pReason, Silent);
+}
+
+void CGameControllerDDNetPP::DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent)
 {
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
 	{
@@ -224,6 +240,77 @@ void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const ch
 	CGameControllerDDNet::OnPlayerDisconnect(pPlayer, pReason, Silent);
 
 	pPlayer->OnDisconnectDDPP();
+}
+
+void CGameControllerDDNetPP::PrintDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent)
+{
+	int ClientId = pPlayer->GetCid();
+	if(Server()->ClientIngame(ClientId))
+	{
+		char aBuf[512];
+		if(!Silent)
+		{
+			if(pReason && *pReason)
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientId), pReason);
+			else
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
+			if(GameServer()->ShowLeaveMessage(ClientId))
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
+				ddpp_log(DDPP_LOG_FLOOD, aBuf);
+			}
+		}
+
+		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientId, Server()->ClientName(ClientId));
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
+	}
+}
+
+void CGameControllerDDNetPP::PrintConnect(CPlayer *pPlayer, const char *pName)
+{
+	int ClientId = pPlayer->GetCid();
+	if(!Server()->ClientPrevIngame(ClientId))
+	{
+		char aBuf[512];
+		if(!pPlayer->m_SilentJoinMessage)
+		{
+			if(GameServer()->ShowJoinMessage(ClientId))
+			{
+				PrintJoinMessage(pPlayer);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
+				ddpp_log(DDPP_LOG_FLOOD, aBuf);
+			}
+		}
+	}
+	else
+	{
+		// do not send delayed join messages on map change
+		// if the player was in game the regular join message will not be printed
+		pPlayer->m_PendingJoinMessage = false;
+	}
+}
+
+void CGameControllerDDNetPP::PrintModWelcome(CPlayer *pPlayer)
+{
+	int ClientId = pPlayer->GetCid();
+	if(g_Config.m_SvInstagibMode)
+	{
+		GameServer()->SendChatTarget(ClientId, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
+		return;
+	}
+
+	char aWelcome[128];
+	char aSubGameType[128];
+	aSubGameType[0] = '\0';
+	if(g_Config.m_SvDDPPgametype[0])
+		str_format(aSubGameType, sizeof(aSubGameType), "(%s) ", g_Config.m_SvDDPPgametype);
+	str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s%s based on DDNet " GAME_RELEASE_VERSION, aSubGameType, DDNETPP_VERSIONSTR);
+	GameServer()->SendChatTarget(ClientId, aWelcome);
 }
 
 void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)

@@ -478,6 +478,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 			else
 			{
 				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
+				// TODO: remove this diff
 				ddpp_log(DDPP_LOG_FLOOD, aBuf);
 			}
 		}

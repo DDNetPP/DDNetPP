@@ -25,6 +25,26 @@ public:
 	void PrintJoinMessage(CPlayer *pPlayer) override;
 	void OnPlayerConnect(class CPlayer *pPlayer) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;
+
+	// contains the base logic needed to make ddnet++ work
+	// you almost never want to not run this code
+	// TODO: remove Silent arg like in ddnet-insta
+	virtual void DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent);
+
+	// logs the disconnect to console
+	// and prints it to the chat
+	// you can override this to silence the message or change it
+	// TODO: remove silent arg
+	virtual void PrintDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent);
+
+	// prints the join message into public chat
+	// you can override this to silence the message or change it
+	virtual void PrintConnect(CPlayer *pPlayer, const char *pName);
+
+	// prints the mod welcome and version message
+	// called on join
+	virtual void PrintModWelcome(CPlayer *pPlayer);
+
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 	int ServerInfoClientScoreValue(CPlayer *pPlayer) override;
