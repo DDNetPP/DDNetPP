@@ -2618,7 +2618,7 @@ void CServer::ExpireServerInfo()
 void CServer::ExpireServerInfoAndQueueResend()
 {
 	m_ServerInfoNeedsUpdate = true;
-	m_ServerInfoNeedsResend = false;
+	m_ServerInfoNeedsResend = true;
 }
 
 void CServer::UpdateRegisterServerInfo()
