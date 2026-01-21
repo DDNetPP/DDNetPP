@@ -467,21 +467,11 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 	if(Server()->ClientIngame(ClientId))
 	{
 		char aBuf[512];
-		if(!Silent)
-		{
-			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientId), pReason);
-			else
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
-			if(GameServer()->ShowLeaveMessage(ClientId))
-				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
-			else
-			{
-				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
-				// TODO: remove this diff
-				ddpp_log(DDPP_LOG_FLOOD, aBuf);
-			}
-		}
+		if(pReason && *pReason)
+			str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientId), pReason);
+		else
+			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::FLAG_SIX);
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientId, Server()->ClientName(ClientId));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
