@@ -1988,6 +1988,7 @@ void CGameContext::OnClientDrop(int ClientId, const char *pReason, bool Silent)
 	protocol7::CNetMsg_Sv_ClientDrop Msg;
 	Msg.m_ClientId = ClientId;
 	Msg.m_pReason = pReason;
+	// TODO: remove this diff https://github.com/ddnet/ddnet/pull/11656
 	Msg.m_Silent = Silent;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);
 
