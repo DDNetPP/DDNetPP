@@ -174,20 +174,6 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 				ddpp_log(DDPP_LOG_FLOOD, aBuf);
 			}
 		}
-		if(g_Config.m_SvInstagibMode)
-		{
-			GameServer()->SendChatTarget(ClientId, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
-		}
-		else
-		{
-			char aWelcome[128];
-			char aSubGameType[128];
-			aSubGameType[0] = '\0';
-			if(g_Config.m_SvDDPPgametype[0])
-				str_format(aSubGameType, sizeof(aSubGameType), "(%s) ", g_Config.m_SvDDPPgametype);
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s%s based on DDNet " GAME_RELEASE_VERSION, aSubGameType, DDNETPP_VERSIONSTR);
-			GameServer()->SendChatTarget(ClientId, aWelcome);
-		}
 	}
 	else
 	{
