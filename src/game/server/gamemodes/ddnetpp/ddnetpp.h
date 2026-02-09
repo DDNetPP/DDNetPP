@@ -28,8 +28,7 @@ public:
 
 	// contains the base logic needed to make ddnet++ work
 	// you almost never want to not run this code
-	// TODO: remove Silent arg like in ddnet-insta
-	virtual void DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent);
+	virtual void DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason);
 
 	// logs the disconnect to console
 	// and prints it to the chat

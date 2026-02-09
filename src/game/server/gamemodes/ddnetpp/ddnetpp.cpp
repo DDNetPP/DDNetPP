@@ -198,21 +198,18 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 // so controllers inheriting can easier reimplement parts they want
 void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
-	DDNetPPDisconnect(pPlayer, pReason, Silent);
+	DDNetPPDisconnect(pPlayer, pReason);
 	pPlayer->OnDisconnect();
 	PrintDisconnect(pPlayer, pReason, Silent);
 }
 
-void CGameControllerDDNetPP::DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent)
+void CGameControllerDDNetPP::DDNetPPDisconnect(CPlayer *pPlayer, const char *pReason)
 {
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
 	{
 		pMinigame->ClearSavedPosition(pPlayer);
 		pMinigame->OnPlayerDisconnect(pPlayer, pReason);
 	}
-
-	if(pPlayer->m_PendingJoinMessage)
-		Silent = true;
 
 	int64_t TicksOnline = Server()->Tick() - pPlayer->m_JoinTick;
 	int64_t SecondsOnline = TicksOnline / Server()->TickSpeed();
