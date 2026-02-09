@@ -237,8 +237,6 @@ void CGameControllerDDNetPP::DDNetPPDisconnect(CPlayer *pPlayer, const char *pRe
 		m_NumShortConnectionsInTheLast10Minutes++;
 	}
 
-	CGameControllerDDNet::OnPlayerDisconnect(pPlayer, pReason, Silent);
-
 	pPlayer->OnDisconnectDDPP();
 }
 
