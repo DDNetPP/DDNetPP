@@ -140,7 +140,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	{
 		//Chiller Special
 		if(m_Core.m_Pos.y > 223 * 32 && m_Core.m_Pos.y < 225 * 32 && m_Core.m_Pos.x < 438 * 32 && m_Core.m_Pos.x > 427 * 32 && m_fake_super)
-			UnFreeze();
+			Unfreeze();
 		else
 			m_DummyFreezed = true;
 	}

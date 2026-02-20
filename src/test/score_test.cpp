@@ -1,4 +1,6 @@
 #include <base/detect.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>

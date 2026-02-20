@@ -64,7 +64,7 @@ CONSOLE_COMMAND("lasergun", "v[id]", CFGFLAG_SERVER, ConLaserGun, this, "Toggles
 
 CONSOLE_COMMAND("heartgun", "v", CFGFLAG_SERVER, ConHeartGun, this, "Gives a player heart gun")
 
-CONSOLE_COMMAND("unfreeze", "v[id]", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
+CONSOLE_COMMAND("unfreeze", "v[id]", CFGFLAG_SERVER, ConUnfreeze, this, "Unfreezes player v")
 CONSOLE_COMMAND("freeze", "v[id] ?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
 
 CONSOLE_COMMAND("godmode", "v[id]", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")

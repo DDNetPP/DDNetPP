@@ -225,7 +225,7 @@ bool CCharacter::HandleConfigTile(int Type)
 	if(Type == CFG_TILE_FREEZE)
 		Freeze();
 	else if(Type == CFG_TILE_UNFREEZE)
-		UnFreeze();
+		Unfreeze();
 	else if(Type == CFG_TILE_DEEP)
 		m_Core.m_DeepFrozen = true;
 	else if(Type == CFG_TILE_UNDEEP)

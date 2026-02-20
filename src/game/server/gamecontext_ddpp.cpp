@@ -270,7 +270,7 @@ void CGameContext::LoadMapLive(const char *pMapName)
 {
 	int LoadMap = Server()->LoadMapLive(pMapName);
 	dbg_msg("live-map", "loadmap=%d", LoadMap);
-	m_Layers.Init(Kernel()->RequestInterface<IMap>(), false);
+	m_Layers.Init(Map(), false);
 	m_Collision.Init(&m_Layers);
 }
 
@@ -334,7 +334,7 @@ void CGameContext::ModifyTileWorker(CGameContext *pGameServer)
 	// TODO: we need the FULL ABSOLUTE path here
 	//       the storage system abstracts that away we need to know where exactly
 	//       the map file is for the map_set_tiles.py script
-	str_copy(aMapName, pGameServer->Server()->GetMapName());
+	str_copy(aMapName, pGameServer->Map()->BaseName());
 
 	while(!pGameServer->m_StopDDPPWorkerThread)
 	{
@@ -2112,7 +2112,7 @@ void CGameContext::SaveMapPlayerData()
 {
 	FILE *pFile;
 	char aSaveFile[256];
-	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Map()->BaseName());
 	pFile = fopen(aSaveFile, "wb");
 	if(!pFile)
 	{
@@ -2153,7 +2153,7 @@ void CGameContext::LoadMapPlayerData()
 {
 	FILE *pFile;
 	char aSaveFile[256];
-	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Map()->BaseName());
 	pFile = fopen(aSaveFile, "rb+");
 	if(!pFile)
 	{
@@ -2226,8 +2226,8 @@ void CGameContext::LoadMapPlayerData()
 			ValidPlayer = false;
 		}
 		IsLoaded = ValidPlayer ? 1 : IsLoaded; // only change loaded state if the player is actually loaded
-		fpos_t pos;
-		fsetpos(pFile, &pos);
+		fpos_t Pos;
+		fsetpos(pFile, &Pos);
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
 		CSaveTee SaveTee;
@@ -2260,7 +2260,7 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 {
 	FILE *pFile;
 	char aSaveFile[256];
-	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Map()->BaseName());
 	pFile = fopen(aSaveFile, "rb");
 	if(!pFile)
 	{
@@ -2715,7 +2715,7 @@ void CGameContext::DummyChat()
 
 void CGameContext::CreateBasicDummys()
 {
-	if(!str_comp(Server()->GetMapName(), "ChillBlock5"))
+	if(!str_comp(Map()->BaseName(), "ChillBlock5"))
 	{
 		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_POLICE);
 		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER);
@@ -2723,24 +2723,24 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_RACER);
 		CreateNewDummy(DUMMYMODE_BLMAPV3_ARENA);
 	}
-	else if(!str_comp(Server()->GetMapName(), "BlmapChill"))
+	else if(!str_comp(Map()->BaseName(), "BlmapChill"))
 	{
 		CreateNewDummy(DUMMYMODE_BLMAPCHILL_POLICE);
 	}
-	else if(!str_comp(Server()->GetMapName(), "blmapV5"))
+	else if(!str_comp(Map()->BaseName(), "blmapV5"))
 	{
 		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
 		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
 		CreateNewDummy(DUMMYMODE_BLMAPV5_UPPER_BLOCKER);
 	}
-	else if(!str_comp(Server()->GetMapName(), "blmapV5_ddpp"))
+	else if(!str_comp(Map()->BaseName(), "blmapV5_ddpp"))
 	{
 		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
 		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
 		CreateNewDummy(DUMMYMODE_BLMAPV5_UPPER_BLOCKER);
 		g_Config.m_SvDummyMapOffsetX = -226;
 	}
-	else if(!str_comp(Server()->GetMapName(), "ddpp_survival"))
+	else if(!str_comp(Map()->BaseName(), "ddpp_survival"))
 	{
 		CreateNewDummy(DUMMYMODE_SURVIVAL);
 		CreateNewDummy(DUMMYMODE_SURVIVAL);
@@ -2748,13 +2748,13 @@ void CGameContext::CreateBasicDummys()
 	else
 	{
 		CreateNewDummy(DUMMYMODE_DEFAULT);
-		dbg_msg("basic_dummys", "warning map=%s not supported", Server()->GetMapName());
+		dbg_msg("basic_dummys", "warning map=%s not supported", Map()->BaseName());
 	}
 	if(m_ShopBotTileExists)
 	{
 		m_CreateShopBot = true;
 	}
-	dbg_msg("basic_dummys", "map=%s", Server()->GetMapName());
+	dbg_msg("basic_dummys", "map=%s", Map()->BaseName());
 }
 
 int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyTest TestMode)

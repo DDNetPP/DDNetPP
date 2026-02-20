@@ -38,7 +38,6 @@ class IConfigManager;
 class IDiscord;
 class IEngine;
 class IEngineInput;
-class IEngineMap;
 class IEngineSound;
 class IFriends;
 class ILogger;
@@ -70,7 +69,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IGameClient *m_pGameClient = nullptr;
 	IEngineGraphics *m_pGraphics = nullptr;
 	IEngineInput *m_pInput = nullptr;
-	IEngineMap *m_pMap = nullptr;
 	IEngineSound *m_pSound = nullptr;
 	ISteam *m_pSteam = nullptr;
 	INotifications *m_pNotifications = nullptr;
@@ -132,9 +130,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	// pinging
 	int64_t m_PingStartTime = 0;
 
-	char m_aCurrentMap[IO_MAX_PATH_LENGTH] = "";
-	char m_aCurrentMapPath[IO_MAX_PATH_LENGTH] = "";
-
 	char m_aTimeoutCodes[NUM_DUMMIES][32] = {"", ""};
 	bool m_aDidPostConnect[NUM_DUMMIES] = {false, false};
 	bool m_GenerateTimeoutSeed = true;
@@ -156,11 +151,16 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_MapdownloadTotalsize = -1;
 	std::optional<SHA256_DIGEST> m_MapdownloadSha256;
 
-	bool m_MapDetailsPresent = false;
-	char m_aMapDetailsName[256] = "";
-	int m_MapDetailsCrc = 0;
-	SHA256_DIGEST m_MapDetailsSha256;
-	char m_aMapDetailsUrl[256] = "";
+	class CMapDetails
+	{
+	public:
+		char m_aName[256];
+		int m_Size;
+		int m_Crc;
+		SHA256_DIGEST m_Sha256;
+		char m_aUrl[256];
+	};
+	std::optional<CMapDetails> m_MapDetails;
 
 	EInfoState m_InfoState = EInfoState::ERROR;
 	std::shared_ptr<CHttpRequest> m_pDDNetInfoTask = nullptr;
@@ -278,6 +278,7 @@ public:
 	IDiscord *Discord() { return m_pDiscord; }
 	IEngine *Engine() { return m_pEngine; }
 	IGameClient *GameClient() { return m_pGameClient; }
+	const IGameClient *GameClient() const { return m_pGameClient; }
 	IEngineGraphics *Graphics() { return m_pGraphics; }
 	IEngineInput *Input() { return m_pInput; }
 	IEngineSound *Sound() { return m_pSound; }
@@ -506,11 +507,6 @@ public:
 
 	void GenerateTimeoutSeed() override;
 	void GenerateTimeoutCodes(const NETADDR *pAddrs, int NumAddrs);
-
-	const char *GetCurrentMap() const override;
-	const char *GetCurrentMapPath() const override;
-	SHA256_DIGEST GetCurrentMapSha256() const override;
-	unsigned GetCurrentMapCrc() const override;
 
 	void RaceRecord_Start(const char *pFilename) override;
 	void RaceRecord_Stop() override;

@@ -36,7 +36,7 @@ CRaceDemo::CRaceDemo() :
 
 void CRaceDemo::GetPath(char *pBuf, int Size, int Time) const
 {
-	const char *pMap = Client()->GetCurrentMap();
+	const char *pMap = GameClient()->Map()->BaseName();
 
 	char aPlayerName[MAX_NAME_LENGTH];
 	str_copy(aPlayerName, Client()->PlayerName());
@@ -158,6 +158,16 @@ void CRaceDemo::OnMessage(int MsgType, void *pRawMsg)
 			}
 		}
 	}
+	else if(MsgType == NETMSGTYPE_SV_RACEFINISH)
+	{
+		CNetMsg_Sv_RaceFinish *pMsg = (CNetMsg_Sv_RaceFinish *)pRawMsg;
+		if(m_RaceState == RACE_STARTED && pMsg->m_ClientId == GameClient()->m_Snap.m_LocalClientId)
+		{
+			m_RaceState = RACE_FINISHED;
+			m_RecordStopTick = Client()->GameTick(g_Config.m_ClDummy) + Client()->GameTickSpeed();
+			m_Time = pMsg->m_Time;
+		}
+	}
 }
 
 void CRaceDemo::OnMapLoad()
@@ -241,7 +251,7 @@ int CRaceDemo::RaceDemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, in
 bool CRaceDemo::CheckDemo(int Time)
 {
 	std::vector<CDemoItem> vDemos;
-	CDemoListParam Param = {this, &vDemos, Client()->GetCurrentMap()};
+	CDemoListParam Param = {this, &vDemos, GameClient()->Map()->BaseName()};
 	m_RaceDemosLoadStartTime = time_get_nanoseconds();
 	SRaceDemoFetchUser User;
 	User.m_pParam = &Param;

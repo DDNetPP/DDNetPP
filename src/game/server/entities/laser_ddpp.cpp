@@ -27,7 +27,7 @@ bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
 	{
 		if(!pOwnerChar)
 		{
-			pHit->UnFreeze();
+			pHit->Unfreeze();
 			return false;
 		}
 		//quests (before unfreeze to have information about the tee was being frozzn)
@@ -54,7 +54,7 @@ bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
 			}
 			else
 			{
-				pHit->UnFreeze();
+				pHit->Unfreeze();
 				if(pOwnerChar->GetPlayer()->m_IsVanillaCompetitive)
 				{
 					pHit->TakeDamage(vec2(0.f, 0.f), 5, m_Owner, WEAPON_LASER);

@@ -1877,6 +1877,9 @@ set(COPY_FILES
   ${CRASHDUMP_COPY_FILES}
   ${SSP_COPY_FILES}
 )
+if(TARGET_OS STREQUAL "emscripten")
+  list(APPEND COPY_FILES other/emscripten/index.html)
+endif()
 file(COPY ${COPY_FILES} DESTINATION .)
 
 set(COPY_DIRS ${SDL2_COPY_DIRS})
@@ -1989,6 +1992,8 @@ add_custom_target(generate_protocol
 
 # Sources
 set_src(BASE GLOB_RECURSE src/base
+  aio.cpp
+  aio.h
   bezier.cpp
   bezier.h
   color.cpp
@@ -2008,6 +2013,8 @@ set_src(BASE GLOB_RECURSE src/base
   hash_ctxt.h
   hash_libtomcrypt.cpp
   hash_openssl.cpp
+  io.cpp
+  io.h
   lock.h
   log.cpp
   log.h
@@ -2017,15 +2024,20 @@ set_src(BASE GLOB_RECURSE src/base
   mem.cpp
   mem.h
   rust.h
+  secure.cpp
+  secure.h
+  sphore.cpp
+  sphore.h
   str.cpp
   str.h
   system.cpp
   system.h
   system_ddpp.cpp
   system_ddpp.h
+  thread.cpp
+  thread.h
   time.cpp
   time.h
-  tl/threading.h
   types.h
   unicode/confusables.cpp
   unicode/confusables.h
@@ -2047,6 +2059,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   editor.h
   engine.h
   favorites.h
+  font_icons.h
   friends.h
   ghost.h
   graphics.cpp
@@ -2577,8 +2590,8 @@ if(CLIENT)
     prompt.h
     proof_mode.cpp
     proof_mode.h
-    quadart.cpp
-    quadart.h
+    quad_art.cpp
+    quad_art.h
     quick_action.h
     quick_actions.cpp
     quick_actions.h
@@ -2586,7 +2599,7 @@ if(CLIENT)
     references.h
     smooth_value.cpp
     smooth_value.h
-    tileart.cpp
+    tile_art.cpp
   )
   set_src(GAME_MAP GLOB_RECURSE src/game/map
     envelope_extrema.cpp
@@ -3433,6 +3446,8 @@ if(TARGET_OS STREQUAL "mac")
   set(CPACK_STRIP_FILES FALSE)
 elseif(TARGET_OS STREQUAL "windows" AND TARGET_CPU_ARCHITECTURE STREQUAL "arm64")
   set(CPACK_STRIP_FILES FALSE)
+elseif(TARGET_OS STREQUAL "emscripten")
+  set(CPACK_STRIP_FILES FALSE)
 else()
   set(CPACK_STRIP_FILES TRUE)
 endif()
@@ -3543,15 +3558,19 @@ list(APPEND CPACK_TARGETS ${TARGET_TOOLS})
 if(STEAMAPI_KIND STREQUAL SHARED)
   list(APPEND CPACK_TARGETS ${TARGET_STEAMAPI})
 endif()
-set(CPACK_DIRS
-  data
-  ${COPY_DIRS}
-)
+if(TARGET_OS STREQUAL "emscripten")
+  set(CPACK_DIRS)
+else()
+  set(CPACK_DIRS data)
+endif()
+list(APPEND CPACK_DIRS ${COPY_DIRS})
 set(CPACK_FILES
   license.txt
-  storage.cfg
   ${COPY_FILES}
 )
+if(NOT TARGET_OS STREQUAL "emscripten")
+  list(APPEND CPACK_FILES storage.cfg)
+endif()
 
 set(CPACK_GEN_FILES
   ${VULKAN_SHADER_FILE_LIST}
@@ -3559,7 +3578,7 @@ set(CPACK_GEN_FILES
 
 if(TARGET_OS STREQUAL "windows")
   list(APPEND CPACK_FILES other/config_directory.bat)
-else()
+elseif(NOT TARGET_OS STREQUAL "emscripten")
   list(APPEND CPACK_FILES other/config_directory.sh)
 endif()
 
@@ -3744,8 +3763,15 @@ foreach(ext zip tar.gz tar.xz)
     list(APPEND COPY_DIR_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${dir} ${TMPDIR}/${dir})
   endforeach()
   foreach(target ${CPACK_TARGETS})
-    list(APPEND COPY_TARGET_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target}> ${TMPDIR}/)
-    if(NOT TARGET_OS STREQUAL "mac" AND NOT (TARGET_OS STREQUAL "windows" AND TARGET_CPU_ARCHITECTURE STREQUAL "arm64"))
+    if(TARGET_OS STREQUAL "emscripten")
+      # The main target with Emscripten is the .html file, but we instead want the .data, .js and .wasm files and use our own index.html
+      list(APPEND COPY_TARGET_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/$<TARGET_FILE_BASE_NAME:game-client>.data ${TMPDIR}/)
+      list(APPEND COPY_TARGET_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/$<TARGET_FILE_BASE_NAME:game-client>.js ${TMPDIR}/)
+      list(APPEND COPY_TARGET_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/$<TARGET_FILE_BASE_NAME:game-client>.wasm ${TMPDIR}/)
+    else()
+      list(APPEND COPY_TARGET_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${target}> ${TMPDIR}/)
+    endif()
+    if(CPACK_STRIP_FILES)
       list(APPEND STRIP_TARGET_COMMANDS COMMAND strip -s ${TMPDIR}/$<TARGET_FILE_NAME:${target}>)
     endif()
   endforeach()
@@ -3954,9 +3980,14 @@ foreach(target ${TARGETS_OWN})
   endif()
   if(TARGET_OS STREQUAL "android")
     if(ANDROID_PACKAGE_NAME)
-      target_compile_definitions(${target} PRIVATE ANDROID_PACKAGE_NAME=${ANDROID_PACKAGE_NAME})
+      target_compile_definitions(${target} PRIVATE ANDROID_PACKAGE_NAME="${ANDROID_PACKAGE_NAME}")
     else()
-      message(FATAL_ERROR "ANDROID_PACKAGE_NAME must define the package name when compiling for Android (using underscores instead of dots, e.g. org_example_app)")
+      message(FATAL_ERROR "ANDROID_PACKAGE_NAME must define the package name when compiling for Android (e.g. org.example.app)")
+    endif()
+    if(ANDROID_PACKAGE_NAME_JNI)
+      target_compile_definitions(${target} PRIVATE ANDROID_PACKAGE_NAME_JNI=${ANDROID_PACKAGE_NAME_JNI})
+    else()
+      message(FATAL_ERROR "ANDROID_PACKAGE_NAME_JNI must define the package name when compiling for Android (using underscores instead of dots, e.g. org_example_app)")
     endif()
   endif()
   # ddnet++

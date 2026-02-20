@@ -58,7 +58,7 @@ bool CPlasmaBullet::HitCharacter()
 		Hit->Freeze();
 
 	if(m_Unfreeze)
-		Hit->UnFreeze();
+		Hit->Unfreeze();
 
 	if(m_Explosive)
 		GameServer()->CreateExplosion(m_Pos, m_Owner, WEAPON_GRENADE, true,

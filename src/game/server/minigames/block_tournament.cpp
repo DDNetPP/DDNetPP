@@ -300,7 +300,7 @@ void CBlockTournament::Tick()
 				if(!pChr)
 					continue;
 
-				pChr->UnFreeze();
+				pChr->Unfreeze();
 			}
 		}
 	}

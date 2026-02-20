@@ -178,6 +178,7 @@ public:
 	bool Save(const char *pFilename, const FErrorHandler &ErrorHandler);
 	bool PerformPreSaveSanityChecks(const FErrorHandler &ErrorHandler);
 	bool Load(const char *pFilename, int StorageType, const FErrorHandler &ErrorHandler);
+	bool Append(const char *pFilename, int StorageType, bool IgnoreHistory, const FErrorHandler &ErrorHandler);
 	void PerformSanityChecks(const FErrorHandler &ErrorHandler);
 	bool PerformAutosave(const FErrorHandler &ErrorHandler);
 
@@ -225,6 +226,8 @@ public:
 	int MoveEnvelope(int IndexFrom, int IndexTo);
 	template<typename F>
 	std::vector<std::shared_ptr<IEditorEnvelopeReference>> VisitEnvelopeReferences(F &&Visitor);
+	bool IsEnvelopeUsed(int EnvelopeIndex) const;
+	void RemoveUnusedEnvelopes();
 
 	// Envelope points
 	int FindEnvPointIndex(int Index, int Channel) const;
@@ -258,6 +261,8 @@ public:
 	void SelectPreviousSound();
 	bool IsSoundUsed(int SoundIndex) const;
 	CSoundSource *SelectedSoundSource() const;
+
+	void PlaceBorderTiles();
 
 private:
 	CEditor *m_pEditor;

@@ -69,7 +69,10 @@
 #include "components/touch_controls.h"
 #include "components/voting.h"
 
+#include <memory>
 #include <vector>
+
+class IMap;
 
 class CGameInfo
 {
@@ -117,6 +120,8 @@ public:
 	bool m_NoSkinChangeForFrozen;
 
 	bool m_DDRaceTeam;
+
+	bool m_PredictEvents;
 };
 
 class CSnapEntities
@@ -666,6 +671,7 @@ public:
 	unsigned int m_DummyFire;
 	bool m_ReceivedDDNetPlayer;
 	bool m_ReceivedDDNetPlayerFinishTimes;
+	bool m_ReceivedDDNetPlayerFinishTimesMillis;
 
 	class CTeamsCore m_Teams;
 
@@ -699,6 +705,9 @@ public:
 	int SwitchStateTeam() const;
 	bool IsLocalCharSuper() const;
 	bool CanDisplayWarning() const override;
+
+	IMap *Map() override { return m_pMap.get(); }
+	const IMap *Map() const override { return m_pMap.get(); }
 	CNetObjHandler *GetNetObjHandler() override;
 	protocol7::CNetObjHandler *GetNetObjHandler7() override;
 
@@ -884,8 +893,11 @@ public:
 	void CleanMultiViewId(int ClientId);
 	int m_MapBestTimeSeconds;
 	int m_MapBestTimeMillis;
+	char m_aMapDescription[512];
 
 private:
+	std::unique_ptr<IMap> m_pMap;
+
 	std::vector<CSnapEntities> m_vSnapEntities;
 	void SnapCollectEntities();
 
@@ -900,6 +912,7 @@ private:
 	void UpdatePrediction();
 	void UpdateSpectatorCursor();
 	void UpdateRenderedCharacters();
+	void HandlePredictedEvents(int Tick);
 
 	int m_aLastUpdateTick[MAX_CLIENTS] = {0};
 	void DetectStrongHook();

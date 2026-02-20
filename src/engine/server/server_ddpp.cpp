@@ -70,11 +70,6 @@ void CServer::DDPPRegisterDatabases()
 	}
 }
 
-IEngineMap *CServer::Map()
-{
-	return m_pMap;
-}
-
 void CServer::OnFailedRconLoginAttempt(int ClientId, const char *pName, const char *pPassword)
 {
 	char aBuf[512];
@@ -454,22 +449,20 @@ int CServer::LoadMapLive(const char *pMapName)
 	if(!GameServer()->OnMapChange(aBuf, sizeof(aBuf)))
 		return 0;
 
-	if(!m_pMap->Load(aBuf, IStorage::TYPE_ALL))
+	if(!GameServer()->Map()->Load(pMapName, Storage(), aBuf, IStorage::TYPE_ALL))
 		return 0;
 
 	// reinit snapshot ids
 	m_IdPool.TimeoutIds();
 
 	// get the crc of the map
-	m_aCurrentMapSha256[MAP_TYPE_SIX] = m_pMap->Sha256();
-	m_aCurrentMapCrc[MAP_TYPE_SIX] = m_pMap->Crc();
+	m_aCurrentMapSha256[MAP_TYPE_SIX] = GameServer()->Map()->Sha256();
+	m_aCurrentMapCrc[MAP_TYPE_SIX] = GameServer()->Map()->Crc();
 	char aBufMsg[256];
 	char aSha256[SHA256_MAXSTRSIZE];
 	sha256_str(m_aCurrentMapSha256[MAP_TYPE_SIX], aSha256, sizeof(aSha256));
 	str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
 	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBufMsg);
-
-	str_copy(m_aCurrentMap, pMapName, sizeof(m_aCurrentMap));
 
 	// load complete map into memory for download
 	{

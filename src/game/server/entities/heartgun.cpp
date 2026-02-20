@@ -110,7 +110,7 @@ void CHeartGun::HitCharacter()
 	if(m_Freeze)
 		pHit->Freeze();
 	else if(m_Unfreeze)
-		pHit->UnFreeze();
+		pHit->Unfreeze();
 
 	if(m_Explosive)
 	{
