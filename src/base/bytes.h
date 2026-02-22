@@ -5,7 +5,15 @@
 #define BASE_BYTES_H
 
 /**
+ * Byte-manipulation utilities.
+ *
+ * @defgroup Bytes Bytes
+ */
+
+/**
  * Swaps the endianness of data. Each element is swapped individually by reversing its bytes.
+ *
+ * @ingroup Bytes
  *
  * @param data Pointer to data to be swapped.
  * @param elem_size Size in bytes of each element.
@@ -17,6 +25,8 @@ void swap_endian(void *data, unsigned elem_size, unsigned num);
 
 /**
  * Packs 4 big endian bytes into an unsigned.
+ *
+ * @ingroup Bytes
  *
  * @param bytes Pointer to an array of bytes that will be packed.
  *
@@ -31,6 +41,8 @@ unsigned bytes_be_to_uint(const unsigned char *bytes);
 
 /**
  * Packs an unsigned into 4 big endian bytes.
+ *
+ * @ingroup Bytes
  *
  * @param bytes Pointer to an array where the bytes will be stored.
  * @param value The values that will be packed into the array.
