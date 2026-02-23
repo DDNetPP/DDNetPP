@@ -1503,7 +1503,7 @@ void CEditorActionEnvelopeDelete::Redo()
 }
 
 CEditorActionEnvelopeEdit::CEditorActionEnvelopeEdit(CEditorMap *pMap, int EnvelopeIndex, EEditType EditType, int Previous, int Current) :
-	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_EditType(EditType), m_Previous(Previous), m_Current(Current), m_pEnv(Map()->m_vpEnvelopes[EnvelopeIndex])
+	IEditorAction(pMap), m_EnvelopeIndex(EnvelopeIndex), m_EditType(EditType), m_Previous(Previous), m_Current(Current)
 {
 	static const char *s_apNames[] = {
 		"sync",
@@ -1522,7 +1522,7 @@ void CEditorActionEnvelopeEdit::Undo()
 	}
 	case EEditType::SYNC:
 	{
-		m_pEnv->m_Synchronized = m_Previous;
+		Map()->m_vpEnvelopes[m_EnvelopeIndex]->m_Synchronized = m_Previous;
 		break;
 	}
 	}
@@ -1541,7 +1541,7 @@ void CEditorActionEnvelopeEdit::Redo()
 	}
 	case EEditType::SYNC:
 	{
-		m_pEnv->m_Synchronized = m_Current;
+		Map()->m_vpEnvelopes[m_EnvelopeIndex]->m_Synchronized = m_Current;
 		break;
 	}
 	}
