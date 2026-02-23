@@ -451,7 +451,6 @@ private:
 	EEditType m_EditType;
 	int m_Previous;
 	int m_Current;
-	std::shared_ptr<CEnvelope> m_pEnv;
 };
 
 class CEditorActionEnvelopeEditPointTime : public IEditorAction
@@ -467,7 +466,6 @@ private:
 	int m_PointIndex;
 	CFixedTime m_Previous;
 	CFixedTime m_Current;
-	std::shared_ptr<CEnvelope> m_pEnv;
 
 	void Apply(CFixedTime Value);
 };
