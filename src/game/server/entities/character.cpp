@@ -661,9 +661,9 @@ void CCharacter::FireWeapon()
 
 	if(!m_ReloadTimer)
 	{
-		float FireDelay;
-		GetTuning(m_TuneZone)->Get(offsetof(CTuningParams, m_HammerFireDelay) / sizeof(CTuneParam) + m_Core.m_ActiveWeapon, &FireDelay);
-		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		m_ReloadTimer = GetTuning(m_TuneZone)->GetWeaponFireDelay(m_Core.m_ActiveWeapon) * Server()->TickSpeed();
+
+		// ddnet++
 		if(m_OnFire)
 		{
 			m_OnFire = false;
