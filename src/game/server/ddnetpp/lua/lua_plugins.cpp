@@ -2,6 +2,7 @@
 #include "lua_plugins.h"
 
 #include <base/log.h>
+#include <base/str.h>
 
 #include <game/server/gamecontext.h>
 
@@ -54,26 +55,67 @@ static void PushGameToLua(lua_State *L, CLuaGame *pGame)
 	lua_setglobal(L, "Game");
 }
 
+int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
+{
+	CLuaController *pSelf = (CLuaController *)pUser;
+	if(IsDir || !str_comp(".", pFilename) || !str_comp("..", pFilename))
+		return 0;
+	if(!str_endswith(pFilename, ".lua"))
+		return 0;
+
+	log_info("lua", " script %s", pFilename);
+
+	// char aFilename[1024];
+	// str_format(aFilename, sizeof(aFilename), "chillerbot/warlist/neutral/%s", pDirname);
+
+	// // TODO: can we share state between multiple plugins?
+	// if(luaL_dofile(LuaState(), "plugin.lua") != LUA_OK)
+	// {
+	// 	const char *pLuaError = lua_tostring(LuaState(), -1);
+	// 	log_error("lua", "%s", pLuaError);
+	// 	lua_pop(LuaState(), 1);
+	// }
+
+	return 0;
+}
+
 void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	log_info("lua", "init bridge..");
+	m_pController = pController;
+	m_pGameServer = pGameServer;
 	m_Game.Init(pController, pGameServer);
 
-	lua_State *L = luaL_newstate();
+	m_pLuaState = luaL_newstate();
+	lua_State *L = m_pLuaState;
 	luaL_openlibs(L);
 
 	RegisterLuaBridgeTable(L);
 	PushGameToLua(L, &m_Game);
 
-	// TODO: can we share state between multiple plugins?
+	ReloadPlugins();
+}
 
-	if(luaL_dofile(L, "plugin.lua") != LUA_OK)
+CLuaController::~CLuaController()
+{
+	if(m_pLuaState)
 	{
-		const char *pLuaError = lua_tostring(L, -1);
-		log_error("lua", "%s", pLuaError);
-		lua_pop(L, 1);
+		log_info("lua", "cleaning up lua state...");
+		lua_close(LuaState());
 	}
-	lua_close(L);
+}
+
+void CLuaController::ReloadPlugins()
+{
+	// GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
+
+	// TODO: can we share state between multiple plugins?
+	if(luaL_dofile(LuaState(), "plugin.lua") != LUA_OK)
+	{
+		const char *pLuaError = lua_tostring(LuaState(), -1);
+		log_error("lua", "%s", pLuaError);
+		lua_pop(LuaState(), 1);
+	}
 }
 
 #endif

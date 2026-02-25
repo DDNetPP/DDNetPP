@@ -5,6 +5,8 @@
 
 #include <base/log.h>
 
+#include <lua.hpp>
+
 class IGameController;
 class CGameContext;
 
@@ -37,8 +39,23 @@ class CLuaController
 {
 	CLuaGame m_Game;
 
+	lua_State *m_pLuaState = nullptr;
+	lua_State *LuaState() { return m_pLuaState; }
+
+	IGameController *m_pController = nullptr;
+	CGameContext *m_pGameServer = nullptr;
+
+	static int FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser);
+
 public:
+	const IGameController *Controller() const { return m_pController; }
+	IGameController *Controller() { return m_pController; }
+	const CGameContext *GameServer() const { return m_pGameServer; }
+	CGameContext *GameServer() { return m_pGameServer; }
+
 	void Init(IGameController *pController, CGameContext *pGameServer);
+	~CLuaController();
+	void ReloadPlugins();
 };
 
 #endif
