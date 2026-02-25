@@ -1166,7 +1166,7 @@ void CGameContext::SendTuningParams(int ClientId, int Zone)
 				m_apPlayers[ClientId]->m_TROLL420)
 			{
 				// gravity for 420 trolling
-				Msg.AddInt(0);
+				Msg.AddInt(-1000000);
 			}
 			else
 			{

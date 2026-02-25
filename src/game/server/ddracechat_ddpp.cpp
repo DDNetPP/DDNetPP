@@ -7210,7 +7210,11 @@ void CGameContext::ConTROLL420(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[VictimCid];
 	if(pPlayer)
 	{
-		pPlayer->m_TROLL420 = pResult->GetInteger(0);
+		pPlayer->m_TROLL420 = pResult->GetInteger(1) != 0;
+		log_info(
+			"chatresp",
+			"troll gravity for player '%s' now %s",
+			pSelf->Server()->ClientName(VictimCid), pPlayer->m_TROLL420 ? "enabled" : "disabled");
 		pSelf->SendTuningParams(VictimCid);
 	}
 }
