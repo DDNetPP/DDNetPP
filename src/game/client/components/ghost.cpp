@@ -200,7 +200,7 @@ void CGhost::CheckStart()
 			GhostRecorder()->Stop(0, -1);
 		int StartTick = RaceTick;
 
-		if(GameClient()->m_GameInfo.m_BugDDRace.host) // the client recognizes the start one tick earlier than ddrace servers
+		if(GameClient()->m_GameInfo.m_BugDDRaceGhost) // the client recognizes the start one tick earlier than ddrace servers
 			StartTick--;
 		StartRecord(StartTick);
 		RenderTick = StartTick;

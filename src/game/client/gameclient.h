@@ -88,7 +88,7 @@ public:
 	bool m_AllowHookColl;
 	bool m_AllowZoom;
 
-	bool m_BugDDRace.host;
+	bool m_BugDDRaceGhost;
 	bool m_BugDDRaceInput;
 	bool m_BugFNGLaserRange;
 	bool m_BugVanillaBounce;

@@ -1547,7 +1547,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_AllowEyeWheel = DDRace || BlockWorlds || City || Plus;
 	Info.m_AllowHookColl = DDRace;
 	Info.m_AllowZoom = Race || BlockWorlds || City;
-	Info.m_BugDDRace.host = DDRace;
+	Info.m_BugDDRaceGhost = DDRace;
 	Info.m_BugDDRaceInput = DDRace;
 	Info.m_BugFNGLaserRange = FNG;
 	Info.m_BugVanillaBounce = Vanilla;
@@ -1587,7 +1587,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 		Info.m_AllowEyeWheel = Flags & GAMEINFOFLAG_ALLOW_EYE_WHEEL;
 		Info.m_AllowHookColl = Flags & GAMEINFOFLAG_ALLOW_HOOK_COLL;
 		Info.m_AllowZoom = Flags & GAMEINFOFLAG_ALLOW_ZOOM;
-		Info.m_BugDDRace.host = Flags & GAMEINFOFLAG_BUG_DDRACE_GHOST;
+		Info.m_BugDDRaceGhost = Flags & GAMEINFOFLAG_BUG_DDRACE_GHOST;
 		Info.m_BugDDRaceInput = Flags & GAMEINFOFLAG_BUG_DDRACE_INPUT;
 		Info.m_BugFNGLaserRange = Flags & GAMEINFOFLAG_BUG_FNG_LASER_RANGE;
 		Info.m_BugVanillaBounce = Flags & GAMEINFOFLAG_BUG_VANILLA_BOUNCE;
