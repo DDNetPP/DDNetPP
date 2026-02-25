@@ -43,18 +43,20 @@ gen_configs() {
 }
 
 gen_console_cmds() {
-  local type="$1"
+	local type="$1"
 	local prefix="$2"
 	local header_file="$3"
-  local cfg
-  local desc
-  local cmd
-  while read -r cfg; do
-    cfg="$(echo "$cfg" | sed 's|//.*||')"
-    desc="$(echo "$cfg" | cut -d',' -f3- | cut -d'"' -f2)"
-    cmd="$(echo "$cfg" | cut -d',' -f1 | cut -d'"' -f2)"
-    echo "+ \`$prefix$cmd\` $desc"
-  done < <(grep "^$type" "$header_file")
+	local cfg
+	local desc
+	local cmd
+	while read -r cfg; do
+		# should fix this but too lazy xd
+		# shellcheck disable=SC2001
+		cfg="$(echo "$cfg" | sed 's|//.*||')"
+		desc="$(echo "$cfg" | cut -d',' -f3- | cut -d'"' -f2)"
+		cmd="$(echo "$cfg" | cut -d',' -f1 | cut -d'"' -f2)"
+		echo "+ \`$prefix$cmd\` $desc"
+	done < <(grep "^$type" "$header_file")
 }
 
 gen_rcon_cmds() {
