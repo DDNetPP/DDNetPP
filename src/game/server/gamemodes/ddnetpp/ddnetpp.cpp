@@ -24,7 +24,7 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 	m_GameFlags = GAMEFLAG_FLAGS;
 
 #ifdef CONF_LUA
-	ddnetpp_init_lua();
+	ddnetpp_init_lua(this, pGameServer, &m_LuaBridge);
 #endif
 }
 

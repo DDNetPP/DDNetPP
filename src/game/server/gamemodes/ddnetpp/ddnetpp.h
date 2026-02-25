@@ -4,6 +4,8 @@
 #include "../ddnet.h"
 #include "game/race_state.h"
 
+#include <game/server/gamemodes/ddnetpp/delulu.h>
+
 class CGameControllerDDNetPP : public CGameControllerDDNet
 {
 public:
@@ -73,6 +75,11 @@ public:
 	void LogoutAllAccounts() override;
 	bool IsAccountRconCmdRatelimited(int ClientId, char *pReason, int ReasonSize) override;
 	void ProcessAccountRconCmdResult(CAccountRconCmdResult &Result);
+
+	// lua bridge
+#ifdef CONF_LUA
+	CLuaBridge m_LuaBridge;
+#endif // CONF_LUA
 
 	// spawn.cpp
 	bool CanSpawn(int Team, vec2 *pOutPos, int ClientId) override;

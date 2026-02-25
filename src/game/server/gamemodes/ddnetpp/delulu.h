@@ -3,7 +3,28 @@
 
 #ifdef CONF_LUA
 
-void ddnetpp_init_lua();
+#include <base/log.h>
+
+class IGameController;
+class CGameContext;
+
+class CLuaBridge
+{
+	IGameController *m_pController = nullptr;
+	CGameContext *m_pGameServer = nullptr;
+
+public:
+	const IGameController *Controller() const { return m_pController; }
+	IGameController *Controller() { return m_pController; }
+	const CGameContext *GameServer() const { return m_pGameServer; }
+	CGameContext *GameServer() { return m_pGameServer; }
+	void Init(IGameController *pController, CGameContext *pGameServer);
+	void Foo() { log_info("lua", "FOOOOO"); }
+
+	void SendChat(const char *pMessage);
+};
+
+void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, CLuaBridge *pLuaBridge);
 
 #endif
 
