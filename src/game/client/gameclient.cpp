@@ -1572,7 +1572,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_NoWeakHookAndBounce = false;
 	Info.m_NoSkinChangeForFrozen = false;
 	Info.m_DDRaceTeam = false;
-	Info.m_PredictEvents = DDRace || Vanilla;
+	Info.m_PredictEvents = Vanilla;
 
 	if(Version >= 0)
 	{
