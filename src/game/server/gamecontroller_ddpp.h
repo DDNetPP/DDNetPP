@@ -1,4 +1,6 @@
 #ifndef GAME_SERVER_GAMECONTROLLER_DDPP_H
+#define GAME_SERVER_GAMECONTROLLER_DDPP_H
+#undef GAME_SERVER_GAMECONTROLLER_DDPP_H
 // hack for headerguard linter
 #endif
 
