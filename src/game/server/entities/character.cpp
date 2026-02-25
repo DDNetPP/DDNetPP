@@ -661,7 +661,9 @@ void CCharacter::FireWeapon()
 
 	if(!m_ReloadTimer)
 	{
-		m_ReloadTimer = GetTuning(m_TuneZone)->GetWeaponFireDelay(m_Core.m_ActiveWeapon) * Server()->TickSpeed();
+		float FireDelay;
+		GetTuning(m_TuneZone)->Get(offsetof(CTuningParams, m_HammerFireDelay) / sizeof(CTuneParam) + m_Core.m_ActiveWeapon, &FireDelay);
+		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
 
 		// ddnet++
 		if(m_OnFire)
@@ -1165,7 +1167,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 	    Health = 0, Armor = 0;
 	int Emote = DetermineEyeEmote();
 	int Tick;
-	if(!m_ReckoningTick || GameServer()->m_World.m_Paused)
+	if(!m_ReckoningTick || GameServer()->m_pController->IsGamePaused())
 	{
 		Tick = 0;
 		pCore = &m_Core;

@@ -39,6 +39,7 @@
 #include <game/server/entities/flag.h>
 #include <game/version.h>
 
+#include <cstddef>
 #include <new>
 #include <vector>
 
@@ -1124,62 +1125,56 @@ void CGameContext::SendTuningParams(int ClientId, int Zone)
 
 	CheckPureTuning();
 
-	dbg_assert(0 <= ClientId && ClientId < MAX_CLIENTS, "Invalid ClientId: %d", ClientId);
-	dbg_assert(m_apPlayers[ClientId], "client %d without player", ClientId);
-
-	CTuningParams Params = m_aTuningList[Zone];
-
-	CCharacter *pCharacter = m_apPlayers[ClientId]->GetCharacter();
-	int NeededFakeTuning = pCharacter ? pCharacter->NeededFaketuning() : 0;
-
-	if(NeededFakeTuning & FAKETUNE_SOLO)
-	{
-		Params.m_PlayerCollision = 0;
-		Params.m_PlayerHooking = 0;
-	}
-
-	if(NeededFakeTuning & FAKETUNE_NOCOLL)
-	{
-		Params.m_PlayerCollision = 0;
-	}
-
-	if(NeededFakeTuning & FAKETUNE_NOHOOK)
-	{
-		Params.m_PlayerHooking = 0;
-	}
-
-	if(NeededFakeTuning & FAKETUNE_NOJUMP)
-	{
-		Params.m_GroundJumpImpulse = 0;
-	}
-
-	if(NeededFakeTuning & FAKETUNE_JETPACK)
-	{
-		Params.m_JetpackStrength = 0;
-	}
-
-	if(NeededFakeTuning & FAKETUNE_NOHAMMER)
-	{
-		Params.m_HammerStrength = 0;
-	}
-
-	// ddnet++
-	if(m_apPlayers[ClientId]->m_TROLL420)
-	{
-		// gravity for 420 trolling
-		Params.m_Gravity = -1000000;
-	}
-
 	CMsgPacker Msg(NETMSGTYPE_SV_TUNEPARAMS);
-	const int *pParams = Params.NetworkArray();
+	int *pParams = (int *)&(m_aTuningList[Zone]);
+
 	for(int i = 0; i < CTuningParams::Num(); i++)
 	{
-		static_assert(offsetof(CTuningParams, m_LaserDamage) / sizeof(CTuneParam) == 30);
-		if(i == 30 && Server()->IsSixup(ClientId)) // laser_damage was removed in 0.7
+		if(m_apPlayers[ClientId] && m_apPlayers[ClientId]->GetCharacter())
 		{
-			continue;
+			if((i == 30) // laser_damage is removed from 0.7
+				&& (Server()->IsSixup(ClientId)))
+			{
+				continue;
+			}
+			else if((i == 31) // collision
+				&& (m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO || m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOCOLL))
+			{
+				Msg.AddInt(0);
+			}
+			else if((i == 32) // hooking
+				&& (m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO || m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHOOK))
+			{
+				Msg.AddInt(0);
+			}
+			else if((i == 3) // ground jump impulse
+				&& m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOJUMP)
+			{
+				Msg.AddInt(0);
+			}
+			else if((i == 33) // jetpack
+				&& m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_JETPACK)
+			{
+				Msg.AddInt(0);
+			}
+			else if((i == 36) // hammer hit
+				&& m_apPlayers[ClientId]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
+			{
+				Msg.AddInt(0);
+			}
+			else if((i == (offsetof(CTuningParams, m_Gravity) / sizeof(CTuneParam))) &&
+				m_apPlayers[ClientId]->m_TROLL420)
+			{
+				// gravity for 420 trolling
+				Msg.AddInt(0);
+			}
+			else
+			{
+				Msg.AddInt(pParams[i]);
+			}
 		}
-		Msg.AddInt(pParams[i]);
+		else
+			Msg.AddInt(pParams[i]); // if everything is normal just send true tunings
 	}
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
@@ -1585,7 +1580,7 @@ void CGameContext::OnClientDirectInput(int ClientId, const void *pInput)
 {
 	const CNetObj_PlayerInput *pPlayerInput = static_cast<const CNetObj_PlayerInput *>(pInput);
 
-	if(!m_World.m_Paused)
+	if(!m_pController->IsGamePaused())
 		m_apPlayers[ClientId]->OnDirectInput(pPlayerInput);
 
 	int Flags = pPlayerInput->m_PlayerFlags;
@@ -1610,7 +1605,7 @@ void CGameContext::OnClientPredictedInput(int ClientId, const void *pInput)
 		pApplyInput = &m_aLastPlayerInput[ClientId];
 	}
 
-	if(!m_World.m_Paused)
+	if(!m_pController->IsGamePaused())
 		m_apPlayers[ClientId]->OnPredictedInput(pApplyInput);
 }
 
@@ -1638,7 +1633,7 @@ void CGameContext::OnClientPredictedEarlyInput(int ClientId, const void *pInput)
 		m_aPlayerHasInput[ClientId] = true;
 	}
 
-	if(!m_World.m_Paused)
+	if(!m_pController->IsGamePaused())
 		m_apPlayers[ClientId]->OnPredictedEarlyInput(pApplyInput);
 
 	if(m_TeeHistorianActive)
@@ -2813,7 +2808,7 @@ void CGameContext::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId)
 
 void CGameContext::OnSetTeamNetMessage(const CNetMsg_Cl_SetTeam *pMsg, int ClientId)
 {
-	if(m_World.m_Paused)
+	if(m_pController->IsGamePaused())
 		return;
 
 	CPlayer *pPlayer = m_apPlayers[ClientId];
@@ -2911,7 +2906,7 @@ void CGameContext::OnCameraInfoNetMessage(const CNetMsg_Cl_CameraInfo *pMsg, int
 
 void CGameContext::OnSetSpectatorModeNetMessage(const CNetMsg_Cl_SetSpectatorMode *pMsg, int ClientId)
 {
-	if(m_World.m_Paused)
+	if(m_pController->IsGamePaused())
 		return;
 
 	int SpectatorId = std::clamp(pMsg->m_SpectatorId, (int)SPEC_FOLLOW, MAX_CLIENTS - 1);
@@ -3045,7 +3040,7 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 
 void CGameContext::OnEmoticonNetMessage(const CNetMsg_Cl_Emoticon *pMsg, int ClientId)
 {
-	if(m_World.m_Paused)
+	if(m_pController->IsGamePaused())
 		return;
 
 	CPlayer *pPlayer = m_apPlayers[ClientId];
@@ -3128,7 +3123,7 @@ void CGameContext::OnEmoticonNetMessage(const CNetMsg_Cl_Emoticon *pMsg, int Cli
 
 void CGameContext::OnKillNetMessage(const CNetMsg_Cl_Kill *pMsg, int ClientId)
 {
-	if(m_World.m_Paused)
+	if(m_pController->IsGamePaused())
 		return;
 
 	if(IsRunningKickOrSpecVote(ClientId) && GetDDRaceTeam(ClientId))
@@ -3453,7 +3448,7 @@ void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	pSelf->m_World.m_Paused ^= 1;
+	pSelf->m_pController->SetGamePaused(!pSelf->m_pController->IsGamePaused());
 }
 
 void CGameContext::ConChangeMap(IConsole::IResult *pResult, void *pUserData)

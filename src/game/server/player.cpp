@@ -226,7 +226,7 @@ void CPlayer::Tick()
 		Server()->ResetNetErrorString(m_ClientId);
 	}
 
-	if(!GameServer()->m_World.m_Paused)
+	if(!GameServer()->m_pController->IsGamePaused())
 	{
 		int EarliestRespawnTick = m_PreviousDieTick + Server()->TickSpeed() * 3;
 		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick) + 2;
@@ -311,7 +311,7 @@ void CPlayer::PostPostTick()
 	if(!Server()->ClientIngame(m_ClientId))
 		return;
 
-	if(!GameServer()->m_World.m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
+	if(!GameServer()->m_pController->IsGamePaused() && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
 		TryRespawn();
 }
 

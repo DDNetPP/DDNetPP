@@ -136,6 +136,8 @@ public:
 	// game
 	virtual void DoWarmup(int Seconds);
 
+	void SetGamePaused(bool Paused);
+	bool IsGamePaused() const;
 	void StartRound();
 	void EndRound();
 	void ChangeMap(const char *pToMap);
