@@ -9,27 +9,26 @@
 
 static int LuaCallbackSendChat(lua_State *L)
 {
-	CLuaBridge *pBridge = (CLuaBridge *)lua_touserdata(L, 1);
+	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
 	const char *pMessage = lua_tostring(L, 2);
-	pBridge->SendChat(pMessage);
+	pGame->SendChat(pMessage);
 	lua_pushinteger(L, 666);
 	return 1;
 }
 
-void CLuaBridge::Init(IGameController *pController, CGameContext *pGameServer)
+void CLuaGame::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	m_pController = pController;
 	m_pGameServer = pGameServer;
 }
 
-void CLuaBridge::SendChat(const char *pMessage)
+void CLuaGame::SendChat(const char *pMessage)
 {
 	GameServer()->SendChat(-1, TEAM_ALL, pMessage);
 }
 
 static void RegisterLuaBridgeTable(lua_State *L)
 {
-	// TODO: pick a better name than "Game"
 	luaL_newmetatable(L, "Game");
 
 	// --- Define __index (methods) ---
@@ -47,9 +46,9 @@ static void RegisterLuaBridgeTable(lua_State *L)
 	lua_pop(L, 1); // Pop metatable
 }
 
-static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
+static void PushGameToLua(lua_State *L, CLuaGame *pGame)
 {
-	lua_pushlightuserdata(L, pLuaBridge);
+	lua_pushlightuserdata(L, pGame);
 	luaL_getmetatable(L, "Game");
 	lua_setmetatable(L, -2);
 	lua_setglobal(L, "Game");
@@ -58,13 +57,13 @@ static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
 void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	log_info("lua", "init bridge..");
-	m_Bridge.Init(pController, pGameServer);
+	m_Game.Init(pController, pGameServer);
 
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
 	RegisterLuaBridgeTable(L);
-	PushGameToLua(L, &m_Bridge);
+	PushGameToLua(L, &m_Game);
 
 	// TODO: can we share state between multiple plugins?
 

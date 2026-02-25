@@ -8,7 +8,16 @@
 class IGameController;
 class CGameContext;
 
-class CLuaBridge
+/// represents the "Game" table in lua
+///
+/// example lua script
+///
+/// ```lua
+/// Game:send_chat("hello world")
+/// ```
+///
+/// Sends a chat message
+class CLuaGame
 {
 	IGameController *m_pController = nullptr;
 	CGameContext *m_pGameServer = nullptr;
@@ -26,9 +35,7 @@ public:
 
 class CLuaController
 {
-	// TODO: name this the same way as the lua binding
-	//       so something like game?
-	CLuaBridge m_Bridge;
+	CLuaGame m_Game;
 
 public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
