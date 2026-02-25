@@ -66,6 +66,8 @@ void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, C
 	RegisterLuaBridgeTable(L);
 	PushGameToLua(L, pLuaBridge);
 
+	// TODO: can we share state between multiple plugins?
+
 	if(luaL_dofile(L, "plugin.lua") != LUA_OK)
 	{
 		const char *pLuaError = lua_tostring(L, -1);
