@@ -95,6 +95,10 @@ elseif(TARGET_OS STREQUAL "mac")
   set(AUTO_VULKAN_BACKEND OFF)
 endif()
 
+# ddnet++ options
+option(DUMMY_TEST "enable tracing and testing for ddnet++ dummy modes" OFF)
+option(LUA "Enable lua plugin support" OFF)
+
 option(WEBSOCKETS "Enable websockets support" OFF)
 option(MYSQL "Enable mysql support" OFF)
 option(TEST_MYSQL "Test mysql support in unit tests (also sets -DMYSQL=ON)" OFF)
@@ -124,9 +128,6 @@ option(MACOS_CODESIGN "Whether to sign code when building the DMG on macOS" OFF)
 if(TARGET_OS STREQUAL "mac" AND DEFINED ENV{MACOS_APP_IDENTITY})
   set(MACOS_APP_IDENTITY "$ENV{MACOS_APP_IDENTITY}")
 endif()
-
-# ddnet++ options
-option(DUMMY_TEST "enable tracing and testing for ddnet++ dummy modes" OFF)
 
 if(TARGET_OS STREQUAL "emscripten")
   include(${PROJECT_SOURCE_DIR}/cmake/toolchains/Emscripten.toolchain)
@@ -2960,6 +2961,8 @@ if(SERVER)
     gamemodes/ddnetpp/chat.cpp
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
+    gamemodes/ddnetpp/delulu.cpp
+    gamemodes/ddnetpp/delulu.h
     gamemodes/ddnetpp/flags.cpp
     gamemodes/ddnetpp/snapshot.cpp
     gamemodes/ddnetpp/spawn.cpp
@@ -3048,6 +3051,11 @@ if(SERVER)
 
     ${LIBS}
   )
+
+  # ddnet++ lua bindings
+  if(LUA)
+    SET(LIBS_SERVER ${LIBS_SERVER} lua)
+  endif()
 
   # twbl start
   set(TWBL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/external/DDNetPP-bots)
@@ -3996,6 +4004,9 @@ foreach(target ${TARGETS_OWN})
   # ddnet++
   if(DUMMY_TEST)
     target_compile_definitions(${target} PRIVATE CONF_DUMMY_TEST)
+  endif()
+  if(LUA)
+    target_compile_definitions(${target} PRIVATE CONF_LUA)
   endif()
 endforeach()
 

@@ -12,6 +12,7 @@
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/ddnet.h>
+#include <game/server/gamemodes/ddnetpp/delulu.h>
 #include <game/server/player.h>
 #include <game/server/score.h>
 #include <game/version.h>
@@ -21,6 +22,10 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 {
 	m_pGameType = g_Config.m_SvTestingCommands ? g_Config.m_SvGameTypeNameTest : g_Config.m_SvGameTypeName;
 	m_GameFlags = GAMEFLAG_FLAGS;
+
+#ifdef CONF_LUA
+	ddnetpp_init_lua();
+#endif
 }
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
