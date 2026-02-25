@@ -76,11 +76,6 @@ public:
 	bool IsAccountRconCmdRatelimited(int ClientId, char *pReason, int ReasonSize) override;
 	void ProcessAccountRconCmdResult(CAccountRconCmdResult &Result);
 
-	// lua bridge
-#ifdef CONF_LUA
-	CLuaBridge m_LuaBridge;
-#endif // CONF_LUA
-
 	// spawn.cpp
 	bool CanSpawn(int Team, vec2 *pOutPos, int ClientId) override;
 

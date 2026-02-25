@@ -11,6 +11,7 @@
 
 #include <generated/protocol.h>
 
+#include <game/server/gamemodes/ddnetpp/delulu.h>
 #include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;

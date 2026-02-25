@@ -15,6 +15,7 @@
 #include <generated/protocol7.h>
 
 #include <game/server/entities/character.h>
+#include <game/server/gamemodes/ddnetpp/delulu.h>
 #include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;
@@ -199,6 +200,12 @@ public:
 			FLAG_BLUE 2
 	*/
 	virtual int GetCarriedFlag(CPlayer *pPlayer) { return FLAG_NONE; }
+
+#ifdef CONF_LUA
+	CLuaController m_LuaController;
+	CLuaController *Lua() { return &m_LuaController; }
+	const CLuaController *Lua() const { return &m_LuaController; }
+#endif // CONF_LUA
 
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER

@@ -24,7 +24,14 @@ public:
 	void SendChat(const char *pMessage);
 };
 
-void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, CLuaBridge *pLuaBridge);
+class CLuaController
+{
+	// TODO: name this the same way as the lua binding
+	//       so something like game?
+	CLuaBridge m_Bridge;
+public:
+	void Init(IGameController *pController, CGameContext *pGameServer);
+};
 
 #endif
 

@@ -55,16 +55,16 @@ static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
 	lua_setglobal(L, "Game");
 }
 
-void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, CLuaBridge *pLuaBridge)
+void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	log_info("lua", "init bridge..");
-	pLuaBridge->Init(pController, pGameServer);
+	m_Bridge.Init(pController, pGameServer);
 
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
 	RegisterLuaBridgeTable(L);
-	PushGameToLua(L, pLuaBridge);
+	PushGameToLua(L, &m_Bridge);
 
 	// TODO: can we share state between multiple plugins?
 
