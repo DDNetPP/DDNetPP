@@ -2824,6 +2824,8 @@ if(SERVER)
     ddnetpp/db/bans.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
+    ddnetpp/lua/lua_plugins.cpp
+    ddnetpp/lua/lua_plugins.h
     ddnetpp/rcon_commands.h
     ddnetpp/rcon_configs.cpp
     ddpp/ascii_table.h
@@ -2962,8 +2964,6 @@ if(SERVER)
     gamemodes/ddnetpp/chat.cpp
     gamemodes/ddnetpp/ddnetpp.cpp
     gamemodes/ddnetpp/ddnetpp.h
-    gamemodes/ddnetpp/delulu.cpp
-    gamemodes/ddnetpp/delulu.h
     gamemodes/ddnetpp/flags.cpp
     gamemodes/ddnetpp/snapshot.cpp
     gamemodes/ddnetpp/spawn.cpp

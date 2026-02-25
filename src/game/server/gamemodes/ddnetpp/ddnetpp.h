@@ -4,8 +4,6 @@
 #include "../ddnet.h"
 #include "game/race_state.h"
 
-#include <game/server/gamemodes/ddnetpp/delulu.h>
-
 class CGameControllerDDNetPP : public CGameControllerDDNet
 {
 public:

@@ -12,7 +12,6 @@
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/ddnet.h>
-#include <game/server/gamemodes/ddnetpp/delulu.h>
 #include <game/server/player.h>
 #include <game/server/score.h>
 #include <game/version.h>

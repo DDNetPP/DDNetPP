@@ -14,8 +14,8 @@
 #include <generated/protocol.h>
 #include <generated/protocol7.h>
 
+#include <game/server/ddnetpp/lua/lua_plugins.h>
 #include <game/server/entities/character.h>
-#include <game/server/gamemodes/ddnetpp/delulu.h>
 #include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;

@@ -1,5 +1,5 @@
-#ifndef GAME_SERVER_GAMEMODES_DDNETPP_DELULU_H
-#define GAME_SERVER_GAMEMODES_DDNETPP_DELULU_H
+#ifndef GAME_SERVER_DDNETPP_LUA_LUA_PLUGINS_H
+#define GAME_SERVER_DDNETPP_LUA_LUA_PLUGINS_H
 
 #ifdef CONF_LUA
 
@@ -29,6 +29,7 @@ class CLuaController
 	// TODO: name this the same way as the lua binding
 	//       so something like game?
 	CLuaBridge m_Bridge;
+
 public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 };

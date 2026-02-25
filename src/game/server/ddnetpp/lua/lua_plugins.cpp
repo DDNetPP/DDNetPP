@@ -1,5 +1,5 @@
 #ifdef CONF_LUA
-#include "delulu.h"
+#include "lua_plugins.h"
 
 #include <base/log.h>
 
