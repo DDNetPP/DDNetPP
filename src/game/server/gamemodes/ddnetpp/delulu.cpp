@@ -49,8 +49,7 @@ static void RegisterLuaBridgeTable(lua_State *L)
 
 static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
 {
-	CLuaBridge **pUserData = (CLuaBridge **)lua_newuserdata(L, sizeof(CLuaBridge *));
-	*pUserData = pLuaBridge;
+	lua_pushlightuserdata(L, pLuaBridge);
 	luaL_getmetatable(L, "Game");
 	lua_setmetatable(L, -2);
 	lua_setglobal(L, "Game");
@@ -58,7 +57,7 @@ static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
 
 void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, CLuaBridge *pLuaBridge)
 {
-	log_info("ddnet++", "init lua...");
+	log_info("lua", "init bridge..");
 	pLuaBridge->Init(pController, pGameServer);
 
 	lua_State *L = luaL_newstate();
