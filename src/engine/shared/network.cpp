@@ -5,6 +5,7 @@
 #include "config.h"
 #include "huffman.h"
 
+#include <base/bytes.h>
 #include <base/system.h>
 #include <base/types.h>
 
