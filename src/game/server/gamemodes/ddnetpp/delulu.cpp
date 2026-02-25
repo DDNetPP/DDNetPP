@@ -7,15 +7,7 @@
 
 #include <lua.hpp>
 
-static int luacallback_foo(lua_State *L)
-{
-	int Arg = luaL_checkinteger(L, 1);
-	log_info("lua", "got %d from plugin", Arg);
-	lua_pushinteger(L, 420);
-	return 1;
-}
-
-static int luacallback_send_chat(lua_State *L)
+static int LuaCallbackSendChat(lua_State *L)
 {
 	CLuaBridge *pBridge = (CLuaBridge *)lua_touserdata(L, 1);
 	const char *pMessage = lua_tostring(L, 2);
@@ -37,7 +29,6 @@ void CLuaBridge::SendChat(const char *pMessage)
 
 static void RegisterLuaBridgeTable(lua_State *L)
 {
-	// Create metatable
 	// TODO: pick a better name than "Game"
 	luaL_newmetatable(L, "Game");
 
@@ -47,12 +38,8 @@ static void RegisterLuaBridgeTable(lua_State *L)
 
 	// Add methods
 	lua_pushstring(L, "send_chat");
-	lua_pushcfunction(L, luacallback_send_chat);
+	lua_pushcfunction(L, LuaCallbackSendChat);
 	lua_settable(L, -3);
-
-	// lua_pushstring(L, "dootherting");
-	// lua_pushcfunction(L, luacallback_otherthing);
-	// lua_settable(L, -3);
 
 	// Set __index = method_table
 	lua_settable(L, -3);
@@ -62,8 +49,8 @@ static void RegisterLuaBridgeTable(lua_State *L)
 
 static void PushGameToLua(lua_State *L, CLuaBridge *pLuaBridge)
 {
-	CLuaBridge **userdata = (CLuaBridge **)lua_newuserdata(L, sizeof(CLuaBridge *));
-	*userdata = pLuaBridge;
+	CLuaBridge **pUserData = (CLuaBridge **)lua_newuserdata(L, sizeof(CLuaBridge *));
+	*pUserData = pLuaBridge;
 	luaL_getmetatable(L, "Game");
 	lua_setmetatable(L, -2);
 	lua_setglobal(L, "Game");
@@ -77,12 +64,8 @@ void ddnetpp_init_lua(IGameController *pController, CGameContext *pGameServer, C
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
-	// Game object
 	RegisterLuaBridgeTable(L);
 	PushGameToLua(L, pLuaBridge);
-
-	// global functions
-	lua_register(L, "foo", luacallback_foo);
 
 	if(luaL_dofile(L, "plugin.lua") != LUA_OK)
 	{
