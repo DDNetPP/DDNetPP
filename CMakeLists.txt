@@ -713,6 +713,19 @@ if(CLIENT AND VULKAN AND NOT(VULKAN_FOUND))
   message(SEND_ERROR "You must install Vulkan libraries to compile the ${CMAKE_PROJECT_NAME} client")
 endif()
 
+## ddnet++ start
+message(STATUS "DDNet++ Dependencies:")
+if(LUA)
+  find_package(Lua)
+endif()
+if(LUA)
+  show_dependency_status("Lua" LUA)
+endif()
+if(LUA AND NOT(LUA_FOUND))
+  message(SEND_ERROR "You must install Lua to compile the ${CMAKE_PROJECT_NAME}")
+endif()
+## ddnet++ end
+
 if(TARGET_OS STREQUAL "windows")
   set(PLATFORM_CLIENT)
   set(PLATFORM_CLIENT_LIBS opengl32.lib winmm.lib imm32.lib)
@@ -3059,7 +3072,7 @@ if(SERVER)
 
   # ddnet++ lua bindings
   if(LUA)
-    SET(LIBS_SERVER ${LIBS_SERVER} lua)
+    SET(LIBS_SERVER ${LIBS_SERVER} ${LUA_LIBRARIES})
   endif()
 
   # twbl start
@@ -4012,6 +4025,7 @@ foreach(target ${TARGETS_OWN})
   endif()
   if(LUA)
     target_compile_definitions(${target} PRIVATE CONF_LUA)
+    target_include_directories(${target} PRIVATE ${LUA_INCLUDE_DIR})
   endif()
 endforeach()
 
