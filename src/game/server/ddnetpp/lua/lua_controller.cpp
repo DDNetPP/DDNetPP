@@ -10,42 +10,6 @@
 
 #include <lua.hpp>
 
-static int LuaCallbackSendChat(lua_State *L)
-{
-	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
-	const char *pMessage = lua_tostring(L, 2);
-	pGame->SendChat(pMessage);
-	lua_pushinteger(L, 666);
-	return 1;
-}
-
-static void RegisterLuaBridgeTable(lua_State *L)
-{
-	luaL_newmetatable(L, "Game");
-
-	// --- Define __index (methods) ---
-	lua_pushstring(L, "__index");
-	lua_newtable(L); // Create method table
-
-	// Add methods
-	lua_pushstring(L, "send_chat");
-	lua_pushcfunction(L, LuaCallbackSendChat);
-	lua_settable(L, -3);
-
-	// Set __index = method_table
-	lua_settable(L, -3);
-
-	lua_pop(L, 1); // Pop metatable
-}
-
-static void PushGameToLua(lua_State *L, CLuaGame *pGame)
-{
-	lua_pushlightuserdata(L, pGame);
-	luaL_getmetatable(L, "Game");
-	lua_setmetatable(L, -2);
-	lua_setglobal(L, "Game");
-}
-
 int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
 {
 	CLuaController *pSelf = (CLuaController *)pUser;
@@ -117,10 +81,7 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 	// so we can show them to admins in the list plugins rcon
 	// command together with a useful error message
 	m_vpPlugins.emplace_back(pPlugin);
-
-	// TODO: make this less ugly. Where does it belong?
-	RegisterLuaBridgeTable(pPlugin->LuaState());
-	PushGameToLua(pPlugin->LuaState(), &m_Game);
+	pPlugin->RegisterGlobalState(&m_Game);
 
 	if(luaL_dofile(pPlugin->LuaState(), pFilename) != LUA_OK)
 	{

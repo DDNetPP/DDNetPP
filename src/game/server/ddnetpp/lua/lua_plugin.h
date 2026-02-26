@@ -24,6 +24,8 @@ public:
 	CLuaPlugin(const char *pName, const char *pFullPath);
 	~CLuaPlugin();
 
+	void RegisterGlobalState(CLuaGame *pGame);
+
 private:
 	void CallLuaVoidNoArgs(const char *pFunction);
 
