@@ -47,6 +47,10 @@ public:
 	CLuaPlugin(const char *pName, const char *pFullPath);
 	~CLuaPlugin();
 
+private:
+	void CallLuaVoidNoArgs(const char *pFunction);
+
+public:
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";
 	char m_aFullPath[IO_MAX_PATH_LENGTH] = "";
@@ -90,6 +94,7 @@ public:
 	~CLuaController();
 
 	void OnTick();
+	void OnInit();
 
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);

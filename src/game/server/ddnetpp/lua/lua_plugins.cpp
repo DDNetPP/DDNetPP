@@ -48,6 +48,30 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
+void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
+{
+	// TODO: don't we need to pop the global of the stack again?
+	//       i tried `lua_pop(LuaState(), 1);` and it segfaulted
+	//       not popping it works but i feel like its wrong
+	lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// log_error("lua", "%s is nil", pFunction);
+		return;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// log_error("lua", "%s is not a function", pFunction);
+		return;
+	}
+	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "%s", pErrorMsg);
+		SetError(pErrorMsg);
+	}
+}
+
 void CLuaPlugin::SetError(const char *pErrorMsg)
 {
 	dbg_assert(pErrorMsg, "lua plugin error is NULL");
@@ -58,32 +82,13 @@ void CLuaPlugin::SetError(const char *pErrorMsg)
 void CLuaPlugin::OnInit()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidNoArgs("on_init");
 }
 
 void CLuaPlugin::OnTick()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
-
-	// TODO: don't we need to pop the global of the stack again?
-	//       i tried `lua_pop(LuaState(), 1);` and it segfaulted
-	//       not popping it works but i feel like its wrong
-	lua_getglobal(LuaState(), "on_tick");
-	if(lua_isnoneornil(LuaState(), -1))
-	{
-		// log_error("lua", "on_tick is nil");
-		return;
-	}
-	if(!lua_isfunction(LuaState(), -1))
-	{
-		// log_error("lua", "on_tick is not a function");
-		return;
-	}
-	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
-	{
-		const char *pErrorMsg = lua_tostring(LuaState(), -1);
-		log_error("lua", "%s", pErrorMsg);
-		SetError(pErrorMsg);
-	}
+	CallLuaVoidNoArgs("on_tick");
 }
 
 static void RegisterLuaBridgeTable(lua_State *L)
@@ -163,6 +168,17 @@ void CLuaController::OnTick()
 	}
 }
 
+void CLuaController::OnInit()
+{
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnInit();
+	}
+}
+
 bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 {
 	log_info("lua", "loading script %s ...", pFilename);
@@ -192,6 +208,7 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 void CLuaController::ReloadPlugins()
 {
 	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
+	OnInit();
 }
 
 #endif
