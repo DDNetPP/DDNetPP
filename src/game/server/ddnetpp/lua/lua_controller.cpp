@@ -35,7 +35,10 @@ int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int D
 void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 #ifdef CONF_LUA
-	log_info("lua", "init bridge..");
+	lua_State *pTmpState = luaL_newstate();
+	log_info("lua", "got lua version %.0f, loading plugins ...", lua_version(pTmpState));
+	lua_close(pTmpState);
+
 	m_pController = pController;
 	m_pGameServer = pGameServer;
 	m_Game.Init(pController, pGameServer);
