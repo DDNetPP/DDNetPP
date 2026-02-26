@@ -24,12 +24,24 @@ public:
 	CLuaPlugin(const char *pName, const char *pFullPath);
 	~CLuaPlugin();
 
+private:
+	void RegisterGameTable();
+	void RegisterGameInstance(CLuaGame *pGame);
+
+public:
 	void RegisterGlobalState(CLuaGame *pGame);
 
 private:
 	void CallLuaVoidNoArgs(const char *pFunction);
 
+	// Calling C++ from lua
+	static int CallbackSendChat(lua_State *L);
+
 public:
+	// Calling lua from C++
+	void OnInit();
+	void OnTick();
+
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";
 	char m_aFullPath[IO_MAX_PATH_LENGTH] = "";
@@ -41,9 +53,6 @@ public:
 	bool IsError() const { return m_aErrorMsg[0] != '\0'; }
 	const char *ErrorMsg() const { return m_aErrorMsg; }
 	bool IsActive() const { return !IsError() && !m_IsDisabled; }
-
-	void OnInit();
-	void OnTick();
 };
 
 #endif

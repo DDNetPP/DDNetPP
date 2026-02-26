@@ -28,47 +28,37 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
-static int LuaCallbackSendChat(lua_State *L)
+void CLuaPlugin::RegisterGameTable()
 {
-	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
-	const char *pMessage = lua_tostring(L, 2);
-	pGame->SendChat(pMessage);
-	lua_pushinteger(L, 666);
-	return 1;
-}
-
-static void RegisterLuaBridgeTable(lua_State *L)
-{
-	luaL_newmetatable(L, "Game");
+	luaL_newmetatable(LuaState(), "Game");
 
 	// --- Define __index (methods) ---
-	lua_pushstring(L, "__index");
-	lua_newtable(L); // Create method table
+	lua_pushstring(LuaState(), "__index");
+	lua_newtable(LuaState()); // Create method table
 
 	// Add methods
-	lua_pushstring(L, "send_chat");
-	lua_pushcfunction(L, LuaCallbackSendChat);
-	lua_settable(L, -3);
+	lua_pushstring(LuaState(), "send_chat");
+	lua_pushcfunction(LuaState(), CallbackSendChat);
+	lua_settable(LuaState(), -3);
 
 	// Set __index = method_table
-	lua_settable(L, -3);
+	lua_settable(LuaState(), -3);
 
-	lua_pop(L, 1); // Pop metatable
+	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-static void PushGameToLua(lua_State *L, CLuaGame *pGame)
+void CLuaPlugin::RegisterGameInstance(CLuaGame *pGame)
 {
-	lua_pushlightuserdata(L, pGame);
-	luaL_getmetatable(L, "Game");
-	lua_setmetatable(L, -2);
-	lua_setglobal(L, "Game");
+	lua_pushlightuserdata(LuaState(), pGame);
+	luaL_getmetatable(LuaState(), "Game");
+	lua_setmetatable(LuaState(), -2);
+	lua_setglobal(LuaState(), "Game");
 }
 
 void CLuaPlugin::RegisterGlobalState(CLuaGame *pGame)
 {
-	// TODO: make this less ugly. Where does it belong?
-	RegisterLuaBridgeTable(LuaState());
-	PushGameToLua(LuaState(), pGame);
+	RegisterGameTable();
+	RegisterGameInstance(pGame);
 }
 
 void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
@@ -95,11 +85,12 @@ void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 	}
 }
 
-void CLuaPlugin::SetError(const char *pErrorMsg)
+int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
-	dbg_assert(pErrorMsg, "lua plugin error is NULL");
-	dbg_assert(pErrorMsg[0], "lua plugin error is empty");
-	str_copy(m_aErrorMsg, pErrorMsg);
+	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+	const char *pMessage = lua_tostring(L, 2);
+	pGame->SendChat(pMessage);
+	return 0;
 }
 
 void CLuaPlugin::OnInit()
@@ -112,6 +103,13 @@ void CLuaPlugin::OnTick()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidNoArgs("on_tick");
+}
+
+void CLuaPlugin::SetError(const char *pErrorMsg)
+{
+	dbg_assert(pErrorMsg, "lua plugin error is NULL");
+	dbg_assert(pErrorMsg[0], "lua plugin error is empty");
+	str_copy(m_aErrorMsg, pErrorMsg);
 }
 
 #endif
