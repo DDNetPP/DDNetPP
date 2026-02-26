@@ -1,4 +1,3 @@
-#include <game/server/gamecontroller.h>
 #ifdef CONF_LUA
 #include "lua_plugin.h"
 
@@ -8,6 +7,7 @@
 #include <base/types.h>
 
 #include <game/server/gamecontext.h>
+#include <game/server/gamecontroller.h>
 
 #include <lua.h>
 
@@ -124,7 +124,12 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 	//       {ERROR, nil}
 	//       or
 	//       {OK, {val}}
-	pGame->Controller()->Lua()->CallPlugin(pFunction, L);
+	if(!pGame->Controller()->Lua()->CallPlugin(pFunction, L))
+	{
+		// TODO: i feel like the error handle should happen in CallPlugin
+		luaL_error(L, "no plugin implements %s()", pFunction);
+		return 1;
+	}
 
 	return 1;
 }
