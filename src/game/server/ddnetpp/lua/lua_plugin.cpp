@@ -8,7 +8,7 @@
 
 #include <game/server/gamecontext.h>
 
-#include <lua.hpp>
+#include <lua.h>
 
 CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath)
 {
