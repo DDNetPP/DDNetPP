@@ -1,6 +1,7 @@
 #ifdef CONF_LUA
 #include "lua_plugins.h"
 
+#include <base/dbg.h>
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
@@ -47,12 +48,22 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
+void CLuaPlugin::SetError(const char *pErrorMsg)
+{
+	dbg_assert(pErrorMsg, "lua plugin error is NULL");
+	dbg_assert(pErrorMsg[0], "lua plugin error is empty");
+	str_copy(m_aErrorMsg, pErrorMsg);
+}
+
 void CLuaPlugin::OnInit()
 {
+	dbg_assert(IsActive(), "called inactive plugin");
 }
 
 void CLuaPlugin::OnTick()
 {
+	dbg_assert(IsActive(), "called inactive plugin");
+
 	// TODO: don't we need to pop the global of the stack again?
 	//       i tried `lua_pop(LuaState(), 1);` and it segfaulted
 	//       not popping it works but i feel like its wrong
@@ -69,8 +80,9 @@ void CLuaPlugin::OnTick()
 	}
 	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
 	{
-		// TODO: disable plugin on error to avoid log spam
-		log_error("lua", "%s", lua_tostring(LuaState(), -1));
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "%s", pErrorMsg);
+		SetError(pErrorMsg);
 	}
 }
 
@@ -144,6 +156,9 @@ void CLuaController::OnTick()
 {
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
+		if(!pPlugin->IsActive())
+			continue;
+
 		pPlugin->OnTick();
 	}
 }
@@ -154,6 +169,11 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 
 	CLuaPlugin *pPlugin = new CLuaPlugin(pName, pFilename);
 
+	// also push plugins even if they crash on load
+	// so we can show them to admins in the list plugins rcon
+	// command together with a useful error message
+	m_vpPlugins.emplace_back(pPlugin);
+
 	// TODO: make this less ugly. Where does it belong?
 	RegisterLuaBridgeTable(pPlugin->LuaState());
 	PushGameToLua(pPlugin->LuaState(), &m_Game);
@@ -163,13 +183,9 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 		const char *pLuaError = lua_tostring(pPlugin->LuaState(), -1);
 		log_error("lua", "%s: %s", pFilename, pLuaError);
 		lua_pop(pPlugin->LuaState(), 1);
+		pPlugin->SetError(pLuaError);
 		return false;
 	}
-
-	// FIXME: remove this call
-	pPlugin->OnTick();
-
-	m_vpPlugins.emplace_back(pPlugin);
 	return true;
 }
 

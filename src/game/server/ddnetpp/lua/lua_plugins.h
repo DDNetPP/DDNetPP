@@ -4,6 +4,7 @@
 #ifdef CONF_LUA
 
 #include <base/log.h>
+#include <base/str.h>
 #include <base/types.h>
 
 #include <lua.hpp>
@@ -39,6 +40,9 @@ public:
 
 class CLuaPlugin
 {
+	char m_aErrorMsg[512] = "";
+	bool m_IsDisabled = false;
+
 public:
 	CLuaPlugin(const char *pName, const char *pFullPath);
 	~CLuaPlugin();
@@ -49,6 +53,11 @@ public:
 	lua_State *LuaState() { return m_pLuaState; }
 	const char *Name() const { return m_aName; }
 	const char *FullPath() const { return m_aFullPath; }
+
+	void SetError(const char *pErrorMsg);
+	bool IsError() const { return m_aErrorMsg[0] != '\0'; }
+	const char *ErrorMsg() const { return m_aErrorMsg; }
+	bool IsActive() const { return !IsError() && !m_IsDisabled; }
 
 	void OnInit();
 	void OnTick();
