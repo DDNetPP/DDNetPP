@@ -2824,8 +2824,12 @@ if(SERVER)
     ddnetpp/db/bans.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
-    ddnetpp/lua/lua_plugins.cpp
-    ddnetpp/lua/lua_plugins.h
+    ddnetpp/lua/lua_controller.cpp
+    ddnetpp/lua/lua_controller.h
+    ddnetpp/lua/lua_game.cpp
+    ddnetpp/lua/lua_game.h
+    ddnetpp/lua/lua_plugin.cpp
+    ddnetpp/lua/lua_plugin.h
     ddnetpp/rcon_commands.h
     ddnetpp/rcon_configs.cpp
     ddpp/ascii_table.h

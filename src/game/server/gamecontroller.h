@@ -11,7 +11,7 @@
 
 #include <generated/protocol.h>
 
-#include <game/server/ddnetpp/lua/lua_plugins.h>
+#include <game/server/ddnetpp/lua/lua_controller.h>
 #include <game/server/teams.h>
 
 struct CScoreLoadBestTimeResult;
