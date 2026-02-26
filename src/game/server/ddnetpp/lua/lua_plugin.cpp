@@ -76,17 +76,18 @@ bool CLuaPlugin::LoadFile()
 
 void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 {
-	// TODO: don't we need to pop the global of the stack again?
-	//       i tried `lua_pop(LuaState(), 1);` and it segfaulted
-	//       not popping it works but i feel like its wrong
 	lua_getglobal(LuaState(), pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
 	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
 		// log_error("lua", "%s is nil", pFunction);
 		return;
 	}
 	if(!lua_isfunction(LuaState(), -1))
 	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
 		// log_error("lua", "%s is not a function", pFunction);
 		return;
 	}
