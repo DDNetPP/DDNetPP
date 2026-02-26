@@ -32,16 +32,19 @@ public:
 	bool LoadFile();
 
 private:
-	void CallLuaVoidNoArgs(const char *pFunction);
+	// returns true if the function was found
+	bool CallLuaVoidNoArgs(const char *pFunction);
 
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
+	static int CallbackCallPlugin(lua_State *L);
 
 public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
+	bool CallPlugin(const char *pFunction);
 
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";

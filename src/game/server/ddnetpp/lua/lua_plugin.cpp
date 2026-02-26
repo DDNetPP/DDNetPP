@@ -1,3 +1,4 @@
+#include <game/server/gamecontroller.h>
 #ifdef CONF_LUA
 #include "lua_plugin.h"
 
@@ -41,6 +42,10 @@ void CLuaPlugin::RegisterGameTable()
 	lua_pushcfunction(LuaState(), CallbackSendChat);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "call_plugin");
+	lua_pushcfunction(LuaState(), CallbackCallPlugin);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -74,7 +79,7 @@ bool CLuaPlugin::LoadFile()
 	return true;
 }
 
-void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
+bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 {
 	lua_getglobal(LuaState(), pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
@@ -82,14 +87,14 @@ void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 		// pop getglobal because we dont run pcall
 		lua_pop(LuaState(), 1);
 		// log_error("lua", "%s is nil", pFunction);
-		return;
+		return false;
 	}
 	if(!lua_isfunction(LuaState(), -1))
 	{
 		// pop getglobal because we dont run pcall
 		lua_pop(LuaState(), 1);
 		// log_error("lua", "%s is not a function", pFunction);
-		return;
+		return false;
 	}
 	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
 	{
@@ -97,6 +102,7 @@ void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 		log_error("lua", "%s", pErrorMsg);
 		SetError(pErrorMsg);
 	}
+	return true;
 }
 
 int CLuaPlugin::CallbackSendChat(lua_State *L)
@@ -104,6 +110,22 @@ int CLuaPlugin::CallbackSendChat(lua_State *L)
 	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
 	const char *pMessage = lua_tostring(L, 2);
 	pGame->SendChat(pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCallPlugin(lua_State *L)
+{
+	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+	const char *pFunction = lua_tostring(L, 2);
+
+	// TODO: pass in table as arg and get nested table result as return val
+
+	// TODO: return rust like result to lua
+	//       {ERROR, nil}
+	//       or
+	//       {OK, {val}}
+	pGame->Controller()->Lua()->CallPlugin(pFunction);
+
 	return 0;
 }
 
@@ -123,6 +145,12 @@ void CLuaPlugin::OnPlayerConnect()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidNoArgs("on_player_connect");
+}
+
+bool CLuaPlugin::CallPlugin(const char *pFunction)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	return CallLuaVoidNoArgs(pFunction);
 }
 
 void CLuaPlugin::SetError(const char *pErrorMsg)

@@ -44,6 +44,15 @@ public:
 	void OnTick();
 	void OnPlayerConnect();
 
+	// If a lua plugin runs `Game:call_plugin("func")`
+	// it will try to call "func" in all available plugins
+	// the first plugin that provides this function will be called
+	// and then it stops there.
+	// Returns true if a plugin was found.
+	//
+	// TODO: also add `Game:call_plugin_all("func")` to call all not only the first
+	bool CallPlugin(const char *pFunction);
+
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);
 	void ReloadPlugins();

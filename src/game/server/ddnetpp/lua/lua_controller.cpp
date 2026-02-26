@@ -93,6 +93,23 @@ void CLuaController::OnPlayerConnect()
 #endif
 }
 
+bool CLuaController::CallPlugin(const char *pFunction)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->CallPlugin(pFunction))
+			return true;
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
 bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 {
 #ifdef CONF_LUA
