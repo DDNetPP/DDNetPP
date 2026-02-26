@@ -3,6 +3,7 @@
 
 #include <base/log.h>
 #include <base/str.h>
+#include <base/types.h>
 
 #include <game/server/gamecontext.h>
 
@@ -63,18 +64,11 @@ int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int D
 	if(!str_endswith(pFilename, ".lua"))
 		return 0;
 
-	log_info("lua", " script %s", pFilename);
-
-	// char aFilename[1024];
-	// str_format(aFilename, sizeof(aFilename), "chillerbot/warlist/neutral/%s", pDirname);
-
-	// // TODO: can we share state between multiple plugins?
-	// if(luaL_dofile(LuaState(), "plugin.lua") != LUA_OK)
-	// {
-	// 	const char *pLuaError = lua_tostring(LuaState(), -1);
-	// 	log_error("lua", "%s", pLuaError);
-	// 	lua_pop(LuaState(), 1);
-	// }
+	char aBasePath[IO_MAX_PATH_LENGTH];
+	pSelf->GameServer()->Storage()->GetCompletePath(DirType, "plugins", aBasePath, sizeof(aBasePath));
+	char aFullpath[IO_MAX_PATH_LENGTH];
+	str_format(aFullpath, sizeof(aFullpath), "%s/%s", aBasePath, pFilename);
+	pSelf->LoadPlugin(aFullpath);
 
 	return 0;
 }
@@ -105,17 +99,24 @@ CLuaController::~CLuaController()
 	}
 }
 
-void CLuaController::ReloadPlugins()
+bool CLuaController::LoadPlugin(const char *pFilename)
 {
-	// GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
+	log_info("lua", "loading script %s ...", pFilename);
 
 	// TODO: can we share state between multiple plugins?
-	if(luaL_dofile(LuaState(), "plugin.lua") != LUA_OK)
+	if(luaL_dofile(LuaState(), pFilename) != LUA_OK)
 	{
 		const char *pLuaError = lua_tostring(LuaState(), -1);
-		log_error("lua", "%s", pLuaError);
+		log_error("lua", "%s: %s", pFilename, pLuaError);
 		lua_pop(LuaState(), 1);
+		return false;
 	}
+	return true;
+}
+
+void CLuaController::ReloadPlugins()
+{
+	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
 }
 
 #endif

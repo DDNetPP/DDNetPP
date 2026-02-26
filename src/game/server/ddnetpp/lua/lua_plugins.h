@@ -55,6 +55,7 @@ public:
 
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController();
+	bool LoadPlugin(const char *pFilename);
 	void ReloadPlugins();
 };
 
