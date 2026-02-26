@@ -124,9 +124,9 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 	//       {ERROR, nil}
 	//       or
 	//       {OK, {val}}
-	pGame->Controller()->Lua()->CallPlugin(pFunction);
+	pGame->Controller()->Lua()->CallPlugin(pFunction, L);
 
-	return 0;
+	return 1;
 }
 
 void CLuaPlugin::OnInit()
@@ -147,10 +147,59 @@ void CLuaPlugin::OnPlayerConnect()
 	CallLuaVoidNoArgs("on_player_connect");
 }
 
-bool CLuaPlugin::CallPlugin(const char *pFunction)
+bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
-	return CallLuaVoidNoArgs(pFunction);
+
+	lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	if(lua_pcall(LuaState(), 0, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "%s", pErrorMsg);
+		SetError(pErrorMsg);
+	}
+
+	if(lua_isinteger(LuaState(), -1))
+	{
+		lua_pushinteger(pCaller, lua_tointeger(LuaState(), -1));
+	}
+	else if(lua_isnumber(LuaState(), -1))
+	{
+		lua_pushnumber(pCaller, lua_tonumber(LuaState(), -1));
+	}
+	else if(lua_isboolean(LuaState(), -1))
+	{
+		lua_pushboolean(pCaller, lua_toboolean(LuaState(), -1));
+	}
+	else if(lua_isnil(LuaState(), -1))
+	{
+		lua_pushnil(pCaller);
+	}
+	else if(lua_isstring(LuaState(), -1))
+	{
+		lua_pushstring(pCaller, lua_tostring(LuaState(), -1));
+	}
+	else
+	{
+		log_warn("lua", "plugin '%s' returned unsupported type from function %s()", Name(), pFunction);
+		lua_pushnil(pCaller);
+	}
+
+	return true;
 }
 
 void CLuaPlugin::SetError(const char *pErrorMsg)

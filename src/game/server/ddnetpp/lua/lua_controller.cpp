@@ -96,7 +96,7 @@ void CLuaController::OnPlayerConnect()
 #endif
 }
 
-bool CLuaController::CallPlugin(const char *pFunction)
+bool CLuaController::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
@@ -104,7 +104,7 @@ bool CLuaController::CallPlugin(const char *pFunction)
 		if(!pPlugin->IsActive())
 			continue;
 
-		if(pPlugin->CallPlugin(pFunction))
+		if(pPlugin->CallPlugin(pFunction, pCaller))
 			return true;
 	}
 	return false;

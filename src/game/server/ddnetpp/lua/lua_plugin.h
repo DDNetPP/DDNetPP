@@ -46,7 +46,7 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
-	bool CallPlugin(const char *pFunction);
+	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";
