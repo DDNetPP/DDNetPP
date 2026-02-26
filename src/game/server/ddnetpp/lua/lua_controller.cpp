@@ -54,6 +54,19 @@ CLuaController::~CLuaController()
 #endif
 }
 
+void CLuaController::OnInit()
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnInit();
+	}
+#endif
+}
+
 void CLuaController::OnTick()
 {
 #ifdef CONF_LUA
@@ -67,7 +80,7 @@ void CLuaController::OnTick()
 #endif
 }
 
-void CLuaController::OnInit()
+void CLuaController::OnPlayerConnect()
 {
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
@@ -75,7 +88,7 @@ void CLuaController::OnInit()
 		if(!pPlugin->IsActive())
 			continue;
 
-		pPlugin->OnInit();
+		pPlugin->OnPlayerConnect();
 	}
 #endif
 }

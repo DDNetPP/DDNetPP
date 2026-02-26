@@ -118,6 +118,12 @@ void CLuaPlugin::OnTick()
 	CallLuaVoidNoArgs("on_tick");
 }
 
+void CLuaPlugin::OnPlayerConnect()
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidNoArgs("on_player_connect");
+}
+
 void CLuaPlugin::SetError(const char *pErrorMsg)
 {
 	dbg_assert(pErrorMsg, "lua plugin error is NULL");

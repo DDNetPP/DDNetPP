@@ -41,6 +41,7 @@ public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
+	void OnPlayerConnect();
 
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";

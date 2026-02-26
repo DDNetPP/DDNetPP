@@ -40,8 +40,9 @@ public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController();
 
-	void OnTick();
 	void OnInit();
+	void OnTick();
+	void OnPlayerConnect();
 
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);

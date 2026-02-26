@@ -144,6 +144,8 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	// this code has to be manually kept in sync with CGameControllerDDNet::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
 
+	Lua()->OnPlayerConnect();
+
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
 		pMinigame->OnPlayerConnect(pPlayer);
 
