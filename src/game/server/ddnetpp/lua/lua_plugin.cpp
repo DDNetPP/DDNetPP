@@ -171,7 +171,17 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		// log_error("lua", "%s is not a function", pFunction);
 		return false;
 	}
-	if(lua_pcall(LuaState(), 0, 1, 0) != LUA_OK)
+
+	// TODO: eventuall we should while !lua_isnone and checkstack here
+	int NumArgs = 0;
+	if(lua_isstring(pCaller, 3))
+	{
+		NumArgs++;
+		// log_info("lua", "got string arg: %s", lua_tostring(pCaller, 3));
+		lua_pushstring(LuaState(), lua_tostring(pCaller, 3));
+	}
+
+	if(lua_pcall(LuaState(), NumArgs, 1, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "%s", pErrorMsg);
