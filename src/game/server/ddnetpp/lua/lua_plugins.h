@@ -55,6 +55,10 @@ public:
 
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController();
+
+	void OnTick();
+
+private:
 	bool LoadPlugin(const char *pFilename);
 	void ReloadPlugins();
 };

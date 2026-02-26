@@ -99,11 +99,20 @@ CLuaController::~CLuaController()
 	}
 }
 
+void CLuaController::OnTick()
+{
+}
+
 bool CLuaController::LoadPlugin(const char *pFilename)
 {
 	log_info("lua", "loading script %s ...", pFilename);
 
 	// TODO: can we share state between multiple plugins?
+
+	// using the same lua state overrides the lua callbacks
+	// so if two scripts define on_tick only one of them can be called
+	// so we need multiple lua states i assume
+
 	if(luaL_dofile(LuaState(), pFilename) != LUA_OK)
 	{
 		const char *pLuaError = lua_tostring(LuaState(), -1);
@@ -111,6 +120,23 @@ bool CLuaController::LoadPlugin(const char *pFilename)
 		lua_pop(LuaState(), 1);
 		return false;
 	}
+
+	lua_getglobal(LuaState(), "on_tick");
+
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		log_error("lua", "on_tick is nil");
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		log_error("lua", "on_tick is not a function");
+	}
+
+	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	{
+		log_error("lua", "%s", lua_tostring(LuaState(), -1));
+	}
+
 	return true;
 }
 
