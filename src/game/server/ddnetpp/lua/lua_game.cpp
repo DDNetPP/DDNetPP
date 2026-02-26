@@ -8,8 +8,6 @@
 
 #include <game/server/gamecontext.h>
 
-#include <lua.hpp>
-
 void CLuaGame::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	m_pController = pController;

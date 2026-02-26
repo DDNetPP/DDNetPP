@@ -61,6 +61,19 @@ void CLuaPlugin::RegisterGlobalState(CLuaGame *pGame)
 	RegisterGameInstance(pGame);
 }
 
+bool CLuaPlugin::LoadFile()
+{
+	if(luaL_dofile(LuaState(), FullPath()) != LUA_OK)
+	{
+		const char *pError = lua_tostring(LuaState(), -1);
+		log_error("lua", "%s: %s", FullPath(), pError);
+		lua_pop(LuaState(), 1);
+		SetError(pError);
+		return false;
+	}
+	return true;
+}
+
 void CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 {
 	// TODO: don't we need to pop the global of the stack again?

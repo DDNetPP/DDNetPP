@@ -10,7 +10,6 @@
 #include <game/server/ddnetpp/lua/lua_game.h>
 
 #include <lua.hpp>
-#include <vector>
 
 class IGameController;
 class CGameContext;
@@ -30,6 +29,7 @@ private:
 
 public:
 	void RegisterGlobalState(CLuaGame *pGame);
+	bool LoadFile();
 
 private:
 	void CallLuaVoidNoArgs(const char *pFunction);

@@ -8,8 +8,6 @@
 
 #include <game/server/gamecontext.h>
 
-#include <lua.hpp>
-
 int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
 {
 	CLuaController *pSelf = (CLuaController *)pUser;
@@ -74,7 +72,6 @@ void CLuaController::OnInit()
 bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 {
 	log_info("lua", "loading script %s ...", pFilename);
-
 	CLuaPlugin *pPlugin = new CLuaPlugin(pName, pFilename);
 
 	// also push plugins even if they crash on load
@@ -82,16 +79,7 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 	// command together with a useful error message
 	m_vpPlugins.emplace_back(pPlugin);
 	pPlugin->RegisterGlobalState(&m_Game);
-
-	if(luaL_dofile(pPlugin->LuaState(), pFilename) != LUA_OK)
-	{
-		const char *pLuaError = lua_tostring(pPlugin->LuaState(), -1);
-		log_error("lua", "%s: %s", pFilename, pLuaError);
-		lua_pop(pPlugin->LuaState(), 1);
-		pPlugin->SetError(pLuaError);
-		return false;
-	}
-	return true;
+	return pPlugin->LoadFile();
 }
 
 void CLuaController::ReloadPlugins()

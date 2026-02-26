@@ -9,7 +9,6 @@
 
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 
-#include <lua.hpp>
 #include <vector>
 
 class IGameController;
