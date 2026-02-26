@@ -22,9 +22,7 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 	m_pGameType = g_Config.m_SvTestingCommands ? g_Config.m_SvGameTypeNameTest : g_Config.m_SvGameTypeName;
 	m_GameFlags = GAMEFLAG_FLAGS;
 
-#ifdef CONF_LUA
-	m_LuaController.Init(this, pGameServer);
-#endif
+	Lua()->Init(this, pGameServer);
 }
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
@@ -33,11 +31,7 @@ void CGameControllerDDNetPP::Tick()
 {
 	CGameControllerDDNet::Tick();
 
-	// TODO: move the ifdef to the lua_plugin.cpp
-#ifdef CONF_LUA
 	Lua()->OnTick();
-#endif
-
 	FlagTick();
 	DetectReconnectFlood();
 

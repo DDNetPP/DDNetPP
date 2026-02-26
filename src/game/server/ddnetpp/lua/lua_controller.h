@@ -1,8 +1,6 @@
 #ifndef GAME_SERVER_DDNETPP_LUA_LUA_CONTROLLER_H
 #define GAME_SERVER_DDNETPP_LUA_LUA_CONTROLLER_H
 
-#ifdef CONF_LUA
-
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
@@ -16,6 +14,7 @@ class CGameContext;
 
 class CLuaController
 {
+#ifdef CONF_LUA
 	CLuaGame m_Game;
 
 	// TODO: i am too lazy to understand "rule 0/3/5"
@@ -25,6 +24,7 @@ class CLuaController
 	//       So I am now passing them as pointers so nothing unexpected happens
 	//       apparently using "new" in modern C++ is bad style lol but whatever
 	std::vector<CLuaPlugin *> m_vpPlugins;
+#endif
 
 	IGameController *m_pController = nullptr;
 	CGameContext *m_pGameServer = nullptr;
@@ -47,7 +47,5 @@ private:
 	bool LoadPlugin(const char *pName, const char *pFilename);
 	void ReloadPlugins();
 };
-
-#endif
 
 #endif
