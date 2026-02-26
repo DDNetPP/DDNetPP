@@ -33,6 +33,11 @@ void CGameControllerDDNetPP::Tick()
 {
 	CGameControllerDDNet::Tick();
 
+	// TODO: move the ifdef to the lua_plugin.cpp
+#ifdef CONF_LUA
+	Lua()->OnTick();
+#endif
+
 	FlagTick();
 	DetectReconnectFlood();
 

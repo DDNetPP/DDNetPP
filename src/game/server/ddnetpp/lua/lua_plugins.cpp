@@ -47,6 +47,33 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
+void CLuaPlugin::OnInit()
+{
+}
+
+void CLuaPlugin::OnTick()
+{
+	// TODO: don't we need to pop the global of the stack again?
+	//       i tried `lua_pop(LuaState(), 1);` and it segfaulted
+	//       not popping it works but i feel like its wrong
+	lua_getglobal(LuaState(), "on_tick");
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// log_error("lua", "on_tick is nil");
+		return;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// log_error("lua", "on_tick is not a function");
+		return;
+	}
+	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	{
+		// TODO: disable plugin on error to avoid log spam
+		log_error("lua", "%s", lua_tostring(LuaState(), -1));
+	}
+}
+
 static void RegisterLuaBridgeTable(lua_State *L)
 {
 	luaL_newmetatable(L, "Game");
@@ -115,9 +142,10 @@ CLuaController::~CLuaController()
 
 void CLuaController::OnTick()
 {
-	// for(CLuaPlugin *pPlugin : m_vpPlugins)
-	// {
-	// }
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		pPlugin->OnTick();
+	}
 }
 
 bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
@@ -138,20 +166,8 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 		return false;
 	}
 
-	lua_getglobal(pPlugin->LuaState(), "on_tick");
-	if(lua_isnoneornil(pPlugin->LuaState(), -1))
-	{
-		log_error("lua", "on_tick is nil");
-	}
-	if(!lua_isfunction(pPlugin->LuaState(), -1))
-	{
-		log_error("lua", "on_tick is not a function");
-	}
-
-	if(lua_pcall(pPlugin->LuaState(), 0, 0, 0) != LUA_OK)
-	{
-		log_error("lua", "%s", lua_tostring(pPlugin->LuaState(), -1));
-	}
+	// FIXME: remove this call
+	pPlugin->OnTick();
 
 	m_vpPlugins.emplace_back(pPlugin);
 	return true;

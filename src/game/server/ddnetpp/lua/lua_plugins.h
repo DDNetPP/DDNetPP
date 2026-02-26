@@ -49,6 +49,9 @@ public:
 	lua_State *LuaState() { return m_pLuaState; }
 	const char *Name() const { return m_aName; }
 	const char *FullPath() const { return m_aFullPath; }
+
+	void OnInit();
+	void OnTick();
 };
 
 class CLuaController
