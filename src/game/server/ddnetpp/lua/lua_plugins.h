@@ -4,8 +4,10 @@
 #ifdef CONF_LUA
 
 #include <base/log.h>
+#include <base/types.h>
 
 #include <lua.hpp>
+#include <vector>
 
 class IGameController;
 class CGameContext;
@@ -35,12 +37,31 @@ public:
 	void SendChat(const char *pMessage);
 };
 
+class CLuaPlugin
+{
+public:
+	CLuaPlugin(const char *pName, const char *pFullPath);
+	~CLuaPlugin();
+
+	lua_State *m_pLuaState = nullptr;
+	char m_aName[IO_MAX_PATH_LENGTH] = "";
+	char m_aFullPath[IO_MAX_PATH_LENGTH] = "";
+	lua_State *LuaState() { return m_pLuaState; }
+	const char *Name() const { return m_aName; }
+	const char *FullPath() const { return m_aFullPath; }
+};
+
 class CLuaController
 {
 	CLuaGame m_Game;
 
-	lua_State *m_pLuaState = nullptr;
-	lua_State *LuaState() { return m_pLuaState; }
+	// TODO: i am too lazy to understand "rule 0/3/5"
+	//       https://en.cppreference.com/w/cpp/language/rule_of_three.html
+	//       initially i passed plugins by value but the vector was calling
+	//       the destructor and messing up my lua state
+	//       So I am now passing them as pointers so nothing unexpected happens
+	//       apparently using "new" in modern C++ is bad style lol but whatever
+	std::vector<CLuaPlugin *> m_vpPlugins;
 
 	IGameController *m_pController = nullptr;
 	CGameContext *m_pGameServer = nullptr;
@@ -59,7 +80,7 @@ public:
 	void OnTick();
 
 private:
-	bool LoadPlugin(const char *pFilename);
+	bool LoadPlugin(const char *pName, const char *pFilename);
 	void ReloadPlugins();
 };
 

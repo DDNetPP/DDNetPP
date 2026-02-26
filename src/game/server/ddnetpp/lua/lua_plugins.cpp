@@ -29,6 +29,24 @@ void CLuaGame::SendChat(const char *pMessage)
 	GameServer()->SendChat(-1, TEAM_ALL, pMessage);
 }
 
+CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath)
+{
+	log_info("lua", "initializing plugin %s ...", pName);
+	m_pLuaState = luaL_newstate();
+	luaL_openlibs(LuaState());
+	str_copy(m_aName, pName);
+	str_copy(m_aFullPath, pFullPath);
+}
+
+CLuaPlugin::~CLuaPlugin()
+{
+	if(LuaState())
+	{
+		log_info("lua", "cleaning up plugin %s ...", Name());
+		lua_close(LuaState());
+	}
+}
+
 static void RegisterLuaBridgeTable(lua_State *L)
 {
 	luaL_newmetatable(L, "Game");
@@ -68,7 +86,11 @@ int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int D
 	pSelf->GameServer()->Storage()->GetCompletePath(DirType, "plugins", aBasePath, sizeof(aBasePath));
 	char aFullpath[IO_MAX_PATH_LENGTH];
 	str_format(aFullpath, sizeof(aFullpath), "%s/%s", aBasePath, pFilename);
-	pSelf->LoadPlugin(aFullpath);
+
+	char aName[IO_MAX_PATH_LENGTH];
+	str_copy(aName, pFilename);
+	aName[str_length(aName) - str_length(".lua")] = '\0';
+	pSelf->LoadPlugin(aName, aFullpath);
 
 	return 0;
 }
@@ -80,63 +102,58 @@ void CLuaController::Init(IGameController *pController, CGameContext *pGameServe
 	m_pGameServer = pGameServer;
 	m_Game.Init(pController, pGameServer);
 
-	m_pLuaState = luaL_newstate();
-	lua_State *L = m_pLuaState;
-	luaL_openlibs(L);
-
-	RegisterLuaBridgeTable(L);
-	PushGameToLua(L, &m_Game);
-
 	ReloadPlugins();
 }
 
 CLuaController::~CLuaController()
 {
-	if(m_pLuaState)
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
-		log_info("lua", "cleaning up lua state...");
-		lua_close(LuaState());
+		delete pPlugin;
 	}
 }
 
 void CLuaController::OnTick()
 {
+	// for(CLuaPlugin *pPlugin : m_vpPlugins)
+	// {
+	// }
 }
 
-bool CLuaController::LoadPlugin(const char *pFilename)
+bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 {
 	log_info("lua", "loading script %s ...", pFilename);
 
-	// TODO: can we share state between multiple plugins?
+	CLuaPlugin *pPlugin = new CLuaPlugin(pName, pFilename);
 
-	// using the same lua state overrides the lua callbacks
-	// so if two scripts define on_tick only one of them can be called
-	// so we need multiple lua states i assume
+	// TODO: make this less ugly. Where does it belong?
+	RegisterLuaBridgeTable(pPlugin->LuaState());
+	PushGameToLua(pPlugin->LuaState(), &m_Game);
 
-	if(luaL_dofile(LuaState(), pFilename) != LUA_OK)
+	if(luaL_dofile(pPlugin->LuaState(), pFilename) != LUA_OK)
 	{
-		const char *pLuaError = lua_tostring(LuaState(), -1);
+		const char *pLuaError = lua_tostring(pPlugin->LuaState(), -1);
 		log_error("lua", "%s: %s", pFilename, pLuaError);
-		lua_pop(LuaState(), 1);
+		lua_pop(pPlugin->LuaState(), 1);
 		return false;
 	}
 
-	lua_getglobal(LuaState(), "on_tick");
-
-	if(lua_isnoneornil(LuaState(), -1))
+	lua_getglobal(pPlugin->LuaState(), "on_tick");
+	if(lua_isnoneornil(pPlugin->LuaState(), -1))
 	{
 		log_error("lua", "on_tick is nil");
 	}
-	if(!lua_isfunction(LuaState(), -1))
+	if(!lua_isfunction(pPlugin->LuaState(), -1))
 	{
 		log_error("lua", "on_tick is not a function");
 	}
 
-	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	if(lua_pcall(pPlugin->LuaState(), 0, 0, 0) != LUA_OK)
 	{
-		log_error("lua", "%s", lua_tostring(LuaState(), -1));
+		log_error("lua", "%s", lua_tostring(pPlugin->LuaState(), -1));
 	}
 
+	m_vpPlugins.emplace_back(pPlugin);
 	return true;
 }
 
