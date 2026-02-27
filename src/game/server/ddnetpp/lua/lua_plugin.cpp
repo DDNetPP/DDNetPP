@@ -308,7 +308,6 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 		}
 		else
 		{
-			// TODO: test this case. not sure if plugin disable is the way to go here.
 			SetError("unsupported table value type returned");
 			log_error("lua", "plugin '%s' returned unsupported table value from function %s()", Name(), pFunction);
 
