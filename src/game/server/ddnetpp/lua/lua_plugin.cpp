@@ -99,7 +99,7 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
-		log_error("lua", "%s", pErrorMsg);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
 		SetError(pErrorMsg);
 	}
 	return true;
