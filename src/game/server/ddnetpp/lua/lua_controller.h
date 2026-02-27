@@ -50,7 +50,7 @@ public:
 	// and then it stops there.
 	// Returns true if a plugin was found.
 	//
-	// TODO: also add `Game:call_plugin_all("func")` to call all not only the first
+	// TODO: also add `Game:call_plugins("func")` to call all not only the first
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 private:

@@ -46,15 +46,24 @@ and main wants to call a function defined in lib it works like this:
 
 function lib_func(arg)
     print("hello from lib. got arg: " .. arg)
+    return "frog"
 end
 ```
 
 ```lua
 -- main.lua
 
-Game:call_plugin("lib_func", "some argument")
+ok, result = Game:call_plugin("lib_func", "some argument")
+
+if ok then
+    print("lib_func found and it returned: " .. result)
+end
 ```
 
-It searches for "lib_func" in all plugins and only runs the first it finds.
-If it finds no function with that name in any plugin it will throw and error.
-So you need to use load and pcall to do this safely.
+The method `call_plugin` always returns two values where the first
+is a boolean that is set to true if the call worked and the second is the return
+value from the called function.
+
+
+In this case it searches for "lib_func" in all plugins and only runs the first it finds.
+If it finds no function with that name in any plugin it will return `false` and `nil`.

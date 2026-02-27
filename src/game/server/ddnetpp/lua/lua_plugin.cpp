@@ -118,20 +118,20 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
 	const char *pFunction = lua_tostring(L, 2);
 
-	// TODO: pass in table as arg and get nested table result as return val
-
-	// TODO: return rust like result to lua
-	//       {ERROR, nil}
-	//       or
-	//       {OK, {val}}
 	if(!pGame->Controller()->Lua()->CallPlugin(pFunction, L))
 	{
-		// TODO: i feel like the error handle should happen in CallPlugin
-		luaL_error(L, "no plugin implements %s()", pFunction);
-		return 1;
+		// luaL_error(L, "no plugin implements %s()", pFunction);
+
+		// ok = false
+		lua_pushboolean(L, false);
+
+		// data = nil
+		lua_pushnil(L);
+		return 2;
 	}
 
-	return 1;
+	// ok and data have to be set by CallPlugin
+	return 2;
 }
 
 void CLuaPlugin::OnInit()
@@ -172,7 +172,7 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		return false;
 	}
 
-	// TODO: eventuall we should while !lua_isnone and checkstack here
+	// TODO: eventually we should while !lua_isnone and checkstack here
 	int NumArgs = 0;
 	if(lua_isstring(pCaller, 3))
 	{
@@ -187,6 +187,11 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		log_error("lua", "%s", pErrorMsg);
 		SetError(pErrorMsg);
 	}
+
+	// return true as "ok" or "found" as first value
+	// to signal the caller that a plugin got this function
+	// and the second argument will be its return value
+	lua_pushboolean(pCaller, true);
 
 	if(lua_isinteger(LuaState(), -1))
 	{
