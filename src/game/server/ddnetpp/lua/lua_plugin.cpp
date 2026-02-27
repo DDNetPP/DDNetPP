@@ -221,7 +221,6 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller)
 {
 	// TODO: this entire thing is a huge mess already and far from complete wtf
-	//       should be moved to another method and properly tested
 	//       also it looks horribly slow
 	//       there has to be a better way to do this
 
