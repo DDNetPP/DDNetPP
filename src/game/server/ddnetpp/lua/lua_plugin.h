@@ -54,7 +54,7 @@ private:
 	//
 	// Copies the returned table from a lua plugin
 	// to another lua state when being called from another plugin
-	bool CopyReturnedTable(const char *pFunction, lua_State *pCaller);
+	bool CopyReturnedTable(const char *pFunction, lua_State *pCaller, int Depth);
 
 	// passes on the arguments when one plugin calls a function from another plugin
 	// the callee is *this* and its arguments will be copied to the callers lua state

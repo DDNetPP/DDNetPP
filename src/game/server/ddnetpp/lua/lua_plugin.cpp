@@ -207,7 +207,7 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 	}
 	else if(lua_istable(LuaState(), -1))
 	{
-		CopyReturnedTable(pFunction, pCaller);
+		CopyReturnedTable(pFunction, pCaller, 0);
 	}
 	else
 	{
@@ -218,8 +218,12 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 	return true;
 }
 
-bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller)
+bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, int Depth)
 {
+	// not sure how safe it is to keep this assert here xd
+	// but it for sure helps debugging
+	dbg_assert(lua_istable(LuaState(), -1), "copy table got not table");
+
 	// TODO: this entire thing is a huge mess already and far from complete wtf
 	//       also it looks horribly slow
 	//       there has to be a better way to do this
@@ -253,8 +257,29 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller)
 		// log_info("lua", "copy table %s => %s", pKey, pValue);
 
 		lua_pushstring(pCaller, pKey);
-		lua_pushstring(pCaller, pValue);
-		lua_settable(pCaller, -3);
+
+		if(lua_istable(LuaState(), -2))
+		{
+			log_info("lua", "got nested table");
+
+			lua_newtable(pCaller);
+			lua_pushstring(pCaller, "key");
+			lua_pushstring(pCaller, "val");
+			lua_settable(pCaller, -3);
+
+			lua_settable(pCaller, -3);
+
+			// NO WAY THIS WORKS=???
+			// CopyReturnedTable(pFunction, pCaller);
+		}
+		else
+		{
+			lua_pushstring(pCaller, pValue);
+
+			// TODO: this could probably be in the scope below
+			//       depending on what happens with the table copy above
+			lua_settable(pCaller, -3);
+		}
 
 		// pop value + copy of key, leaving original key
 		lua_pop(LuaState(), 2);
@@ -263,7 +288,8 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller)
 	// stack now contains: -1 => table (when lua_next returns 0 it pops the key
 	// but does not push anything.)
 	// Pop table
-	lua_pop(LuaState(), 1);
+	if(Depth == 0)
+		lua_pop(LuaState(), 1);
 	// Stack is now the same as it was on entry to this function
 
 	return true;
