@@ -1021,6 +1021,15 @@ void CGameContext::ConDummies(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dummies", "no server dummies connected.");
 }
 
+void CGameContext::ConPlugins(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!pSelf->m_pController)
+		return;
+
+	pSelf->m_pController->Lua()->ListPlugins();
+}
+
 void CGameContext::ConSql_ADD(IConsole::IResult *pResult, void *pUserData)
 {
 	//CGameContext *pSelf = (CGameContext *)pUserData;

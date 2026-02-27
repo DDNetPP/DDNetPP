@@ -57,6 +57,48 @@ CLuaController::~CLuaController()
 #endif
 }
 
+void CLuaController::ListPlugins()
+{
+#ifdef CONF_LUA
+	size_t NumPlugins = m_vpPlugins.size();
+	log_info("lua", "currently loaded %" PRIzu " plugins:", NumPlugins);
+
+	size_t NumPrinted = 0;
+	size_t MaxPrint = 16;
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(NumPrinted++ > (MaxPrint - 1))
+		{
+			log_info("lua", " and %" PRIzu " more ..", (NumPlugins - NumPrinted) + 1);
+			break;
+		}
+		if(pPlugin->IsError())
+		{
+			log_info(
+				"lua",
+				" ! '%s' - failed: %s",
+				pPlugin->Name(),
+				pPlugin->ErrorMsg());
+			continue;
+		}
+		if(!pPlugin->IsActive())
+		{
+			log_info(
+				"lua",
+				" ✘ '%s' (off)",
+				pPlugin->Name());
+			continue;
+		}
+		log_info(
+			"lua",
+			" ✔ '%s'",
+			pPlugin->Name());
+	}
+#else
+	log_error("lua", "lua plugin support is not enabled");
+#endif
+}
+
 void CLuaController::OnInit()
 {
 #ifdef CONF_LUA

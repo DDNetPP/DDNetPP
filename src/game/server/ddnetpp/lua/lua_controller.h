@@ -40,6 +40,9 @@ public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController();
 
+	// rcon commands
+	void ListPlugins();
+
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();

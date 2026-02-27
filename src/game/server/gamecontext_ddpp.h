@@ -871,6 +871,7 @@ private:
 	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConDummies(IConsole::IResult *pResult, void *pUserData);
+	static void ConPlugins(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
 

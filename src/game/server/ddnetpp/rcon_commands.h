@@ -54,6 +54,7 @@ CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, t
 CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "List all players muted from changing name system")
 
 CONSOLE_COMMAND("dummies", "", CFGFLAG_SERVER, ConDummies, this, "List all connected dummy")
+CONSOLE_COMMAND("plugins", "", CFGFLAG_SERVER, ConPlugins, this, "List and manage lua plugins")
 
 CONSOLE_COMMAND("block_votes", "?i[minutes]", CFGFLAG_SERVER, ConBlockVotes, this, "disables all votes but 'unblock_votes'")
 CONSOLE_COMMAND("unblock_votes", "", CFGFLAG_SERVER, ConUnblockVotes, this, "unlocks votes if they were blocked by 'block_votes'")
