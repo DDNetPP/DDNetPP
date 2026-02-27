@@ -251,12 +251,27 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 		lua_pushvalue(LuaState(), -2);
 		// stack now contains: -1 => key; -2 => value; -3 => key; -4 => table
 
-		// key scope because i feel like pKey is invalid after the pop
+		// key scope for organization
 		{
-			// TODO: check key type and error if its unsupported
-			// TODO: support other values than string and error if its not supported
-			const char *pKey = lua_tostring(LuaState(), -1);
-			lua_pushstring(pCaller, pKey);
+			if(lua_isinteger(LuaState(), -1))
+			{
+				lua_pushinteger(pCaller, lua_tointeger(LuaState(), -1));
+			}
+			else if(lua_isstring(LuaState(), -1))
+			{
+				lua_pushstring(pCaller, lua_tostring(LuaState(), -1));
+			}
+			else
+			{
+				// crashing the server if the plugin is doing weird stuff is bad
+				// lua supports weird values like functions as keys
+
+				// TODO: try to hit this assert with a crazy table return
+				//       and then test if there is a way to not crash the server with an assert
+				//       and properly disable the plugin without breaking any lua state
+
+				dbg_assert_failed("plugin '%s' returned unsupported table key from function %s()", Name(), pFunction);
+			}
 
 			// pop key so value is on the top of the stack for table
 			// deep copy recursion
