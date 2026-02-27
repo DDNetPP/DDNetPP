@@ -250,15 +250,23 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 		// copy the key so that lua_tostring does not modify the original
 		lua_pushvalue(LuaState(), -2);
 		// stack now contains: -1 => key; -2 => value; -3 => key; -4 => table
-		// TODO: check key type and error if its unsupported
-		// TODO: support other values than string and error if its not supported
-		const char *pKey = lua_tostring(LuaState(), -1);
-		const char *pValue = lua_tostring(LuaState(), -2);
+
+		// key scope because i feel like pKey is invalid after the pop
+		{
+			// TODO: check key type and error if its unsupported
+			// TODO: support other values than string and error if its not supported
+			const char *pKey = lua_tostring(LuaState(), -1);
+			lua_pushstring(pCaller, pKey);
+
+			// pop key so value is on the top of the stack for table
+			// deep copy recursion
+			lua_pop(LuaState(), 1);
+		}
+
+		const char *pValue = lua_tostring(LuaState(), -1);
 		// log_info("lua", "copy table %s => %s", pKey, pValue);
 
-		lua_pushstring(pCaller, pKey);
-
-		if(lua_istable(LuaState(), -2))
+		if(lua_istable(LuaState(), -1))
 		{
 			log_info("lua", "got nested table");
 
@@ -266,6 +274,8 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 			lua_pushstring(pCaller, "key");
 			lua_pushstring(pCaller, "val");
 			lua_settable(pCaller, -3);
+
+			// CopyReturnedTable(pFunction, pCaller, 1);
 
 			lua_settable(pCaller, -3);
 
@@ -281,9 +291,13 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 			lua_settable(pCaller, -3);
 		}
 
-		// pop value + copy of key, leaving original key
-		lua_pop(LuaState(), 2);
-		// stack now contains: -1 => key; -2 => table
+
+		// pop something, nobody knows what
+		lua_pop(LuaState(), 1);
+
+		// // pop value + copy of key, leaving original key
+		// lua_pop(LuaState(), 2);
+		// // stack now contains: -1 => key; -2 => table
 	}
 	// stack now contains: -1 => table (when lua_next returns 0 it pops the key
 	// but does not push anything.)
