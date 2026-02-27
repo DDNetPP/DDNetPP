@@ -207,58 +207,65 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 	}
 	else if(lua_istable(LuaState(), -1))
 	{
-		// TODO: this entire thing is a huge mess already and far from complete wtf
-		//       should be moved to another method and properly tested
-		//       also it looks horribly slow
-		//       there has to be a better way to do this
-
-		size_t TableLen = lua_rawlen(LuaState(), -1);
-		// log_info("lua", "got table with %zu keys", TableLen);
-
-		// random af idk what im doing
-		lua_checkstack(pCaller, TableLen * 4);
-
-		// TODO: use the faster table creator because we know the size
-		lua_newtable(pCaller);
-
-		// Push another reference to the table on top of the stack (so we know
-		// where it is, and this function can work for negative, positive and
-		// pseudo indices
-		lua_pushvalue(LuaState(), -1);
-		// stack now contains: -1 => table
-		lua_pushnil(LuaState());
-		// stack now contains: -1 => nil; -2 => table
-		while(lua_next(LuaState(), -2))
-		{
-			// stack now contains: -1 => value; -2 => key; -3 => table
-			// copy the key so that lua_tostring does not modify the original
-			lua_pushvalue(LuaState(), -2);
-			// stack now contains: -1 => key; -2 => value; -3 => key; -4 => table
-			// TODO: check key type and error if its unsupported
-			// TODO: support other values than string and error if its not supported
-			const char *pKey = lua_tostring(LuaState(), -1);
-			const char *pValue = lua_tostring(LuaState(), -2);
-			// log_info("lua", "copy table %s => %s", pKey, pValue);
-
-			lua_pushstring(pCaller, pKey);
-			lua_pushstring(pCaller, pValue);
-			lua_settable(pCaller, -3);
-
-			// pop value + copy of key, leaving original key
-			lua_pop(LuaState(), 2);
-			// stack now contains: -1 => key; -2 => table
-		}
-		// stack now contains: -1 => table (when lua_next returns 0 it pops the key
-		// but does not push anything.)
-		// Pop table
-		lua_pop(LuaState(), 1);
-		// Stack is now the same as it was on entry to this function
+		CopyReturnedTable(pFunction, pCaller);
 	}
 	else
 	{
 		log_warn("lua", "plugin '%s' returned unsupported type from function %s()", Name(), pFunction);
 		lua_pushnil(pCaller);
 	}
+
+	return true;
+}
+
+bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller)
+{
+	// TODO: this entire thing is a huge mess already and far from complete wtf
+	//       should be moved to another method and properly tested
+	//       also it looks horribly slow
+	//       there has to be a better way to do this
+
+	size_t TableLen = lua_rawlen(LuaState(), -1);
+	// log_info("lua", "got table with %zu keys", TableLen);
+
+	// random af idk what im doing
+	lua_checkstack(pCaller, TableLen * 4);
+
+	// TODO: use the faster table creator because we know the size
+	lua_newtable(pCaller);
+
+	// Push another reference to the table on top of the stack (so we know
+	// where it is, and this function can work for negative, positive and
+	// pseudo indices
+	lua_pushvalue(LuaState(), -1);
+	// stack now contains: -1 => table
+	lua_pushnil(LuaState());
+	// stack now contains: -1 => nil; -2 => table
+	while(lua_next(LuaState(), -2))
+	{
+		// stack now contains: -1 => value; -2 => key; -3 => table
+		// copy the key so that lua_tostring does not modify the original
+		lua_pushvalue(LuaState(), -2);
+		// stack now contains: -1 => key; -2 => value; -3 => key; -4 => table
+		// TODO: check key type and error if its unsupported
+		// TODO: support other values than string and error if its not supported
+		const char *pKey = lua_tostring(LuaState(), -1);
+		const char *pValue = lua_tostring(LuaState(), -2);
+		// log_info("lua", "copy table %s => %s", pKey, pValue);
+
+		lua_pushstring(pCaller, pKey);
+		lua_pushstring(pCaller, pValue);
+		lua_settable(pCaller, -3);
+
+		// pop value + copy of key, leaving original key
+		lua_pop(LuaState(), 2);
+		// stack now contains: -1 => key; -2 => table
+	}
+	// stack now contains: -1 => table (when lua_next returns 0 it pops the key
+	// but does not push anything.)
+	// Pop table
+	lua_pop(LuaState(), 1);
+	// Stack is now the same as it was on entry to this function
 
 	return true;
 }

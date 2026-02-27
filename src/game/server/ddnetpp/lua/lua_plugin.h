@@ -49,6 +49,21 @@ public:
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 private:
+	// returns true on success
+	// and false if the table contains unsupported fields
+	//
+	// Copies the returned table from a lua plugin
+	// to another lua state when being called from another plugin
+	bool CopyReturnedTable(const char *pFunction, lua_State *pCaller);
+
+	// passes on the arguments when one plugin calls a function from another plugin
+	// the callee is *this* and its arguments will be copied to the callers lua state
+	//
+	// returns the number of found and supported arguments that were pushed on to the
+	// lua stack of the caller
+	//
+	// the stack offset is the lua stack offset of the callee where we start to look
+	// for arguments
 	int PassOnArgs(const char *pFunction, lua_State *pCaller, int StackOffset);
 
 public:
