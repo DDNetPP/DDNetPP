@@ -278,10 +278,21 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 			lua_pop(LuaState(), 1);
 		}
 
-		const char *pValue = lua_tostring(LuaState(), -1);
-		// log_info("lua", "copy table %s => %s", pKey, pValue);
-
-		if(lua_istable(LuaState(), -1))
+		// i feel like this is not the smartest way of doing a deep copy
+		// we are listing all types twice
+		// i feel like CopyReturnedTable() could be refactored
+		// into CopyAnyValue()
+		if(lua_isinteger(LuaState(), -1))
+		{
+			lua_pushinteger(pCaller, lua_tointeger(LuaState(), -1));
+			lua_settable(pCaller, -3);
+		}
+		else if(lua_isnumber(LuaState(), -1))
+		{
+			lua_pushnumber(pCaller, lua_tonumber(LuaState(), -1));
+			lua_settable(pCaller, -3);
+		}
+		else if(lua_istable(LuaState(), -1))
 		{
 			// log_info("lua", "%*sgot nested table", Depth, "");
 			CopyReturnedTable(pFunction, pCaller, ++Depth);
@@ -290,12 +301,19 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 			// pop table
 			lua_pop(LuaState(), 1);
 		}
+		else if(lua_isstring(LuaState(), -1))
+		{
+			lua_pushstring(pCaller, lua_tostring(LuaState(), -1));
+			lua_settable(pCaller, -3);
+		}
 		else
 		{
-			lua_pushstring(pCaller, pValue);
+			// TODO: test this case. not sure if plugin disable is the way to go here.
+			SetError("unsupported table value type returned");
+			log_error("lua", "plugin '%s' returned unsupported table value from function %s()", Name(), pFunction);
 
-			// TODO: this could probably be in the scope below
-			//       depending on what happens with the table copy above
+			// fallback nil value for caller to leave the callers lua stack in good state
+			lua_pushnil(pCaller);
 			lua_settable(pCaller, -3);
 		}
 
