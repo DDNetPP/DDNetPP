@@ -48,6 +48,10 @@ public:
 	void OnPlayerConnect();
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
+private:
+	int PassOnArgs(const char *pFunction, lua_State *pCaller, int StackOffset);
+
+public:
 	lua_State *m_pLuaState = nullptr;
 	char m_aName[IO_MAX_PATH_LENGTH] = "";
 	char m_aFullPath[IO_MAX_PATH_LENGTH] = "";

@@ -172,15 +172,7 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		return false;
 	}
 
-	// TODO: eventually we should while !lua_isnone and checkstack here
-	int NumArgs = 0;
-	if(lua_isstring(pCaller, 3))
-	{
-		NumArgs++;
-		// log_info("lua", "got string arg: %s", lua_tostring(pCaller, 3));
-		lua_pushstring(LuaState(), lua_tostring(pCaller, 3));
-	}
-
+	int NumArgs = PassOnArgs(pFunction, pCaller, 3);
 	if(lua_pcall(LuaState(), NumArgs, 1, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
@@ -269,6 +261,30 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 	}
 
 	return true;
+}
+
+int CLuaPlugin::PassOnArgs(const char *pFunction, lua_State *pCaller, int StackOffset)
+{
+	int NumArgs = 0;
+	for(int ArgStack = StackOffset; !lua_isnone(pCaller, ArgStack); ArgStack++)
+	{
+		if(lua_isinteger(pCaller, ArgStack))
+		{
+			NumArgs++;
+			lua_pushinteger(LuaState(), lua_tointeger(pCaller, ArgStack));
+		}
+		else if(lua_isstring(pCaller, ArgStack))
+		{
+			NumArgs++;
+			lua_pushstring(LuaState(), lua_tostring(pCaller, ArgStack));
+		}
+		else
+		{
+			log_warn("lua", "plugin '%s' in function %s() was called with unsupported arg", Name(), pFunction);
+			break;
+		}
+	}
+	return NumArgs;
 }
 
 void CLuaPlugin::SetError(const char *pErrorMsg)

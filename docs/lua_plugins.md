@@ -53,6 +53,7 @@ end
 ```lua
 -- main.lua
 
+-- call_plugin(func_name, args..)
 ok, result = Game:call_plugin("lib_func", "some argument")
 
 if ok then
