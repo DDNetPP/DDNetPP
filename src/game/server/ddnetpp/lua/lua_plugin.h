@@ -9,9 +9,9 @@
 
 #include <game/server/ddnetpp/lua/lua_game.h>
 
-// FIXME: we include lua.hpp in the header and lua.h in the source file
-//        this cant be good
-#include <lua.hpp>
+extern "C" {
+#include "lua.h"
+}
 
 class IGameController;
 class CGameContext;

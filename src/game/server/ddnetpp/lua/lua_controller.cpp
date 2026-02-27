@@ -7,6 +7,11 @@
 
 #include <game/server/gamecontext.h>
 
+extern "C" {
+#include "lauxlib.h"
+#include "lua.h"
+}
+
 int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
 {
 #ifdef CONF_LUA

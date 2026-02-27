@@ -9,7 +9,11 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 
-#include <lua.h>
+extern "C" {
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+}
 
 CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath)
 {
