@@ -229,7 +229,7 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 	//       there has to be a better way to do this
 
 	size_t TableLen = lua_rawlen(LuaState(), -1);
-	// log_info("lua", "got table with %zu keys", TableLen);
+	// log_info("lua", "%*sgot table with %zu keys (depth=%d)", Depth, "", TableLen, Depth);
 
 	// random af idk what im doing
 	lua_checkstack(pCaller, TableLen * 4);
@@ -268,19 +268,12 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 
 		if(lua_istable(LuaState(), -1))
 		{
-			log_info("lua", "got nested table");
-
-			lua_newtable(pCaller);
-			lua_pushstring(pCaller, "key");
-			lua_pushstring(pCaller, "val");
+			// log_info("lua", "%*sgot nested table", Depth, "");
+			CopyReturnedTable(pFunction, pCaller, ++Depth);
 			lua_settable(pCaller, -3);
 
-			// CopyReturnedTable(pFunction, pCaller, 1);
-
-			lua_settable(pCaller, -3);
-
-			// NO WAY THIS WORKS=???
-			// CopyReturnedTable(pFunction, pCaller);
+			// pop table
+			lua_pop(LuaState(), 1);
 		}
 		else
 		{
@@ -290,7 +283,6 @@ bool CLuaPlugin::CopyReturnedTable(const char *pFunction, lua_State *pCaller, in
 			//       depending on what happens with the table copy above
 			lua_settable(pCaller, -3);
 		}
-
 
 		// pop something, nobody knows what
 		lua_pop(LuaState(), 1);
