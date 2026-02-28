@@ -84,35 +84,27 @@ end)
 ```
 
 The arguments do not get parsed by the teeworlds console code so you have to do that your self.
-But in theory you can also install a plugin that does it for you and call it like this.
+But you can also let other lua plugins do the argument parsing for you.
+
+There is an official [argparse.lua](https://github.com/DDNetPP/plugins/blob/43ba783577bcab7913fb0b699c828856500a3685/argparser.lua) plugin
+you can install by downloading the lua file and placing it into your plugins directory next to your plugin.
+Then you can use it like this:
 
 ```lua
 -- myplugin.lua
 
-Game:register_rcon("custom_command", function (client_id, args)
-    -- assuming you have a plugin installed that exposes
-    -- a function called "parse_args"
-    -- which takes an teeworlds console styled arguments description as first argument
-    -- and the raw user args as second argument
-    -- and then returns a table in the following format
-    -- {
-    --   error = "error message or nil",
-    --   args = {
-    --     name = "user provided name",
-    --     index = 22,
-    --   }
-    -- }
-    -- this plugin does not exist but the plugin api would allow you
-    -- to create it
-    ok, data = Game:call_plugin("parse_args", "s[name]i[index]", args)
-    if ok == false then
-        Game:send_chat("please install arg parser plugin")
-        return
-    end
-    if data.error ~= nil then
-        Game:send_chat(data.error)
-        return
-    end
-    Game:send_chat("doing stuff with index " .. args.index .. " and name " .. args.name)
+Game:register_rcon("yellow", function (_, args)
+	ok, data = Game:call_plugin("parse_args", "s[name]i[seconds]", args)
+	if ok == false then
+		Game:send_chat("please install arg parser plugin")
+		return
+	end
+   if data.error ~= nil then
+		Game:send_chat(data.error)
+		return
+   end
+   args = data.args
+
+   Game:send_chat("player '" .. args.name .. "' is now yellow for " .. args.seconds .. " seconds")
 end)
 ```
