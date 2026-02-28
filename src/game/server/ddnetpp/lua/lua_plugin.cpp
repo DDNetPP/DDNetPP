@@ -237,6 +237,43 @@ void CLuaPlugin::OnPlayerConnect()
 	CallLuaVoidNoArgs("on_player_connect");
 }
 
+bool CLuaPlugin::OnRconCommand(const char *pCommand, const char *pArguments)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	if(!m_RconCommands.contains(pCommand))
+	{
+		log_info("lua", "plugin '%s' does not know rcon command '%s'", Name(), pCommand);
+		return false;
+	}
+	log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
+	return false;
+
+	const char *pFunction = "";
+	lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+	}
+	return true;
+}
+
 bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

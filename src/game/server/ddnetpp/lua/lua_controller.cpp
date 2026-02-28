@@ -143,6 +143,21 @@ void CLuaController::OnPlayerConnect()
 #endif
 }
 
+bool CLuaController::OnRconCommand(const char *pCommand, const char *pArguments)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->OnRconCommand(pCommand, pArguments))
+			return true;
+	}
+	return false;
+#endif
+}
+
 bool CLuaController::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 #ifdef CONF_LUA

@@ -58,6 +58,7 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
+	bool OnRconCommand(const char *pCommand, const char *pArguments);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 private:

@@ -46,6 +46,7 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
+	bool OnRconCommand(const char *pCommand, const char *pArguments);
 
 	// If a lua plugin runs `Game:call_plugin("func")`
 	// it will try to call "func" in all available plugins
