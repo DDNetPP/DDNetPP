@@ -247,28 +247,23 @@ bool CLuaPlugin::OnRconCommand(const char *pCommand, const char *pArguments)
 		return false;
 	}
 	log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
-	return false;
 
-	const char *pFunction = "";
-	lua_getglobal(LuaState(), pFunction);
-	if(lua_isnoneornil(LuaState(), -1))
+	int FuncRef = m_RconCommands.at(pCommand);
+	if(FuncRef == LUA_REFNIL)
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
-		// log_error("lua", "%s is nil", pFunction);
+		char aError[512];
+		str_format(aError, sizeof(aError), "invalid lua callback for rcon command '%s'", pCommand);
+		log_error("lua", "%s", aError);
+		SetError(aError);
 		return false;
 	}
-	if(!lua_isfunction(LuaState(), -1))
-	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
-		// log_error("lua", "%s is not a function", pFunction);
-		return false;
-	}
+
+	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, FuncRef);
+
 	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
-		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		log_error("lua", "plugin '%s' failed to run callback for rcon command '%s' with error: %s", Name(), pCommand, pErrorMsg);
 		SetError(pErrorMsg);
 	}
 	return true;

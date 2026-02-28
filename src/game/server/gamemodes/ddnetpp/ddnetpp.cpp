@@ -23,6 +23,9 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 	m_GameFlags = GAMEFLAG_FLAGS;
 
 	Lua()->Init(this, pGameServer);
+
+	// works yay
+	// Lua()->OnRconCommand("yellow", "world");
 }
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
