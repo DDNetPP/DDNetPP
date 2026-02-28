@@ -2011,6 +2011,8 @@ set_src(BASE GLOB_RECURSE src/base
   aio.h
   bezier.cpp
   bezier.h
+  bytes.cpp
+  bytes.h
   color.cpp
   color.h
   crashdump.cpp

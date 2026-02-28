@@ -2,9 +2,9 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "sound.h"
 
+#include <base/bytes.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
 
 #include <engine/graphics.h>
 #include <engine/shared/config.h>

@@ -1352,32 +1352,6 @@ void net_unix_close(UNIXSOCKET sock)
 }
 #endif
 
-void swap_endian(void *data, unsigned elem_size, unsigned num)
-{
-	char *src = (char *)data;
-	char *dst = src + (elem_size - 1);
-
-	while(num)
-	{
-		unsigned n = elem_size >> 1;
-		char tmp;
-		while(n)
-		{
-			tmp = *src;
-			*src = *dst;
-			*dst = tmp;
-
-			src++;
-			dst--;
-			n--;
-		}
-
-		src = src + (elem_size >> 1);
-		dst = src + (elem_size - 1);
-		num--;
-	}
-}
-
 int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds)
 {
 	const int64_t microseconds = std::chrono::duration_cast<std::chrono::microseconds>(nanoseconds).count();
@@ -1442,22 +1416,6 @@ int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds)
 void net_stats(NETSTATS *stats_inout)
 {
 	*stats_inout = network_stats;
-}
-
-static_assert(sizeof(unsigned) == 4, "unsigned must be 4 bytes in size");
-static_assert(sizeof(unsigned) == sizeof(int), "unsigned and int must have the same size");
-
-unsigned bytes_be_to_uint(const unsigned char *bytes)
-{
-	return ((bytes[0] & 0xffu) << 24u) | ((bytes[1] & 0xffu) << 16u) | ((bytes[2] & 0xffu) << 8u) | (bytes[3] & 0xffu);
-}
-
-void uint_to_bytes_be(unsigned char *bytes, unsigned value)
-{
-	bytes[0] = (value >> 24u) & 0xffu;
-	bytes[1] = (value >> 16u) & 0xffu;
-	bytes[2] = (value >> 8u) & 0xffu;
-	bytes[3] = value & 0xffu;
 }
 
 void cmdline_fix(int *argc, const char ***argv)

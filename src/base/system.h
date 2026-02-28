@@ -453,45 +453,7 @@ void net_unix_close(UNIXSOCKET sock);
 
 #endif
 
-/**
- * Swaps the endianness of data. Each element is swapped individually by reversing its bytes.
- *
- * @param data Pointer to data to be swapped.
- * @param elem_size Size in bytes of each element.
- * @param num Number of elements.
- *
- * @remark The caller must ensure that the data is at least `elem_size * num` bytes in size.
- */
-void swap_endian(void *data, unsigned elem_size, unsigned num);
-
 void net_stats(NETSTATS *stats);
-
-/**
- * Packs 4 big endian bytes into an unsigned.
- *
- * @param bytes Pointer to an array of bytes that will be packed.
- *
- * @return The packed unsigned.
- *
- * @remark Assumes the passed array is least 4 bytes in size.
- * @remark Assumes unsigned is 4 bytes in size.
- *
- * @see uint_to_bytes_be
- */
-unsigned bytes_be_to_uint(const unsigned char *bytes);
-
-/**
- * Packs an unsigned into 4 big endian bytes.
- *
- * @param bytes Pointer to an array where the bytes will be stored.
- * @param value The values that will be packed into the array.
- *
- * @remark Assumes the passed array is least 4 bytes in size.
- * @remark Assumes unsigned is 4 bytes in size.
- *
- * @see bytes_be_to_uint
- */
-void uint_to_bytes_be(unsigned char *bytes, unsigned value);
 
 /**
  * Shell and OS specific functionality.
