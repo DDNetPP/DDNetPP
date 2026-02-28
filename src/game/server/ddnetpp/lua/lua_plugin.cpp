@@ -6,6 +6,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 
@@ -15,13 +16,14 @@ extern "C" {
 #include "lualib.h"
 }
 
-CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath)
+CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame)
 {
 	log_info("lua", "initializing plugin %s ...", pName);
 	m_pLuaState = luaL_newstate();
 	luaL_openlibs(LuaState());
 	str_copy(m_aName, pName);
 	str_copy(m_aFullPath, pFullPath);
+	m_pGame = pGame;
 }
 
 CLuaPlugin::~CLuaPlugin()
@@ -54,24 +56,28 @@ void CLuaPlugin::RegisterGameTable()
 	lua_pushcfunction(LuaState(), CallbackRegisterRcon);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "plugin_name");
+	lua_pushcfunction(LuaState(), CallbackPluginName);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::RegisterGameInstance(CLuaGame *pGame)
+void CLuaPlugin::RegisterGameInstance()
 {
-	lua_pushlightuserdata(LuaState(), pGame);
+	lua_pushlightuserdata(LuaState(), this);
 	luaL_getmetatable(LuaState(), "Game");
 	lua_setmetatable(LuaState(), -2);
 	lua_setglobal(LuaState(), "Game");
 }
 
-void CLuaPlugin::RegisterGlobalState(CLuaGame *pGame)
+void CLuaPlugin::RegisterGlobalState()
 {
 	RegisterGameTable();
-	RegisterGameInstance(pGame);
+	RegisterGameInstance();
 }
 
 bool CLuaPlugin::LoadFile()
@@ -115,7 +121,8 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 
 int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
-	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaGame *pGame = pSelf->Game();
 	const char *pMessage = lua_tostring(L, 2);
 	pGame->SendChat(pMessage);
 	return 0;
@@ -123,8 +130,13 @@ int CLuaPlugin::CallbackSendChat(lua_State *L)
 
 int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 {
-	CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaGame *pGame = pSelf->Game();
 	const char *pFunction = lua_tostring(L, 2);
+
+	// TODO: now that we also have pSelf available it would be nicer to pass
+	//       that as argument to CallPlugin instead of L
+	//       so we can fully operate on the caller plugin if needed
 
 	if(!pGame->Controller()->Lua()->CallPlugin(pFunction, L))
 	{
@@ -176,6 +188,13 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 	// // m_RconCommands[std::string(pName)] = FuncRef;
 
 	lua_pushboolean(L, true);
+	return 1;
+}
+
+int CLuaPlugin::CallbackPluginName(lua_State *L)
+{
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	lua_pushstring(L, pSelf->Name());
 	return 1;
 }
 

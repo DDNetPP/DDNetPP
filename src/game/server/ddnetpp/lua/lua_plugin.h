@@ -28,15 +28,19 @@ class CLuaPlugin
 	std::unordered_map<std::string, int> m_RconCommands;
 
 public:
-	CLuaPlugin(const char *pName, const char *pFullPath);
+	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
+
+	CLuaGame *m_pGame = nullptr;
+	CLuaGame *Game() { return m_pGame; }
+	const CLuaGame *Game() const { return m_pGame; }
 
 private:
 	void RegisterGameTable();
-	void RegisterGameInstance(CLuaGame *pGame);
+	void RegisterGameInstance();
 
 public:
-	void RegisterGlobalState(CLuaGame *pGame);
+	void RegisterGlobalState();
 	bool LoadFile();
 
 private:
@@ -47,6 +51,7 @@ private:
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackCallPlugin(lua_State *L);
 	static int CallbackRegisterRcon(lua_State *L);
+	static int CallbackPluginName(lua_State *L);
 
 public:
 	// Calling lua from C++

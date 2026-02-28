@@ -164,13 +164,13 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 {
 #ifdef CONF_LUA
 	log_info("lua", "loading script %s ...", pFilename);
-	CLuaPlugin *pPlugin = new CLuaPlugin(pName, pFilename);
+	CLuaPlugin *pPlugin = new CLuaPlugin(pName, pFilename, &m_Game);
 
 	// also push plugins even if they crash on load
 	// so we can show them to admins in the list plugins rcon
 	// command together with a useful error message
 	m_vpPlugins.emplace_back(pPlugin);
-	pPlugin->RegisterGlobalState(&m_Game);
+	pPlugin->RegisterGlobalState();
 	return pPlugin->LoadFile();
 #else
 	return false;
