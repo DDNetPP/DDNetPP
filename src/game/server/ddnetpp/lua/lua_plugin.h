@@ -9,6 +9,8 @@
 
 #include <game/server/ddnetpp/lua/lua_game.h>
 
+#include <string>
+#include <unordered_map>
 extern "C" {
 #include "lua.h"
 }
@@ -20,6 +22,10 @@ class CLuaPlugin
 {
 	char m_aErrorMsg[512] = "";
 	bool m_IsDisabled = false;
+
+	// The key is the rcon command
+	// The value is the lua refrence to the callback
+	std::unordered_map<std::string, int> m_RconCommands;
 
 public:
 	CLuaPlugin(const char *pName, const char *pFullPath);
@@ -40,6 +46,7 @@ private:
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackCallPlugin(lua_State *L);
+	static int CallbackRegisterRcon(lua_State *L);
 
 public:
 	// Calling lua from C++

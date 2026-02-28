@@ -50,6 +50,10 @@ void CLuaPlugin::RegisterGameTable()
 	lua_pushcfunction(LuaState(), CallbackCallPlugin);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "register_rcon");
+	lua_pushcfunction(LuaState(), CallbackRegisterRcon);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -136,6 +140,43 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 
 	// ok and data have to be set by CallPlugin
 	return 2;
+}
+
+static const char *LuaCheckStringStrict(lua_State *L, int Index)
+{
+	int Type = lua_type(L, Index);
+	if(Type == LUA_TSTRING)
+		return luaL_checkstring(L, Index);
+
+	char aError[512];
+	str_format(aError, sizeof(aError), "string expected, got %s", luaL_typename(L, Index));
+	luaL_argerror(L, Index, aError);
+
+	// unreachable
+	return "";
+}
+
+int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
+{
+	// CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+
+	// TODO: remove, only here to silence warnings
+	LuaCheckStringStrict(L, 2);
+
+	// const char *pName = LuaCheckStringStrict(L, 2);
+	// luaL_checktype(L, 3, LUA_TFUNCTION);
+
+	// // TODO: think about registering the same rcon command twice
+	// //       if they should override make sure to unref the callback
+	// //       but maybe they should also both be registered and run
+
+	// // shit we need to get the plugin instance aaa
+
+	// int FuncRef = luaL_ref(L, 3);
+	// // m_RconCommands[std::string(pName)] = FuncRef;
+
+	lua_pushboolean(L, true);
+	return 1;
 }
 
 void CLuaPlugin::OnInit()
