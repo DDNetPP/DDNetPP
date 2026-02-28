@@ -54,6 +54,30 @@ public:
 	// and then it stops there.
 	// Returns true if a plugin was found.
 	//
+	// TODO: maybe there should be a way to call plugins by name as well
+	//       like `Game:call_plugin("essential", "kick", 1)`
+	//       which looks for a plugin called essential and in that plugin
+	//       runs the function "kick" and passes 1 as argument
+	//       an even more flexible approach would be adding some kind of "implements"
+	//       api where plugins can say what kind of things they implement
+	//       so a lib plugin has a function that looks like this
+	//       function implements()
+	//       	return {"rcon_argparser", "accounts"}
+	//       end
+	//       and then we have another plugin calling into that using
+	//       `Game:call_imp("accounts", "logout", 1)`
+	//       it sounds kinda cool on paper but idk if it has any actual use case
+	//       it basically only namespaces so two plugins could provide
+	//       a "logout" function under the same name and in one case
+	//       it means logout from an chat account and in the other
+	//       it means logout from rcon
+	//       actually dont think thats worth it.
+	//       Oh wait I found a use case.
+	//       It allows plugins to be more sure about finding the kind of function
+	//       that they are actually looking for.. hmm
+	//       the other alternative to ensure that is long function names.
+	//       So basically still just namespaces xd. Bro idk.
+	//
 	// TODO: also add `Game:call_plugins("func")` to call all not only the first
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 

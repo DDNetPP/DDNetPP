@@ -260,7 +260,9 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 
 	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, FuncRef);
 
-	if(lua_pcall(LuaState(), 0, 0, 0) != LUA_OK)
+	lua_pushinteger(LuaState(), ClientId);
+	lua_pushstring(LuaState(), pArguments);
+	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to run callback for rcon command '%s' with error: %s", Name(), pCommand, pErrorMsg);

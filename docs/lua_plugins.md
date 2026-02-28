@@ -68,3 +68,51 @@ value from the called function.
 
 In this case it searches for "lib_func" in all plugins and only runs the first it finds.
 If it finds no function with that name in any plugin it will return `false` and `nil`.
+
+## register rcon commands
+
+You can register a lua function to be called if a rcon command is executed.
+Your callback should take as first parameter the client id of the player
+that executed the command as integer and as second argument the raw arguments string.
+
+```lua
+-- myplugin.lua
+
+Game:register_rcon("custom_command", function (client_id, args)
+	Game:send_chat("cid=" .. client_id  .. " ran command with args: '" .. args .. "'")
+end)
+```
+
+The arguments do not get parsed by the teeworlds console code so you have to do that your self.
+But in theory you can also install a plugin that does it for you and call it like this.
+
+```lua
+-- myplugin.lua
+
+Game:register_rcon("custom_command", function (client_id, args)
+    -- assuming you have a plugin installed that exposes
+    -- a function called "parse_args"
+    -- which takes an teeworlds console styled arguments description as first argument
+    -- and the raw user args as second argument
+    -- and then returns a table in the following format
+    -- {
+    --   error = "error message or nil",
+    --   args = {
+    --     name = "user provided name",
+    --     index = 22,
+    --   }
+    -- }
+    -- this plugin does not exist but the plugin api would allow you
+    -- to create it
+    ok, data = Game:call_plugin("parse_args", "s[name]i[index]", args)
+    if ok == false then
+        Game:send_chat("please install arg parser plugin")
+        return
+    end
+    if data.error ~= nil then
+        Game:send_chat(data.error)
+        return
+    end
+    Game:send_chat("doing stuff with index " .. args.index .. " and name " .. args.name)
+end)
+```
