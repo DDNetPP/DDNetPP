@@ -51,6 +51,18 @@ public:
 	}
 
 	/*
+		Function: OnClientPacket
+			hooks early into CServer::ProcessClientPacket
+			similar to CGameContext::OnMessage but converts both system and game messages
+			and it can also drop the message before the server processes it
+
+		Returns:
+			return true to consume the message and drop it before it gets passed to the server code
+			return false to let regular server code process the message
+	*/
+	virtual bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) { return false; }
+
+	/*
 		Function: LogoutAllAccounts
 			Logs out all players on this server.
 	*/

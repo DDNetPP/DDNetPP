@@ -18,6 +18,7 @@ public:
 
 	void SetArmorProgress(CCharacter *pCharacter, int Progress) override;
 
+	bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) override;
 	void Tick() override;
 	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
 	bool CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize) override;

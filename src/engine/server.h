@@ -317,6 +317,7 @@ public:
 	//virtual void OnDDPPshutdown() = 0;
 	virtual const char *ServerInfoClientScoreKind() = 0;
 	virtual int ServerInfoClientScoreValue(int ClientId) = 0;
+	virtual bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) = 0;
 	// DDNet++ end
 
 	// `pPersistentData` may be null if this is the first time `IGameServer`

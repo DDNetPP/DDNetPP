@@ -53,6 +53,7 @@ class CGameContext : public IGameServer
 public:
 	const char *ServerInfoClientScoreKind() override;
 	int ServerInfoClientScoreValue(int ClientId) override;
+	bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) override;
 
 	// Sets the server in join/leave spam alert mode
 	// this should be called when a high amount of reconnects is detected

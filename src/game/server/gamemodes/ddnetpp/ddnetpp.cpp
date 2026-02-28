@@ -23,12 +23,42 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 	m_GameFlags = GAMEFLAG_FLAGS;
 
 	Lua()->Init(this, pGameServer);
-
-	// works yay
-	// Lua()->OnRconCommand("yellow", "world");
 }
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
+
+bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker)
+{
+	// make a copy so we can consume fields
+	// without breaking the state for the server
+	// in case we pass the packet on
+	CUnpacker Unpacker = *pUnpacker;
+
+	if(Sys && MsgId == NETMSG_RCON_CMD)
+	{
+		const char *pCmd = Unpacker.GetString();
+		if(Unpacker.Error())
+			return false;
+
+		if(Server()->IsRconAuthed(ClientId) && GameServer()->PlayerExists(ClientId))
+		{
+			// // would be nice if we could print this only if a plugin will handle the command
+			// // otherwise it will be printed twice
+			// // and we also want to print it before the command is run to match the server.cpp behavior
+			// // it also makes sense for the logs to see which command was run that causes the server to break by logging
+			// // it before the server breaks
+			// log_info("server", "ClientId=%d key='%s' rcon='%s'", ClientId, Server()->GetAuthName(ClientId), pCmd);
+
+			if(Lua()->OnRconCommand(pCmd, ""))
+			{
+				log_info("server", "ClientId=%d key='%s' rcon='%s' (was processed by lua)", ClientId, Server()->GetAuthName(ClientId), pCmd);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 void CGameControllerDDNetPP::Tick()
 {

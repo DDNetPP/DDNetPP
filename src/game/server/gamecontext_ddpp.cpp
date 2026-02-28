@@ -158,6 +158,14 @@ int CGameContext::ServerInfoClientScoreValue(int ClientId)
 	return m_pController->ServerInfoClientScoreValue(m_apPlayers[ClientId]);
 }
 
+bool CGameContext::OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker)
+{
+	if(!m_pController)
+		return false;
+
+	return m_pController->OnClientPacket(ClientId, Sys, MsgId, pPacket, pUnpacker);
+}
+
 void CGameContext::RunDeferredCommands()
 {
 	if(m_vDeferQueue.empty())
