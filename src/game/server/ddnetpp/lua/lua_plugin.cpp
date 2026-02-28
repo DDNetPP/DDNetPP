@@ -10,6 +10,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 
+#include <string>
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
@@ -170,22 +171,42 @@ static const char *LuaCheckStringStrict(lua_State *L, int Index)
 
 int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 {
-	// CLuaGame *pGame = (CLuaGame *)lua_touserdata(L, 1);
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
 
-	// TODO: remove, only here to silence warnings
-	LuaCheckStringStrict(L, 2);
+	const char *pName = LuaCheckStringStrict(L, 2);
+	luaL_checktype(L, 3, LUA_TFUNCTION);
 
-	// const char *pName = LuaCheckStringStrict(L, 2);
-	// luaL_checktype(L, 3, LUA_TFUNCTION);
+	if(pSelf->m_RconCommands.contains(std::string(pName)))
+	{
+		// silently override previous registrations
+		// not sure what is the most user friendly here
+		// could also throw an error so users dont get confused
+		// but that takes away the flexibility to override library code
+		// could also register both callbacks and run both
+		// but thats also odd i think
+		//
+		// maybe the best would be to error on duplication by default
+		// and provider another method like `Game:register_rcon_override()`
+		// to intentionally override
 
-	// // TODO: think about registering the same rcon command twice
-	// //       if they should override make sure to unref the callback
-	// //       but maybe they should also both be registered and run
+		// log_warn("lua", "%s was already registered in rcon", pName);
+		int OldFunc = pSelf->m_RconCommands.at(std::string(pName));
+		luaL_unref(L, LUA_REGISTRYINDEX, OldFunc);
+	}
 
-	// // shit we need to get the plugin instance aaa
+	// we need to move stack 3 to 0
+	// because luaL_ref pops first element from the stack
+	// but it is our thirf argument
 
-	// int FuncRef = luaL_ref(L, 3);
-	// // m_RconCommands[std::string(pName)] = FuncRef;
+	// so we just pop the first two args
+
+	// push copy of the third argument (the lua callback)
+	// onto the top of the stack so luaL_ref can find it
+	lua_pushvalue(L, 3);
+	int FuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
+	pSelf->m_RconCommands[std::string(pName)] = FuncRef;
+	// pop our pushed value
+	lua_pop(L, 1);
 
 	lua_pushboolean(L, true);
 	return 1;
