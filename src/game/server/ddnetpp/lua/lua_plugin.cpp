@@ -243,10 +243,10 @@ bool CLuaPlugin::OnRconCommand(const char *pCommand, const char *pArguments)
 
 	if(!m_RconCommands.contains(pCommand))
 	{
-		log_info("lua", "plugin '%s' does not know rcon command '%s'", Name(), pCommand);
+		// log_info("lua", "plugin '%s' does not know rcon command '%s'", Name(), pCommand);
 		return false;
 	}
-	log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
+	// log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
 
 	int FuncRef = m_RconCommands.at(pCommand);
 	if(FuncRef == LUA_REFNIL)

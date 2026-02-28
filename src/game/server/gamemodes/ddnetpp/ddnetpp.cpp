@@ -1,9 +1,11 @@
 #include "ddnetpp.h"
 
 #include <base/ddpp_logs.h>
+#include <base/str.h>
 #include <base/system.h>
 
 #include <engine/shared/config.h>
+#include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
 
 #include <generated/protocol.h>
@@ -36,7 +38,7 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 
 	if(Sys && MsgId == NETMSG_RCON_CMD)
 	{
-		const char *pCmd = Unpacker.GetString();
+		const char *pCmd = Unpacker.GetString(CUnpacker::SKIP_START_WHITESPACES);
 		if(Unpacker.Error())
 			return false;
 
@@ -49,9 +51,30 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 			// // it before the server breaks
 			// log_info("server", "ClientId=%d key='%s' rcon='%s'", ClientId, Server()->GetAuthName(ClientId), pCmd);
 
-			if(Lua()->OnRconCommand(pCmd, ""))
+			const char *pArguments = "";
+
+			char aCommand[2048];
+			int i;
+			for(i = 0; pCmd[i]; i++)
 			{
-				log_info("server", "ClientId=%d key='%s' rcon='%s' (was processed by lua)", ClientId, Server()->GetAuthName(ClientId), pCmd);
+				if(pCmd[i] == ' ')
+				{
+					pArguments = str_skip_whitespaces_const(pCmd + i);
+					break;
+				}
+				aCommand[i] = pCmd[i];
+			}
+			aCommand[i] = '\0';
+
+			if(Lua()->OnRconCommand(aCommand, pArguments))
+			{
+				log_info(
+					"server",
+					"ClientId=%d key='%s' lua plugin got rcon command='%s' args='%s'",
+					ClientId,
+					Server()->GetAuthName(ClientId),
+					aCommand,
+					pArguments);
 				return true;
 			}
 		}
