@@ -237,7 +237,7 @@ void CLuaPlugin::OnPlayerConnect()
 	CallLuaVoidNoArgs("on_player_connect");
 }
 
-bool CLuaPlugin::OnRconCommand(const char *pCommand, const char *pArguments)
+bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 
@@ -332,6 +332,23 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		lua_pushnil(pCaller);
 	}
 
+	return true;
+}
+
+bool CLuaPlugin::IsRconCmdKnown(const char *pCommand)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	if(!m_RconCommands.contains(pCommand))
+	{
+		// log_info("lua", "plugin '%s' does not know rcon command '%s'", Name(), pCommand);
+		return false;
+	}
+	// log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
+
+	int FuncRef = m_RconCommands.at(pCommand);
+	if(FuncRef == LUA_REFNIL)
+		return false;
 	return true;
 }
 

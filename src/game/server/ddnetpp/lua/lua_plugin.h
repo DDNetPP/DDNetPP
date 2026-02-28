@@ -58,8 +58,11 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
-	bool OnRconCommand(const char *pCommand, const char *pArguments);
+	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
+
+	// helpers
+	bool IsRconCmdKnown(const char *pCommand);
 
 private:
 	// returns true on success

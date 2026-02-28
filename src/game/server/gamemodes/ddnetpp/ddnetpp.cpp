@@ -44,15 +44,7 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 
 		if(Server()->IsRconAuthed(ClientId) && GameServer()->PlayerExists(ClientId))
 		{
-			// // would be nice if we could print this only if a plugin will handle the command
-			// // otherwise it will be printed twice
-			// // and we also want to print it before the command is run to match the server.cpp behavior
-			// // it also makes sense for the logs to see which command was run that causes the server to break by logging
-			// // it before the server breaks
-			// log_info("server", "ClientId=%d key='%s' rcon='%s'", ClientId, Server()->GetAuthName(ClientId), pCmd);
-
 			const char *pArguments = "";
-
 			char aCommand[2048];
 			int i;
 			for(i = 0; pCmd[i]; i++)
@@ -66,17 +58,8 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 			}
 			aCommand[i] = '\0';
 
-			if(Lua()->OnRconCommand(aCommand, pArguments))
-			{
-				log_info(
-					"server",
-					"ClientId=%d key='%s' lua plugin got rcon command='%s' args='%s'",
-					ClientId,
-					Server()->GetAuthName(ClientId),
-					aCommand,
-					pArguments);
+			if(Lua()->OnRconCommand(ClientId, aCommand, pArguments))
 				return true;
-			}
 		}
 	}
 

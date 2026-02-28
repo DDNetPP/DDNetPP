@@ -5,6 +5,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <game/server/ddnetpp/lua/lua_plugin.h>
 #include <game/server/gamecontext.h>
 
 extern "C" {
@@ -143,18 +144,25 @@ void CLuaController::OnPlayerConnect()
 #endif
 }
 
-bool CLuaController::OnRconCommand(const char *pCommand, const char *pArguments)
+bool CLuaController::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
 {
 #ifdef CONF_LUA
-	for(CLuaPlugin *pPlugin : m_vpPlugins)
-	{
-		if(!pPlugin->IsActive())
-			continue;
 
-		if(pPlugin->OnRconCommand(pCommand, pArguments))
-			return true;
-	}
-	return false;
+	CLuaPlugin *pPlugin = FindPluginThatKnowsRconCommand(pCommand);
+	if(!pPlugin)
+		return false;
+
+	log_info(
+		"server",
+		"ClientId=%d key='%s' lua plugin '%s' got rcon command='%s' args='%s'",
+		ClientId,
+		GameServer()->Server()->GetAuthName(ClientId),
+		pPlugin->Name(),
+		pCommand,
+		pArguments);
+
+	pPlugin->OnRconCommand(ClientId, pCommand, pArguments);
+	return true;
 #endif
 }
 
@@ -172,6 +180,23 @@ bool CLuaController::CallPlugin(const char *pFunction, lua_State *pCaller)
 	return false;
 #else
 	return false;
+#endif
+}
+
+CLuaPlugin *CLuaController::FindPluginThatKnowsRconCommand(const char *pCommand)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->IsRconCmdKnown(pCommand))
+			return pPlugin;
+	}
+	return nullptr;
+#else
+	return nullptr;
 #endif
 }
 

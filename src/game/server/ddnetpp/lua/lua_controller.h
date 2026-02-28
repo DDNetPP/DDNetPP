@@ -46,7 +46,7 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerConnect();
-	bool OnRconCommand(const char *pCommand, const char *pArguments);
+	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 
 	// If a lua plugin runs `Game:call_plugin("func")`
 	// it will try to call "func" in all available plugins
@@ -56,6 +56,8 @@ public:
 	//
 	// TODO: also add `Game:call_plugins("func")` to call all not only the first
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
+
+	CLuaPlugin *FindPluginThatKnowsRconCommand(const char *pCommand);
 
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);
