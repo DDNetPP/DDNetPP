@@ -11,6 +11,8 @@
 #include <game/server/gamecontroller.h>
 
 #include <string>
+#include <vector>
+
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
@@ -33,6 +35,108 @@ static const char *LuaCheckStringStrict(lua_State *L, int Index)
 
 	// unreachable
 	return "";
+}
+
+// https://github.com/DDNetPP/DDNetPP/issues/512
+//
+// this is basically copy pasted from here
+// https://github.com/ChillerDragon/antibob/blob/b8d4c5e37ef5c0d72ab1fd0d6e5d0b805f49e744/src/antibob/bob/console.cpp#L18
+bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *pParameters, char *pError, int ErrorLen)
+{
+	if(pError && ErrorLen)
+		pError[0] = '\0';
+
+	const int ParamsLen = str_length(pParameters);
+	bool InDesc = false;
+	CParam Param;
+	Param.Reset();
+
+	for(int i = 0; i < ParamsLen; i++)
+	{
+		if(pParameters[i] == '[')
+		{
+			if(InDesc)
+			{
+				if(pError)
+					str_format(pError, ErrorLen, "nested braces in params '%s'", pParameters);
+				return false;
+			}
+			InDesc = true;
+			continue;
+		}
+		if(pParameters[i] == ']')
+		{
+			if(!InDesc)
+			{
+				if(pError)
+					str_format(pError, ErrorLen, "unexpected closing brace '%s'", pParameters);
+				return false;
+			}
+
+			InDesc = false;
+			vResult.emplace_back(Param);
+			Param.Reset();
+			continue;
+		}
+
+		if(pParameters[i] == '?')
+		{
+			if(Param.m_Optional)
+			{
+				if(pError)
+					str_format(pError, ErrorLen, "nameless optional parameter in %s", pParameters);
+				return false;
+			}
+
+			Param.m_Optional = true;
+		}
+		else if(InDesc)
+		{
+			char aDescChar[4];
+			str_format(aDescChar, sizeof(aDescChar), "%c", pParameters[i]);
+			str_append(Param.m_aName, aDescChar);
+		}
+		else if(!InDesc)
+		{
+			switch(pParameters[i])
+			{
+			case 'i':
+				Param.m_Type = CParam::EType::INT;
+				break;
+			case 's':
+				Param.m_Type = CParam::EType::STRING;
+				break;
+			case 'r':
+				Param.m_Type = CParam::EType::REST;
+				break;
+			default:
+				if(pError)
+					str_format(pError, ErrorLen, "invalid parameter type %c in params %s", pParameters[i], pParameters);
+				return false;
+			}
+			if(pParameters[i + 1] != '[')
+			{
+				vResult.emplace_back(Param);
+				Param.Reset();
+			}
+		}
+	}
+
+	if(Param.m_Optional)
+	{
+		if(pError)
+			str_format(pError, ErrorLen, "nameless optional parameter in %s", pParameters);
+		return false;
+	}
+
+	if(InDesc)
+	{
+		if(pError)
+			str_format(pError, ErrorLen, "missing ] in params '%s'", pParameters);
+		return false;
+	}
+
+	return true;
 }
 
 CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame)
@@ -202,7 +306,17 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
 
 	const char *pName = LuaCheckStringStrict(L, 2);
-	luaL_checktype(L, 3, LUA_TFUNCTION);
+	const char *pParams = LuaCheckStringStrict(L, 3);
+	const char *pHelp = LuaCheckStringStrict(L, 4);
+	luaL_checktype(L, 5, LUA_TFUNCTION);
+
+	std::vector<CLuaRconCommand::CParam> vParams;
+	char aError[512] = "";
+	if(!CLuaRconCommand::ParseParameters(vParams, pParams, aError, sizeof(aError)))
+	{
+		luaL_error(L, "rcon cmd '%s' invalid params: %s", pName, aError);
+		return 0;
+	}
 
 	if(pSelf->m_RconCommands.contains(std::string(pName)))
 	{
@@ -230,15 +344,22 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 
 	// push copy of the third argument (the lua callback)
 	// onto the top of the stack so luaL_ref can find it
-	lua_pushvalue(L, 3);
+	lua_pushvalue(L, 5);
 	int FuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
+	// TODO: according to https://en.cppreference.com/w/cpp/container/unordered_map/emplace
+	//       if the same rcon command is registered twice it should do nothing
+	//       because emplace ignores duplicated keys on the second insert
+	//       but my testing showed that the rcon command defined lower in the lua script
+	//       will actually be ran
+	//       so it happens what i want to happen but as far as i understand it shouldnt
+	//       so that is scary
 	pSelf->m_RconCommands.emplace(
 		std::string(pName),
 		CLuaRconCommand({
 			.m_pName = pName,
-			.m_pHelp = "",
-			.m_pParams = "",
+			.m_pHelp = pHelp,
+			.m_pParams = pParams,
 			.m_LuaCallbackRef = FuncRef,
 		}));
 
@@ -275,15 +396,44 @@ void CLuaPlugin::OnPlayerConnect()
 }
 
 // https://github.com/DDNetPP/DDNetPP/issues/512
-static int PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *pArguments)
+static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *pArguments)
 {
-	// if(pCmd->m_aParams[0] == '\0')
-	// {
-	// 	lua_pushstring(L, pArguments);
-	// 	return 1;
-	// }
-	lua_pushstring(L, pArguments);
-	return 1;
+	if(pCmd->m_aParams[0] == '\0')
+	{
+		lua_pushstring(L, pArguments);
+		return true;
+	}
+
+	log_info("lua", "parsing params %s", pCmd->m_aParams);
+
+	lua_newtable(L);
+	// index for unnamed params
+	int NumParams = 1;
+	for(const CLuaRconCommand::CParam &Param : pCmd->m_vParsedParams)
+	{
+		// key
+		if(Param.m_aName[0])
+			lua_pushstring(L, Param.m_aName);
+		else
+			lua_pushinteger(L, NumParams++);
+
+		// value
+		switch(Param.m_Type)
+		{
+		case CLuaRconCommand::CParam::EType::INT:
+			break;
+		case CLuaRconCommand::CParam::EType::STRING:
+			break;
+		case CLuaRconCommand::CParam::EType::REST:
+			break;
+		case CLuaRconCommand::CParam::EType::INVALID:
+			dbg_assert_failed("got invalid param");
+			break;
+		}
+		lua_settable(L, -3);
+	}
+
+	return true;
 }
 
 bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
@@ -310,10 +460,20 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 
 	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, pCmd->m_LuaCallbackRef);
 
+	// first callback arg the integer "client_id"
 	lua_pushinteger(LuaState(), ClientId);
-	int NumArgs = PushRconArgs(LuaState(), pCmd, pArguments);
-	// NumArgs + 1 because we already pushed the ClientId integer
-	if(lua_pcall(LuaState(), NumArgs + 1, 0, 0) != LUA_OK)
+
+	// second callback arg the table or string "args"
+	// depends if the user provided params or not
+	if(!PushRconArgs(LuaState(), pCmd, pArguments))
+	{
+		log_error("lua", "arg error");
+
+		// TODO: send arg error to user
+		return true;
+	}
+
+	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to run callback for rcon command '%s' with error: %s", Name(), pCommand, pErrorMsg);

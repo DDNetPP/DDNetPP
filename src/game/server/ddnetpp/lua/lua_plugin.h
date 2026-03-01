@@ -11,6 +11,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
+
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
@@ -31,17 +33,51 @@ class CLuaRconCommand
 	};
 
 public:
+	class CParam
+	{
+	public:
+		enum EType
+		{
+			INT,
+			STRING,
+			REST,
+			INVALID
+		};
+
+		EType m_Type = EType::STRING;
+		char m_aName[512] = "";
+		bool m_Optional = false;
+
+		void Reset()
+		{
+			m_Optional = false;
+			m_aName[0] = '\0';
+			m_Type = EType::INVALID;
+		}
+	};
+
+	std::vector<CParam> m_vParsedParams;
+
 	CLuaRconCommand(const char *pName, const char *pHelp, const char *pParams, int LuaCallbackRef)
 	{
 		str_copy(m_aName, pName);
 		str_copy(m_aHelp, pHelp);
 		str_copy(m_aParams, pParams);
 		m_LuaCallbackRef = LuaCallbackRef;
+		ParseParameters(m_vParsedParams, pParams, nullptr, 0);
 	}
 	CLuaRconCommand(CConstructorArgs Args) :
 		CLuaRconCommand(Args.m_pName, Args.m_pHelp, Args.m_pParams, Args.m_LuaCallbackRef)
 	{
 	}
+
+	// returns true on success and writes the parsed params to &vResult
+	// takes the console params string as input in the pParameters argument
+	// that should be in the format of the teeworlds console parameter description
+	// like those: "ss", "sssi" or "s[name]?i[seconds]"
+	//
+	// On error it writes to the pError buffer
+	static bool ParseParameters(std::vector<CParam> &vResult, const char *pParameters, char *pError, int ErrorLen);
 
 	// the name of the rcon command
 	// that has to match the first word of the rcon line
