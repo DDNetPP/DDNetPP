@@ -218,7 +218,7 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 		// to intentionally override
 
 		// log_warn("lua", "%s was already registered in rcon", pName);
-		int OldFunc = pSelf->m_RconCommands.at(std::string(pName));
+		int OldFunc = pSelf->m_RconCommands.at(std::string(pName)).m_LuaCallbackRef;
 		luaL_unref(L, LUA_REGISTRYINDEX, OldFunc);
 	}
 
@@ -232,7 +232,16 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 	// onto the top of the stack so luaL_ref can find it
 	lua_pushvalue(L, 3);
 	int FuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
-	pSelf->m_RconCommands[std::string(pName)] = FuncRef;
+
+	pSelf->m_RconCommands.emplace(
+		std::string(pName),
+		CLuaRconCommand({
+			.m_pName = pName,
+			.m_pHelp = "",
+			.m_pParams = "",
+			.m_LuaCallbackRef = FuncRef,
+		}));
+
 	// pop our pushed value
 	lua_pop(L, 1);
 
@@ -265,6 +274,18 @@ void CLuaPlugin::OnPlayerConnect()
 	CallLuaVoidNoArgs("on_player_connect");
 }
 
+// https://github.com/DDNetPP/DDNetPP/issues/512
+static int PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *pArguments)
+{
+	// if(pCmd->m_aParams[0] == '\0')
+	// {
+	// 	lua_pushstring(L, pArguments);
+	// 	return 1;
+	// }
+	lua_pushstring(L, pArguments);
+	return 1;
+}
+
 bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
@@ -276,8 +297,9 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 	}
 	// log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
 
-	int FuncRef = m_RconCommands.at(pCommand);
-	if(FuncRef == LUA_REFNIL)
+	const CLuaRconCommand *pCmd = &m_RconCommands.at(pCommand);
+
+	if(pCmd->m_LuaCallbackRef == LUA_REFNIL)
 	{
 		char aError[512];
 		str_format(aError, sizeof(aError), "invalid lua callback for rcon command '%s'", pCommand);
@@ -286,11 +308,12 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 		return false;
 	}
 
-	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, FuncRef);
+	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, pCmd->m_LuaCallbackRef);
 
 	lua_pushinteger(LuaState(), ClientId);
-	lua_pushstring(LuaState(), pArguments);
-	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
+	int NumArgs = PushRconArgs(LuaState(), pCmd, pArguments);
+	// NumArgs + 1 because we already pushed the ClientId integer
+	if(lua_pcall(LuaState(), NumArgs + 1, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to run callback for rcon command '%s' with error: %s", Name(), pCommand, pErrorMsg);
@@ -376,7 +399,7 @@ bool CLuaPlugin::IsRconCmdKnown(const char *pCommand)
 	}
 	// log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
 
-	int FuncRef = m_RconCommands.at(pCommand);
+	int FuncRef = m_RconCommands.at(pCommand).m_LuaCallbackRef;
 	if(FuncRef == LUA_REFNIL)
 		return false;
 	return true;

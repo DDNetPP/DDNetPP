@@ -12,20 +12,70 @@
 #include <string>
 #include <unordered_map>
 extern "C" {
+#include "lauxlib.h"
 #include "lua.h"
 }
 
 class IGameController;
 class CGameContext;
 
+class CLuaRconCommand
+{
+	class CConstructorArgs
+	{
+	public:
+		const char *m_pName = "";
+		const char *m_pHelp = "";
+		const char *m_pParams = "";
+		int m_LuaCallbackRef = LUA_REFNIL;
+	};
+
+public:
+	CLuaRconCommand(const char *pName, const char *pHelp, const char *pParams, int LuaCallbackRef)
+	{
+		str_copy(m_aName, pName);
+		str_copy(m_aHelp, pHelp);
+		str_copy(m_aParams, pParams);
+		m_LuaCallbackRef = LuaCallbackRef;
+	}
+	CLuaRconCommand(CConstructorArgs Args) :
+		CLuaRconCommand(Args.m_pName, Args.m_pHelp, Args.m_pParams, Args.m_LuaCallbackRef)
+	{
+	}
+
+	// the name of the rcon command
+	// that has to match the first word of the rcon line
+	// that was executed
+	char m_aName[128] = "";
+
+	// helptext that will be shown to users in the console
+	char m_aHelp[512] = "";
+
+	// parameters described in the teeworlds console syntax
+	// for example "sss" to take 3 unnamed non optional strings
+	// or "s[name]?i[seconds]" to take the named non optional strinng argument "name"
+	// followed by the optional integer argument "seconds"
+	char m_aParams[512] = "";
+
+	// The integer referencing the lua function to be called
+	// when the rcon command is being executed
+	// Stored in the LUA_REGISTRYINDEX
+	//
+	// You can push it onto the stack like this:
+	//
+	// ```C++
+	// lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, pCmd->m_LuaCallbackRef);
+	// ```
+	int m_LuaCallbackRef = LUA_REFNIL;
+};
+
 class CLuaPlugin
 {
 	char m_aErrorMsg[512] = "";
 	bool m_IsDisabled = false;
 
-	// The key is the rcon command
-	// The value is the lua refrence to the callback
-	std::unordered_map<std::string, int> m_RconCommands;
+	// The key is the rcon command name
+	std::unordered_map<std::string, CLuaRconCommand> m_RconCommands;
 
 public:
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
