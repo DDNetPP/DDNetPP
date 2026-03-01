@@ -9,6 +9,7 @@
 
 class IGameController;
 class CGameContext;
+class IServer;
 
 /// represents the "Game" table in lua
 ///
@@ -29,10 +30,14 @@ public:
 	IGameController *Controller() { return m_pController; }
 	const CGameContext *GameServer() const { return m_pGameServer; }
 	CGameContext *GameServer() { return m_pGameServer; }
+	const IServer *Server() const;
+	IServer *Server();
+
 	void Init(IGameController *pController, CGameContext *pGameServer);
-	void Foo() { log_info("lua", "FOOOOO"); }
 
 	void SendChat(const char *pMessage);
+	void SendVoteClearOptions(int ClientId);
+	void SendVoteOptionAdd(int ClientId, const char *pDescription);
 };
 
 #endif

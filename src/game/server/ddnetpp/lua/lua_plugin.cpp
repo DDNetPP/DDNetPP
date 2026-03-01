@@ -17,6 +17,24 @@ extern "C" {
 #include "lualib.h"
 }
 
+// TODO: move this to a new file like luac_aux.h
+//       and rename it to luaC_checkstringstrict()
+//       Same applies to any other static functions that operate on lua state
+//       like maybe the table copy one
+static const char *LuaCheckStringStrict(lua_State *L, int Index)
+{
+	int Type = lua_type(L, Index);
+	if(Type == LUA_TSTRING)
+		return luaL_checkstring(L, Index);
+
+	char aError[512];
+	str_format(aError, sizeof(aError), "string expected, got %s", luaL_typename(L, Index));
+	luaL_argerror(L, Index, aError);
+
+	// unreachable
+	return "";
+}
+
 CLuaPlugin::CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame)
 {
 	log_info("lua", "initializing plugin %s ...", pName);
@@ -47,6 +65,14 @@ void CLuaPlugin::RegisterGameTable()
 	// Add methods
 	lua_pushstring(LuaState(), "send_chat");
 	lua_pushcfunction(LuaState(), CallbackSendChat);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "send_vote_clear_options");
+	lua_pushcfunction(LuaState(), CallbackSendVoteClearOptions);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "send_vote_option_add");
+	lua_pushcfunction(LuaState(), CallbackSendVoteOptionAdd);
 	lua_settable(LuaState(), -3);
 
 	lua_pushstring(LuaState(), "call_plugin");
@@ -122,10 +148,26 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 
 int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
-	CLuaGame *pGame = pSelf->Game();
+	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
 	const char *pMessage = lua_tostring(L, 2);
 	pGame->SendChat(pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendVoteClearOptions(lua_State *L)
+{
+	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
+	int ClientId = luaL_checkinteger(L, 2);
+	pGame->SendVoteClearOptions(ClientId);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
+{
+	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
+	int ClientId = luaL_checkinteger(L, 2);
+	const char *pDescription = LuaCheckStringStrict(L, 3);
+	pGame->SendVoteOptionAdd(ClientId, pDescription);
 	return 0;
 }
 
@@ -153,20 +195,6 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 
 	// ok and data have to be set by CallPlugin
 	return 2;
-}
-
-static const char *LuaCheckStringStrict(lua_State *L, int Index)
-{
-	int Type = lua_type(L, Index);
-	if(Type == LUA_TSTRING)
-		return luaL_checkstring(L, Index);
-
-	char aError[512];
-	str_format(aError, sizeof(aError), "string expected, got %s", luaL_typename(L, Index));
-	luaL_argerror(L, Index, aError);
-
-	// unreachable
-	return "";
 }
 
 int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
