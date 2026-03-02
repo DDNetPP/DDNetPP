@@ -598,15 +598,9 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		return false;
 	}
 
+	// TODO: remove this and use the other checks
 	if(NumArgs != pCmd->m_vParsedParams.size())
 	{
-		// TODO: this is a bit strict and lazy
-		//       passing too many arguments is not an error in teeworlds
-		//       also we totally break optional arguments
-		//       this is just a temporary safeguard
-		//       because doing proper errors in the loop is tricky
-		//       we have to make sure to not break the lua stack by throwing
-		//       an error without popping the table we stated to build
 		if(pError)
 		{
 			str_format(
@@ -621,10 +615,52 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		return false;
 	}
 
+	// // TODO: uncomment
+	// if(NumArgs > pCmd->m_vParsedParams.size())
+	// {
+	// 	if(pError)
+	// 	{
+	// 		str_format(
+	// 			pError,
+	// 			ErrorLen,
+	// 			"rcon command '%s' too many arguments %" PRIzu " out of %" PRIzu " (expected: %s)",
+	// 			pCmd->m_aName,
+	// 			NumArgs,
+	// 			pCmd->m_vParsedParams.size(),
+	// 			pCmd->m_aParams);
+	// 	}
+	// 	return false;
+	// }
+
 	lua_newtable(L);
-	int NumParams = 0;
+	size_t NumParams = 0;
 	for(const CLuaRconCommand::CParam &Param : pCmd->m_vParsedParams)
 	{
+		// TODO: does not work yet :/
+		// if(NumArgs < NumParams+1)
+		// {
+		// 	// pop the table that is no longer passed to a function call
+		// 	lua_pop(L, 1);
+
+		// 	if(!Param.m_Optional)
+		// 	{
+		// 		if(pError)
+		// 		{
+		// 			str_format(
+		// 				pError,
+		// 				ErrorLen,
+		// 				"rcon command '%s' missing argument (expected: %s)",
+		// 				pCmd->m_aName,
+		// 				pCmd->m_aParams);
+		// 		}
+		// 		return false;
+		// 	}
+
+		// 	// skip not provided optional args
+		// 	break;
+		// }
+		// log_info("lua", "numargs=%zu numparams=%zu", NumArgs, NumParams);
+
 		// key
 		if(Param.m_aName[0])
 		{
