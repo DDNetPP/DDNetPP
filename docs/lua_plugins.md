@@ -71,6 +71,9 @@ If it finds no function with that name in any plugin it will return `false` and 
 
 ## register rcon commands
 
+> [!WARNING]
+> THIS SECTION IS HEAVILY OUTDATED! AND DOES NO LONGER WORK LIKE THIS!
+
 You can register a lua function to be called if a rcon command is executed.
 Your callback should take as first parameter the client id of the player
 that executed the command as integer and as second argument the raw arguments string.

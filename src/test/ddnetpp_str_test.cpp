@@ -54,14 +54,14 @@ TEST(DDNetPP, StrConsole)
 	EXPECT_STREQ(apArgs[0], "hello world");
 
 	str_copy(aInput, "hello                   world");
-	Ok = SplitConsoleArgs(apArgs, (sizeof(apArgs)/sizeof(apArgs[0])), &NumArgs, aInput, aError, sizeof(aError));
+	Ok = SplitConsoleArgs(apArgs, (sizeof(apArgs) / sizeof(apArgs[0])), &NumArgs, aInput, aError, sizeof(aError));
 	EXPECT_EQ(Ok, true);
 	EXPECT_EQ(NumArgs, 2);
 	EXPECT_STREQ(apArgs[0], "hello");
 	EXPECT_STREQ(apArgs[1], "world");
 
 	str_copy(aInput, "    hello      world   ");
-	Ok = SplitConsoleArgs(apArgs, (sizeof(apArgs)/sizeof(apArgs[0])), &NumArgs, aInput, aError, sizeof(aError));
+	Ok = SplitConsoleArgs(apArgs, (sizeof(apArgs) / sizeof(apArgs[0])), &NumArgs, aInput, aError, sizeof(aError));
 	EXPECT_EQ(Ok, true);
 	EXPECT_EQ(NumArgs, 2);
 	EXPECT_STREQ(apArgs[0], "hello");

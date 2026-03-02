@@ -498,31 +498,68 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		return false;
 	}
 
+	if(NumArgs != pCmd->m_vParsedParams.size())
+	{
+		// TODO: this is a bit strict and lazy
+		//       passing too many arguments is not an error in teeworlds
+		//       also we totally break optional arguments
+		//       this is just a temporary safeguard
+		//       because doing proper errors in the loop is tricky
+		//       we have to make sure to not break the lua stack by throwing
+		//       an error without popping the table we stated to build
+		// TODO: we do not want to error at all actually this is user input
+		//       should show a nice error message to the user in the rcon console
+
+		// needs buf because luaL_error can't do size_t
+		char aBuf[512];
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			"rcon command '%s' expected %" PRIzu " arguments but got %" PRIzu,
+			pCmd->m_aName,
+			pCmd->m_vParsedParams.size(),
+			NumArgs);
+		log_error("lua", "%s", aBuf);
+		// luaL_error(L, "%s", aBuf);
+		return false;
+	}
+
 	lua_newtable(L);
-	// index for unnamed params
-	int NumParams = 1;
+	int NumParams = 0;
 	for(const CLuaRconCommand::CParam &Param : pCmd->m_vParsedParams)
 	{
 		// key
 		if(Param.m_aName[0])
+		{
 			lua_pushstring(L, Param.m_aName);
+		}
 		else
-			lua_pushinteger(L, NumParams++);
+		{
+			// lua ah 1 based array index
+			// for unnamed arguments
+			lua_pushinteger(L, NumParams + 1);
+		}
 
 		// value
 		switch(Param.m_Type)
 		{
 		case CLuaRconCommand::CParam::EType::INT:
+			// FIXME: string bruvv
+			lua_pushstring(L, apArgs[NumParams]);
 			break;
 		case CLuaRconCommand::CParam::EType::STRING:
+			lua_pushstring(L, apArgs[NumParams]);
 			break;
 		case CLuaRconCommand::CParam::EType::REST:
+			// TODO: oh fuck the word splitter does not support this at all xd
+			lua_pushstring(L, apArgs[NumParams]);
 			break;
 		case CLuaRconCommand::CParam::EType::INVALID:
 			dbg_assert_failed("got invalid param");
 			break;
 		}
 		lua_settable(L, -3);
+		NumParams++;
 	}
 
 	return true;
@@ -560,6 +597,11 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 	if(!PushRconArgs(LuaState(), pCmd, pArguments))
 	{
 		log_error("lua", "arg error");
+
+		// TODO: verify this is correct!
+		//
+		// pop func and client id because we do not call the function
+		lua_pop(LuaState(), 2);
 
 		// TODO: send arg error to user
 		return true;
