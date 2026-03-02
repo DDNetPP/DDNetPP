@@ -3295,6 +3295,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     compression_test.cpp
     csv_test.cpp
     datafile_test.cpp
+    ddnetpp_str_test.cpp
     editor_test.cpp
     fs_test.cpp
     gameworld_test.cpp

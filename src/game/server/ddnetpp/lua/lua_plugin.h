@@ -21,6 +21,14 @@ extern "C" {
 class IGameController;
 class CGameContext;
 
+// returns true on success
+// takes a mutable pInput string which it will also write to
+// and writes the result to apArgs which is a user given array of size MaxArgs
+// the amount of args it got it will write to pNumArgs
+//
+// on error it writes a reason to pError
+bool SplitConsoleArgs(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, char *pInput, char *pError, size_t ErrorLen);
+
 class CLuaRconCommand
 {
 	class CConstructorArgs

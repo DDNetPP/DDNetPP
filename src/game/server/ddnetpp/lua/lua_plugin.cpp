@@ -19,6 +19,80 @@ extern "C" {
 #include "lualib.h"
 }
 
+// TODO: move this to a own library
+bool SplitConsoleArgs(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, char *pInput, char *pError, size_t ErrorLen)
+{
+	if(pError && ErrorLen)
+		pError[0] = '\0';
+	*pNumArgs = 0;
+
+	char *pStr = pInput;
+
+	while(*pStr)
+	{
+		pStr = str_skip_whitespaces(pStr);
+		if(*pStr == '"')
+		{
+			pStr++;
+			apArgs[(*pNumArgs)++] = pStr;
+
+			char *pDst = pStr; // we might have to process escape data
+			while(pStr[0] != '"')
+			{
+				if(pStr[0] == '\\')
+				{
+					if(pStr[1] == '\\')
+						pStr++; // skip due to escape
+					else if(pStr[1] == '"')
+						pStr++; // skip due to escape
+				}
+				else if(pStr[0] == '\0')
+				{
+					if(pError)
+						str_copy(pError, "missing closing quote", ErrorLen);
+					return false;
+				}
+
+				*pDst = *pStr;
+				pDst++;
+				pStr++;
+			}
+			*pDst = '\0';
+
+			pStr++;
+		}
+		else
+		{
+			// this piece of code was added by ChillerDragon
+			// to fix the arg count with trailing spaces
+			// the rest of the code is from teeworlds
+			const char *pEnd = str_skip_whitespaces_const(pStr);
+			if(pEnd[0] == '\0')
+				return true;
+
+			apArgs[(*pNumArgs)++] = pStr;
+			pStr = str_skip_to_whitespace(pStr);
+			if(pStr[0] != '\0') // check for end of string
+			{
+				pStr[0] = '\0';
+				pStr++;
+			}
+		}
+
+		if(pStr[0] != '\0')
+		{
+			if(*pNumArgs > MaxArgs)
+			{
+				if(pError)
+					str_copy(pError, "too many arguments", ErrorLen);
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 // TODO: move this to a new file like luac_aux.h
 //       and rename it to luaC_checkstringstrict()
 //       Same applies to any other static functions that operate on lua state
@@ -405,6 +479,24 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 	}
 
 	log_info("lua", "parsing params %s", pCmd->m_aParams);
+
+	const char *apArgs[512] = {};
+	char aError[512] = "";
+	size_t NumArgs = 0;
+	char aArgBuf[2048];
+	str_copy(aArgBuf, pArguments);
+	bool WordSplitOk = SplitConsoleArgs(
+		apArgs,
+		(sizeof(apArgs) / sizeof(apArgs[0])),
+		&NumArgs,
+		aArgBuf,
+		aError,
+		sizeof(aError));
+	if(!WordSplitOk)
+	{
+		luaL_error(L, "failed to parse arguments: %s", aError);
+		return false;
+	}
 
 	lua_newtable(L);
 	// index for unnamed params
