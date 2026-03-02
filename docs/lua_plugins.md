@@ -71,44 +71,33 @@ If it finds no function with that name in any plugin it will return `false` and 
 
 ## register rcon commands
 
-> [!WARNING]
-> THIS SECTION IS HEAVILY OUTDATED! AND DOES NO LONGER WORK LIKE THIS!
-
 You can register a lua function to be called if a rcon command is executed.
 Your callback should take as first parameter the client id of the player
-that executed the command as integer and as second argument the raw arguments string.
+that executed the command as integer and as second argument a table which will be filled
+with all the arguments passed to the rcon command.
+
+
+The signature of the register_rcon command looks like this:
+`register_rcon(name: string, params: string, description: string, callback: function)`
+
+The `name` will be the rcon command that is being registered and that has to match
+the first word of the rcon line the user sends. The `params` are regular teeworlds parameters.
+If you named them with brackets the name will be used as the key in the args table.
+If you do not name them it will be just an array.
 
 ```lua
 -- myplugin.lua
 
-Game:register_rcon("custom_command", function (client_id, args)
-	Game:send_chat("cid=" .. client_id  .. " ran command with args: '" .. args .. "'")
+Game:register_rcon("yellow", "s[foo]", "description of command", function (client_id, args)
+	Game:send_chat("cid=" .. client_id  .. " ran command with arg: '" .. args.foo .. "'")
 end)
 ```
 
-The arguments do not get parsed by the teeworlds console code so you have to do that your self.
-But you can also let other lua plugins do the argument parsing for you.
-
-There is an official [argparse.lua](https://github.com/DDNetPP/plugins/blob/43ba783577bcab7913fb0b699c828856500a3685/argparser.lua) plugin
-you can install by downloading the lua file and placing it into your plugins directory next to your plugin.
-Then you can use it like this:
-
 ```lua
 -- myplugin.lua
 
-Game:register_rcon("yellow", function (_, args)
-	ok, data = Game:call_plugin("parse_args", "s[name]i[seconds]", args)
-	if ok == false then
-		Game:send_chat("please install arg parser plugin")
-		return
-	end
-   if data.error ~= nil then
-		Game:send_chat(data.error)
-		return
-   end
-   args = data.args
-
-   Game:send_chat("player '" .. args.name .. "' is now yellow for " .. args.seconds .. " seconds")
+Game:register_rcon("add", "i[num1] i[num2]", "adds two numbers", function (client_id, args)
+	Game:send_chat("result: " .. args.num1 + args.num2)
 end)
 ```
 
