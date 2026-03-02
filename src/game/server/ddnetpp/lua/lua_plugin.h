@@ -113,6 +113,11 @@ public:
 	int m_LuaCallbackRef = LUA_REFNIL;
 };
 
+// Same as SplitConsoleArgs
+// but also takes vParams into consideration
+// and splitting "r" params differently
+bool SplitConsoleArgsWithParams(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, char *pInput, const std::vector<CLuaRconCommand::CParam> &vParams, char *pError, size_t ErrorLen);
+
 class CLuaPlugin
 {
 	char m_aErrorMsg[512] = "";

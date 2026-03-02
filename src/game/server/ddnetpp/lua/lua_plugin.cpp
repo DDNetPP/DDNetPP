@@ -93,6 +93,85 @@ bool SplitConsoleArgs(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, ch
 	return true;
 }
 
+bool SplitConsoleArgsWithParams(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, char *pInput, const std::vector<CLuaRconCommand::CParam> &vParams, char *pError, size_t ErrorLen)
+{
+	if(pError && ErrorLen)
+		pError[0] = '\0';
+	*pNumArgs = 0;
+
+	char *pStr = pInput;
+
+	while(*pStr)
+	{
+		pStr = str_skip_whitespaces(pStr);
+		if(*pStr == '"')
+		{
+			pStr++;
+			apArgs[(*pNumArgs)++] = pStr;
+
+			char *pDst = pStr; // we might have to process escape data
+			while(pStr[0] != '"')
+			{
+				if(pStr[0] == '\\')
+				{
+					if(pStr[1] == '\\')
+						pStr++; // skip due to escape
+					else if(pStr[1] == '"')
+						pStr++; // skip due to escape
+				}
+				else if(pStr[0] == '\0')
+				{
+					if(pError)
+						str_copy(pError, "missing closing quote", ErrorLen);
+					return false;
+				}
+
+				*pDst = *pStr;
+				pDst++;
+				pStr++;
+			}
+			*pDst = '\0';
+
+			pStr++;
+		}
+		else
+		{
+			// this piece of code was added by ChillerDragon
+			// to fix the arg count with trailing spaces
+			// the rest of the code is from teeworlds
+			const char *pEnd = str_skip_whitespaces_const(pStr);
+			if(pEnd[0] == '\0')
+				return true;
+
+			if(vParams.size() > *pNumArgs && vParams[*pNumArgs].m_Type == CLuaRconCommand::CParam::REST)
+			{
+				apArgs[(*pNumArgs)++] = pStr;
+				return true;
+			}
+
+			apArgs[(*pNumArgs)++] = pStr;
+			pStr = str_skip_to_whitespace(pStr);
+			if(pStr[0] != '\0') // check for end of string
+			{
+				pStr[0] = '\0';
+				pStr++;
+			}
+		}
+
+		if(pStr[0] != '\0')
+		{
+			if(*pNumArgs > MaxArgs)
+			{
+				if(pError)
+					str_copy(pError, "too many arguments", ErrorLen);
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 // TODO: move this to a new file like luac_aux.h
 //       and rename it to luaC_checkstringstrict()
 //       Same applies to any other static functions that operate on lua state
@@ -124,6 +203,7 @@ bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *
 	bool InDesc = false;
 	CParam Param;
 	Param.Reset();
+	bool ExpectOnlyOptional = false;
 
 	for(int i = 0; i < ParamsLen; i++)
 	{
@@ -148,6 +228,12 @@ bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *
 			}
 
 			InDesc = false;
+			if(ExpectOnlyOptional && !Param.m_Optional)
+			{
+				if(pError)
+					str_format(pError, ErrorLen, "got non optional param after optional one '%s'", pParameters);
+				return false;
+			}
 			vResult.emplace_back(Param);
 			Param.Reset();
 			continue;
@@ -163,6 +249,7 @@ bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *
 			}
 
 			Param.m_Optional = true;
+			ExpectOnlyOptional = true;
 		}
 		else if(InDesc)
 		{
@@ -195,6 +282,12 @@ bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *
 			}
 			if(pParameters[i + 1] != '[' && Param.m_Type != CParam::EType::INVALID)
 			{
+				if(ExpectOnlyOptional && !Param.m_Optional)
+				{
+					if(pError)
+						str_format(pError, ErrorLen, "got non optional param after optional one '%s'", pParameters);
+					return false;
+				}
 				vResult.emplace_back(Param);
 				Param.Reset();
 			}
@@ -490,11 +583,12 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 	size_t NumArgs = 0;
 	char aArgBuf[2048];
 	str_copy(aArgBuf, pArguments);
-	bool WordSplitOk = SplitConsoleArgs(
+	bool WordSplitOk = SplitConsoleArgsWithParams(
 		apArgs,
 		(sizeof(apArgs) / sizeof(apArgs[0])),
 		&NumArgs,
 		aArgBuf,
+		pCmd->m_vParsedParams,
 		aError,
 		sizeof(aError));
 	if(!WordSplitOk)
