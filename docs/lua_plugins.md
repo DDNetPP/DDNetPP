@@ -108,3 +108,10 @@ Game:register_rcon("yellow", function (_, args)
    Game:send_chat("player '" .. args.name .. "' is now yellow for " .. args.seconds .. " seconds")
 end)
 ```
+
+## type hints
+
+You can install type hints for your lsp using `luarocks install lls-addon-ddnetpp`
+
+
+For more details check out https://github.com/DDNetPP/lls-addon-ddnetpp
