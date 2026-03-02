@@ -568,15 +568,15 @@ void CLuaPlugin::OnPlayerConnect()
 }
 
 // https://github.com/DDNetPP/DDNetPP/issues/512
-static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *pArguments)
+static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *pArguments, char *pError, int ErrorLen)
 {
+	if(pError && ErrorLen)
+		pError[0] = '\0';
 	if(pCmd->m_aParams[0] == '\0')
 	{
 		lua_pushstring(L, pArguments);
 		return true;
 	}
-
-	log_info("lua", "parsing params %s", pCmd->m_aParams);
 
 	const char *apArgs[512] = {};
 	char aError[512] = "";
@@ -593,7 +593,8 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		sizeof(aError));
 	if(!WordSplitOk)
 	{
-		luaL_error(L, "failed to parse arguments: %s", aError);
+		if(pError)
+			str_format(pError, ErrorLen, "failed to parse arguments: %s", aError);
 		return false;
 	}
 
@@ -606,20 +607,17 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		//       because doing proper errors in the loop is tricky
 		//       we have to make sure to not break the lua stack by throwing
 		//       an error without popping the table we stated to build
-		// TODO: we do not want to error at all actually this is user input
-		//       should show a nice error message to the user in the rcon console
-
-		// needs buf because luaL_error can't do size_t
-		char aBuf[512];
-		str_format(
-			aBuf,
-			sizeof(aBuf),
-			"rcon command '%s' expected %" PRIzu " arguments but got %" PRIzu,
-			pCmd->m_aName,
-			pCmd->m_vParsedParams.size(),
-			NumArgs);
-		log_error("lua", "%s", aBuf);
-		// luaL_error(L, "%s", aBuf);
+		if(pError)
+		{
+			str_format(
+				pError,
+				ErrorLen,
+				"rcon command '%s' expected %" PRIzu " arguments but got %" PRIzu " (expected: %s)",
+				pCmd->m_aName,
+				pCmd->m_vParsedParams.size(),
+				NumArgs,
+				pCmd->m_aParams);
+		}
 		return false;
 	}
 
@@ -647,21 +645,26 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		case CLuaRconCommand::CParam::EType::INT:
 			if(!str_toint(apArgs[NumParams], &Value))
 			{
-				log_error("lua", "argument '%s' is not a valid number", apArgs[NumParams]);
+				if(pError)
+				{
+					str_format(
+						pError,
+						ErrorLen,
+						"argument '%s' is not a valid number",
+						apArgs[NumParams]);
+				}
 
 				// pop the table and the key
 				// because we abort early
 				lua_pop(L, 2);
 				return false;
 			}
-
 			lua_pushinteger(L, Value);
 			break;
 		case CLuaRconCommand::CParam::EType::STRING:
 			lua_pushstring(L, apArgs[NumParams]);
 			break;
 		case CLuaRconCommand::CParam::EType::REST:
-			// TODO: oh fuck the word splitter does not support this at all xd
 			lua_pushstring(L, apArgs[NumParams]);
 			break;
 		case CLuaRconCommand::CParam::EType::INVALID:
@@ -688,9 +691,9 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 
 	const CLuaRconCommand *pCmd = &m_RconCommands.at(pCommand);
 
+	char aError[512] = "";
 	if(pCmd->m_LuaCallbackRef == LUA_REFNIL)
 	{
-		char aError[512];
 		str_format(aError, sizeof(aError), "invalid lua callback for rcon command '%s'", pCommand);
 		log_error("lua", "%s", aError);
 		SetError(aError);
@@ -704,16 +707,17 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 
 	// second callback arg the table or string "args"
 	// depends if the user provided params or not
-	if(!PushRconArgs(LuaState(), pCmd, pArguments))
+	if(!PushRconArgs(LuaState(), pCmd, pArguments, aError, sizeof(aError)))
 	{
-		log_error("lua", "arg error");
-
 		// TODO: verify this is correct!
 		//
 		// pop func and client id because we do not call the function
 		lua_pop(LuaState(), 2);
 
-		// TODO: send arg error to user
+		// this does get shown to the user actually but is not ideal
+		// "chatresp" might be better or sending rcon line to the client id directly
+		// otherwise this does not work with econ, chat or threads
+		log_error("lua", "%s", aError);
 		return true;
 	}
 
