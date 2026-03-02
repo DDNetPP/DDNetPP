@@ -639,12 +639,23 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 			lua_pushinteger(L, NumParams + 1);
 		}
 
+		int Value;
+
 		// value
 		switch(Param.m_Type)
 		{
 		case CLuaRconCommand::CParam::EType::INT:
-			// FIXME: string bruvv
-			lua_pushstring(L, apArgs[NumParams]);
+			if(!str_toint(apArgs[NumParams], &Value))
+			{
+				log_error("lua", "argument '%s' is not a valid number", apArgs[NumParams]);
+
+				// pop the table and the key
+				// because we abort early
+				lua_pop(L, 2);
+				return false;
+			}
+
+			lua_pushinteger(L, Value);
 			break;
 		case CLuaRconCommand::CParam::EType::STRING:
 			lua_pushstring(L, apArgs[NumParams]);
