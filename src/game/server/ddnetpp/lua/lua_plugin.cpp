@@ -183,12 +183,17 @@ bool CLuaRconCommand::ParseParameters(std::vector<CParam> &vResult, const char *
 			case 'r':
 				Param.m_Type = CParam::EType::REST;
 				break;
+			case ' ':
+				// skip spaces, but expect them to be followed
+				// by a valid type
+				Param.m_Type = CParam::EType::INVALID;
+				break;
 			default:
 				if(pError)
-					str_format(pError, ErrorLen, "invalid parameter type %c in params %s", pParameters[i], pParameters);
+					str_format(pError, ErrorLen, "invalid parameter type '%c' in params %s", pParameters[i], pParameters);
 				return false;
 			}
-			if(pParameters[i + 1] != '[')
+			if(pParameters[i + 1] != '[' && Param.m_Type != CParam::EType::INVALID)
 			{
 				vResult.emplace_back(Param);
 				Param.Reset();
