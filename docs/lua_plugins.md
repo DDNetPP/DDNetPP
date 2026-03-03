@@ -99,6 +99,12 @@ end)
 Game:register_rcon("add", "i[num1] i[num2]", "adds two numbers", function (client_id, args)
 	Game:send_chat("result: " .. args.num1 + args.num2)
 end)
+
+Game:register_rcon("foo", "?s[might be nil]", "adds two numbers", function (client_id, args)
+	if args["might be nil"] then
+		Game:send_chat("got optional argument: " .. args["might be nil"])
+	end
+end)
 ```
 
 ## type hints

@@ -598,68 +598,49 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 		return false;
 	}
 
-	// TODO: remove this and use the other checks
-	if(NumArgs != pCmd->m_vParsedParams.size())
+	if(NumArgs > pCmd->m_vParsedParams.size())
 	{
 		if(pError)
 		{
 			str_format(
 				pError,
 				ErrorLen,
-				"rcon command '%s' expected %" PRIzu " arguments but got %" PRIzu " (expected: %s)",
+				"rcon command '%s' too many arguments %" PRIzu " out of %" PRIzu " (expected: %s)",
 				pCmd->m_aName,
-				pCmd->m_vParsedParams.size(),
 				NumArgs,
+				pCmd->m_vParsedParams.size(),
 				pCmd->m_aParams);
 		}
 		return false;
 	}
-
-	// // TODO: uncomment
-	// if(NumArgs > pCmd->m_vParsedParams.size())
-	// {
-	// 	if(pError)
-	// 	{
-	// 		str_format(
-	// 			pError,
-	// 			ErrorLen,
-	// 			"rcon command '%s' too many arguments %" PRIzu " out of %" PRIzu " (expected: %s)",
-	// 			pCmd->m_aName,
-	// 			NumArgs,
-	// 			pCmd->m_vParsedParams.size(),
-	// 			pCmd->m_aParams);
-	// 	}
-	// 	return false;
-	// }
+	if(NumArgs < pCmd->m_vParsedParams.size())
+	{
+		const CLuaRconCommand::CParam *pParam = &pCmd->m_vParsedParams[NumArgs];
+		if(!pParam->m_Optional)
+		{
+			if(pError)
+			{
+				str_format(
+					pError,
+					ErrorLen,
+					"rcon command '%s' missing argument" "%s%s%s" "at position %" PRIzu " (expected: %s)",
+					pCmd->m_aName,
+					pParam->m_aName[0] ? " '" : " ",
+					pParam->m_aName[0] ? pParam->m_aName : "",
+					pParam->m_aName[0] ? "' " : "",
+					NumArgs + 1,
+					pCmd->m_aParams);
+			}
+			return false;
+		}
+	}
 
 	lua_newtable(L);
 	size_t NumParams = 0;
 	for(const CLuaRconCommand::CParam &Param : pCmd->m_vParsedParams)
 	{
-		// TODO: does not work yet :/
-		// if(NumArgs < NumParams+1)
-		// {
-		// 	// pop the table that is no longer passed to a function call
-		// 	lua_pop(L, 1);
-
-		// 	if(!Param.m_Optional)
-		// 	{
-		// 		if(pError)
-		// 		{
-		// 			str_format(
-		// 				pError,
-		// 				ErrorLen,
-		// 				"rcon command '%s' missing argument (expected: %s)",
-		// 				pCmd->m_aName,
-		// 				pCmd->m_aParams);
-		// 		}
-		// 		return false;
-		// 	}
-
-		// 	// skip not provided optional args
-		// 	break;
-		// }
-		// log_info("lua", "numargs=%zu numparams=%zu", NumArgs, NumParams);
+		if(NumParams >= NumArgs)
+			break;
 
 		// key
 		if(Param.m_aName[0])
@@ -672,6 +653,7 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 			// for unnamed arguments
 			lua_pushinteger(L, NumParams + 1);
 		}
+		// log_info("lua", "got param %" PRIzu " '%s' with value '%s'", NumParams, Param.m_aName, apArgs[NumParams]);
 
 		int Value;
 
