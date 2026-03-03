@@ -38,31 +38,67 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 
 	if(Sys && MsgId == NETMSG_RCON_CMD)
 	{
-		// TODO: running "foo;foo;foo" in rcon does not execute the lua foo command 3 times
-		//       tricky will be "lua_command;say native command;lua_command2"
-
 		const char *pCmd = Unpacker.GetString(CUnpacker::SKIP_START_WHITESPACES);
 		if(Unpacker.Error())
 			return false;
 
 		if(Server()->IsRconAuthed(ClientId) && GameServer()->PlayerExists(ClientId))
 		{
-			const char *pArguments = "";
-			char aCommand[2048];
-			int i;
-			for(i = 0; pCmd[i]; i++)
+			const char *apStmts[1024] = {};
+			char aError[512] = "";
+			size_t NumStmts = 0;
+			char aLine[2048];
+			str_copy(aLine, pCmd);
+			bool Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
+			if(!Ok)
 			{
-				if(pCmd[i] == ' ')
-				{
-					pArguments = str_skip_whitespaces_const(pCmd + i);
-					break;
-				}
-				aCommand[i] = pCmd[i];
+				log_error("lua", "statement splitter failed with error: %s", aError);
+				return false;
 			}
-			aCommand[i] = '\0';
 
-			if(Lua()->OnRconCommand(ClientId, aCommand, pArguments))
-				return true;
+			char aLineWithoutLua[2048] = "";
+			bool GotLuaCommands = false;
+			bool AddSemi = false;
+			for(const char *pStmt : apStmts)
+			{
+				if(!pStmt)
+					break;
+				if(AddSemi)
+				{
+					str_append(aLineWithoutLua, ";");
+					AddSemi = false;
+				}
+
+				const char *pArguments = "";
+				char aCommand[2048];
+				int i;
+				for(i = 0; pStmt[i]; i++)
+				{
+					if(pStmt[i] == ' ')
+					{
+						pArguments = str_skip_whitespaces_const(pStmt + i);
+						break;
+					}
+					aCommand[i] = pStmt[i];
+				}
+				aCommand[i] = '\0';
+
+				if(Lua()->OnRconCommand(ClientId, aCommand, pArguments))
+				{
+					GotLuaCommands = true;
+				}
+				else
+				{
+					str_append(aLineWithoutLua, pStmt);
+					AddSemi = true;
+				}
+			}
+			if(!GotLuaCommands)
+				return false;
+
+			// TODO: call Server()->OnNetMsgRconCmd() with aLineWithoutLua
+			//       otherwise this rcon line drops the say command "lua_cmd;say foo"
+			return true;
 		}
 	}
 
