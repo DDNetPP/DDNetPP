@@ -38,6 +38,9 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 
 	if(Sys && MsgId == NETMSG_RCON_CMD)
 	{
+		// TODO: running "foo;foo;foo" in rcon does not execute the lua foo command 3 times
+		//       tricky will be "lua_command;say native command;lua_command2"
+
 		const char *pCmd = Unpacker.GetString(CUnpacker::SKIP_START_WHITESPACES);
 		if(Unpacker.Error())
 			return false;

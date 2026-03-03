@@ -22,6 +22,14 @@ class IGameController;
 class CGameContext;
 
 // returns true on success
+// writes multiple teeworlds console statements (separated by semicolon)
+// into the output array apStmts the amount of items is written to pNumStmts
+//
+// it strips the trailing semicolons
+// and treats ;;; as an syntax error
+bool SplitConsoleStatements(const char *apStmts[], size_t MaxStmts, size_t *pNumStmts, char *pLine, char *pError, size_t ErrorLen);
+
+// returns true on success
 // takes a mutable pInput string which it will also write to
 // and writes the result to apArgs which is a user given array of size MaxArgs
 // the amount of args it got it will write to pNumArgs

@@ -19,6 +19,69 @@ extern "C" {
 #include "lualib.h"
 }
 
+// TODO: move this to own library
+bool SplitConsoleStatements(const char *apStmts[], size_t MaxStmts, size_t *pNumStmts, char *pLine, char *pError, size_t ErrorLen)
+{
+	if(pError && ErrorLen)
+		pError[0] = '\0';
+	*pNumStmts = 0;
+	if(pLine[0] == '\0')
+		return true;
+
+	char *pStr = pLine;
+	apStmts[(*pNumStmts)++] = pStr;
+	bool InString = false;
+
+	do
+	{
+		if(*pNumStmts > MaxStmts)
+		{
+			if(pError)
+			{
+				str_copy(pError, "too many statements", ErrorLen);
+			}
+			return false;
+		}
+
+		if(*pStr == '"')
+		{
+			InString ^= true;
+		}
+		else if(*pStr == '\\') // escape sequences
+		{
+			if(pStr[1] == '"')
+				pStr++;
+		}
+
+		if(InString)
+			continue;
+
+		if(*pStr == ';')
+		{
+			pStr[0] = '\0';
+			if(pStr[1] == '\0')
+				break;
+			if(pStr[1] == ';')
+			{
+				if(pError)
+				{
+					str_copy(pError, "syntax error near unexpected token `;;'", ErrorLen);
+				}
+				return false;
+			}
+			pStr++;
+			apStmts[(*pNumStmts)++] = pStr;
+		}
+		else if(*pStr == '#')
+		{
+			pStr[0] = '\0';
+			break;
+		}
+	} while(*pStr++);
+
+	return true;
+}
+
 // TODO: move this to a own library
 bool SplitConsoleArgs(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, char *pInput, char *pError, size_t ErrorLen)
 {
@@ -623,7 +686,9 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 				str_format(
 					pError,
 					ErrorLen,
-					"rcon command '%s' missing argument" "%s%s%s" "at position %" PRIzu " (expected: %s)",
+					"rcon command '%s' missing argument"
+					"%s%s%s"
+					"at position %" PRIzu " (expected: %s)",
 					pCmd->m_aName,
 					pParam->m_aName[0] ? " '" : " ",
 					pParam->m_aName[0] ? pParam->m_aName : "",
