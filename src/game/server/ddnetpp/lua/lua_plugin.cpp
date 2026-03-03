@@ -793,6 +793,9 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 	if(!PushRconArgs(LuaState(), pCmd, pArguments, aError, sizeof(aError)))
 	{
 		// TODO: verify this is correct!
+		//       UPDATE: omg fak this shit, i ran like 60 lua plugin commands
+		//       with and without this and it just did not segfault :/
+		//       so idk which one is correct if both work aaaaaaaaaaaaaa
 		//
 		// pop func and client id because we do not call the function
 		lua_pop(LuaState(), 2);
