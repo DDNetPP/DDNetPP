@@ -2847,6 +2847,8 @@ if(SERVER)
     ddnetpp/lua/lua_game.h
     ddnetpp/lua/lua_plugin.cpp
     ddnetpp/lua/lua_plugin.h
+    ddnetpp/lua/stack_checker.cpp
+    ddnetpp/lua/stack_checker.h
     ddnetpp/rcon_commands.h
     ddnetpp/rcon_configs.cpp
     ddpp/ascii_table.h

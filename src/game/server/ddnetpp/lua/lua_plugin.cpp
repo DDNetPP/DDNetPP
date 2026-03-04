@@ -7,6 +7,7 @@
 #include <base/types.h>
 
 #include <game/server/ddnetpp/lua/lua_game.h>
+#include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
@@ -473,6 +474,8 @@ void CLuaPlugin::PushGameInstance()
 
 void CLuaPlugin::RegisterGlobalState()
 {
+	LUA_CHECK_STACK(LuaState());
+
 	RegisterGameMetaTable();
 	PushGameInstance();
 }
