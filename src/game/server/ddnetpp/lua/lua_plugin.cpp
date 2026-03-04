@@ -9,6 +9,7 @@
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
+#include <game/server/player.h>
 
 #include <string>
 #include <vector>
@@ -393,7 +394,33 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
-void CLuaPlugin::RegisterGameTable()
+void CLuaPlugin::RegisterPlayerMetaTable()
+{
+	luaL_newmetatable(LuaState(), "Player");
+
+	// --- Define __index (methods) ---
+	lua_pushstring(LuaState(), "__index");
+	lua_newtable(LuaState()); // Create method table
+
+	// Add methods
+	lua_pushstring(LuaState(), "id");
+	lua_pushcfunction(LuaState(), CallbackPlayerId);
+	lua_settable(LuaState(), -3);
+
+	// Set __index = method_table
+	lua_settable(LuaState(), -3);
+
+	lua_pop(LuaState(), 1); // Pop metatable
+}
+
+void CLuaPlugin::PushPlayerInstance(CPlayer *pPlayer)
+{
+	lua_pushlightuserdata(LuaState(), pPlayer);
+	luaL_getmetatable(LuaState(), "Player");
+	lua_setmetatable(LuaState(), -2);
+}
+
+void CLuaPlugin::RegisterGameMetaTable()
 {
 	luaL_newmetatable(LuaState(), "Game");
 
@@ -414,6 +441,10 @@ void CLuaPlugin::RegisterGameTable()
 	lua_pushcfunction(LuaState(), CallbackSendVoteOptionAdd);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "get_player");
+	lua_pushcfunction(LuaState(), CallbackGetPlayer);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "call_plugin");
 	lua_pushcfunction(LuaState(), CallbackCallPlugin);
 	lua_settable(LuaState(), -3);
@@ -432,7 +463,7 @@ void CLuaPlugin::RegisterGameTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::RegisterGameInstance()
+void CLuaPlugin::PushGameInstance()
 {
 	lua_pushlightuserdata(LuaState(), this);
 	luaL_getmetatable(LuaState(), "Game");
@@ -442,8 +473,8 @@ void CLuaPlugin::RegisterGameInstance()
 
 void CLuaPlugin::RegisterGlobalState()
 {
-	RegisterGameTable();
-	RegisterGameInstance();
+	RegisterGameMetaTable();
+	PushGameInstance();
 }
 
 bool CLuaPlugin::LoadFile()
@@ -508,6 +539,32 @@ int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 	const char *pDescription = LuaCheckStringStrict(L, 3);
 	pGame->SendVoteOptionAdd(ClientId, pDescription);
 	return 0;
+}
+
+int CLuaPlugin::CallbackGetPlayer(lua_State *L)
+{
+	// CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	// CLuaGame *pGame = pSelf->Game();
+	// int ClientId = luaL_checkinteger(L, 2);
+
+	// CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
+	// if(!pPlayer)
+	// {
+	// 	lua_pushnil(L);
+	// 	return 1;
+	// }
+
+	// lua_pushlightuserdata(L, pPlayer);
+	// luaL_setmetatable(L, "Player");
+
+	// pSelf->PushPlayerInstance(pPlayer);
+
+	// lua_pushlightuserdata(L, nullptr);
+	// luaL_setmetatable(L, "Player");
+
+	lua_pushnil(L);
+
+	return 1;
 }
 
 int CLuaPlugin::CallbackCallPlugin(lua_State *L)
@@ -609,6 +666,13 @@ int CLuaPlugin::CallbackPluginName(lua_State *L)
 {
 	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
 	lua_pushstring(L, pSelf->Name());
+	return 1;
+}
+
+int CLuaPlugin::CallbackPlayerId(lua_State *L)
+{
+	CPlayer *pPlayer = ((CPlayer *)lua_touserdata(L, 1));
+	lua_pushinteger(L, pPlayer->GetCid());
 	return 1;
 }
 

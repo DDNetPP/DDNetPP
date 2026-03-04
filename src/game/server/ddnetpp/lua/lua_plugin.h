@@ -20,6 +20,7 @@ extern "C" {
 
 class IGameController;
 class CGameContext;
+class CPlayer;
 
 // returns true on success
 // writes multiple teeworlds console statements (separated by semicolon)
@@ -143,8 +144,17 @@ public:
 	const CLuaGame *Game() const { return m_pGame; }
 
 private:
-	void RegisterGameTable();
-	void RegisterGameInstance();
+	// defines the player type for lua as a metatable
+	void RegisterPlayerMetaTable();
+
+	// pushes one player instance onto the lua stack
+	void PushPlayerInstance(CPlayer *pPlayer);
+
+	// defined the game type for lua as metatable
+	void RegisterGameMetaTable();
+
+	// sets the global instance "Game" and leaves the stack clean
+	void PushGameInstance();
 
 public:
 	void RegisterGlobalState();
@@ -158,9 +168,14 @@ private:
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackSendVoteClearOptions(lua_State *L);
 	static int CallbackSendVoteOptionAdd(lua_State *L);
+	static int CallbackGetPlayer(lua_State *L);
 	static int CallbackCallPlugin(lua_State *L);
 	static int CallbackRegisterRcon(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
+
+	// TODO: move these to some other scope? Because we have some
+	//       for the game instance and some for the player
+	static int CallbackPlayerId(lua_State *L);
 
 public:
 	// Calling lua from C++
