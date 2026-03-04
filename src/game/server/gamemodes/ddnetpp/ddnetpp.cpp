@@ -4,6 +4,7 @@
 #include <base/str.h>
 #include <base/system.h>
 
+#include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
@@ -96,8 +97,8 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 			if(!GotLuaCommands)
 				return false;
 
-			// TODO: call Server()->OnNetMsgRconCmd() with aLineWithoutLua
-			//       otherwise this rcon line drops the say command "lua_cmd;say foo"
+			CServer *pServer = static_cast<CServer *>(Server());
+			pServer->OnNetMsgRconCmd(ClientId, aLineWithoutLua);
 			return true;
 		}
 	}
