@@ -29,6 +29,7 @@ class CLuaController
 	IGameController *m_pController = nullptr;
 	CGameContext *m_pGameServer = nullptr;
 
+	static int FsLoadDirPlugin(const char *pDirname, int DirType, void *pUser);
 	static int FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser);
 
 public:

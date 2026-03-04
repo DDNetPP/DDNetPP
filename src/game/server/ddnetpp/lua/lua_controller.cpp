@@ -13,12 +13,38 @@ extern "C" {
 #include "lua.h"
 }
 
+int CLuaController::FsLoadDirPlugin(const char *pDirname, int DirType, void *pUser)
+{
+#ifdef CONF_LUA
+	CLuaController *pSelf = (CLuaController *)pUser;
+	// log_info("lua", "got dir '%s'", pDirname);
+
+	char aEntry[IO_MAX_PATH_LENGTH];
+	str_format(aEntry, sizeof(aEntry), "plugins/%s/src/main.lua", pDirname);
+	if(!pSelf->GameServer()->Storage()->FileExists(aEntry, DirType))
+	{
+		// log_warn("lua", "missing file '%s'", aEntry);
+		return 0;
+	}
+
+	char aFullpath[IO_MAX_PATH_LENGTH];
+	pSelf->GameServer()->Storage()->GetCompletePath(DirType, aEntry, aFullpath, sizeof(aFullpath));
+	// log_info("lua", " found entry '%s'", aFullpath);
+	pSelf->LoadPlugin(pDirname, aFullpath);
+	return 0;
+#else
+	return 0;
+#endif
+}
+
 int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
 {
 #ifdef CONF_LUA
 	CLuaController *pSelf = (CLuaController *)pUser;
-	if(IsDir || !str_comp(".", pFilename) || !str_comp("..", pFilename))
+	if(!str_comp(".", pFilename) || !str_comp("..", pFilename))
 		return 0;
+	if(IsDir)
+		return FsLoadDirPlugin(pFilename, DirType, pUser);
 	if(!str_endswith(pFilename, ".lua"))
 		return 0;
 

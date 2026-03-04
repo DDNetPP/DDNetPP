@@ -107,6 +107,54 @@ Game:register_rcon("foo", "?s[might be nil]", "adds two numbers", function (clie
 end)
 ```
 
+## multi file plugins
+
+All lua files in the project directory will be loaded as one plugin.
+If you are working on a bigger plugin that has multiple files you can also place an entire
+directory in the plugins directory. It will be loaded if it contains a src/main.lua inside of it
+all other files and folders will be ignored. So it is on you to require other files if you need them.
+Ideally you should use require locations relative to the current lua script in the filesystem
+because you should make no assumptions about the current working directory.
+
+```
+plugins/
+├── accounts                    # <= multi file plugin will be loaded as one plugin
+│   └── src
+│       ├── chat.lua
+│       ├── database.lua
+│       ├── main.lua            # <= the only entry point loaded by the server
+│       └── ratelimits.lua
+├── rainbow.lua                 # <= single file plugin will be loaded as one plugin
+└── simple.lua                  # <= single file plugin will be loaded as one plugin
+```
+
+If you place your plugins directory in the teeworlds storage location `$CURRENTDIR` so next to the server binary.
+Then in your main.lua you might get away with a require like this
+
+
+```lua
+-- main.lua
+
+-- WARNING: this relative require CAN and WILL break
+local db = require("plugins/accounts/src/database")
+```
+
+But this breaks for users that run the server from a different path than the executable.
+Or install the plugin in the `$USERDIR`. It will also break if the user renames the plugin directory.
+
+
+So a way more robust way and the recommended way is doing it like this:
+
+```lua
+function script_path()
+   local str = debug.getinfo(2, "S").source:sub(2)
+   return str:match("(.*/)") or "./"
+end
+
+local db = require(script_path() .. "database")
+```
+
+
 ## type hints
 
 You can install type hints for your lsp using `luarocks install lls-addon-ddnetpp`
