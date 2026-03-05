@@ -399,7 +399,8 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	luaL_newmetatable(LuaState(), "Player");
+	if(luaL_newmetatable(LuaState(), "Player") == 0)
+		dbg_assert_failed("lua metatable Player already exists");
 
 	// --- Define __index (methods) ---
 	lua_pushstring(LuaState(), "__index");
@@ -420,7 +421,8 @@ void CLuaPlugin::RegisterGameMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	luaL_newmetatable(LuaState(), "Game");
+	if(luaL_newmetatable(LuaState(), "Game") == 0)
+		dbg_assert_failed("lua metatable Game already exists");
 
 	// --- Define __index (methods) ---
 	lua_pushstring(LuaState(), "__index");
