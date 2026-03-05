@@ -485,8 +485,8 @@ bool CLuaPlugin::LoadFile()
 	{
 		const char *pError = lua_tostring(LuaState(), -1);
 		log_error("lua", "%s: %s", FullPath(), pError);
-		lua_pop(LuaState(), 1);
 		SetError(pError);
+		lua_pop(LuaState(), 1);
 		return false;
 	}
 	return true;
@@ -514,6 +514,7 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
 		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
 	}
 	return true;
 }
@@ -866,6 +867,8 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to run callback for rcon command '%s' with error: %s", Name(), pCommand, pErrorMsg);
 		SetError(pErrorMsg);
+		// pop error
+		lua_pop(LuaState(), 1);
 	}
 	return true;
 }
@@ -897,6 +900,8 @@ bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "%s", pErrorMsg);
 		SetError(pErrorMsg);
+		// pop error
+		lua_pop(LuaState(), 1);
 	}
 
 	// return true as "ok" or "found" as first value
