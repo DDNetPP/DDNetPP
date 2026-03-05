@@ -147,9 +147,6 @@ private:
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();
 
-	// pushes one player instance onto the lua stack
-	void PushPlayerInstance(CPlayer *pPlayer);
-
 	// defined the game type for lua as metatable
 	void RegisterGameMetaTable();
 

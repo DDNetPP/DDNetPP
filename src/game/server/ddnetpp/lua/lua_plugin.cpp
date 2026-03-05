@@ -416,13 +416,6 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::PushPlayerInstance(CPlayer *pPlayer)
-{
-	lua_pushlightuserdata(LuaState(), pPlayer);
-	luaL_getmetatable(LuaState(), "Player");
-	lua_setmetatable(LuaState(), -2);
-}
-
 void CLuaPlugin::RegisterGameMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
@@ -552,27 +545,19 @@ int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 
 int CLuaPlugin::CallbackGetPlayer(lua_State *L)
 {
-	// CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
-	// CLuaGame *pGame = pSelf->Game();
-	// int ClientId = luaL_checkinteger(L, 2);
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaGame *pGame = pSelf->Game();
+	int ClientId = luaL_checkinteger(L, 2);
 
-	// CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
-	// if(!pPlayer)
-	// {
-	// 	lua_pushnil(L);
-	// 	return 1;
-	// }
+	CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
 
-	// lua_pushlightuserdata(L, pPlayer);
-	// luaL_setmetatable(L, "Player");
-
-	// pSelf->PushPlayerInstance(pPlayer);
-
-	// lua_pushlightuserdata(L, nullptr);
-	// luaL_setmetatable(L, "Player");
-
-	lua_pushnil(L);
-
+	lua_pushlightuserdata(L, pPlayer);
+	luaL_setmetatable(L, "Player");
 	return 1;
 }
 
