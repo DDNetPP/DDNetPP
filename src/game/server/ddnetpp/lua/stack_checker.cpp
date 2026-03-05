@@ -4,6 +4,7 @@
 #include <base/dbg.h>
 #include <base/str.h>
 
+#include <cstdlib>
 extern "C" {
 #include <lua.h>
 }
@@ -26,9 +27,28 @@ CLuaStackChecker::~CLuaStackChecker()
 	if(m_StackTop == lua_gettop(m_pLuaState))
 		return;
 
-	if(m_aFile[0])
-		dbg_assert_imp(m_aFile, m_Line, "lua stack corrupted");
+	int Diff = m_StackTop - lua_gettop(m_pLuaState);
+	char aError[512];
+	if(Diff < 0)
+	{
+		str_format(
+			aError,
+			sizeof(aError),
+			"lua stack corrupted (%d too many items on the stack)",
+			std::abs(Diff));
+	}
 	else
-		dbg_assert_failed("lua stack corrupted");
+	{
+		str_format(
+			aError,
+			sizeof(aError),
+			"lua stack corrupted (%d too few items on the stack)",
+			Diff);
+	}
+
+	if(m_aFile[0])
+		dbg_assert_imp(m_aFile, m_Line, "%s", aError);
+	else
+		dbg_assert_failed("%s", aError);
 }
 #endif
