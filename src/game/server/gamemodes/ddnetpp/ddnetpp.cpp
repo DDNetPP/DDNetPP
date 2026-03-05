@@ -97,8 +97,16 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 			if(!GotLuaCommands)
 				return false;
 
-			CServer *pServer = static_cast<CServer *>(Server());
-			pServer->OnNetMsgRconCmd(ClientId, aLineWithoutLua);
+			// check if it was all lua commands
+			// to avoid doing a useless log in that case:
+			//
+			// 2026-03-05 10:17:24 I server: ClientId=0 key='default_admin' rcon=''
+			//
+			if(aLineWithoutLua[0])
+			{
+				CServer *pServer = static_cast<CServer *>(Server());
+				pServer->OnNetMsgRconCmd(ClientId, aLineWithoutLua);
+			}
 			return true;
 		}
 	}
