@@ -397,6 +397,8 @@ CLuaPlugin::~CLuaPlugin()
 
 void CLuaPlugin::RegisterPlayerMetaTable()
 {
+	LUA_CHECK_STACK(LuaState());
+
 	luaL_newmetatable(LuaState(), "Player");
 
 	// --- Define __index (methods) ---
@@ -423,6 +425,8 @@ void CLuaPlugin::PushPlayerInstance(CPlayer *pPlayer)
 
 void CLuaPlugin::RegisterGameMetaTable()
 {
+	LUA_CHECK_STACK(LuaState());
+
 	luaL_newmetatable(LuaState(), "Game");
 
 	// --- Define __index (methods) ---
@@ -466,6 +470,8 @@ void CLuaPlugin::RegisterGameMetaTable()
 
 void CLuaPlugin::PushGameInstance()
 {
+	LUA_CHECK_STACK(LuaState());
+
 	lua_pushlightuserdata(LuaState(), this);
 	luaL_getmetatable(LuaState(), "Game");
 	lua_setmetatable(LuaState(), -2);
@@ -831,6 +837,7 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
+	LUA_CHECK_STACK(LuaState());
 
 	if(!m_RconCommands.contains(pCommand))
 	{
@@ -859,11 +866,6 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 	// depends if the user provided params or not
 	if(!PushRconArgs(LuaState(), pCmd, pArguments, aError, sizeof(aError)))
 	{
-		// TODO: verify this is correct!
-		//       UPDATE: omg fak this shit, i ran like 60 lua plugin commands
-		//       with and without this and it just did not segfault :/
-		//       so idk which one is correct if both work aaaaaaaaaaaaaa
-		//
 		// pop func and client id because we do not call the function
 		lua_pop(LuaState(), 2);
 
@@ -886,6 +888,7 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
+	LUA_CHECK_STACK(LuaState());
 
 	lua_getglobal(LuaState(), pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
