@@ -477,6 +477,7 @@ void CLuaPlugin::RegisterGlobalState()
 
 	RegisterGameMetaTable();
 	PushGameInstance();
+	RegisterPlayerMetaTable();
 }
 
 bool CLuaPlugin::LoadFile()
