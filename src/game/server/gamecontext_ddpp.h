@@ -231,6 +231,10 @@ public:
 	// returned value might be null
 	CPlayer *GetPlayerOrNullptr(int ClientId) const;
 
+	// it is safe to pass in any unique client id
+	// returned value might be null
+	CPlayer *GetPlayerByUniqueId(uint32_t UniqueClientId) const;
+
 	// deprecated use IsMinigaming() instead
 	int IsMinigame(int playerId);
 

@@ -797,6 +797,14 @@ CPlayer *CGameContext::GetPlayerOrNullptr(int ClientId) const
 	return m_apPlayers[ClientId];
 }
 
+CPlayer *CGameContext::GetPlayerByUniqueId(uint32_t UniqueClientId) const
+{
+	for(CPlayer *pPlayer : m_apPlayers)
+		if(pPlayer && pPlayer->GetUniqueCid() == UniqueClientId)
+			return pPlayer;
+	return nullptr;
+}
+
 bool CGameContext::IsDDPPgametype(const char *pGametype)
 {
 	return !str_comp_nocase(g_Config.m_SvDDPPgametype, pGametype);

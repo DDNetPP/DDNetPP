@@ -1101,6 +1101,11 @@ void CPlayer::CheckLevel()
 	}
 }
 
+const char *CPlayer::Name() const
+{
+	return Server()->ClientName(GetCid());
+}
+
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
 	SetMoney(GetMoney() + Amount);

@@ -255,6 +255,34 @@ static const char *LuaCheckStringStrict(lua_State *L, int Index)
 	return "";
 }
 
+// TODO: move to same file like LuaCheckStringStrict?
+static CPlayer *LuaCheckPlayer(lua_State *L, int Index)
+{
+	// int Type = lua_type(L, Index);
+	// if(Type != LUA_TUSERDATA)
+	// {
+	// 	char aError[512];
+	// 	str_format(aError, sizeof(aError), "Player expected, got %s", luaL_typename(L, Index));
+	// 	luaL_argerror(L, Index, aError);
+	// 	return nullptr;
+	// }
+
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Player"));
+	if(!pPlayerHandle)
+	{
+		// I feel like this is unreachable
+		luaL_error(L, "invalid Player");
+		return nullptr;
+	}
+	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
+	if(!pPlayer)
+	{
+		luaL_error(L, "invalid Player");
+		return nullptr;
+	}
+	return pPlayer;
+}
+
 // https://github.com/DDNetPP/DDNetPP/issues/512
 //
 // this is basically copy pasted from here
@@ -411,6 +439,10 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pushcfunction(LuaState(), CallbackPlayerId);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "name");
+	lua_pushcfunction(LuaState(), CallbackPlayerName);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -560,7 +592,11 @@ int CLuaPlugin::CallbackGetPlayer(lua_State *L)
 		return 1;
 	}
 
-	lua_pushlightuserdata(L, pPlayer);
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(L, sizeof(CLuaPlayerHandle), 0));
+	// TODO: use placement new to ensure the constructor is properly called
+	//       instead of this manual mess
+	pPlayerHandle->m_UniqueClientId = pPlayer->GetUniqueCid();
+	pPlayerHandle->m_pPlugin = pSelf;
 	luaL_setmetatable(L, "Player");
 	return 1;
 }
@@ -669,8 +705,15 @@ int CLuaPlugin::CallbackPluginName(lua_State *L)
 
 int CLuaPlugin::CallbackPlayerId(lua_State *L)
 {
-	CPlayer *pPlayer = ((CPlayer *)lua_touserdata(L, 1));
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 	lua_pushinteger(L, pPlayer->GetCid());
+	return 1;
+}
+
+int CLuaPlugin::CallbackPlayerName(lua_State *L)
+{
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+	lua_pushstring(L, pPlayer->Name());
 	return 1;
 }
 

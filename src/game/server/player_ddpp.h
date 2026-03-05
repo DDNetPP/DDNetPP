@@ -64,6 +64,7 @@ public:
 	void SetLanguage(const char *pLang);
 
 	// useful everywhere
+	const char *Name() const;
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame() const;
 	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }

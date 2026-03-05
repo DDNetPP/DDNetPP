@@ -173,6 +173,7 @@ private:
 	// TODO: move these to some other scope? Because we have some
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);
+	static int CallbackPlayerName(lua_State *L);
 
 public:
 	// Calling lua from C++
@@ -215,6 +216,30 @@ public:
 	bool IsError() const { return m_aErrorMsg[0] != '\0'; }
 	const char *ErrorMsg() const { return m_aErrorMsg; }
 	bool IsActive() const { return !IsError() && !m_IsDisabled; }
+};
+
+// This is heap allocated for every player lookup from lua
+// the memory for this is managed and garbage collected by lua
+// That is why it is just a light handle holding the unique id
+// which means that on calling instance methods we have to iterate all instances
+// on the server side and find the player instance
+//
+// Using client id and indexing the players array would be much faster
+// but then if players reconnect we could get the wrong client id
+// there is a concept called generations to solve this issue
+// eventually we can switch to that to improve performance
+class CLuaPlayerHandle
+{
+public:
+	uint32_t m_UniqueClientId = 0;
+
+	// TODO: is this cursed?
+	CLuaPlugin *m_pPlugin = nullptr;
+
+	CLuaPlayerHandle(uint32_t UniqueClientId, CLuaPlugin *pPlugin) :
+		m_UniqueClientId(UniqueClientId), m_pPlugin(pPlugin)
+	{
+	}
 };
 
 #endif
