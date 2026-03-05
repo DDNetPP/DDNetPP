@@ -1,3 +1,4 @@
+#ifdef CONF_LUA
 #include "stack_checker.h"
 
 #include <base/dbg.h>
@@ -30,3 +31,4 @@ CLuaStackChecker::~CLuaStackChecker()
 	else
 		dbg_assert_failed("lua stack corrupted");
 }
+#endif

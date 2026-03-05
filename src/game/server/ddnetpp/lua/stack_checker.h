@@ -1,4 +1,7 @@
-#pragma once
+#ifndef GAME_SERVER_DDNETPP_LUA_STACK_CHECKER_H
+#define GAME_SERVER_DDNETPP_LUA_STACK_CHECKER_H
+
+#ifdef CONF_LUA
 
 extern "C" {
 #include <lua.h>
@@ -19,3 +22,7 @@ public:
 };
 
 #define LUA_CHECK_STACK(lua_state) CLuaStackChecker LuaStackChecker(lua_state, __FILE__, __LINE__)
+
+#endif
+
+#endif
