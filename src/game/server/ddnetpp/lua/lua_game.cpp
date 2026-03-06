@@ -6,6 +6,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <game/server/ddnetpp/lua/lua_plugin.h>
 #include <game/server/gamecontext.h>
 
 const IServer *CLuaGame::Server() const
@@ -22,6 +23,22 @@ void CLuaGame::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	m_pController = pController;
 	m_pGameServer = pGameServer;
+}
+
+void CLuaGame::SendRconCmdAdd(int ClientId, const CLuaRconCommand *pCmd)
+{
+	CMsgPacker Msg(NETMSG_RCON_CMD_ADD, true);
+	Msg.AddString(pCmd->Name(), IConsole::TEMPCMD_NAME_LENGTH);
+	Msg.AddString(pCmd->Help(), IConsole::TEMPCMD_HELP_LENGTH);
+	Msg.AddString(pCmd->Params(), IConsole::TEMPCMD_PARAMS_LENGTH);
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
+}
+
+void CLuaGame::SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd)
+{
+	CMsgPacker Msg(NETMSG_RCON_CMD_REM, true);
+	Msg.AddString(pCmd->Name(), IConsole::TEMPCMD_NAME_LENGTH);
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
 void CLuaGame::SendChat(const char *pMessage)

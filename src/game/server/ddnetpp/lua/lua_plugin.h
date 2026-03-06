@@ -120,6 +120,10 @@ public:
 	// lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, pCmd->m_LuaCallbackRef);
 	// ```
 	int m_LuaCallbackRef = LUA_REFNIL;
+
+	const char *Name() const { return m_aName; }
+	const char *Help() const { return m_aHelp; }
+	const char *Params() const { return m_aParams; }
 };
 
 // Same as SplitConsoleArgs

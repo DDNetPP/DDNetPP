@@ -10,6 +10,7 @@
 class IGameController;
 class CGameContext;
 class IServer;
+class CLuaRconCommand;
 
 /// represents the "Game" table in lua
 ///
@@ -34,6 +35,9 @@ public:
 	IServer *Server();
 
 	void Init(IGameController *pController, CGameContext *pGameServer);
+
+	void SendRconCmdAdd(int ClientId, const CLuaRconCommand *pCmd);
+	void SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd);
 
 	void SendChat(const char *pMessage);
 	void SendVoteClearOptions(int ClientId);
