@@ -171,30 +171,30 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 		size_t ToIdx = std::min(pSender->m_vRemoveCmds.size() - 1, FromIdx + NumSendMax);
 		pSender->m_RemoveIndex = ToIdx;
 
-		log_info(
-			"lua",
-			"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
-			FromIdx,
-			ToIdx,
-			ClientId);
+		// log_info(
+		// 	"lua",
+		// 	"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
+		// 	FromIdx,
+		// 	ToIdx,
+		// 	ClientId);
 
 		for(size_t i = FromIdx; i <= ToIdx; i++)
 		{
 			const char *pCmd = pSender->m_vRemoveCmds.at(i).c_str();
 			m_Game.SendRconCmdRem(ClientId, pCmd);
 
-			log_info(
-				"lua",
-				" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
-				pCmd,
-				i,
-				pSender->m_vRemoveCmds.size(),
-				ClientId);
+			// log_info(
+			// 	"lua",
+			// 	" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+			// 	pCmd,
+			// 	i,
+			// 	pSender->m_vRemoveCmds.size(),
+			// 	ClientId);
 		}
 
 		if(pSender->m_RemoveIndex.value() == (pSender->m_vRemoveCmds.size() - 1))
 		{
-			log_info("lua", "done sending all removals to cid=%d", ClientId);
+			// log_info("lua", "done sending all removals to cid=%d", ClientId);
 			pSender->m_RemoveIndex = std::nullopt;
 			pSender->m_vRemoveCmds.clear();
 		}
@@ -228,32 +228,58 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 
 		// start new send
 		pSender->m_SendIndex = 0;
-		log_info(
-			"lua",
-			"starting new rcon cmd send group of %" PRIzu " commands for cid=%d",
-			pSender->m_vMissingCmds.size(),
-			ClientId);
+		// log_info(
+		// 	"lua",
+		// 	"starting new rcon cmd send group of %" PRIzu " commands for cid=%d",
+		// 	pSender->m_vMissingCmds.size(),
+		// 	ClientId);
 
 		m_Game.SendRconCmdGroupStart(ClientId, pSender->m_vMissingCmds.size());
 	}
 
-	// reached the end of the current group
-	if(pSender->m_SendIndex.value() == (pSender->m_vMissingCmds.size() - 1))
+	size_t NumSendMax = 3;
+	size_t FromIdx = pSender->m_SendIndex.value();
+	size_t ToIdx = std::min(pSender->m_vMissingCmds.size() - 1, FromIdx + NumSendMax);
+	pSender->m_SendIndex = ToIdx;
+
+	// log_info(
+	// 	"lua",
+	// 	"sending commands from %" PRIzu " to %" PRIzu " to cid=%d",
+	// 	FromIdx,
+	// 	ToIdx,
+	// 	ClientId);
+
+	for(size_t i = FromIdx; i <= ToIdx; i++)
 	{
-		log_info(
-			"lua",
-			"finished sending %" PRIzu " rcon commands to cid=%d",
-			pSender->m_vMissingCmds.size(),
-			ClientId);
+		CLuaRconCommand *pCmd = &pSender->m_vMissingCmds.at(i);
+		m_Game.SendRconCmdAdd(ClientId, pCmd);
+
+		// log_info(
+		// 	"lua",
+		// 	" sending cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+		// 	pCmd->Name(),
+		// 	i,
+		// 	pSender->m_vMissingCmds.size(),
+		// 	ClientId);
+	}
+
+	// reached the end of the current group
+	if(pSender->m_SendIndex.value() >= (pSender->m_vMissingCmds.size() - 1))
+	{
+		// log_info(
+		// 	"lua",
+		// 	"finished sending %" PRIzu " rcon commands to cid=%d",
+		// 	pSender->m_vMissingCmds.size(),
+		// 	ClientId);
 
 		std::swap(pSender->m_vMissingCmds, pSender->m_vMissingCmdsNext);
 		pSender->m_vMissingCmdsNext.clear();
 		pSender->m_SendIndex = std::nullopt;
 
-		log_info(
-			"lua",
-			" there were %" PRIzu " new rcon commands queued while sending.",
-			pSender->m_vMissingCmds.size());
+		// log_info(
+		// 	"lua",
+		// 	" there were %" PRIzu " new rcon commands queued while sending.",
+		// 	pSender->m_vMissingCmds.size());
 
 		m_Game.SendRconCmdGroupEnd(ClientId);
 
@@ -262,33 +288,7 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 		return false;
 	}
 
-	size_t NumSendMax = 3;
-	size_t FromIdx = pSender->m_SendIndex.value();
-	size_t ToIdx = std::min(pSender->m_vMissingCmds.size() - 1, FromIdx + NumSendMax);
-	pSender->m_SendIndex = ToIdx;
-
-	log_info(
-		"lua",
-		"sending commands from %" PRIzu " to %" PRIzu " to cid=%d",
-		FromIdx,
-		ToIdx,
-		ClientId);
-
-	for(size_t i = FromIdx; i <= ToIdx; i++)
-	{
-		CLuaRconCommand *pCmd = &pSender->m_vMissingCmds.at(i);
-		m_Game.SendRconCmdAdd(ClientId, pCmd);
-
-		log_info(
-			"lua",
-			" sending cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
-			pCmd->Name(),
-			i,
-			pSender->m_vMissingCmds.size(),
-			ClientId);
-	}
-
-	return false;
+	return true;
 #else
 	return false;
 #endif
@@ -365,17 +365,15 @@ void CLuaController::ReloadPlugins()
 {
 #ifdef CONF_LUA
 	std::vector<std::string> vRconCommands;
+	log_info("lua", "reloading %" PRIzu " plugins ..", m_vpPlugins.size());
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
 			continue;
 
+		// log_info("lua", "plugin='%s' has %" PRIzu " rcon commands", pPlugin->Name(), pPlugin->m_RconCommands.size());
 		for(const auto &It : pPlugin->m_RconCommands)
-		{
-			// TODO: this is not printed, why?
-			log_info("lua", "before reload had rcon cmd='%s'", It.second.Name());
 			vRconCommands.emplace_back(It.second.Name());
-		}
 	}
 
 	// TODO: call some before and after reload hooks here for the plugins
@@ -385,21 +383,13 @@ void CLuaController::ReloadPlugins()
 	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
 	OnInit();
 
-	std::vector<std::string> vRemovedRconCmds;
-	for(const auto &CmdName : vRconCommands)
+	if(!vRconCommands.empty())
 	{
-		if(FindPluginThatKnowsRconCommand(CmdName.c_str()))
-		{
-			log_info("lua", "cmd='%s' is still known", CmdName.c_str());
-			continue;
-		}
+		// first I thought we can only delete the commands that were removed
+		// but then we don't properly diff the arguments and helptext
+		// so we have to resend all
 
-		vRconCommands.emplace_back(CmdName);
-	}
-
-	if(!vRemovedRconCmds.empty())
-	{
-		log_info("lua", "%" PRIzu " rcon commands got removed by reload", vRemovedRconCmds.size());
+		// log_info("lua", "%" PRIzu " rcon commands scheduled for deletion ...", vRconCommands.size());
 		for(CPlayer *pPlayer : m_pGameServer->m_apPlayers)
 		{
 			if(!pPlayer)
@@ -411,8 +401,8 @@ void CLuaController::ReloadPlugins()
 			CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
 			State.m_RconSender.m_vRemoveCmds.insert(
 				State.m_RconSender.m_vRemoveCmds.end(),
-				vRemovedRconCmds.begin(),
-				vRemovedRconCmds.end());
+				vRconCommands.begin(),
+				vRconCommands.end());
 			State.m_RconSender.m_RemoveIndex = 0;
 		}
 	}
