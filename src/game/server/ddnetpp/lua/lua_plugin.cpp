@@ -689,6 +689,11 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 			.m_LuaCallbackRef = FuncRef,
 		}));
 
+	// // this works but does not scale
+	// // we need to send rcon commands on tick
+	// const CLuaRconCommand *pCmd = &pSelf->m_RconCommands.at(std::string(pName));
+	// pSelf->Game()->SendRconCmdAdd(-1, pCmd);
+
 	// pop our pushed value
 	lua_pop(L, 1);
 
