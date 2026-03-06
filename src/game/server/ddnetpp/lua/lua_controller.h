@@ -25,6 +25,9 @@ public:
 		std::vector<CLuaRconCommand> m_vMissingCmds;
 		std::vector<CLuaRconCommand> m_vMissingCmdsNext;
 		void AddRconCmd(const CLuaRconCommand *pCmd);
+
+		std::optional<size_t> m_RemoveIndex = std::nullopt;
+		std::vector<std::string> m_vRemoveCmds;
 	};
 
 	CRconCmdSender m_RconSender;

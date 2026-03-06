@@ -163,6 +163,45 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 
 	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
 
+	// send pending removals before adds
+	if(pSender->m_RemoveIndex.has_value())
+	{
+		size_t NumSendMax = 3;
+		size_t FromIdx = pSender->m_RemoveIndex.value();
+		size_t ToIdx = std::min(pSender->m_vRemoveCmds.size() - 1, FromIdx + NumSendMax);
+		pSender->m_RemoveIndex = ToIdx;
+
+		log_info(
+			"lua",
+			"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
+			FromIdx,
+			ToIdx,
+			ClientId);
+
+		for(size_t i = FromIdx; i <= ToIdx; i++)
+		{
+			const char *pCmd = pSender->m_vRemoveCmds.at(i).c_str();
+			m_Game.SendRconCmdRem(ClientId, pCmd);
+
+			log_info(
+				"lua",
+				" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+				pCmd,
+				i,
+				pSender->m_vRemoveCmds.size(),
+				ClientId);
+		}
+
+		if(pSender->m_RemoveIndex.value() == (pSender->m_vRemoveCmds.size() - 1))
+		{
+			log_info("lua", "done sending all removals to cid=%d", ClientId);
+			pSender->m_RemoveIndex = std::nullopt;
+			pSender->m_vRemoveCmds.clear();
+		}
+
+		return true;
+	}
+
 	if(pSender->m_SendIndex.has_value())
 	{
 		dbg_assert(
@@ -325,12 +364,58 @@ void CLuaController::ListPlugins()
 void CLuaController::ReloadPlugins()
 {
 #ifdef CONF_LUA
+	std::vector<std::string> vRconCommands;
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		for(const auto &It : pPlugin->m_RconCommands)
+		{
+			// TODO: this is not printed, why?
+			log_info("lua", "before reload had rcon cmd='%s'", It.second.Name());
+			vRconCommands.emplace_back(It.second.Name());
+		}
+	}
+
 	// TODO: call some before and after reload hooks here for the plugins
 	//       so they can cleanup and or persist state across reloads
 	m_vpPlugins.clear();
 
 	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
 	OnInit();
+
+	std::vector<std::string> vRemovedRconCmds;
+	for(const auto &CmdName : vRconCommands)
+	{
+		if(FindPluginThatKnowsRconCommand(CmdName.c_str()))
+		{
+			log_info("lua", "cmd='%s' is still known", CmdName.c_str());
+			continue;
+		}
+
+		vRconCommands.emplace_back(CmdName);
+	}
+
+	if(!vRemovedRconCmds.empty())
+	{
+		log_info("lua", "%" PRIzu " rcon commands got removed by reload", vRemovedRconCmds.size());
+		for(CPlayer *pPlayer : m_pGameServer->m_apPlayers)
+		{
+			if(!pPlayer)
+				continue;
+
+			// TODO: if we reload too fast and another remove was already pending
+			//       some rcon commands can be missed during removal
+
+			CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
+			State.m_RconSender.m_vRemoveCmds.insert(
+				State.m_RconSender.m_vRemoveCmds.end(),
+				vRemovedRconCmds.begin(),
+				vRemovedRconCmds.end());
+			State.m_RconSender.m_RemoveIndex = 0;
+		}
+	}
 #endif
 }
 

@@ -34,10 +34,10 @@ void CLuaGame::SendRconCmdAdd(int ClientId, const CLuaRconCommand *pCmd)
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
-void CLuaGame::SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd)
+void CLuaGame::SendRconCmdRem(int ClientId, const char *pCmd)
 {
 	CMsgPacker Msg(NETMSG_RCON_CMD_REM, true);
-	Msg.AddString(pCmd->Name(), IConsole::TEMPCMD_NAME_LENGTH);
+	Msg.AddString(pCmd, IConsole::TEMPCMD_NAME_LENGTH);
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 

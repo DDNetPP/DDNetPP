@@ -37,7 +37,7 @@ public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 
 	void SendRconCmdAdd(int ClientId, const CLuaRconCommand *pCmd);
-	void SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd);
+	void SendRconCmdRem(int ClientId, const char *pCmd);
 
 	void SendRconCmdGroupStart(int ClientId, int Length);
 	void SendRconCmdGroupEnd(int ClientId);
