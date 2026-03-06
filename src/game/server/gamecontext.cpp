@@ -4946,6 +4946,13 @@ IGameServer *CreateGameServer() { return new CGameContext; }
 
 void CGameContext::OnSetAuthed(int ClientId, int Level)
 {
+	// ddnet++ start
+	// this check is from the ddnet code below
+	// when is this null? for econ logins?
+	if(m_apPlayers[ClientId])
+		m_pController->Lua()->OnSetAuthed(ClientId, Level);
+	// ddnet++ end
+
 	if(m_apPlayers[ClientId] && m_VoteCloseTime && Level != AUTHED_NO)
 	{
 		char aBuf[512];

@@ -5,12 +5,30 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <engine/shared/protocol.h>
+
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 
+#include <optional>
 #include <vector>
 
 class IGameController;
 class CGameContext;
+
+class CLuaPlayerState
+{
+public:
+	class CRconCmdSender
+	{
+	public:
+		std::optional<size_t> m_SendIndex = std::nullopt;
+		std::vector<CLuaRconCommand> m_vMissingCmds;
+		std::vector<CLuaRconCommand> m_vMissingCmdsNext;
+		void AddRconCmd(const CLuaRconCommand *pCmd);
+	};
+
+	CRconCmdSender m_RconSender;
+};
 
 class CLuaController
 {
@@ -32,6 +50,21 @@ class CLuaController
 	static int FsLoadDirPlugin(const char *pDirname, int DirType, void *pUser);
 	static int FsListPluginCallback(const char *pFilename, int IsDir, int DirType, void *pUser);
 
+	bool IsServerSendingNativeRconCmds(int ClientId);
+
+public:
+	// called when any plugin adds a new rcon command
+	// it tracks them in a queue to send for all players
+	void OnAddRconCmd(const CLuaRconCommand *pCmd);
+
+private:
+	// sends the next rcon commands if there are any new ones queued
+	// this is called on tick
+	//
+	// returns true if it sent something
+	// returns false if there is currently nothing to send
+	bool SendNextRconCmd(int ClientId);
+
 public:
 	const IGameController *Controller() const { return m_pController; }
 	IGameController *Controller() { return m_pController; }
@@ -41,6 +74,8 @@ public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController();
 
+	CLuaPlayerState m_aPlayers[MAX_CLIENTS];
+
 	// rcon commands
 	void ListPlugins();
 	void ReloadPlugins();
@@ -49,6 +84,7 @@ public:
 	void OnTick();
 	void OnPlayerConnect();
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
+	void OnSetAuthed(int ClientId, int Level);
 
 	// If a lua plugin runs `Game:call_plugin("func")`
 	// it will try to call "func" in all available plugins

@@ -41,6 +41,19 @@ void CLuaGame::SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd)
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
+void CLuaGame::SendRconCmdGroupStart(int ClientId, int Length)
+{
+	CMsgPacker Msg(NETMSG_RCON_CMD_GROUP_START, true);
+	Msg.AddInt(Length);
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
+}
+
+void CLuaGame::SendRconCmdGroupEnd(int ClientId)
+{
+	CMsgPacker Msg(NETMSG_RCON_CMD_GROUP_END, true);
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
+}
+
 void CLuaGame::SendChat(const char *pMessage)
 {
 	GameServer()->SendChat(-1, TEAM_ALL, pMessage);

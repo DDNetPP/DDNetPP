@@ -136,10 +136,10 @@ class CLuaPlugin
 	char m_aErrorMsg[512] = "";
 	bool m_IsDisabled = false;
 
+public:
 	// The key is the rcon command name
 	std::unordered_map<std::string, CLuaRconCommand> m_RconCommands;
 
-public:
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
 
@@ -164,6 +164,8 @@ public:
 private:
 	// returns true if the function was found
 	bool CallLuaVoidNoArgs(const char *pFunction);
+	// returns true if the function was found
+	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
 
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
@@ -185,6 +187,7 @@ public:
 	void OnTick();
 	void OnPlayerConnect();
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
+	void OnSetAuthed(int ClientId, int Level);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	// helpers

@@ -5,8 +5,17 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <engine/server/server.h>
+#include <engine/shared/protocol.h>
+
+#include <generated/protocol.h>
+
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 #include <game/server/gamecontext.h>
+#include <game/server/player.h>
+
+#include <utility>
+#include <vector>
 
 extern "C" {
 #include "lauxlib.h"
@@ -61,6 +70,188 @@ int CLuaController::FsListPluginCallback(const char *pFilename, int IsDir, int D
 	return 0;
 #else
 	return 0;
+#endif
+}
+
+void CLuaController::OnAddRconCmd(const CLuaRconCommand *pCmd)
+{
+#ifdef CONF_LUA
+	for(const CPlayer *pPlayer : m_pGameServer->m_apPlayers)
+	{
+		// we do not push into 128 vectors for every single lua command
+		// that is being added
+		//
+		// we just copy all lua commands at once if a new player auths
+		// this happens in OnSetAuthed
+		// only players already authed when a plugin adds new commands get live updates
+		//
+		// We could also do it the same for offline players and remove this
+		// check. It would be simpler but I feel like performance wise
+		// its a bit of a waste. Altho I do not like performance becoming worse
+		// the more players are connected :/ ideally performance is guaranteed
+		// and player count unrelated. So testing on an empty server is easier
+		// we do not want to find bottlenecks in production once the server gets full
+		// but whatever :/ it is was it is for now
+		if(!pPlayer)
+			continue;
+
+		CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
+		State.m_RconSender.AddRconCmd(pCmd);
+	}
+#endif
+}
+
+void CLuaPlayerState::CRconCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
+{
+#ifdef CONF_LUA
+	if(!m_SendIndex.has_value())
+	{
+		m_SendIndex = 0;
+	}
+
+	// we already started a send group
+	// so queue the cmd for the next group
+	if(m_SendIndex.value() > 0)
+	{
+		m_vMissingCmdsNext.emplace_back(*pCmd);
+		return;
+	}
+
+	m_vMissingCmds.emplace_back(*pCmd);
+#endif
+}
+
+bool CLuaController::IsServerSendingNativeRconCmds(int ClientId)
+{
+#ifdef CONF_LUA
+	if(!m_Game.Server()->ClientIngame(ClientId))
+		return false;
+	CServer *pServer = static_cast<CServer *>(m_Game.Server());
+	CServer::CClient &Client = pServer->m_aClients[ClientId];
+
+	// ddnet never sends to unauthed clients
+	if(!pServer->IsRconAuthed(ClientId))
+		return false;
+
+	// currently sending rcon commands
+	if(Client.m_pRconCmdToSend != nullptr)
+		return true;
+
+	// TODO: does ddnet really never send maps to 0.7 players?
+	if(Client.m_Sixup)
+		return false;
+
+	if(Client.m_MaplistEntryToSend == CServer::CClient::MAPLIST_DISABLED ||
+		Client.m_MaplistEntryToSend == CServer::CClient::MAPLIST_DONE)
+		return false;
+
+	// currently sending maps
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool CLuaController::SendNextRconCmd(int ClientId)
+{
+#ifdef CONF_LUA
+	if(IsServerSendingNativeRconCmds(ClientId))
+	{
+		// log_info("lua", "waiting for server to finish sending rcon commands ...");
+		return false;
+	}
+
+	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
+
+	if(pSender->m_SendIndex.has_value())
+	{
+		dbg_assert(
+			pSender->m_SendIndex < pSender->m_vMissingCmds.size(),
+			"rcon cmd send index=%" PRIzu " too big for cmds=%" PRIzu " cid=%d",
+			pSender->m_SendIndex.value(),
+			pSender->m_vMissingCmds.size(),
+			ClientId);
+	}
+
+	if(!pSender->m_SendIndex.has_value())
+	{
+		if(pSender->m_vMissingCmds.empty())
+		{
+			// nothing to send
+			if(pSender->m_vMissingCmdsNext.empty())
+				return false;
+
+			// some weird edge case where we have no send index but more commands??
+			log_error("lua", "THIS IS WEIRD!");
+			std::swap(pSender->m_vMissingCmds, pSender->m_vMissingCmdsNext);
+			pSender->m_vMissingCmdsNext.clear();
+		}
+
+		// start new send
+		pSender->m_SendIndex = 0;
+		log_info(
+			"lua",
+			"starting new rcon cmd send group of %" PRIzu " commands for cid=%d",
+			pSender->m_vMissingCmds.size(),
+			ClientId);
+
+		m_Game.SendRconCmdGroupStart(ClientId, pSender->m_vMissingCmds.size());
+	}
+
+	// reached the end of the current group
+	if(pSender->m_SendIndex.value() == (pSender->m_vMissingCmds.size() - 1))
+	{
+		log_info(
+			"lua",
+			"finished sending %" PRIzu " rcon commands to cid=%d",
+			pSender->m_vMissingCmds.size(),
+			ClientId);
+
+		std::swap(pSender->m_vMissingCmds, pSender->m_vMissingCmdsNext);
+		pSender->m_vMissingCmdsNext.clear();
+		pSender->m_SendIndex = std::nullopt;
+
+		log_info(
+			"lua",
+			" there were %" PRIzu " new rcon commands queued while sending.",
+			pSender->m_vMissingCmds.size());
+
+		m_Game.SendRconCmdGroupEnd(ClientId);
+
+		// we do not instantly start the next group in this tick
+		// that happens next tick
+		return false;
+	}
+
+	size_t NumSendMax = 3;
+	size_t FromIdx = pSender->m_SendIndex.value();
+	size_t ToIdx = std::min(pSender->m_vMissingCmds.size() - 1, FromIdx + NumSendMax);
+	pSender->m_SendIndex = ToIdx;
+
+	log_info(
+		"lua",
+		"sending commands from %" PRIzu " to %" PRIzu " to cid=%d",
+		FromIdx,
+		ToIdx,
+		ClientId);
+
+	for(size_t i = FromIdx; i <= ToIdx; i++)
+	{
+		CLuaRconCommand *pCmd = &pSender->m_vMissingCmds.at(i);
+		m_Game.SendRconCmdAdd(ClientId, pCmd);
+
+		log_info(
+			"lua",
+			" sending cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+			pCmd->Name(),
+			i,
+			pSender->m_vMissingCmds.size(),
+			ClientId);
+	}
+
+	return false;
+#else
+	return false;
 #endif
 }
 
@@ -159,6 +350,13 @@ void CLuaController::OnInit()
 void CLuaController::OnTick()
 {
 #ifdef CONF_LUA
+	for(const CPlayer *pPlayer : m_pGameServer->m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+
+		SendNextRconCmd(pPlayer->GetCid());
+	}
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
@@ -201,6 +399,40 @@ bool CLuaController::OnRconCommand(int ClientId, const char *pCommand, const cha
 
 	pPlugin->OnRconCommand(ClientId, pCommand, pArguments);
 	return true;
+#endif
+}
+
+void CLuaController::OnSetAuthed(int ClientId, int Level)
+{
+#ifdef CONF_LUA
+	// ignore Level because the server api is more stable
+	if(m_Game.Server()->IsRconAuthed(ClientId))
+	{
+		CLuaPlayerState &State = m_aPlayers[ClientId];
+
+		// TODO: does the client clear the command completions on logout?
+		//       what if someone reloggs do we mess up state here?
+		State.m_RconSender.m_SendIndex = std::nullopt;
+		State.m_RconSender.m_vMissingCmds.clear();
+		State.m_RconSender.m_vMissingCmdsNext.clear();
+
+		for(CLuaPlugin *pPlugin : m_vpPlugins)
+		{
+			if(!pPlugin->IsActive())
+				continue;
+
+			for(const auto &It : pPlugin->m_RconCommands)
+				State.m_RconSender.m_vMissingCmds.emplace_back(It.second);
+		}
+	}
+
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnSetAuthed(ClientId, Level);
+	}
 #endif
 }
 

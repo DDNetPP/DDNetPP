@@ -39,6 +39,9 @@ public:
 	void SendRconCmdAdd(int ClientId, const CLuaRconCommand *pCmd);
 	void SendRconCmdRem(int ClientId, const CLuaRconCommand *pCmd);
 
+	void SendRconCmdGroupStart(int ClientId, int Length);
+	void SendRconCmdGroupEnd(int ClientId);
+
 	void SendChat(const char *pMessage);
 	void SendVoteClearOptions(int ClientId);
 	void SendVoteOptionAdd(int ClientId, const char *pDescription);

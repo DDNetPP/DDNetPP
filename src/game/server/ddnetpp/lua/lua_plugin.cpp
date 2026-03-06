@@ -554,6 +554,35 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 	return true;
 }
 
+bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2)
+{
+	lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	lua_pushinteger(LuaState(), Num1);
+	lua_pushinteger(LuaState(), Num2);
+	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	return true;
+}
+
 int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
 	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
@@ -689,10 +718,8 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 			.m_LuaCallbackRef = FuncRef,
 		}));
 
-	// // this works but does not scale
-	// // we need to send rcon commands on tick
-	// const CLuaRconCommand *pCmd = &pSelf->m_RconCommands.at(std::string(pName));
-	// pSelf->Game()->SendRconCmdAdd(-1, pCmd);
+	const CLuaRconCommand *pCmd = &pSelf->m_RconCommands.at(std::string(pName));
+	pSelf->Game()->Controller()->Lua()->OnAddRconCmd(pCmd);
 
 	// pop our pushed value
 	lua_pop(L, 1);
@@ -922,6 +949,18 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 		lua_pop(LuaState(), 1);
 	}
 	return true;
+}
+
+void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	// TODO: rethink this api, actually I do not want to expose level to lua
+	//       it should already implement the planned ddnet role api
+	//       and have callbacks like "on_rcon_authed(clientid, rolename)"
+	//                          and  "on_rcon_logout(clientid)"
+
+	CallLuaVoidWithTwoInts("on_rcon_authed", ClientId, Level);
 }
 
 bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
