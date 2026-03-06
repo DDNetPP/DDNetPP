@@ -131,6 +131,18 @@ void CLuaController::ListPlugins()
 #endif
 }
 
+void CLuaController::ReloadPlugins()
+{
+#ifdef CONF_LUA
+	// TODO: call some before and after reload hooks here for the plugins
+	//       so they can cleanup and or persist state across reloads
+	m_vpPlugins.clear();
+
+	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
+	OnInit();
+#endif
+}
+
 void CLuaController::OnInit()
 {
 #ifdef CONF_LUA
@@ -240,13 +252,5 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 	return pPlugin->LoadFile();
 #else
 	return false;
-#endif
-}
-
-void CLuaController::ReloadPlugins()
-{
-#ifdef CONF_LUA
-	GameServer()->Storage()->ListDirectory(IStorage::TYPE_ALL, "plugins", FsListPluginCallback, this);
-	OnInit();
 #endif
 }

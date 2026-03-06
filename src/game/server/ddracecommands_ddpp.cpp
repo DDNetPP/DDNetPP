@@ -5,6 +5,7 @@
 
 #include <base/ddpp_logs.h>
 #include <base/log.h>
+#include <base/str.h>
 #include <base/system.h>
 #include <base/vmath.h>
 
@@ -13,6 +14,7 @@
 
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
+#include <game/server/ddnetpp/lua/lua_controller.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
@@ -1027,7 +1029,23 @@ void CGameContext::ConPlugins(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->m_pController)
 		return;
 
-	pSelf->m_pController->Lua()->ListPlugins();
+	CLuaController *pLua = pSelf->m_pController->Lua();
+
+	if(pResult->NumArguments() == 0)
+	{
+		pLua->ListPlugins();
+		return;
+	}
+
+	const char *pCmd = pResult->GetString(0);
+	if(!str_comp_nocase(pCmd, "reload"))
+	{
+		pLua->ReloadPlugins();
+	}
+	else
+	{
+		log_error("chatresp", "unknown plugin command '%s'", pCmd);
+	}
 }
 
 void CGameContext::ConSql_ADD(IConsole::IResult *pResult, void *pUserData)

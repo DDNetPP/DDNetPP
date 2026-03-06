@@ -43,6 +43,7 @@ public:
 
 	// rcon commands
 	void ListPlugins();
+	void ReloadPlugins();
 
 	void OnInit();
 	void OnTick();
@@ -86,7 +87,6 @@ public:
 
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);
-	void ReloadPlugins();
 };
 
 #endif
