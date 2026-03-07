@@ -297,9 +297,8 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 #ifdef CONF_LUA
-	lua_State *pTmpState = luaL_newstate();
-	log_info("lua", "got lua version %.0f, loading plugins ...", lua_version(pTmpState));
-	lua_close(pTmpState);
+	const char *pLuaVersion = LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE;
+	log_info("lua", "got lua version %s, loading plugins ...", pLuaVersion);
 
 	m_pController = pController;
 	m_pGameServer = pGameServer;
