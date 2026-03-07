@@ -151,6 +151,9 @@ private:
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();
 
+	// defines the character type for lua as a metatable
+	void RegisterCharacterMetaTable();
+
 	// defined the game type for lua as metatable
 	void RegisterGameMetaTable();
 
@@ -172,6 +175,7 @@ private:
 	static int CallbackSendVoteClearOptions(lua_State *L);
 	static int CallbackSendVoteOptionAdd(lua_State *L);
 	static int CallbackGetPlayer(lua_State *L);
+	static int CallbackGetCharacter(lua_State *L);
 	static int CallbackCallPlugin(lua_State *L);
 	static int CallbackRegisterRcon(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
@@ -180,6 +184,9 @@ private:
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);
 	static int CallbackPlayerName(lua_State *L);
+
+	// TODO: new scope?
+	static int CallbackCharacterPos(lua_State *L);
 
 public:
 	// Calling lua from C++
@@ -243,9 +250,17 @@ public:
 	// TODO: is this cursed?
 	CLuaPlugin *m_pPlugin = nullptr;
 
-	CLuaPlayerHandle(uint32_t UniqueClientId, CLuaPlugin *pPlugin) :
-		m_UniqueClientId(UniqueClientId), m_pPlugin(pPlugin)
+	// WARNING: you have to call this after calling lua_newuserdatauv
+	//          I intentionally did not use a constructor because placement new is goofed syntax
+	//          and just looking at this class one might think that it could be extended with an
+	//          destructor if needed. Which is not being called unless we implement the lua
+	//          garbage collector callback for it
+	//          So i rather have this an init method to make it clear that this is not constructed
+	//          and destructed like any other regular C++ object.
+	void Init(uint32_t UniqueClientId, CLuaPlugin *pPlugin)
 	{
+		m_UniqueClientId = UniqueClientId;
+		m_pPlugin = pPlugin;
 	}
 };
 

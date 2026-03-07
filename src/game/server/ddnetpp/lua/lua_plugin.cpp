@@ -8,6 +8,7 @@
 
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
+#include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
@@ -269,11 +270,7 @@ static CPlayer *LuaCheckPlayer(lua_State *L, int Index)
 
 	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Player"));
 	if(!pPlayerHandle)
-	{
-		// I feel like this is unreachable
-		luaL_error(L, "invalid Player");
 		return nullptr;
-	}
 	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
 	if(!pPlayer)
 	{
@@ -281,6 +278,31 @@ static CPlayer *LuaCheckPlayer(lua_State *L, int Index)
 		return nullptr;
 	}
 	return pPlayer;
+}
+
+// TODO: move to same file like LuaCheckStringStrict?
+static CCharacter *LuaCheckCharacter(lua_State *L, int Index)
+{
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Character"));
+	if(!pPlayerHandle)
+		return nullptr;
+	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
+	if(!pPlayer)
+	{
+		// Is it weird to say "invalid Player"
+		// when calling a character instance method?
+		// Its technically the correct error but weird to expose that to the user.
+		// Hmm...
+		luaL_error(L, "invalid Player");
+		return nullptr;
+	}
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+	{
+		luaL_error(L, "invalid Character");
+		return nullptr;
+	}
+	return pChr;
 }
 
 // https://github.com/DDNetPP/DDNetPP/issues/512
@@ -449,6 +471,28 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
+void CLuaPlugin::RegisterCharacterMetaTable()
+{
+	LUA_CHECK_STACK(LuaState());
+
+	if(luaL_newmetatable(LuaState(), "Character") == 0)
+		dbg_assert_failed("lua metatable Character already exists");
+
+	// --- Define __index (methods) ---
+	lua_pushstring(LuaState(), "__index");
+	lua_newtable(LuaState()); // Create method table
+
+	// Add methods
+	lua_pushstring(LuaState(), "pos");
+	lua_pushcfunction(LuaState(), CallbackCharacterPos);
+	lua_settable(LuaState(), -3);
+
+	// Set __index = method_table
+	lua_settable(LuaState(), -3);
+
+	lua_pop(LuaState(), 1); // Pop metatable
+}
+
 void CLuaPlugin::RegisterGameMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
@@ -475,6 +519,10 @@ void CLuaPlugin::RegisterGameMetaTable()
 
 	lua_pushstring(LuaState(), "get_player");
 	lua_pushcfunction(LuaState(), CallbackGetPlayer);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "get_character");
+	lua_pushcfunction(LuaState(), CallbackGetCharacter);
 	lua_settable(LuaState(), -3);
 
 	lua_pushstring(LuaState(), "call_plugin");
@@ -512,6 +560,7 @@ void CLuaPlugin::RegisterGlobalState()
 	RegisterGameMetaTable();
 	PushGameInstance();
 	RegisterPlayerMetaTable();
+	RegisterCharacterMetaTable();
 }
 
 bool CLuaPlugin::LoadFile()
@@ -622,11 +671,45 @@ int CLuaPlugin::CallbackGetPlayer(lua_State *L)
 	}
 
 	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(L, sizeof(CLuaPlayerHandle), 0));
-	// TODO: use placement new to ensure the constructor is properly called
-	//       instead of this manual mess
-	pPlayerHandle->m_UniqueClientId = pPlayer->GetUniqueCid();
-	pPlayerHandle->m_pPlugin = pSelf;
+	pPlayerHandle->Init(pPlayer->GetUniqueCid(), pSelf);
 	luaL_setmetatable(L, "Player");
+	return 1;
+}
+
+int CLuaPlugin::CallbackGetCharacter(lua_State *L)
+{
+	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaGame *pGame = pSelf->Game();
+	int ClientId = luaL_checkinteger(L, 2);
+
+	CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
+	if(!pPlayer)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	CCharacter *pChr = pPlayer->GetCharacter();
+	// plugins should be powerful but simple
+	// we do not want plugins to have to do a nil and a alive check
+	// also CPlayer::GetCharacter() does return nullptr for dead characters
+	// there should never be valuable information in dead character instances anyways
+	// if there really is a use case for dead characters
+	// there should be a new method for it like Game:get_dead_character() which makes it clear
+	// and keeps the main api Game:get_character() clean and simple to use
+	if(!pChr || !pChr->IsAlive())
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// it is a bit cursed to store a player handle for characters
+	// but it works
+	// when we lookup the character we just go through the player
+	// the server has to do a lookup anyways and the client ids and unique client ids are the same
+	// its just a different lua metatable
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(L, sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pPlayer->GetUniqueCid(), pSelf);
+	luaL_setmetatable(L, "Character");
 	return 1;
 }
 
@@ -746,6 +829,29 @@ int CLuaPlugin::CallbackPlayerName(lua_State *L)
 {
 	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 	lua_pushstring(L, pPlayer->Name());
+	return 1;
+}
+
+int CLuaPlugin::CallbackCharacterPos(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	// technically the position is a float
+	// but it does not use the floating point precision
+	// https://github.com/ddnet/ddnet/issues/11890
+	//
+	// I decided to expose the 32 divided position as float
+	// because it is the most user friendly value
+	// which is also shown in the debug hud in the client
+	// if you walk 10 and a half tiles from the origin of the map
+	// to the right your position will be 10.5 in lua which is nice
+	lua_newtable(L);
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, pChr->GetPos().x / 32.0f);
+	lua_settable(L, -3);
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, pChr->GetPos().x / 32.0f);
+	lua_settable(L, -3);
 	return 1;
 }
 
