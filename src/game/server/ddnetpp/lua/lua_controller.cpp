@@ -510,6 +510,33 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 #endif
 }
 
+bool CLuaController::OnClientMessage(int ClientId, const void *pData, int Size, int Flags)
+{
+#ifdef CONF_LUA
+	// TODO: implement
+	return false;
+#else
+	return false;
+#endif
+}
+
+bool CLuaController::OnServerMessage(int ClientId, const void *pData, int Size, int Flags)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->OnServerMessage(ClientId, pData, Size, Flags))
+			return true;
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
 bool CLuaController::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 #ifdef CONF_LUA
@@ -559,4 +586,9 @@ bool CLuaController::LoadPlugin(const char *pName, const char *pFilename)
 #else
 	return false;
 #endif
+}
+
+ILuaController *CreateLuaController()
+{
+	return new CLuaController();
 }

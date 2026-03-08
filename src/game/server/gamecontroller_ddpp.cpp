@@ -13,3 +13,13 @@ int IGameController::ServerInfoClientScoreValue(CPlayer *pPlayer)
 {
 	return pPlayer->m_Score.value_or(-9999);
 }
+
+CLuaController *IGameController::Lua()
+{
+	return GameServer()->Lua();
+}
+
+const CLuaController *IGameController::Lua() const
+{
+	return GameServer()->Lua();
+}

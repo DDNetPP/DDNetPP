@@ -1042,6 +1042,10 @@ void CGameContext::ConPlugins(IConsole::IResult *pResult, void *pUserData)
 	{
 		pLua->ReloadPlugins();
 	}
+	else if(!str_comp_nocase(pCmd, "list"))
+	{
+		pLua->ListPlugins();
+	}
 	else
 	{
 		log_error("chatresp", "unknown plugin command '%s'", pCmd);

@@ -1069,6 +1069,66 @@ void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
 	CallLuaVoidWithTwoInts("on_rcon_authed", ClientId, Level);
 }
 
+bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int Flags)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	LUA_CHECK_STACK(LuaState());
+
+	const char *pFunction = "on_server_message";
+	lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal because we dont run pcall
+		lua_pop(LuaState(), 1);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+
+	lua_pushinteger(LuaState(), ClientId);
+	lua_pushlstring(LuaState(), (const char *)pData, Size);
+	lua_pushinteger(LuaState(), Flags);
+	if(lua_pcall(LuaState(), 3, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+
+	int Type = lua_type(LuaState(), -1);
+	if(Type != LUA_TBOOLEAN)
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d return value for '%s' should be boolean, got %s",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			luaL_typename(LuaState(), -1));
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		lua_pop(LuaState(), 1);
+		return false;
+	}
+
+	bool Res = lua_toboolean(LuaState(), -1);
+	lua_pop(LuaState(), 1);
+	return Res;
+}
+
 bool CLuaPlugin::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

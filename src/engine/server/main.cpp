@@ -16,6 +16,7 @@
 #include <engine/server/server_logger.h>
 #include <engine/shared/assertion_logger.h>
 #include <engine/shared/config.h>
+#include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/storage.h>
 
 #include <game/version.h>
@@ -143,6 +144,10 @@ int main(int argc, const char **argv)
 	IEngineAntibot *pEngineAntibot = CreateEngineAntibot();
 	pKernel->RegisterInterface(pEngineAntibot); // IEngineAntibot
 	pKernel->RegisterInterface(static_cast<IAntibot *>(pEngineAntibot), false);
+
+	// ddnet++
+	ILuaController *pLua = CreateLuaController();
+	pKernel->RegisterInterface(pLua);
 
 	IGameServer *pGameServer = CreateGameServer();
 	pKernel->RegisterInterface(pGameServer);

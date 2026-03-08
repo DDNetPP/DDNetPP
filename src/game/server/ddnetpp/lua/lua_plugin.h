@@ -195,6 +195,7 @@ public:
 	void OnPlayerConnect();
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
+	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	// helpers

@@ -952,6 +952,8 @@ int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientId)
 					{
 						continue;
 					}
+					if(Lua()->OnServerMessage(i, Packet.m_pData, Packet.m_DataSize, Flags))
+						continue;
 					m_NetServer.Send(&Packet);
 				}
 			}
@@ -971,6 +973,8 @@ int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientId)
 		{
 			return 0;
 		}
+		if(Lua()->OnServerMessage(ClientId, Packet.m_pData, Packet.m_DataSize, Flags))
+			return 0;
 
 		// write message to demo recorders
 		if(!(Flags & MSGFLAG_NORECORD))
@@ -4435,6 +4439,7 @@ void CServer::RegisterCommands()
 	m_pGameServer = Kernel()->RequestInterface<IGameServer>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pAntibot = Kernel()->RequestInterface<IEngineAntibot>();
+	m_pLua = Kernel()->RequestInterface<ILuaController>();
 
 	Kernel()->RegisterInterface(static_cast<IHttp *>(&m_Http), false);
 

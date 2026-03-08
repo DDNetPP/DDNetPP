@@ -17,6 +17,7 @@
 
 #include <engine/antibot.h>
 #include <engine/http.h>
+#include <engine/shared/ddnetpp/lua_controller.h>
 
 #include <generated/protocol.h>
 #include <generated/server_data.h>
@@ -45,6 +46,10 @@ class CGameContext : public IGameServer
 	class CAccounts *m_pAccounts;
 	class CDbBans *m_pDbBans;
 	class CShop *m_pShop;
+
+	// ILuaController would be a bit cleaner than CLuaController
+	// but i am lazy right now xd
+	class CLuaController *m_pLua = nullptr;
 
 	// See the setter and getter for documentation
 	// `SetReconnectFlood()` and `ReconnectFlood()`
@@ -78,6 +83,8 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
+	class CLuaController *Lua() { return m_pLua; }
+	const class CLuaController *Lua() const { return m_pLua; }
 
 	// returns the players language choice
 	// or econ language choice if it is an econ id

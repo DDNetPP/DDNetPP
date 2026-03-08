@@ -12,6 +12,7 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <engine/shared/ddnetpp/loc.h>
+#include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/linereader.h>
 #include <engine/shared/protocol.h>
 

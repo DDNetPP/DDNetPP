@@ -2124,6 +2124,7 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   datafile.h
   ddnetpp/loc.cpp
   ddnetpp/loc.h
+  ddnetpp/lua_controller.h
   demo.cpp
   demo.h
   econ.cpp

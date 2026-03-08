@@ -13,6 +13,7 @@
 #include <engine/console.h>
 #include <engine/server.h>
 #include <engine/shared/config.h> // ddnet++ m_SvShowClientDummysInMaster
+#include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/fifo.h>
@@ -65,6 +66,7 @@ class CServer : public IServer
 
 	void OnFailedRconLoginAttempt(int ClientId, const char *pName, const char *pPassword);
 	void WriteWrongRconJson(int ClientId, const char *pName, const char *pPassword);
+	class ILuaController *m_pLua = nullptr;
 
 public:
 	void BotJoin(int BotId) override;
@@ -79,6 +81,7 @@ public:
 
 	class CDbConnectionPool *m_pDDPPConnectionPool;
 	class CDbConnectionPool *DDPPDbPool() const { return m_pDDPPConnectionPool; }
+	class ILuaController *Lua() { return m_pLua; }
 
 private:
 	// DDNet++ END

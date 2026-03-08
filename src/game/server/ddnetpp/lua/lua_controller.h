@@ -5,6 +5,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/protocol.h>
 
 #include <game/server/ddnetpp/lua/lua_plugin.h>
@@ -33,7 +34,7 @@ public:
 	CRconCmdSender m_RconSender;
 };
 
-class CLuaController
+class CLuaController : public ILuaController
 {
 #ifdef CONF_LUA
 	CLuaGame m_Game;
@@ -75,7 +76,7 @@ public:
 	CGameContext *GameServer() { return m_pGameServer; }
 
 	void Init(IGameController *pController, CGameContext *pGameServer);
-	~CLuaController();
+	~CLuaController() override;
 
 	CLuaPlayerState m_aPlayers[MAX_CLIENTS];
 
@@ -83,11 +84,13 @@ public:
 	void ListPlugins();
 	void ReloadPlugins();
 
-	void OnInit();
+	void OnInit() override;
 	void OnTick();
 	void OnPlayerConnect();
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
+	bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) override;
+	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags) override;
 
 	// If a lua plugin runs `Game:call_plugin("func")`
 	// it will try to call "func" in all available plugins

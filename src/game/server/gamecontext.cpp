@@ -36,6 +36,7 @@
 #include <game/collision.h>
 #include <game/gamecore.h>
 #include <game/mapitems.h>
+#include <game/server/ddnetpp/lua/lua_controller.h>
 #include <game/server/entities/flag.h>
 #include <game/version.h>
 
@@ -4285,6 +4286,10 @@ void CGameContext::OnInit(const void *pPersistentData)
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pAntibot = Kernel()->RequestInterface<IAntibot>();
+
+	// ddnet++
+	m_pLua = static_cast<CLuaController *>(Kernel()->RequestInterface<ILuaController>());
+
 	m_World.SetGameServer(this);
 	m_Events.SetGameServer(this);
 

@@ -213,12 +213,8 @@ public:
 	*/
 	virtual int GetCarriedFlag(CPlayer *pPlayer) { return FLAG_NONE; }
 
-private:
-	CLuaController m_LuaController;
-
-public:
-	CLuaController *Lua() { return &m_LuaController; }
-	const CLuaController *Lua() const { return &m_LuaController; }
+	CLuaController *Lua();
+	const CLuaController *Lua() const;
 
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER
