@@ -493,63 +493,44 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::RegisterDDNetPPMetaTable()
+void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	if(luaL_newmetatable(LuaState(), "ddnetpp") == 0)
-		dbg_assert_failed("lua metatable ddnetpp already exists");
-
-	// --- Define __index (methods) ---
-	lua_pushstring(LuaState(), "__index");
-	lua_newtable(LuaState()); // Create method table
-
-	// Add methods
-	lua_pushstring(LuaState(), "send_chat");
-	lua_pushcfunction(LuaState(), CallbackSendChat);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "send_vote_clear_options");
-	lua_pushcfunction(LuaState(), CallbackSendVoteClearOptions);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "send_vote_option_add");
-	lua_pushcfunction(LuaState(), CallbackSendVoteOptionAdd);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "get_player");
-	lua_pushcfunction(LuaState(), CallbackGetPlayer);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "get_character");
-	lua_pushcfunction(LuaState(), CallbackGetCharacter);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "call_plugin");
-	lua_pushcfunction(LuaState(), CallbackCallPlugin);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "register_rcon");
-	lua_pushcfunction(LuaState(), CallbackRegisterRcon);
-	lua_settable(LuaState(), -3);
-
-	lua_pushstring(LuaState(), "plugin_name");
-	lua_pushcfunction(LuaState(), CallbackPluginName);
-	lua_settable(LuaState(), -3);
-
-	// Set __index = method_table
-	lua_settable(LuaState(), -3);
-
-	lua_pop(LuaState(), 1); // Pop metatable
-}
-
-void CLuaPlugin::PushDDNetPPInstance()
-{
-	LUA_CHECK_STACK(LuaState());
+	lua_newtable(LuaState());
 
 	lua_pushlightuserdata(LuaState(), this);
-	luaL_getmetatable(LuaState(), "ddnetpp");
-	lua_setmetatable(LuaState(), -2);
+	lua_pushcclosure(LuaState(), CallbackSendChat, 1);
+	lua_setfield(LuaState(), -2, "send_chat");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendVoteClearOptions, 1);
+	lua_setfield(LuaState(), -2, "send_vote_clear_options");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendVoteOptionAdd, 1);
+	lua_setfield(LuaState(), -2, "send_vote_option_add");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackGetPlayer, 1);
+	lua_setfield(LuaState(), -2, "get_player");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCallPlugin, 1);
+	lua_setfield(LuaState(), -2, "call_plugin");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackGetCharacter, 1);
+	lua_setfield(LuaState(), -2, "get_character");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackRegisterRcon, 1);
+	lua_setfield(LuaState(), -2, "register_rcon");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
+	lua_setfield(LuaState(), -2, "plugin_name");
+
 	lua_setglobal(LuaState(), "ddnetpp");
 }
 
@@ -557,8 +538,7 @@ void CLuaPlugin::RegisterGlobalState()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	RegisterDDNetPPMetaTable();
-	PushDDNetPPInstance();
+	RegisterGlobalDDNetPPInstance();
 	RegisterPlayerMetaTable();
 	RegisterCharacterMetaTable();
 }
@@ -634,34 +614,34 @@ bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num
 
 int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
-	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
-	const char *pMessage = lua_tostring(L, 2);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	const char *pMessage = luaL_checkstring(L, 1);
 	pGame->SendChat(pMessage);
 	return 0;
 }
 
 int CLuaPlugin::CallbackSendVoteClearOptions(lua_State *L)
 {
-	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
-	int ClientId = luaL_checkinteger(L, 2);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = luaL_checkinteger(L, 1);
 	pGame->SendVoteClearOptions(ClientId);
 	return 0;
 }
 
 int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 {
-	CLuaGame *pGame = ((CLuaPlugin *)lua_touserdata(L, 1))->Game();
-	int ClientId = luaL_checkinteger(L, 2);
-	const char *pDescription = LuaCheckStringStrict(L, 3);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = luaL_checkinteger(L, 1);
+	const char *pDescription = LuaCheckStringStrict(L, 2);
 	pGame->SendVoteOptionAdd(ClientId, pDescription);
 	return 0;
 }
 
 int CLuaPlugin::CallbackGetPlayer(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	CLuaGame *pGame = pSelf->Game();
-	int ClientId = luaL_checkinteger(L, 2);
+	int ClientId = luaL_checkinteger(L, 1);
 
 	CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
@@ -715,9 +695,9 @@ int CLuaPlugin::CallbackGetCharacter(lua_State *L)
 
 int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	CLuaGame *pGame = pSelf->Game();
-	const char *pFunction = lua_tostring(L, 2);
+	const char *pFunction = lua_tostring(L, 1);
 
 	// TODO: now that we also have pSelf available it would be nicer to pass
 	//       that as argument to CallPlugin instead of L
@@ -741,12 +721,12 @@ int CLuaPlugin::CallbackCallPlugin(lua_State *L)
 
 int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	const char *pName = LuaCheckStringStrict(L, 2);
-	const char *pParams = LuaCheckStringStrict(L, 3);
-	const char *pHelp = LuaCheckStringStrict(L, 4);
-	luaL_checktype(L, 5, LUA_TFUNCTION);
+	const char *pName = LuaCheckStringStrict(L, 1);
+	const char *pParams = LuaCheckStringStrict(L, 2);
+	const char *pHelp = LuaCheckStringStrict(L, 3);
+	luaL_checktype(L, 4, LUA_TFUNCTION);
 
 	std::vector<CLuaRconCommand::CParam> vParams;
 	char aError[512] = "";
@@ -776,13 +756,13 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 
 	// we need to move stack 3 to 0
 	// because luaL_ref pops first element from the stack
-	// but it is our thirf argument
+	// but it is our third argument
 
 	// so we just pop the first two args
 
 	// push copy of the third argument (the lua callback)
 	// onto the top of the stack so luaL_ref can find it
-	lua_pushvalue(L, 5);
+	lua_pushvalue(L, 4);
 	int FuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	// TODO: according to https://en.cppreference.com/w/cpp/container/unordered_map/emplace
@@ -813,7 +793,7 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 
 int CLuaPlugin::CallbackPluginName(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	lua_pushstring(L, pSelf->Name());
 	return 1;
 }

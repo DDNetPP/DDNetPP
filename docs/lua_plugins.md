@@ -21,14 +21,14 @@ end
 
 ## trigger actions
 
-There is the global `Game` instance that lets you trigger some actions on the server side.
-For example `Game:send_chat()`
+There is the global `ddnetpp` instance that lets you trigger some actions on the server side.
+For example `ddnetpp.send_chat()`
 
 ```lua
 -- your_plugin.lua
 
 function on_player_connect()
-    Game:send_chat("someone joined the game")
+    ddnetpp.send_chat("someone joined the game")
 end
 ```
 
@@ -54,7 +54,7 @@ end
 -- main.lua
 
 -- call_plugin(func_name, args..)
-ok, result = Game:call_plugin("lib_func", "some argument")
+ok, result = ddnetpp.call_plugin("lib_func", "some argument")
 
 if ok then
     print("lib_func found and it returned: " .. result)
@@ -88,21 +88,21 @@ If you do not name them it will be just an array.
 ```lua
 -- myplugin.lua
 
-Game:register_rcon("yellow", "s[foo]", "description of command", function (client_id, args)
-	Game:send_chat("cid=" .. client_id  .. " ran command with arg: '" .. args.foo .. "'")
+ddnetpp.register_rcon("yellow", "s[foo]", "description of command", function (client_id, args)
+	ddnetpp.send_chat("cid=" .. client_id  .. " ran command with arg: '" .. args.foo .. "'")
 end)
 ```
 
 ```lua
 -- myplugin.lua
 
-Game:register_rcon("add", "i[num1] i[num2]", "adds two numbers", function (client_id, args)
-	Game:send_chat("result: " .. args.num1 + args.num2)
+ddnetpp.register_rcon("add", "i[num1] i[num2]", "adds two numbers", function (client_id, args)
+	ddnetpp.send_chat("result: " .. args.num1 + args.num2)
 end)
 
-Game:register_rcon("foo", "?s[might be nil]", "adds two numbers", function (client_id, args)
+ddnetpp.register_rcon("foo", "?s[might be nil]", "adds two numbers", function (client_id, args)
 	if args["might be nil"] then
-		Game:send_chat("got optional argument: " .. args["might be nil"])
+		ddnetpp.send_chat("got optional argument: " .. args["might be nil"])
 	end
 end)
 ```

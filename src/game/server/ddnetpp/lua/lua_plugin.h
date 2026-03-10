@@ -154,11 +154,10 @@ private:
 	// defines the character type for lua as a metatable
 	void RegisterCharacterMetaTable();
 
-	// defined the ddnetpp type for lua as metatable
-	void RegisterDDNetPPMetaTable();
-
-	// sets the global instance "ddnetpp" and leaves the stack clean
-	void PushDDNetPPInstance();
+	// Defined the global "ddnetpp" table.
+	// Which is the instance holding the entrypoint to the entire
+	// plugin api.
+	void RegisterGlobalDDNetPPInstance();
 
 public:
 	void RegisterGlobalState();
