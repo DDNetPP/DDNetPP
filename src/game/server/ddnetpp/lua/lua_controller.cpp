@@ -473,6 +473,8 @@ bool CLuaController::OnRconCommand(int ClientId, const char *pCommand, const cha
 
 	pPlugin->OnRconCommand(ClientId, pCommand, pArguments);
 	return true;
+#else
+	return false;
 #endif
 }
 

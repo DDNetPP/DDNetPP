@@ -12,6 +12,7 @@
 #include <generated/protocol.h>
 
 #include <game/mapitems.h>
+#include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamemodes/ddnet.h>

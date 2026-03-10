@@ -2843,12 +2843,15 @@ if(SERVER)
     ddnetpp/db/bans.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
+    ddnetpp/lua/console_strings.cpp
+    ddnetpp/lua/console_strings.h
     ddnetpp/lua/lua_controller.cpp
     ddnetpp/lua/lua_controller.h
     ddnetpp/lua/lua_game.cpp
     ddnetpp/lua/lua_game.h
     ddnetpp/lua/lua_plugin.cpp
     ddnetpp/lua/lua_plugin.h
+    ddnetpp/lua/lua_rcon_command.h
     ddnetpp/lua/stack_checker.cpp
     ddnetpp/lua/stack_checker.h
     ddnetpp/rcon_commands.h

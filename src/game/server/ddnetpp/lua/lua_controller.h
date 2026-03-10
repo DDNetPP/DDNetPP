@@ -8,13 +8,16 @@
 #include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/protocol.h>
 
-#include <game/server/ddnetpp/lua/lua_plugin.h>
+#include <game/server/ddnetpp/lua/lua_game.h>
+#include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
 #include <optional>
 #include <vector>
 
+class CLuaPlugin;
 class IGameController;
 class CGameContext;
+struct lua_State;
 
 class CLuaPlayerState
 {
