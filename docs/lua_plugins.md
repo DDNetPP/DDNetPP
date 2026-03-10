@@ -5,16 +5,16 @@ THE API IS IN SUPER EARLY STATE!!!!!!! NOT READY TO BE USED YET!
 ## register hooks
 
 There are a few functions you can define in your lua script
-that will be called by the server. For example `on_init` and `on_tick`
+that will be called by the server. For example `ddnetpp.on_init` and `ddnetpp.on_tick`
 
 ```lua
 -- your_plugin.lua
 
-function on_init()
+function ddnetpp.on_init()
     print("this is called only on init")
 end
 
-function on_tick()
+function ddnetpp.on_tick()
     print("this is called every tick")
 end
 ```
@@ -27,7 +27,7 @@ For example `ddnetpp.send_chat()`
 ```lua
 -- your_plugin.lua
 
-function on_player_connect()
+function ddnetpp.on_player_connect()
     ddnetpp.send_chat("someone joined the game")
 end
 ```

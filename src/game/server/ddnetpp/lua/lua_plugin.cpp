@@ -558,18 +558,22 @@ bool CLuaPlugin::LoadFile()
 
 bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 {
-	lua_getglobal(LuaState(), pFunction);
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+
+	// lua_getglobal(LuaState(), pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and getfield because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is nil", pFunction);
 		return false;
 	}
 	if(!lua_isfunction(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and getfield because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is not a function", pFunction);
 		return false;
 	}
@@ -580,23 +584,27 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 		SetError(pErrorMsg);
 		lua_pop(LuaState(), 1);
 	}
+	// pop the global "ddnetpp"
+	lua_pop(LuaState(), 1);
 	return true;
 }
 
 bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2)
 {
-	lua_getglobal(LuaState(), pFunction);
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is nil", pFunction);
 		return false;
 	}
 	if(!lua_isfunction(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is not a function", pFunction);
 		return false;
 	}
@@ -609,6 +617,8 @@ bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num
 		SetError(pErrorMsg);
 		lua_pop(LuaState(), 1);
 	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
 	return true;
 }
 
@@ -1055,18 +1065,19 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 	LUA_CHECK_STACK(LuaState());
 
 	const char *pFunction = "on_server_message";
-	lua_getglobal(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
 	if(lua_isnoneornil(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and field because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is nil", pFunction);
 		return false;
 	}
 	if(!lua_isfunction(LuaState(), -1))
 	{
-		// pop getglobal because we dont run pcall
-		lua_pop(LuaState(), 1);
+		// pop getglobal and field because we dont run pcall
+		lua_pop(LuaState(), 2);
 		// log_error("lua", "%s is not a function", pFunction);
 		return false;
 	}
@@ -1079,7 +1090,9 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
 		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
 		SetError(pErrorMsg);
-		lua_pop(LuaState(), 1);
+		// pop error and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return false;
 	}
 
 	int Type = lua_type(LuaState(), -1);
@@ -1100,12 +1113,14 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 			luaL_typename(LuaState(), -1));
 		log_error("lua", "%s", aError);
 		SetError(aError);
-		lua_pop(LuaState(), 1);
+		// pop error and global "ddnetpp"
+		lua_pop(LuaState(), 2);
 		return false;
 	}
 
 	bool Res = lua_toboolean(LuaState(), -1);
-	lua_pop(LuaState(), 1);
+	// pop result and global "ddnetpp"
+	lua_pop(LuaState(), 2);
 	return Res;
 }
 

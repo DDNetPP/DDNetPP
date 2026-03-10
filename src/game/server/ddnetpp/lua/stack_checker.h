@@ -14,14 +14,17 @@ class CLuaStackChecker
 
 	char m_aFile[512] = "";
 	int m_Line = 0;
+	char m_aDetail[512] = "";
 
 public:
 	CLuaStackChecker(lua_State *L);
 	CLuaStackChecker(lua_State *L, const char *pFile, int Line);
+	CLuaStackChecker(lua_State *L, const char *pFile, int Line, const char *pDetail);
 	~CLuaStackChecker();
 };
 
 #define LUA_CHECK_STACK(lua_state) CLuaStackChecker LuaStackChecker(lua_state, __FILE__, __LINE__)
+#define LUA_CHECK_STACK_DETAIL(lua_state, detail) CLuaStackChecker LuaStackChecker(lua_state, __FILE__, __LINE__, detail)
 
 #endif
 

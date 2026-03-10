@@ -22,6 +22,12 @@ CLuaStackChecker::CLuaStackChecker(lua_State *L, const char *pFile, int Line) :
 	m_Line = Line;
 }
 
+CLuaStackChecker::CLuaStackChecker(lua_State *L, const char *pFile, int Line, const char *pDetail) :
+	CLuaStackChecker(L, pFile, Line)
+{
+	str_copy(m_aDetail, pDetail);
+}
+
 CLuaStackChecker::~CLuaStackChecker()
 {
 	if(m_StackTop == lua_gettop(m_pLuaState))
@@ -44,6 +50,13 @@ CLuaStackChecker::~CLuaStackChecker()
 			sizeof(aError),
 			"lua stack corrupted (%d too few items on the stack)",
 			Diff);
+	}
+
+	if(m_aDetail[0])
+	{
+		str_append(aError, " (");
+		str_append(aError, m_aDetail);
+		str_append(aError, ")");
 	}
 
 	if(m_aFile[0])
