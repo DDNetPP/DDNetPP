@@ -2,7 +2,9 @@
 #include "gamecontext.h"
 
 #include <base/ddpp_logs.h>
+#include <base/io.h>
 #include <base/log.h>
+#include <base/time.h>
 
 #include <engine/antibot.h>
 #include <engine/shared/config.h>

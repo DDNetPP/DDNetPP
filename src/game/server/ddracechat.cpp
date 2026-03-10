@@ -4,6 +4,7 @@
 #include "score.h"
 
 #include <base/log.h>
+#include <base/time.h>
 
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
@@ -1625,7 +1626,7 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 	char aBufTime[32];
 	char aBuf[64];
 	int64_t Time = (int64_t)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
-	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_time(Time, ETimeFormat::HOURS, aBufTime, sizeof(aBufTime));
 	str_format(aBuf, sizeof(aBuf), "%s current race time is %s", aBufName, aBufTime);
 	log_info("chatresp", "%s", aBuf);
 }
@@ -1649,7 +1650,7 @@ void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[64];
 	int64_t Time = (int64_t)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
 	const char *pName = pSelf->Server()->ClientName(pResult->m_ClientId);
-	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_time(Time, ETimeFormat::HOURS, aBufTime, sizeof(aBufTime));
 	str_format(aBuf, sizeof(aBuf), "%s's current race time is %s", pName, aBufTime);
 	pSelf->SendChat(-1, TEAM_ALL, aBuf, pResult->m_ClientId);
 }
@@ -1670,7 +1671,7 @@ void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 	char aBufTime[32];
 	char aBuf[64];
 	int64_t Time = (int64_t)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
-	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_time(Time, ETimeFormat::HOURS, aBufTime, sizeof(aBufTime));
 	str_format(aBuf, sizeof(aBuf), "Your time is %s", aBufTime);
 	pSelf->SendBroadcast(aBuf, pResult->m_ClientId);
 }

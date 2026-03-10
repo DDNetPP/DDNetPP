@@ -4,6 +4,7 @@
 
 #include <base/log.h>
 #include <base/process.h>
+#include <base/time.h>
 
 #include <engine/ghost.h>
 #include <engine/shared/config.h>
@@ -135,7 +136,7 @@ void CGhost::GetPath(char *pBuf, int Size, const char *pPlayerName, int Time) co
 	str_sanitize_filename(aPlayerName);
 
 	char aTimestamp[32];
-	str_timestamp_format(aTimestamp, sizeof(aTimestamp), FORMAT_NOSPACE);
+	str_timestamp_format(aTimestamp, sizeof(aTimestamp), TimestampFormat::NOSPACE);
 
 	if(Time < 0)
 		str_format(pBuf, Size, "%s/%s_%s_%s_tmp_%d.gho", ms_pGhostDir, pMap, aPlayerName, aSha256, process_id());

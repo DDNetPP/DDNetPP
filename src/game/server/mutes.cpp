@@ -2,6 +2,8 @@
 #include "gamecontext.h"
 
 #include <base/log.h>
+#include <base/net.h>
+#include <base/time.h>
 
 #include <engine/shared/config.h>
 

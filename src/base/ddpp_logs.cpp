@@ -2,6 +2,10 @@
 
 #include "system.h"
 
+#include <base/time.h>
+
+#include <X11/X.h>
+
 #include <cstdio>
 
 /*
@@ -46,7 +50,7 @@ void ddpp_log(int type, const char *pMsg)
 
 	char aMsg[512];
 	char aTimestamp[64];
-	str_timestamp_format(aTimestamp, sizeof(aTimestamp), FORMAT_SPACE);
+	str_timestamp_format(aTimestamp, sizeof(aTimestamp), TimestampFormat::SPACE);
 	str_format(aMsg, sizeof(aMsg), "[%s] %s", aTimestamp, pMsg);
 
 	ddpp_log_append(type, aMsg);

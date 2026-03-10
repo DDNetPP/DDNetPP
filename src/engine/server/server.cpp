@@ -9,8 +9,11 @@
 
 #include <base/bytes.h>
 #include <base/ddpp_logs.h>
+#include <base/fs.h>
+#include <base/io.h>
 #include <base/logger.h>
 #include <base/math.h>
+#include <base/secure.h>
 
 #include <engine/config.h>
 #include <engine/console.h>
