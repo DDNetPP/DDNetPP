@@ -134,6 +134,36 @@ int CGameControllerDDNetPP::SnapPlayerScore(int SnappingClient, CPlayer *pPlayer
 	return pPlayer->GetScoreValue(SnappingClient);
 }
 
+IGameController::CFinishTime CGameControllerDDNetPP::SnapPlayerTime(int SnappingClient, CPlayer *pPlayer)
+{
+	// We have to unset timescore so new ddnet clients see points
+	// instead of times in the scoreboard. Or the sorting order breaks.
+	//
+	// See those issues and prs for more details:
+	// - https://github.com/ddnet/ddnet/pull/11476
+	// - https://github.com/ddnet-insta/ddnet-insta/issues/494
+	// - https://github.com/ddnet/ddnet/issues/11467
+
+	EDisplayScore DisplayScore = GameServer()->m_DisplayScore;
+	CPlayer *pSnapReceiver = GameServer()->GetPlayerOrNullptr(SnappingClient);
+	if(pSnapReceiver)
+		DisplayScore = pSnapReceiver->m_DisplayScore;
+
+	switch(DisplayScore)
+	{
+	case EDisplayScore::TIME:
+		return CGameControllerDDNet::SnapPlayerTime(SnappingClient, pPlayer);
+	case EDisplayScore::LEVEL:
+	case EDisplayScore::BLOCK:
+	case EDisplayScore::CURRENT_SPREE:
+	case EDisplayScore::KING_OF_THE_HILL:
+	case EDisplayScore::NUM_SCORES:
+		return CFinishTime::Unset();
+	}
+
+	return CFinishTime::Unset();
+}
+
 int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
 {
 	if(SnappingClient < 0 || SnappingClient >= MAX_CLIENTS)

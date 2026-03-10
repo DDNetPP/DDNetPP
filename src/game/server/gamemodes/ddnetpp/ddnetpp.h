@@ -92,6 +92,7 @@ public:
 	void SnapFlags(int SnappingClient);
 	void FakeSnap(int SnappingClient);
 	int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer) override;
+	IGameController::CFinishTime SnapPlayerTime(int SnappingClient, CPlayer *pPlayer) override;
 	void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) override;
 	int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) override;
 	int SnapScoreLimit(int SnappingClient) override;
