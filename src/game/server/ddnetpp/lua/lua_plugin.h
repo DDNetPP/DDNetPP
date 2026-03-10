@@ -154,11 +154,11 @@ private:
 	// defines the character type for lua as a metatable
 	void RegisterCharacterMetaTable();
 
-	// defined the game type for lua as metatable
-	void RegisterGameMetaTable();
+	// defined the ddnetpp type for lua as metatable
+	void RegisterDDNetPPMetaTable();
 
-	// sets the global instance "Game" and leaves the stack clean
-	void PushGameInstance();
+	// sets the global instance "ddnetpp" and leaves the stack clean
+	void PushDDNetPPInstance();
 
 public:
 	void RegisterGlobalState();

@@ -493,12 +493,12 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::RegisterGameMetaTable()
+void CLuaPlugin::RegisterDDNetPPMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	if(luaL_newmetatable(LuaState(), "Game") == 0)
-		dbg_assert_failed("lua metatable Game already exists");
+	if(luaL_newmetatable(LuaState(), "ddnetpp") == 0)
+		dbg_assert_failed("lua metatable ddnetpp already exists");
 
 	// --- Define __index (methods) ---
 	lua_pushstring(LuaState(), "__index");
@@ -543,22 +543,22 @@ void CLuaPlugin::RegisterGameMetaTable()
 	lua_pop(LuaState(), 1); // Pop metatable
 }
 
-void CLuaPlugin::PushGameInstance()
+void CLuaPlugin::PushDDNetPPInstance()
 {
 	LUA_CHECK_STACK(LuaState());
 
 	lua_pushlightuserdata(LuaState(), this);
-	luaL_getmetatable(LuaState(), "Game");
+	luaL_getmetatable(LuaState(), "ddnetpp");
 	lua_setmetatable(LuaState(), -2);
-	lua_setglobal(LuaState(), "Game");
+	lua_setglobal(LuaState(), "ddnetpp");
 }
 
 void CLuaPlugin::RegisterGlobalState()
 {
 	LUA_CHECK_STACK(LuaState());
 
-	RegisterGameMetaTable();
-	PushGameInstance();
+	RegisterDDNetPPMetaTable();
+	PushDDNetPPInstance();
 	RegisterPlayerMetaTable();
 	RegisterCharacterMetaTable();
 }
