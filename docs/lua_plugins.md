@@ -11,11 +11,20 @@ that will be called by the server. For example `ddnetpp.on_init` and `ddnetpp.on
 -- your_plugin.lua
 
 function ddnetpp.on_init()
-    print("this is called only on init")
+	print("this is called only on init")
 end
 
 function ddnetpp.on_tick()
-    print("this is called every tick")
+	print("this is called every tick")
+end
+
+function ddnetpp.on_chat(client_id, msg)
+	-- append LOL to all messages sent to chat
+	-- unless its a chat command
+	if msg.message:sub(1, 1) ~= "/" then
+		msg.message = msg.message .. " LOL"
+	end
+	return msg
 end
 ```
 

@@ -54,7 +54,7 @@ public:
 
 	bool OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int ClientId) override;
 	bool OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId) override;
-	bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) override;
+	bool OnChatMessage(CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) override;
 	CPlayer *GetPlayerByUniqueId(uint32_t UniqueId);
 
 	int64_t m_NextMinuteReset = 0;

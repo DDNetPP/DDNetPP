@@ -8,6 +8,8 @@
 #include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/protocol.h>
 
+#include <generated/protocol.h>
+
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
@@ -89,6 +91,7 @@ public:
 
 	void OnInit() override;
 	void OnTick();
+	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);

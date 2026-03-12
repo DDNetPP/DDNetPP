@@ -1,6 +1,7 @@
 #ifndef GAME_SERVER_DDNETPP_LUA_LUA_PLUGIN_H
 #define GAME_SERVER_DDNETPP_LUA_LUA_PLUGIN_H
 
+#include <generated/protocol.h>
 #ifdef CONF_LUA
 
 #include <base/log.h>
@@ -26,6 +27,13 @@ class CLuaPlugin
 {
 	char m_aErrorMsg[512] = "";
 	bool m_IsDisabled = false;
+
+	class CTmpStorage
+	{
+	public:
+		char m_aClSayMessage[2048] = "";
+	};
+	CTmpStorage m_TmpStorage;
 
 public:
 	// The key is the rcon command name
@@ -84,6 +92,7 @@ public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
+	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);

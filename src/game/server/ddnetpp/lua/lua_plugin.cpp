@@ -674,6 +674,137 @@ void CLuaPlugin::OnTick()
 	CallLuaVoidNoArgs("on_tick");
 }
 
+bool CLuaPlugin::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	const char *pFunction = "on_chat";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+
+	// lua_getglobal(LuaState(), pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and getfield because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and getfield because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+
+	lua_pushinteger(LuaState(), ClientId);
+
+	lua_newtable(LuaState());
+	lua_pushstring(LuaState(), "message");
+	lua_pushstring(LuaState(), pMsg->m_pMessage);
+	lua_settable(LuaState(), -3);
+	lua_pushstring(LuaState(), "team");
+	lua_pushinteger(LuaState(), Team);
+	lua_settable(LuaState(), -3);
+
+	// // I was thinking about passing the original team the client sent
+	// // as an argument too
+	// // so the plugin gets msg.team and raw_team args
+	// // but that seems confusing
+	// // so lets only send the ddnet processed team
+	// // and use it as read and write
+	// lua_pushinteger(LuaState(), pMsg->m_Team);
+
+	if(lua_pcall(LuaState(), 2, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+
+	int Type = lua_type(LuaState(), -1);
+	if(Type != LUA_TTABLE)
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d return value for '%s' should be a table, got %s",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			luaL_typename(LuaState(), -1));
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		// pop dbg info and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return false;
+	}
+
+	lua_getfield(LuaState(), -1, "message");
+	if(!lua_isstring(LuaState(), -1))
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d returned table in '%s' is missing key '%s'",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			"message");
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		// pop dbg info and global "ddnetpp" and field
+		lua_pop(LuaState(), 3);
+		return false;
+	}
+	const char *pMessage = lua_tostring(LuaState(), -1);
+	str_copy(m_TmpStorage.m_aClSayMessage, pMessage);
+	pMsg->m_pMessage = m_TmpStorage.m_aClSayMessage;
+	lua_pop(LuaState(), 1); // message
+
+	lua_getfield(LuaState(), -1, "team");
+	if(!lua_isinteger(LuaState(), -1))
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d returned table in '%s' is missing key '%s'",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			"team");
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		// pop dbg info and global "ddnetpp" and field
+		lua_pop(LuaState(), 3);
+		return false;
+	}
+	Team = lua_tointeger(LuaState(), -1);
+	lua_pop(LuaState(), 1); // team
+
+	// pop global "ddnetpp" and the returned table???
+	lua_pop(LuaState(), 2);
+	return true;
+}
+
 void CLuaPlugin::OnPlayerConnect(int ClientId)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

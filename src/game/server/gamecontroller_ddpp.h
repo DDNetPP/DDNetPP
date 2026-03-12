@@ -106,11 +106,17 @@ public:
 			hooks into CGameContext::OnSayNetMessage()
 			after unicode check and teehistorian already happened
 
+		Arguments:
+			pMsg - the struct holding the net message
+			       you can also point pMsg->m_pMessage to a different string
+			       to edit the chat message
+			       but you have to make sure this string does not go out of scope for the entire tick
+
 		Returns:
 			return true to not run the rest of CGameContext::OnSayNetMessage()
 			which would print it to the chat or run it as a ddrace chat command
 	*/
-	virtual bool OnChatMessage(const CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; }
+	virtual bool OnChatMessage(CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer) { return false; }
 
 	/*
 		Function: SnapPlayerFlags7

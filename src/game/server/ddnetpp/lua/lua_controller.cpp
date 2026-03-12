@@ -441,6 +441,23 @@ void CLuaController::OnTick()
 #endif
 }
 
+bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(!pPlugin->OnChatMessage(ClientId, pMsg, Team))
+			return false;
+	}
+	return true;
+#else
+	return true;
+#endif
+}
+
 void CLuaController::OnPlayerConnect(int ClientId)
 {
 #ifdef CONF_LUA

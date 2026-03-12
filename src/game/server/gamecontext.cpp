@@ -2441,7 +2441,7 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 	else
 		Team = TEAM_ALL;
 
-	if(m_pController->OnChatMessage(pMsg, Length, Team, pPlayer)) // ddnet++
+	if(m_pController->OnChatMessage((CNetMsg_Cl_Say *)pMsg, Length, Team, pPlayer)) // ddnet++
 		return;
 
 	if(pMsg->m_pMessage[0] == '/')
