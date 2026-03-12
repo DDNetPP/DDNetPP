@@ -89,7 +89,8 @@ public:
 
 	void OnInit() override;
 	void OnTick();
-	void OnPlayerConnect();
+	void OnPlayerConnect(int ClientId);
+	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) override;

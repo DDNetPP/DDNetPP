@@ -441,7 +441,7 @@ void CLuaController::OnTick()
 #endif
 }
 
-void CLuaController::OnPlayerConnect()
+void CLuaController::OnPlayerConnect(int ClientId)
 {
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
@@ -449,7 +449,20 @@ void CLuaController::OnPlayerConnect()
 		if(!pPlugin->IsActive())
 			continue;
 
-		pPlugin->OnPlayerConnect();
+		pPlugin->OnPlayerConnect(ClientId);
+	}
+#endif
+}
+
+void CLuaController::OnPlayerDisconnect(int ClientId)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnPlayerDisconnect(ClientId);
 	}
 #endif
 }

@@ -232,7 +232,7 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	// this code has to be manually kept in sync with CGameControllerDDNet::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
 
-	Lua()->OnPlayerConnect();
+	Lua()->OnPlayerConnect(pPlayer->GetCid());
 
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
 		pMinigame->OnPlayerConnect(pPlayer);
@@ -291,6 +291,7 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 // so controllers inheriting can easier reimplement parts they want
 void CGameControllerDDNetPP::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
+	Lua()->OnPlayerDisconnect(pPlayer->GetCid());
 	DDNetPPDisconnect(pPlayer, pReason);
 	pPlayer->OnDisconnect();
 	PrintDisconnect(pPlayer, pReason, Silent);

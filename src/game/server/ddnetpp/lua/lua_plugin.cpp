@@ -374,6 +374,38 @@ bool CLuaPlugin::CallLuaVoidNoArgs(const char *pFunction)
 	return true;
 }
 
+bool CLuaPlugin::CallLuaVoidWithOneInt(const char *pFunction, int Num1)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	lua_pushinteger(LuaState(), Num1);
+	if(lua_pcall(LuaState(), 1, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
+	return true;
+}
+
 bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2)
 {
 	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
@@ -642,10 +674,16 @@ void CLuaPlugin::OnTick()
 	CallLuaVoidNoArgs("on_tick");
 }
 
-void CLuaPlugin::OnPlayerConnect()
+void CLuaPlugin::OnPlayerConnect(int ClientId)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
-	CallLuaVoidNoArgs("on_player_connect");
+	CallLuaVoidWithOneInt("on_player_connect", ClientId);
+}
+
+void CLuaPlugin::OnPlayerDisconnect(int ClientId)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidWithOneInt("on_player_disconnect", ClientId);
 }
 
 // https://github.com/DDNetPP/DDNetPP/issues/512

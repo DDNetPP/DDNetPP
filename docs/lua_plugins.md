@@ -27,8 +27,9 @@ For example `ddnetpp.send_chat()`
 ```lua
 -- your_plugin.lua
 
-function ddnetpp.on_player_connect()
-    ddnetpp.send_chat("someone joined the game")
+function ddnetpp.on_player_connect(client_id)
+	player = ddnetpp.get_player(client_id)
+	ddnetpp.send_chat("'" .. player:name() .. "' connected!")
 end
 ```
 

@@ -58,6 +58,8 @@ private:
 	// returns true if the function was found
 	bool CallLuaVoidNoArgs(const char *pFunction);
 	// returns true if the function was found
+	bool CallLuaVoidWithOneInt(const char *pFunction, int Num1);
+	// returns true if the function was found
 	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
 
 	// Calling C++ from lua
@@ -82,7 +84,8 @@ public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
-	void OnPlayerConnect();
+	void OnPlayerConnect(int ClientId);
+	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
