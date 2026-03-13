@@ -10,6 +10,7 @@
 
 #include <generated/protocol.h>
 
+#include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
@@ -341,7 +342,7 @@ CLuaPlugin *CLuaController::RunChatCommand(int ClientId, const char *pFullCmd)
 	}
 	aCommand[i] = '\0';
 	CLuaPlugin *pPlugin = FindPluginThatKnowsChatCommand(aCommand);
-	if(pPlugin)
+	if(!pPlugin)
 		return nullptr;
 	log_info(
 		"server",
@@ -507,19 +508,9 @@ void CLuaController::OnTick()
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA
-	bool IsLuaChatCmd = false;
-	if(pMsg->m_pMessage[0] == '/' && pMsg->m_pMessage[1])
-	{
-		const char *pFullCmd = pMsg->m_pMessage + 1;
-		if(str_startswith(pFullCmd, "mc;"))
-		{
-			// FIXME: implement
-			dbg_assert_failed("mc chat commands not implemented yet");
-		}
-
-		IsLuaChatCmd = RunChatCommand(ClientId, pFullCmd);
-	}
-
+	// intentionally process the chat event first
+	// it can alter the chat message
+	// so that should also affect the chat command
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
@@ -529,11 +520,82 @@ bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team
 			return true;
 	}
 
-	// TODO: don't drop the entire chat message
-	//       this breaks the /mc; command
-	//       we need to edit it and pass it on
+	bool IsLuaChatCmd = false;
+	char aLineWithoutLua[2048] = "";
+
+	if(pMsg->m_pMessage[0] == '/' && pMsg->m_pMessage[1])
+	{
+		const char *pFullCmd = pMsg->m_pMessage + 1;
+		if(!str_startswith(pFullCmd, "mc;"))
+		{
+			if(RunChatCommand(ClientId, pFullCmd))
+			{
+				IsLuaChatCmd = true;
+			}
+		}
+		else
+		{
+			pFullCmd += str_length("mc;");
+
+			const char *apStmts[1024] = {};
+			char aError[512] = "";
+			size_t NumStmts = 0;
+			char aLine[2048];
+			str_copy(aLine, pFullCmd);
+			bool Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
+			if(!Ok)
+			{
+				log_error("lua", "statement splitter failed with error: %s", aError);
+				return false;
+			}
+
+			str_copy(aLineWithoutLua, "/mc;");
+			bool AddSemi = false;
+			for(const char *pStmt : apStmts)
+			{
+				if(!pStmt)
+					break;
+				if(AddSemi)
+				{
+					str_append(aLineWithoutLua, ";");
+					AddSemi = false;
+				}
+
+				if(RunChatCommand(ClientId, pStmt))
+				{
+					IsLuaChatCmd = true;
+				}
+				else
+				{
+					str_append(aLineWithoutLua, pStmt);
+					AddSemi = true;
+				}
+			}
+		}
+	}
+
 	if(IsLuaChatCmd)
-		return true;
+	{
+		// line was just a lua command so we drop it
+		// otherwise the server says "no such command"
+		// this happens if the chat message is something like "/luacommand"
+		if(aLineWithoutLua[0] == '\0')
+			return true;
+		// line was just lua commands something like "/mc;luacmd1;luacmd2"
+		if(!str_comp(aLineWithoutLua, "/mc;"))
+			return true;
+
+		dbg_assert(str_startswith(aLineWithoutLua, "/mc;"), "unexpected line without lua commands: '%s'", aLineWithoutLua);
+		dbg_assert(aLineWithoutLua[str_length("/mc;")] != '\0', "unexpected line without lua commands: '%s'", aLineWithoutLua);
+
+		// line was mixed with lua and non lua commands
+		// in that case we edit the message to filter out the lua commands
+
+		// oh boi memory management at its finest
+		static char s_aMsgBuffer[2048];
+		str_copy(s_aMsgBuffer, aLineWithoutLua);
+		pMsg->m_pMessage = s_aMsgBuffer;
+	}
 
 	return false;
 #else

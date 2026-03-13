@@ -42,6 +42,30 @@ function ddnetpp.on_player_connect(client_id)
 end
 ```
 
+## edit chat message
+
+In the on_chat event you can edit the msg.message and msg.team
+before returning it again. This gets called before it runs chat commands.
+So you can alter chat commands. Here an example of a chat command typo
+auto correct plugin
+
+```lua
+-- autocorrect.lua
+
+ddnetpp.register_chat("foo", "", "", function (client_id, args)
+	ddnetpp.send_chat("hello from foo chat command")
+end)
+
+function ddnetpp.on_chat(client_id, msg)
+	if msg.message == "/doo" then
+		ddnetpp.send_chat("/doo typo corrected to /foo")
+		-- this will run the foo chat command defined above
+		msg.message = "/foo"
+	end
+	return msg
+end
+```
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.
