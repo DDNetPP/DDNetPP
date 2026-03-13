@@ -41,6 +41,42 @@ void CLuaGame::SendRconCmdRem(int ClientId, const char *pCmd)
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
+void CLuaGame::SendChatCmdAdd(int ClientId, const CLuaRconCommand *pCmd)
+{
+	if(Server()->IsSixup(ClientId))
+	{
+		protocol7::CNetMsg_Sv_CommandInfo Msg;
+		Msg.m_pName = pCmd->Name();
+		Msg.m_pArgsFormat = pCmd->Params();
+		Msg.m_pHelpText = pCmd->Help();
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+	}
+	else
+	{
+		CNetMsg_Sv_CommandInfo Msg;
+		Msg.m_pName = pCmd->Name();
+		Msg.m_pArgsFormat = pCmd->Params();
+		Msg.m_pHelpText = pCmd->Help();
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+	}
+}
+
+void CLuaGame::SendChatCmdRem(int ClientId, const char *pCmd)
+{
+	if(Server()->IsSixup(ClientId))
+	{
+		protocol7::CNetMsg_Sv_CommandInfoRemove Msg;
+		Msg.m_pName = pCmd;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+	}
+	else
+	{
+		CNetMsg_Sv_CommandInfoRemove Msg;
+		Msg.m_pName = pCmd;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+	}
+}
+
 void CLuaGame::SendRconCmdGroupStart(int ClientId, int Length)
 {
 	CMsgPacker Msg(NETMSG_RCON_CMD_GROUP_START, true);
@@ -52,6 +88,18 @@ void CLuaGame::SendRconCmdGroupEnd(int ClientId)
 {
 	CMsgPacker Msg(NETMSG_RCON_CMD_GROUP_END, true);
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
+}
+
+void CLuaGame::SendChatCmdGroupStart(int ClientId, int Length)
+{
+	CNetMsg_Sv_CommandInfoGroupStart Msg;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+}
+
+void CLuaGame::SendChatCmdGroupEnd(int ClientId)
+{
+	CNetMsg_Sv_CommandInfoGroupEnd Msg;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 }
 
 void CLuaGame::SendChat(const char *pMessage)

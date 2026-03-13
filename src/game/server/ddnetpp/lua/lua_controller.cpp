@@ -305,7 +305,44 @@ bool CLuaController::SendNextAddRcon(int ClientId)
 bool CLuaController::SendNextRemChatCmd(int ClientId)
 {
 #ifdef CONF_LUA
-	return false;
+	CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	if(!pSender->m_RemoveChatIndex.has_value())
+		return false;
+
+	size_t NumSendMax = 3;
+	size_t FromIdx = pSender->m_RemoveChatIndex.value();
+	size_t ToIdx = std::min(pSender->m_vRemoveChat.size() - 1, FromIdx + NumSendMax);
+	pSender->m_RemoveChatIndex = ToIdx;
+
+	// log_info(
+	// 	"lua",
+	// 	"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
+	// 	FromIdx,
+	// 	ToIdx,
+	// 	ClientId);
+
+	for(size_t i = FromIdx; i <= ToIdx; i++)
+	{
+		const char *pCmd = pSender->m_vRemoveChat.at(i).c_str();
+		m_Game.SendChatCmdRem(ClientId, pCmd);
+
+		// log_info(
+		// 	"lua",
+		// 	" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+		// 	pCmd,
+		// 	i,
+		// 	pSender->m_vRemoveChat.size(),
+		// 	ClientId);
+	}
+
+	if(pSender->m_RemoveChatIndex.value() == (pSender->m_vRemoveChat.size() - 1))
+	{
+		// log_info("lua", "done sending all removals to cid=%d", ClientId);
+		pSender->m_RemoveChatIndex = std::nullopt;
+		pSender->m_vRemoveChat.clear();
+	}
+
+	return true;
 #else
 	return false;
 #endif
@@ -314,6 +351,92 @@ bool CLuaController::SendNextRemChatCmd(int ClientId)
 bool CLuaController::SendNextAddChatCmd(int ClientId)
 {
 #ifdef CONF_LUA
+	CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	if(pSender->m_SendChatIndex.has_value())
+	{
+		dbg_assert(
+			pSender->m_SendChatIndex < pSender->m_vMissingChat.size(),
+			"rcon cmd send index=%" PRIzu " too big for cmds=%" PRIzu " cid=%d",
+			pSender->m_SendChatIndex.value(),
+			pSender->m_vMissingChat.size(),
+			ClientId);
+	}
+
+	if(!pSender->m_SendChatIndex.has_value())
+	{
+		if(pSender->m_vMissingChat.empty())
+		{
+			// nothing to send
+			if(pSender->m_vMissingChatNext.empty())
+				return false;
+
+			// some weird edge case where we have no send index but more commands??
+			log_error("lua", "THIS IS WEIRD!");
+			std::swap(pSender->m_vMissingChat, pSender->m_vMissingChatNext);
+			pSender->m_vMissingChatNext.clear();
+		}
+
+		// start new send
+		pSender->m_SendChatIndex = 0;
+		// log_info(
+		// 	"lua",
+		// 	"starting new rcon cmd send group of %" PRIzu " commands for cid=%d",
+		// 	pSender->m_vMissingChat.size(),
+		// 	ClientId);
+
+		m_Game.SendChatCmdGroupStart(ClientId, pSender->m_vMissingChat.size());
+	}
+
+	size_t NumSendMax = 3;
+	size_t FromIdx = pSender->m_SendChatIndex.value();
+	size_t ToIdx = std::min(pSender->m_vMissingChat.size() - 1, FromIdx + NumSendMax);
+	pSender->m_SendChatIndex = ToIdx;
+
+	// log_info(
+	// 	"lua",
+	// 	"sending commands from %" PRIzu " to %" PRIzu " to cid=%d",
+	// 	FromIdx,
+	// 	ToIdx,
+	// 	ClientId);
+
+	for(size_t i = FromIdx; i <= ToIdx; i++)
+	{
+		CLuaRconCommand *pCmd = &pSender->m_vMissingChat.at(i);
+		m_Game.SendChatCmdAdd(ClientId, pCmd);
+
+		// log_info(
+		// 	"lua",
+		// 	" sending cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+		// 	pCmd->Name(),
+		// 	i,
+		// 	pSender->m_vMissingChat.size(),
+		// 	ClientId);
+	}
+
+	// reached the end of the current group
+	if(pSender->m_SendChatIndex.value() >= (pSender->m_vMissingChat.size() - 1))
+	{
+		// log_info(
+		// 	"lua",
+		// 	"finished sending %" PRIzu " rcon commands to cid=%d",
+		// 	pSender->m_vMissingChat.size(),
+		// 	ClientId);
+
+		std::swap(pSender->m_vMissingChat, pSender->m_vMissingChatNext);
+		pSender->m_vMissingChatNext.clear();
+		pSender->m_SendChatIndex = std::nullopt;
+
+		// log_info(
+		// 	"lua",
+		// 	" there were %" PRIzu " new rcon commands queued while sending.",
+		// 	pSender->m_vMissingChat.size());
+
+		m_Game.SendChatCmdGroupEnd(ClientId);
+
+		// we do not instantly start the next group in this tick
+		// that happens next tick
+		return false;
+	}
 	return false;
 #else
 	return false;
@@ -334,6 +457,12 @@ bool CLuaController::SendNextCmdInfo(int ClientId)
 		return true;
 
 	if(SendNextAddRcon(ClientId))
+		return true;
+
+	if(SendNextRemChatCmd(ClientId))
+		return true;
+
+	if(SendNextAddChatCmd(ClientId))
 		return true;
 
 	return false;
@@ -445,6 +574,7 @@ void CLuaController::ReloadPlugins()
 {
 #ifdef CONF_LUA
 	std::vector<std::string> vRconCommands;
+	std::vector<std::string> vChatCommands;
 	log_info("lua", "reloading %" PRIzu " plugins ..", m_vpPlugins.size());
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
@@ -454,6 +584,8 @@ void CLuaController::ReloadPlugins()
 		// log_info("lua", "plugin='%s' has %" PRIzu " rcon commands", pPlugin->Name(), pPlugin->m_RconCommands.size());
 		for(const auto &It : pPlugin->m_RconCommands)
 			vRconCommands.emplace_back(It.second.Name());
+		for(const auto &It : pPlugin->m_ChatCommands)
+			vChatCommands.emplace_back(It.second.Name());
 	}
 
 	// TODO: call some before and after reload hooks here for the plugins
@@ -484,6 +616,30 @@ void CLuaController::ReloadPlugins()
 				vRconCommands.begin(),
 				vRconCommands.end());
 			State.m_CmdSender.m_RemoveRconIndex = 0;
+		}
+	}
+
+	if(!vChatCommands.empty())
+	{
+		// first I thought we can only delete the commands that were removed
+		// but then we don't properly diff the arguments and helptext
+		// so we have to resend all
+
+		// log_info("lua", "%" PRIzu " rcon commands scheduled for deletion ...", vChatCommands.size());
+		for(CPlayer *pPlayer : m_pGameServer->m_apPlayers)
+		{
+			if(!pPlayer)
+				continue;
+
+			// TODO: if we reload too fast and another remove was already pending
+			//       some rcon commands can be missed during removal
+
+			CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
+			State.m_CmdSender.m_vRemoveChat.insert(
+				State.m_CmdSender.m_vRemoveChat.end(),
+				vChatCommands.begin(),
+				vChatCommands.end());
+			State.m_CmdSender.m_RemoveChatIndex = 0;
 		}
 	}
 #endif
@@ -623,12 +779,20 @@ bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team
 void CLuaController::OnPlayerConnect(int ClientId)
 {
 #ifdef CONF_LUA
+	CLuaPlayerState &State = m_aPlayers[ClientId];
+	State.m_CmdSender.m_SendChatIndex = std::nullopt;
+	State.m_CmdSender.m_vMissingChat.clear();
+	State.m_CmdSender.m_vMissingChatNext.clear();
+
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
 			continue;
 
 		pPlugin->OnPlayerConnect(ClientId);
+
+		for(const auto &It : pPlugin->m_ChatCommands)
+			State.m_CmdSender.m_vMissingChat.emplace_back(It.second);
 	}
 #endif
 }

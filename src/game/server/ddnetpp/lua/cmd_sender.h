@@ -24,6 +24,9 @@ public:
 	std::vector<CLuaRconCommand> m_vMissingChat;
 	std::vector<CLuaRconCommand> m_vMissingChatNext;
 	void AddChatCmd(const CLuaRconCommand *pCmd);
+
+	std::optional<size_t> m_RemoveChatIndex = std::nullopt;
+	std::vector<std::string> m_vRemoveChat;
 };
 
 #endif // CONF_LUA
