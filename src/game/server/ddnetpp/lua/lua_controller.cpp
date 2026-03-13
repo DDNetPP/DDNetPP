@@ -183,56 +183,56 @@ bool CLuaController::IsServerSendingNativeRconCmds(int ClientId)
 #endif
 }
 
-bool CLuaController::SendNextRconCmd(int ClientId)
+bool CLuaController::SendNextRemRcon(int ClientId)
 {
 #ifdef CONF_LUA
-	if(IsServerSendingNativeRconCmds(ClientId))
-	{
-		// log_info("lua", "waiting for server to finish sending rcon commands ...");
-		return false;
-	}
-
 	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
+	if(!pSender->m_RemoveIndex.has_value())
+		return false;
 
-	// send pending removals before adds
-	if(pSender->m_RemoveIndex.has_value())
+	size_t NumSendMax = 3;
+	size_t FromIdx = pSender->m_RemoveIndex.value();
+	size_t ToIdx = std::min(pSender->m_vRemoveCmds.size() - 1, FromIdx + NumSendMax);
+	pSender->m_RemoveIndex = ToIdx;
+
+	// log_info(
+	// 	"lua",
+	// 	"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
+	// 	FromIdx,
+	// 	ToIdx,
+	// 	ClientId);
+
+	for(size_t i = FromIdx; i <= ToIdx; i++)
 	{
-		size_t NumSendMax = 3;
-		size_t FromIdx = pSender->m_RemoveIndex.value();
-		size_t ToIdx = std::min(pSender->m_vRemoveCmds.size() - 1, FromIdx + NumSendMax);
-		pSender->m_RemoveIndex = ToIdx;
+		const char *pCmd = pSender->m_vRemoveCmds.at(i).c_str();
+		m_Game.SendRconCmdRem(ClientId, pCmd);
 
 		// log_info(
 		// 	"lua",
-		// 	"sending removal commands from %" PRIzu " to %" PRIzu " to cid=%d",
-		// 	FromIdx,
-		// 	ToIdx,
+		// 	" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
+		// 	pCmd,
+		// 	i,
+		// 	pSender->m_vRemoveCmds.size(),
 		// 	ClientId);
-
-		for(size_t i = FromIdx; i <= ToIdx; i++)
-		{
-			const char *pCmd = pSender->m_vRemoveCmds.at(i).c_str();
-			m_Game.SendRconCmdRem(ClientId, pCmd);
-
-			// log_info(
-			// 	"lua",
-			// 	" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
-			// 	pCmd,
-			// 	i,
-			// 	pSender->m_vRemoveCmds.size(),
-			// 	ClientId);
-		}
-
-		if(pSender->m_RemoveIndex.value() == (pSender->m_vRemoveCmds.size() - 1))
-		{
-			// log_info("lua", "done sending all removals to cid=%d", ClientId);
-			pSender->m_RemoveIndex = std::nullopt;
-			pSender->m_vRemoveCmds.clear();
-		}
-
-		return true;
 	}
 
+	if(pSender->m_RemoveIndex.value() == (pSender->m_vRemoveCmds.size() - 1))
+	{
+		// log_info("lua", "done sending all removals to cid=%d", ClientId);
+		pSender->m_RemoveIndex = std::nullopt;
+		pSender->m_vRemoveCmds.clear();
+	}
+
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool CLuaController::SendNextAddRcon(int ClientId)
+{
+#ifdef CONF_LUA
+	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
 	if(pSender->m_SendIndex.has_value())
 	{
 		dbg_assert(
@@ -318,8 +318,47 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 		// that happens next tick
 		return false;
 	}
+	return false;
+#else
+	return false;
+#endif
+}
 
-	return true;
+bool CLuaController::SendNextRemChatCmd(int ClientId)
+{
+#ifdef CONF_LUA
+	return false;
+#else
+	return false;
+#endif
+}
+
+bool CLuaController::SendNextAddChatCmd(int ClientId)
+{
+#ifdef CONF_LUA
+	return false;
+#else
+	return false;
+#endif
+}
+
+bool CLuaController::SendNextCmdInfo(int ClientId)
+{
+#ifdef CONF_LUA
+	if(IsServerSendingNativeRconCmds(ClientId))
+	{
+		// log_info("lua", "waiting for server to finish sending rcon commands ...");
+		return false;
+	}
+
+	// send pending removals before adds
+	if(SendNextRemRcon(ClientId))
+		return true;
+
+	if(SendNextAddRcon(ClientId))
+		return true;
+
+	return false;
 #else
 	return false;
 #endif
@@ -493,7 +532,7 @@ void CLuaController::OnTick()
 		if(!pPlayer)
 			continue;
 
-		SendNextRconCmd(pPlayer->GetCid());
+		SendNextCmdInfo(pPlayer->GetCid());
 	}
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{

@@ -71,12 +71,20 @@ public:
 	void OnAddChatCmd(const CLuaRconCommand *pCmd);
 
 private:
-	// sends the next rcon commands if there are any new ones queued
+	bool SendNextRemRcon(int ClientId);
+	bool SendNextAddRcon(int ClientId);
+	bool SendNextRemChatCmd(int ClientId);
+	bool SendNextAddChatCmd(int ClientId);
+
+	// sends the next command info if there are any new ones queued
 	// this is called on tick
+	//
+	// a command info might be the addition or removal
+	// of a chat or rcom command
 	//
 	// returns true if it sent something
 	// returns false if there is currently nothing to send
-	bool SendNextRconCmd(int ClientId);
+	bool SendNextCmdInfo(int ClientId);
 
 	// ClientId - is the id of the player that executed the command
 	//
