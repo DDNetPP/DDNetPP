@@ -130,46 +130,6 @@ void CLuaController::OnAddChatCmd(const CLuaRconCommand *pCmd)
 #endif
 }
 
-void CLuaPlayerState::CCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
-{
-#ifdef CONF_LUA
-	if(!m_SendRconIndex.has_value())
-	{
-		m_SendRconIndex = 0;
-	}
-
-	// we already started a send group
-	// so queue the cmd for the next group
-	if(m_SendRconIndex.value() > 0)
-	{
-		m_vMissingRconNext.emplace_back(*pCmd);
-		return;
-	}
-
-	m_vMissingRcon.emplace_back(*pCmd);
-#endif
-}
-
-void CLuaPlayerState::CCmdSender::AddChatCmd(const CLuaRconCommand *pCmd)
-{
-#ifdef CONF_LUA
-	if(!m_SendChatIndex.has_value())
-	{
-		m_SendChatIndex = 0;
-	}
-
-	// we already started a send group
-	// so queue the cmd for the next group
-	if(m_SendChatIndex.value() > 0)
-	{
-		m_vMissingChatNext.emplace_back(*pCmd);
-		return;
-	}
-
-	m_vMissingChat.emplace_back(*pCmd);
-#endif
-}
-
 bool CLuaController::IsServerSendingNativeRconCmds(int ClientId)
 {
 #ifdef CONF_LUA
@@ -204,7 +164,7 @@ bool CLuaController::IsServerSendingNativeRconCmds(int ClientId)
 bool CLuaController::SendNextRemRcon(int ClientId)
 {
 #ifdef CONF_LUA
-	CLuaPlayerState::CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
 	if(!pSender->m_RemoveRconIndex.has_value())
 		return false;
 
@@ -250,7 +210,7 @@ bool CLuaController::SendNextRemRcon(int ClientId)
 bool CLuaController::SendNextAddRcon(int ClientId)
 {
 #ifdef CONF_LUA
-	CLuaPlayerState::CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
 	if(pSender->m_SendRconIndex.has_value())
 	{
 		dbg_assert(

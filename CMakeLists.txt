@@ -2843,6 +2843,8 @@ if(SERVER)
     ddnetpp/db/bans.h
     ddnetpp/ddnet_db_utils/ddnet_db_utils.cpp
     ddnetpp/ddnet_db_utils/ddnet_db_utils.h
+    ddnetpp/lua/cmd_sender.cpp
+    ddnetpp/lua/cmd_sender.h
     ddnetpp/lua/console_strings.cpp
     ddnetpp/lua/console_strings.h
     ddnetpp/lua/lua_controller.cpp

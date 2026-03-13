@@ -10,10 +10,10 @@
 
 #include <generated/protocol.h>
 
+#include <game/server/ddnetpp/lua/cmd_sender.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
-#include <optional>
 #include <vector>
 
 class CLuaPlugin;
@@ -24,23 +24,6 @@ struct lua_State;
 class CLuaPlayerState
 {
 public:
-	class CCmdSender
-	{
-	public:
-		std::optional<size_t> m_SendRconIndex = std::nullopt;
-		std::vector<CLuaRconCommand> m_vMissingRcon;
-		std::vector<CLuaRconCommand> m_vMissingRconNext;
-		void AddRconCmd(const CLuaRconCommand *pCmd);
-
-		std::optional<size_t> m_RemoveRconIndex = std::nullopt;
-		std::vector<std::string> m_vRemoveRcon;
-
-		std::optional<size_t> m_SendChatIndex = std::nullopt;
-		std::vector<CLuaRconCommand> m_vMissingChat;
-		std::vector<CLuaRconCommand> m_vMissingChatNext;
-		void AddChatCmd(const CLuaRconCommand *pCmd);
-	};
-
 	CCmdSender m_CmdSender;
 };
 
