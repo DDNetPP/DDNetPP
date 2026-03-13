@@ -324,6 +324,39 @@ bool CLuaController::SendNextRconCmd(int ClientId)
 #endif
 }
 
+CLuaPlugin *CLuaController::RunChatCommand(int ClientId, const char *pFullCmd)
+{
+#ifdef CONF_LUA
+	const char *pArguments = "";
+	char aCommand[2048];
+	int i;
+	for(i = 0; pFullCmd[i]; i++)
+	{
+		if(pFullCmd[i] == ' ')
+		{
+			pArguments = str_skip_whitespaces_const(pFullCmd + i);
+			break;
+		}
+		aCommand[i] = pFullCmd[i];
+	}
+	aCommand[i] = '\0';
+	CLuaPlugin *pPlugin = FindPluginThatKnowsChatCommand(aCommand);
+	if(pPlugin)
+		return nullptr;
+	log_info(
+		"server",
+		"ClientId=%d lua plugin '%s' got chat command='%s' args='%s'",
+		ClientId,
+		pPlugin->Name(),
+		aCommand,
+		pArguments);
+	pPlugin->OnChatCommand(ClientId, aCommand, pArguments);
+	return pPlugin;
+#else
+	return nullptr;
+#endif
+}
+
 void CLuaController::Init(IGameController *pController, CGameContext *pGameServer)
 {
 #ifdef CONF_LUA
@@ -484,34 +517,7 @@ bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team
 			dbg_assert_failed("mc chat commands not implemented yet");
 		}
 
-		const char *pArguments = "";
-		char aCommand[2048];
-		int i;
-		for(i = 0; pFullCmd[i]; i++)
-		{
-			if(pFullCmd[i] == ' ')
-			{
-				pArguments = str_skip_whitespaces_const(pFullCmd + i);
-				break;
-			}
-			aCommand[i] = pFullCmd[i];
-		}
-		aCommand[i] = '\0';
-
-		CLuaPlugin *pPlugin = FindPluginThatKnowsChatCommand(aCommand);
-		if(pPlugin)
-		{
-			IsLuaChatCmd = true;
-			log_info(
-				"server",
-				"ClientId=%d lua plugin '%s' got chat command='%s' args='%s'",
-				ClientId,
-				pPlugin->Name(),
-				aCommand,
-				pArguments);
-
-			pPlugin->OnChatCommand(ClientId, aCommand, pArguments);
-		}
+		IsLuaChatCmd = RunChatCommand(ClientId, pFullCmd);
 	}
 
 	for(CLuaPlugin *pPlugin : m_vpPlugins)

@@ -78,6 +78,19 @@ private:
 	// returns false if there is currently nothing to send
 	bool SendNextRconCmd(int ClientId);
 
+	// ClientId - is the id of the player that executed the command
+	//
+	// pFullCmd - has to be one full chat command with arguments
+	//            only one command no support for semicolon splitting
+	//            and no leading slash. So values like these:
+	//            "say foo"
+	//            "cmdlist"
+	//            "rank"
+	//            "dostuff \"arg with spaces\" 29"
+	// The returned value is the plugin that picked up and ran the command
+	// or nullptr if no plugin registered a handler for that command
+	CLuaPlugin *RunChatCommand(int ClientId, const char *pFullCmd);
+
 public:
 	const IGameController *Controller() const { return m_pController; }
 	IGameController *Controller() { return m_pController; }
