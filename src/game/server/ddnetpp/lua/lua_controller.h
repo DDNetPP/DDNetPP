@@ -24,19 +24,19 @@ struct lua_State;
 class CLuaPlayerState
 {
 public:
-	class CRconCmdSender
+	class CCmdSender
 	{
 	public:
-		std::optional<size_t> m_SendIndex = std::nullopt;
-		std::vector<CLuaRconCommand> m_vMissingCmds;
-		std::vector<CLuaRconCommand> m_vMissingCmdsNext;
+		std::optional<size_t> m_SendRconIndex = std::nullopt;
+		std::vector<CLuaRconCommand> m_vMissingRcon;
+		std::vector<CLuaRconCommand> m_vMissingRconNext;
 		void AddRconCmd(const CLuaRconCommand *pCmd);
 
-		std::optional<size_t> m_RemoveIndex = std::nullopt;
-		std::vector<std::string> m_vRemoveCmds;
+		std::optional<size_t> m_RemoveRconIndex = std::nullopt;
+		std::vector<std::string> m_vRemoveRcon;
 	};
 
-	CRconCmdSender m_RconSender;
+	CCmdSender m_CmdSender;
 };
 
 class CLuaController : public ILuaController

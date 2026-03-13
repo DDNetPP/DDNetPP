@@ -97,7 +97,7 @@ void CLuaController::OnAddRconCmd(const CLuaRconCommand *pCmd)
 			continue;
 
 		CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
-		State.m_RconSender.AddRconCmd(pCmd);
+		State.m_CmdSender.AddRconCmd(pCmd);
 	}
 #endif
 }
@@ -127,28 +127,28 @@ void CLuaController::OnAddChatCmd(const CLuaRconCommand *pCmd)
 		// FIXME: continue here
 
 		// CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
-		// State.m_RconSender.AddRconCmd(pCmd);
+		// State.m_CmdSender.AddRconCmd(pCmd);
 	}
 #endif
 }
 
-void CLuaPlayerState::CRconCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
+void CLuaPlayerState::CCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
 {
 #ifdef CONF_LUA
-	if(!m_SendIndex.has_value())
+	if(!m_SendRconIndex.has_value())
 	{
-		m_SendIndex = 0;
+		m_SendRconIndex = 0;
 	}
 
 	// we already started a send group
 	// so queue the cmd for the next group
-	if(m_SendIndex.value() > 0)
+	if(m_SendRconIndex.value() > 0)
 	{
-		m_vMissingCmdsNext.emplace_back(*pCmd);
+		m_vMissingRconNext.emplace_back(*pCmd);
 		return;
 	}
 
-	m_vMissingCmds.emplace_back(*pCmd);
+	m_vMissingRcon.emplace_back(*pCmd);
 #endif
 }
 
@@ -186,14 +186,14 @@ bool CLuaController::IsServerSendingNativeRconCmds(int ClientId)
 bool CLuaController::SendNextRemRcon(int ClientId)
 {
 #ifdef CONF_LUA
-	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
-	if(!pSender->m_RemoveIndex.has_value())
+	CLuaPlayerState::CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	if(!pSender->m_RemoveRconIndex.has_value())
 		return false;
 
 	size_t NumSendMax = 3;
-	size_t FromIdx = pSender->m_RemoveIndex.value();
-	size_t ToIdx = std::min(pSender->m_vRemoveCmds.size() - 1, FromIdx + NumSendMax);
-	pSender->m_RemoveIndex = ToIdx;
+	size_t FromIdx = pSender->m_RemoveRconIndex.value();
+	size_t ToIdx = std::min(pSender->m_vRemoveRcon.size() - 1, FromIdx + NumSendMax);
+	pSender->m_RemoveRconIndex = ToIdx;
 
 	// log_info(
 	// 	"lua",
@@ -204,7 +204,7 @@ bool CLuaController::SendNextRemRcon(int ClientId)
 
 	for(size_t i = FromIdx; i <= ToIdx; i++)
 	{
-		const char *pCmd = pSender->m_vRemoveCmds.at(i).c_str();
+		const char *pCmd = pSender->m_vRemoveRcon.at(i).c_str();
 		m_Game.SendRconCmdRem(ClientId, pCmd);
 
 		// log_info(
@@ -212,15 +212,15 @@ bool CLuaController::SendNextRemRcon(int ClientId)
 		// 	" sending removal cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
 		// 	pCmd,
 		// 	i,
-		// 	pSender->m_vRemoveCmds.size(),
+		// 	pSender->m_vRemoveRcon.size(),
 		// 	ClientId);
 	}
 
-	if(pSender->m_RemoveIndex.value() == (pSender->m_vRemoveCmds.size() - 1))
+	if(pSender->m_RemoveRconIndex.value() == (pSender->m_vRemoveRcon.size() - 1))
 	{
 		// log_info("lua", "done sending all removals to cid=%d", ClientId);
-		pSender->m_RemoveIndex = std::nullopt;
-		pSender->m_vRemoveCmds.clear();
+		pSender->m_RemoveRconIndex = std::nullopt;
+		pSender->m_vRemoveRcon.clear();
 	}
 
 	return true;
@@ -232,46 +232,46 @@ bool CLuaController::SendNextRemRcon(int ClientId)
 bool CLuaController::SendNextAddRcon(int ClientId)
 {
 #ifdef CONF_LUA
-	CLuaPlayerState::CRconCmdSender *pSender = &m_aPlayers[ClientId].m_RconSender;
-	if(pSender->m_SendIndex.has_value())
+	CLuaPlayerState::CCmdSender *pSender = &m_aPlayers[ClientId].m_CmdSender;
+	if(pSender->m_SendRconIndex.has_value())
 	{
 		dbg_assert(
-			pSender->m_SendIndex < pSender->m_vMissingCmds.size(),
+			pSender->m_SendRconIndex < pSender->m_vMissingRcon.size(),
 			"rcon cmd send index=%" PRIzu " too big for cmds=%" PRIzu " cid=%d",
-			pSender->m_SendIndex.value(),
-			pSender->m_vMissingCmds.size(),
+			pSender->m_SendRconIndex.value(),
+			pSender->m_vMissingRcon.size(),
 			ClientId);
 	}
 
-	if(!pSender->m_SendIndex.has_value())
+	if(!pSender->m_SendRconIndex.has_value())
 	{
-		if(pSender->m_vMissingCmds.empty())
+		if(pSender->m_vMissingRcon.empty())
 		{
 			// nothing to send
-			if(pSender->m_vMissingCmdsNext.empty())
+			if(pSender->m_vMissingRconNext.empty())
 				return false;
 
 			// some weird edge case where we have no send index but more commands??
 			log_error("lua", "THIS IS WEIRD!");
-			std::swap(pSender->m_vMissingCmds, pSender->m_vMissingCmdsNext);
-			pSender->m_vMissingCmdsNext.clear();
+			std::swap(pSender->m_vMissingRcon, pSender->m_vMissingRconNext);
+			pSender->m_vMissingRconNext.clear();
 		}
 
 		// start new send
-		pSender->m_SendIndex = 0;
+		pSender->m_SendRconIndex = 0;
 		// log_info(
 		// 	"lua",
 		// 	"starting new rcon cmd send group of %" PRIzu " commands for cid=%d",
-		// 	pSender->m_vMissingCmds.size(),
+		// 	pSender->m_vMissingRcon.size(),
 		// 	ClientId);
 
-		m_Game.SendRconCmdGroupStart(ClientId, pSender->m_vMissingCmds.size());
+		m_Game.SendRconCmdGroupStart(ClientId, pSender->m_vMissingRcon.size());
 	}
 
 	size_t NumSendMax = 3;
-	size_t FromIdx = pSender->m_SendIndex.value();
-	size_t ToIdx = std::min(pSender->m_vMissingCmds.size() - 1, FromIdx + NumSendMax);
-	pSender->m_SendIndex = ToIdx;
+	size_t FromIdx = pSender->m_SendRconIndex.value();
+	size_t ToIdx = std::min(pSender->m_vMissingRcon.size() - 1, FromIdx + NumSendMax);
+	pSender->m_SendRconIndex = ToIdx;
 
 	// log_info(
 	// 	"lua",
@@ -282,7 +282,7 @@ bool CLuaController::SendNextAddRcon(int ClientId)
 
 	for(size_t i = FromIdx; i <= ToIdx; i++)
 	{
-		CLuaRconCommand *pCmd = &pSender->m_vMissingCmds.at(i);
+		CLuaRconCommand *pCmd = &pSender->m_vMissingRcon.at(i);
 		m_Game.SendRconCmdAdd(ClientId, pCmd);
 
 		// log_info(
@@ -290,27 +290,27 @@ bool CLuaController::SendNextAddRcon(int ClientId)
 		// 	" sending cmd='%s' %" PRIzu "/%" PRIzu " to cid=%d",
 		// 	pCmd->Name(),
 		// 	i,
-		// 	pSender->m_vMissingCmds.size(),
+		// 	pSender->m_vMissingRcon.size(),
 		// 	ClientId);
 	}
 
 	// reached the end of the current group
-	if(pSender->m_SendIndex.value() >= (pSender->m_vMissingCmds.size() - 1))
+	if(pSender->m_SendRconIndex.value() >= (pSender->m_vMissingRcon.size() - 1))
 	{
 		// log_info(
 		// 	"lua",
 		// 	"finished sending %" PRIzu " rcon commands to cid=%d",
-		// 	pSender->m_vMissingCmds.size(),
+		// 	pSender->m_vMissingRcon.size(),
 		// 	ClientId);
 
-		std::swap(pSender->m_vMissingCmds, pSender->m_vMissingCmdsNext);
-		pSender->m_vMissingCmdsNext.clear();
-		pSender->m_SendIndex = std::nullopt;
+		std::swap(pSender->m_vMissingRcon, pSender->m_vMissingRconNext);
+		pSender->m_vMissingRconNext.clear();
+		pSender->m_SendRconIndex = std::nullopt;
 
 		// log_info(
 		// 	"lua",
 		// 	" there were %" PRIzu " new rcon commands queued while sending.",
-		// 	pSender->m_vMissingCmds.size());
+		// 	pSender->m_vMissingRcon.size());
 
 		m_Game.SendRconCmdGroupEnd(ClientId);
 
@@ -501,11 +501,11 @@ void CLuaController::ReloadPlugins()
 			//       some rcon commands can be missed during removal
 
 			CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
-			State.m_RconSender.m_vRemoveCmds.insert(
-				State.m_RconSender.m_vRemoveCmds.end(),
+			State.m_CmdSender.m_vRemoveRcon.insert(
+				State.m_CmdSender.m_vRemoveRcon.end(),
 				vRconCommands.begin(),
 				vRconCommands.end());
-			State.m_RconSender.m_RemoveIndex = 0;
+			State.m_CmdSender.m_RemoveRconIndex = 0;
 		}
 	}
 #endif
@@ -702,9 +702,9 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 
 		// TODO: does the client clear the command completions on logout?
 		//       what if someone reloggs do we mess up state here?
-		State.m_RconSender.m_SendIndex = std::nullopt;
-		State.m_RconSender.m_vMissingCmds.clear();
-		State.m_RconSender.m_vMissingCmdsNext.clear();
+		State.m_CmdSender.m_SendRconIndex = std::nullopt;
+		State.m_CmdSender.m_vMissingRcon.clear();
+		State.m_CmdSender.m_vMissingRconNext.clear();
 
 		for(CLuaPlugin *pPlugin : m_vpPlugins)
 		{
@@ -712,7 +712,7 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 				continue;
 
 			for(const auto &It : pPlugin->m_RconCommands)
-				State.m_RconSender.m_vMissingCmds.emplace_back(It.second);
+				State.m_CmdSender.m_vMissingRcon.emplace_back(It.second);
 		}
 	}
 
