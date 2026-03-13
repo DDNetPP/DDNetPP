@@ -750,6 +750,12 @@ void CLuaPlugin::OnTick()
 	CallLuaVoidNoArgs("on_tick");
 }
 
+void CLuaPlugin::OnSnap()
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidNoArgs("on_snap");
+}
+
 bool CLuaPlugin::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

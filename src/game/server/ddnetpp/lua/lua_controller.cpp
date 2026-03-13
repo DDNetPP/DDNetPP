@@ -678,6 +678,19 @@ void CLuaController::OnTick()
 #endif
 }
 
+void CLuaController::OnSnap()
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnSnap();
+	}
+#endif
+}
+
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA
