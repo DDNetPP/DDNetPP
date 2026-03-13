@@ -320,6 +320,15 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
 	lua_setfield(LuaState(), -2, "plugin_name");
 
+	// ddnet.snap sub table
+	{
+		lua_newtable(LuaState());
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewLaser, 1);
+		lua_setfield(LuaState(), -2, "new_laser");
+	}
+	lua_setfield(LuaState(), -2, "snap");
+
 	lua_setglobal(LuaState(), "ddnetpp");
 }
 
@@ -489,9 +498,9 @@ int CLuaPlugin::CallbackGetPlayer(lua_State *L)
 
 int CLuaPlugin::CallbackGetCharacter(lua_State *L)
 {
-	CLuaPlugin *pSelf = ((CLuaPlugin *)lua_touserdata(L, 1));
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	CLuaGame *pGame = pSelf->Game();
-	int ClientId = luaL_checkinteger(L, 2);
+	int ClientId = luaL_checkinteger(L, 1);
 
 	CPlayer *pPlayer = pGame->GameServer()->GetPlayerOrNullptr(ClientId);
 	if(!pPlayer)
@@ -699,6 +708,102 @@ int CLuaPlugin::CallbackPluginName(lua_State *L)
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	lua_pushstring(L, pSelf->Name());
 	return 1;
+}
+
+// TODO: make this script work
+//
+//
+// function ddnetpp.on_snap()
+// 	chr = ddnetpp.get_character(0)
+// 	if chr then
+// 		ddnetpp.snap.new_laser({
+// 			id = 2,
+// 			from_x = chr:pos().x,
+// 			from_y = chr:pos().y - 3,
+// 			x = chr:pos().x,
+// 			y = chr:pos().y - 3,
+// 			start_tick = 0,
+// 		})
+// 	end
+// end
+
+int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	LUA_CHECK_STACK(L);
+
+	if(!lua_istable(L, 1))
+	{
+		luaL_error(L, "TODO: error message xd sorry");
+		return 0;
+	}
+
+	lua_getfield(L, -1, "id");
+	if(!lua_isinteger(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry");
+		return 0;
+	}
+	int SnapId = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "x");
+	if(!lua_isnumber(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry x");
+		return 0;
+	}
+	float PosX = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "y");
+	if(!lua_isnumber(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry y");
+		return 0;
+	}
+	float PosY = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "from_x");
+	if(!lua_isnumber(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry");
+		return 0;
+	}
+	float FromX = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "from_y");
+	if(!lua_isnumber(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry");
+		return 0;
+	}
+	float FromY = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "start_tick");
+	if(!lua_isinteger(L, -1))
+	{
+		luaL_error(L, "TODO: error message xd sorry");
+		return 0;
+	}
+	int StartTick = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+
+	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
+	if(!pObj)
+		return false;
+
+	// log_info("lua", "snapping laser with id=%d ...", SnapId);
+
+	pObj->m_X = (int)(PosX * 32.0f);
+	pObj->m_Y = (int)(PosY * 32.0f);
+	pObj->m_FromX = (int)(FromX * 32.0f);
+	pObj->m_FromY = (int)(FromY * 32.0f);
+	pObj->m_StartTick = StartTick;
+	return 0;
 }
 
 int CLuaPlugin::CallbackPlayerId(lua_State *L)

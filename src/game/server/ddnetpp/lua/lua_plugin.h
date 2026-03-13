@@ -84,6 +84,9 @@ private:
 	static int CallbackRegisterChat(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
 
+	// snap
+	static int CallbackSnapNewLaser(lua_State *L);
+
 	// TODO: move these to some other scope? Because we have some
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);
