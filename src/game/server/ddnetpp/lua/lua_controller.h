@@ -34,6 +34,11 @@ public:
 
 		std::optional<size_t> m_RemoveRconIndex = std::nullopt;
 		std::vector<std::string> m_vRemoveRcon;
+
+		std::optional<size_t> m_SendChatIndex = std::nullopt;
+		std::vector<CLuaRconCommand> m_vMissingChat;
+		std::vector<CLuaRconCommand> m_vMissingChatNext;
+		void AddChatCmd(const CLuaRconCommand *pCmd);
 	};
 
 	CCmdSender m_CmdSender;

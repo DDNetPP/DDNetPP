@@ -124,10 +124,8 @@ void CLuaController::OnAddChatCmd(const CLuaRconCommand *pCmd)
 		if(!pPlayer)
 			continue;
 
-		// FIXME: continue here
-
-		// CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
-		// State.m_CmdSender.AddRconCmd(pCmd);
+		CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
+		State.m_CmdSender.AddChatCmd(pCmd);
 	}
 #endif
 }
@@ -149,6 +147,26 @@ void CLuaPlayerState::CCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
 	}
 
 	m_vMissingRcon.emplace_back(*pCmd);
+#endif
+}
+
+void CLuaPlayerState::CCmdSender::AddChatCmd(const CLuaRconCommand *pCmd)
+{
+#ifdef CONF_LUA
+	if(!m_SendChatIndex.has_value())
+	{
+		m_SendChatIndex = 0;
+	}
+
+	// we already started a send group
+	// so queue the cmd for the next group
+	if(m_SendChatIndex.value() > 0)
+	{
+		m_vMissingChatNext.emplace_back(*pCmd);
+		return;
+	}
+
+	m_vMissingChat.emplace_back(*pCmd);
 #endif
 }
 
