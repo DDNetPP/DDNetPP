@@ -101,6 +101,36 @@ void CLuaController::OnAddRconCmd(const CLuaRconCommand *pCmd)
 #endif
 }
 
+void CLuaController::OnAddChatCmd(const CLuaRconCommand *pCmd)
+{
+#ifdef CONF_LUA
+	for(const CPlayer *pPlayer : m_pGameServer->m_apPlayers)
+	{
+		// we do not push into 128 vectors for every single lua command
+		// that is being added
+		//
+		// we just copy all lua commands at once if a new player auths
+		// this happens in OnSetAuthed
+		// only players already authed when a plugin adds new commands get live updates
+		//
+		// We could also do it the same for offline players and remove this
+		// check. It would be simpler but I feel like performance wise
+		// its a bit of a waste. Altho I do not like performance becoming worse
+		// the more players are connected :/ ideally performance is guaranteed
+		// and player count unrelated. So testing on an empty server is easier
+		// we do not want to find bottlenecks in production once the server gets full
+		// but whatever :/ it is was it is for now
+		if(!pPlayer)
+			continue;
+
+		// FIXME: continue here
+
+		// CLuaPlayerState &State = m_aPlayers[pPlayer->GetCid()];
+		// State.m_RconSender.AddRconCmd(pCmd);
+	}
+#endif
+}
+
 void CLuaPlayerState::CRconCmdSender::AddRconCmd(const CLuaRconCommand *pCmd)
 {
 #ifdef CONF_LUA
@@ -444,17 +474,64 @@ void CLuaController::OnTick()
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA
+	bool IsLuaChatCmd = false;
+	if(pMsg->m_pMessage[0] == '/' && pMsg->m_pMessage[1])
+	{
+		const char *pFullCmd = pMsg->m_pMessage + 1;
+		if(str_startswith(pFullCmd, "mc;"))
+		{
+			// FIXME: implement
+			dbg_assert_failed("mc chat commands not implemented yet");
+		}
+
+		const char *pArguments = "";
+		char aCommand[2048];
+		int i;
+		for(i = 0; pFullCmd[i]; i++)
+		{
+			if(pFullCmd[i] == ' ')
+			{
+				pArguments = str_skip_whitespaces_const(pFullCmd + i);
+				break;
+			}
+			aCommand[i] = pFullCmd[i];
+		}
+		aCommand[i] = '\0';
+
+		CLuaPlugin *pPlugin = FindPluginThatKnowsChatCommand(aCommand);
+		if(pPlugin)
+		{
+			IsLuaChatCmd = true;
+			log_info(
+				"server",
+				"ClientId=%d lua plugin '%s' got chat command='%s' args='%s'",
+				ClientId,
+				pPlugin->Name(),
+				aCommand,
+				pArguments);
+
+			pPlugin->OnChatCommand(ClientId, aCommand, pArguments);
+		}
+	}
+
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
 			continue;
 
-		if(!pPlugin->OnChatMessage(ClientId, pMsg, Team))
-			return false;
+		if(pPlugin->OnChatMessage(ClientId, pMsg, Team))
+			return true;
 	}
-	return true;
+
+	// TODO: don't drop the entire chat message
+	//       this breaks the /mc; command
+	//       we need to edit it and pass it on
+	if(IsLuaChatCmd)
+		return true;
+
+	return false;
 #else
-	return true;
+	return false;
 #endif
 }
 
@@ -595,6 +672,23 @@ CLuaPlugin *CLuaController::FindPluginThatKnowsRconCommand(const char *pCommand)
 			continue;
 
 		if(pPlugin->IsRconCmdKnown(pCommand))
+			return pPlugin;
+	}
+	return nullptr;
+#else
+	return nullptr;
+#endif
+}
+
+CLuaPlugin *CLuaController::FindPluginThatKnowsChatCommand(const char *pCommand)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->IsChatCmdKnown(pCommand))
 			return pPlugin;
 	}
 	return nullptr;

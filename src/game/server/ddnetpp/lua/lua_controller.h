@@ -66,6 +66,10 @@ public:
 	// it tracks them in a queue to send for all players
 	void OnAddRconCmd(const CLuaRconCommand *pCmd);
 
+	// called when any plugin adds a new chat command
+	// it tracks them in a queue to send for all players
+	void OnAddChatCmd(const CLuaRconCommand *pCmd);
+
 private:
 	// sends the next rcon commands if there are any new ones queued
 	// this is called on tick
@@ -133,6 +137,7 @@ public:
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	CLuaPlugin *FindPluginThatKnowsRconCommand(const char *pCommand);
+	CLuaPlugin *FindPluginThatKnowsChatCommand(const char *pCommand);
 
 private:
 	bool LoadPlugin(const char *pName, const char *pFilename);

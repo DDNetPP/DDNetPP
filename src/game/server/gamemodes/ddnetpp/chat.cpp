@@ -5,7 +5,8 @@
 bool CGameControllerDDNetPP::OnChatMessage(CNetMsg_Cl_Say *pMsg, int Length, int &Team, CPlayer *pPlayer)
 {
 	int ClientId = pPlayer->GetCid();
-	Lua()->OnChatMessage(ClientId, pMsg, Team);
+	if(Lua()->OnChatMessage(ClientId, pMsg, Team))
+		return true;
 	if(pMsg->m_pMessage[0] == '/')
 	{
 		if(GameServer()->IsDDPPChatCommand(ClientId, pPlayer, pMsg->m_pMessage + 1))

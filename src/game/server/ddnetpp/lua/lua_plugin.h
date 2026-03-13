@@ -39,6 +39,9 @@ public:
 	// The key is the rcon command name
 	std::unordered_map<std::string, CLuaRconCommand> m_RconCommands;
 
+	// The key is the chat command name
+	std::unordered_map<std::string, CLuaRconCommand> m_ChatCommands;
+
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
 
@@ -78,6 +81,7 @@ private:
 	static int CallbackGetCharacter(lua_State *L);
 	static int CallbackCallPlugin(lua_State *L);
 	static int CallbackRegisterRcon(lua_State *L);
+	static int CallbackRegisterChat(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
 
 	// TODO: move these to some other scope? Because we have some
@@ -96,12 +100,14 @@ public:
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
+	bool OnChatCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	// helpers
 	bool IsRconCmdKnown(const char *pCommand);
+	bool IsChatCmdKnown(const char *pCommand);
 
 private:
 	// returns true on success

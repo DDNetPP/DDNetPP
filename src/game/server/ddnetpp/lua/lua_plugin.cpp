@@ -313,6 +313,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "register_rcon");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackRegisterChat, 1);
+	lua_setfield(LuaState(), -2, "register_chat");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
 	lua_setfield(LuaState(), -2, "plugin_name");
 
@@ -618,6 +622,78 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 	return 1;
 }
 
+int CLuaPlugin::CallbackRegisterChat(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+
+	const char *pName = LuaCheckStringStrict(L, 1);
+	const char *pParams = LuaCheckStringStrict(L, 2);
+	const char *pHelp = LuaCheckStringStrict(L, 3);
+	luaL_checktype(L, 4, LUA_TFUNCTION);
+
+	std::vector<CLuaRconCommand::CParam> vParams;
+	char aError[512] = "";
+	if(!CLuaRconCommand::ParseParameters(vParams, pParams, aError, sizeof(aError)))
+	{
+		luaL_error(L, "chat cmd '%s' invalid params: %s", pName, aError);
+		return 0;
+	}
+
+	if(pSelf->m_ChatCommands.contains(std::string(pName)))
+	{
+		// silently override previous registrations
+		// not sure what is the most user friendly here
+		// could also throw an error so users dont get confused
+		// but that takes away the flexibility to override library code
+		// could also register both callbacks and run both
+		// but thats also odd i think
+		//
+		// maybe the best would be to error on duplication by default
+		// and provider another method like `Game:register_rcon_override()`
+		// to intentionally override
+
+		// log_warn("lua", "%s was already registered as chat cmd", pName);
+		int OldFunc = pSelf->m_ChatCommands.at(std::string(pName)).m_LuaCallbackRef;
+		luaL_unref(L, LUA_REGISTRYINDEX, OldFunc);
+	}
+
+	// we need to move stack 3 to 0
+	// because luaL_ref pops first element from the stack
+	// but it is our third argument
+
+	// so we just pop the first two args
+
+	// push copy of the third argument (the lua callback)
+	// onto the top of the stack so luaL_ref can find it
+	lua_pushvalue(L, 4);
+	int FuncRef = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	// TODO: according to https://en.cppreference.com/w/cpp/container/unordered_map/emplace
+	//       if the same rcon command is registered twice it should do nothing
+	//       because emplace ignores duplicated keys on the second insert
+	//       but my testing showed that the rcon command defined lower in the lua script
+	//       will actually be ran
+	//       so it happens what i want to happen but as far as i understand it shouldnt
+	//       so that is scary
+	pSelf->m_ChatCommands.emplace(
+		std::string(pName),
+		CLuaRconCommand({
+			.m_pName = pName,
+			.m_pHelp = pHelp,
+			.m_pParams = pParams,
+			.m_LuaCallbackRef = FuncRef,
+		}));
+
+	const CLuaRconCommand *pCmd = &pSelf->m_ChatCommands.at(std::string(pName));
+	pSelf->Game()->Controller()->Lua()->OnAddChatCmd(pCmd);
+
+	// pop our pushed value
+	lua_pop(L, 1);
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 int CLuaPlugin::CallbackPluginName(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
@@ -802,7 +878,7 @@ bool CLuaPlugin::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 
 	// pop global "ddnetpp" and the returned table???
 	lua_pop(LuaState(), 2);
-	return true;
+	return false;
 }
 
 void CLuaPlugin::OnPlayerConnect(int ClientId)
@@ -1001,6 +1077,59 @@ bool CLuaPlugin::OnRconCommand(int ClientId, const char *pCommand, const char *p
 	return true;
 }
 
+bool CLuaPlugin::OnChatCommand(int ClientId, const char *pCommand, const char *pArguments)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	LUA_CHECK_STACK(LuaState());
+
+	if(!m_ChatCommands.contains(pCommand))
+	{
+		// log_info("lua", "plugin '%s' does not know chat command '%s'", Name(), pCommand);
+		return false;
+	}
+	// log_info("lua", "plugin '%s' does know chat command '%s'", Name(), pCommand);
+
+	const CLuaRconCommand *pCmd = &m_ChatCommands.at(pCommand);
+
+	char aError[512] = "";
+	if(pCmd->m_LuaCallbackRef == LUA_REFNIL)
+	{
+		str_format(aError, sizeof(aError), "invalid lua callback for rcon command '%s'", pCommand);
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		return false;
+	}
+
+	lua_rawgeti(LuaState(), LUA_REGISTRYINDEX, pCmd->m_LuaCallbackRef);
+
+	// first callback arg the integer "client_id"
+	lua_pushinteger(LuaState(), ClientId);
+
+	// second callback arg the table or string "args"
+	// depends if the user provided params or not
+	if(!PushRconArgs(LuaState(), pCmd, pArguments, aError, sizeof(aError)))
+	{
+		// pop func and client id because we do not call the function
+		lua_pop(LuaState(), 2);
+
+		// this does get shown to the user actually but is not ideal
+		// "chatresp" might be better or sending rcon line to the client id directly
+		// otherwise this does not work with econ, chat or threads
+		log_error("lua", "%s", aError);
+		return true;
+	}
+
+	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to run callback for chat command '%s' with error: %s", Name(), pCommand, pErrorMsg);
+		SetError(pErrorMsg);
+		// pop error
+		lua_pop(LuaState(), 1);
+	}
+	return true;
+}
+
 void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
@@ -1159,6 +1288,23 @@ bool CLuaPlugin::IsRconCmdKnown(const char *pCommand)
 	// log_info("lua", "plugin '%s' does know rcon command '%s'", Name(), pCommand);
 
 	int FuncRef = m_RconCommands.at(pCommand).m_LuaCallbackRef;
+	if(FuncRef == LUA_REFNIL)
+		return false;
+	return true;
+}
+
+bool CLuaPlugin::IsChatCmdKnown(const char *pCommand)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	if(!m_ChatCommands.contains(pCommand))
+	{
+		// log_info("lua", "plugin '%s' does not know chat command '%s'", Name(), pCommand);
+		return false;
+	}
+	// log_info("lua", "plugin '%s' does know chat command '%s'", Name(), pCommand);
+
+	int FuncRef = m_ChatCommands.at(pCommand).m_LuaCallbackRef;
 	if(FuncRef == LUA_REFNIL)
 		return false;
 	return true;
