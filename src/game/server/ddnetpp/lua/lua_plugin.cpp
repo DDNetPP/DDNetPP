@@ -23,6 +23,23 @@ extern "C" {
 #include "lualib.h"
 }
 
+// translate ugly server coordinates to human friendly lua coordinates
+// the midde of the top left tile in server coordinates is 16, 16
+// and in lua coordinates it is 0.5, 0.5
+static vec2 ServerPosToLua(vec2 ServerPos)
+{
+	return vec2(
+		ServerPos.x / 32.0f,
+		ServerPos.y / 32.0f);
+}
+
+static vec2 LuaPosToServer(vec2 ServerPos)
+{
+	return vec2(
+		ServerPos.x * 32.0f,
+		ServerPos.y * 32.0f);
+}
+
 // TODO: move this to a new file like luac_aux.h
 //       and rename it to luaC_checkstringstrict()
 //       Same applies to any other static functions that operate on lua state
@@ -351,6 +368,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewLaser, 1);
 		lua_setfield(LuaState(), -2, "new_laser");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewPickup, 1);
+		lua_setfield(LuaState(), -2, "new_pickup");
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
@@ -791,70 +812,118 @@ int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
 	return 0;
 }
 
+// what the helper class doing here
+class CTableUnpacker
+{
+	char m_aTableName[512] = "";
+	lua_State *m_pLuaState = nullptr;
+	lua_State *LuaState() { return m_pLuaState; }
+	bool m_IsError = false;
+
+public:
+	bool IsError() const { return m_IsError; }
+
+	CTableUnpacker(lua_State *L, const char *pTableName)
+	{
+		m_pLuaState = L;
+		str_copy(m_aTableName, pTableName);
+
+		if(!lua_istable(LuaState(), 1))
+		{
+			Error("value is not a table");
+		}
+	}
+
+	void Error(const char *pReason)
+	{
+		m_IsError = true;
+		luaL_error(LuaState(), "error in table '%s': %s", m_aTableName, pReason);
+	}
+
+	int GetInt(const char *pKey)
+	{
+		if(m_IsError)
+			return 0;
+		lua_getfield(LuaState(), -1, pKey);
+		if(lua_isnoneornil(LuaState(), -1))
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
+			Error(aBuf);
+			return 0;
+		}
+		if(!lua_isinteger(LuaState(), -1))
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold an integer", pKey);
+			Error(aBuf);
+			return 0;
+		}
+		int Val = lua_tointeger(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+
+	float GetFloat(const char *pKey)
+	{
+		if(m_IsError)
+			return 0;
+		lua_getfield(LuaState(), -1, pKey);
+		if(lua_isnoneornil(LuaState(), -1))
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
+			Error(aBuf);
+			return 0;
+		}
+		if(!lua_isnumber(LuaState(), -1))
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold a number", pKey);
+			Error(aBuf);
+			return 0;
+		}
+		float Val = lua_tonumber(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+
+	vec2 GetVec2(const char *pKey)
+	{
+		if(m_IsError)
+			return vec2(0.0f, 0.0f);
+		lua_getfield(LuaState(), -1, pKey);
+		char aNestedName[512];
+		str_format(aNestedName, sizeof(aNestedName), "%s.%s", m_aTableName, pKey);
+		CTableUnpacker Unpacker(LuaState(), aNestedName);
+		vec2 Pos;
+		Pos.x = Unpacker.GetFloat("x");
+		Pos.y = Unpacker.GetFloat("y");
+		if(Unpacker.IsError())
+			Error("nested error");
+		else
+			lua_pop(LuaState(), 1);
+		return Pos;
+	}
+
+	vec2 GetPosition(const char *pKey)
+	{
+		return LuaPosToServer(GetVec2(pKey));
+	}
+};
+
 int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	LUA_CHECK_STACK(L);
 
-	if(!lua_istable(L, 1))
-	{
-		luaL_error(L, "TODO: error message xd sorry");
-		return 0;
-	}
-
-	lua_getfield(L, -1, "id");
-	if(!lua_isinteger(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry");
-		return 0;
-	}
-	int SnapId = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-
-	lua_getfield(L, -1, "x");
-	if(!lua_isnumber(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry x");
-		return 0;
-	}
-	float PosX = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-
-	lua_getfield(L, -1, "y");
-	if(!lua_isnumber(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry y");
-		return 0;
-	}
-	float PosY = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-
-	lua_getfield(L, -1, "from_x");
-	if(!lua_isnumber(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry");
-		return 0;
-	}
-	float FromX = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-
-	lua_getfield(L, -1, "from_y");
-	if(!lua_isnumber(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry");
-		return 0;
-	}
-	float FromY = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-
-	lua_getfield(L, -1, "start_tick");
-	if(!lua_isinteger(L, -1))
-	{
-		luaL_error(L, "TODO: error message xd sorry");
-		return 0;
-	}
-	int StartTick = lua_tointeger(L, -1);
-	lua_pop(L, 1);
+	CTableUnpacker Unpacker(L, "laser");
+	int SnapId = Unpacker.GetInt("id");
+	float PosX = Unpacker.GetFloat("x");
+	float PosY = Unpacker.GetFloat("y");
+	float FromX = Unpacker.GetFloat("from_x");
+	float FromY = Unpacker.GetFloat("from_y");
+	int StartTick = Unpacker.GetInt("start_tick");
 
 	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
 	if(!pObj)
@@ -867,6 +936,37 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 	pObj->m_FromX = (int)(FromX * 32.0f);
 	pObj->m_FromY = (int)(FromY * 32.0f);
 	pObj->m_StartTick = StartTick;
+	return 0;
+}
+
+int CLuaPlugin::CallbackSnapNewPickup(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	LUA_CHECK_STACK(L);
+
+	// TODO: add GetIntOrDefault() so users dont have to pass all values
+
+	CTableUnpacker Unpacker(L, "pickup");
+	int SnapId = Unpacker.GetInt("id");
+	vec2 Pos = Unpacker.GetPosition("pos");
+	int Type = Unpacker.GetInt("type");
+	int SubType = Unpacker.GetInt("sub_type");
+	int SwitchNumber = Unpacker.GetInt("switch_number");
+	int Flags = Unpacker.GetInt("flags");
+
+	CSnapContext Context = CSnapContext(
+		pGame->GameServer()->GetClientVersion(pSelf->m_SnappingClient),
+		pGame->Server()->IsSixup(pSelf->m_SnappingClient),
+		pSelf->m_SnappingClient);
+	pGame->GameServer()->SnapPickup(
+		Context,
+		SnapId,
+		Pos,
+		Type,
+		SubType,
+		SwitchNumber,
+		Flags);
 	return 0;
 }
 
@@ -936,6 +1036,7 @@ void CLuaPlugin::OnTick()
 void CLuaPlugin::OnSnap(int SnappingClient)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
+	m_SnappingClient = SnappingClient;
 	CallLuaVoidWithOneInt("on_snap", SnappingClient);
 }
 
@@ -1341,16 +1442,6 @@ static void LuaPushVec2(lua_State *L, vec2 Val)
 	lua_pushstring(L, "y");
 	lua_pushnumber(L, Val.y);
 	lua_settable(L, -3);
-}
-
-// translate ugly server coordinates to human friendly lua coordinates
-// the midde of the top left tile in server coordinates is 16, 16
-// and in lua coordinates it is 0.5, 0.5
-static vec2 ServerPosToLua(vec2 ServerPos)
-{
-	return vec2(
-		ServerPos.x / 32.0f,
-		ServerPos.x / 32.0f);
 }
 
 bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)

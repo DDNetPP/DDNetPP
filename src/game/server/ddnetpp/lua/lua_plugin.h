@@ -38,6 +38,36 @@ class CLuaPlugin
 	};
 	CTmpStorage m_TmpStorage;
 
+	// HOLY ANTI PATTERN WHAT THE FLIPFLOP IS GOING ON HERE XD
+	// this is some cursed ah shit but it works and makes
+	// the lua api simpler for the end user
+	//
+	// The thing is we need to get the snap receivers ddnet client version
+	// when creating certain snap items that have ddnet extensions
+	// lua knows the client id when it creates these items so it could
+	// pass it back to C++ but i would like to hide that complexity
+	// there should never be a need for a plugin to ignore the ddnet client version
+	// maybe some super edge case hacky test cases, but in that case just use C++ duh.
+	// So snap items can only be created within on_snap and during the execution of that function
+	// we ensure that m_SnappingClient is set correctly.
+	//
+	// So in lua instead of this:
+	//
+	// function ddnetpp.on_snap(snapping_client)
+	//   ddnetpp.snap.new_pickup({snapping_client = snapping_client, weapon = 2}
+	// end
+	//
+	// Users only have to do this:
+	//
+	// function ddnetpp.on_snap(snapping_client)
+	//   ddnetpp.snap.new_pickup({weapon = 2}
+	// end
+	//
+	// TODO: Could also make it an std::optional and unset after on_snap
+	//       and then properly lua error all calls to snap item creations
+	//       instead of hitting the server assert
+	int m_SnappingClient = -1;
+
 public:
 	// The key is the rcon command name
 	std::unordered_map<std::string, CLuaRconCommand> m_RconCommands;
@@ -99,6 +129,7 @@ private:
 	static int CallbackSnapNewId(lua_State *L);
 	static int CallbackSnapFreeId(lua_State *L);
 	static int CallbackSnapNewLaser(lua_State *L);
+	static int CallbackSnapNewPickup(lua_State *L);
 
 	// server
 	static int CallbackServerTick(lua_State *L);
