@@ -346,6 +346,20 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
+	// ddnet.server sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerTick, 1);
+		lua_setfield(LuaState(), -2, "tick");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerTickSpeed, 1);
+		lua_setfield(LuaState(), -2, "tick_speed");
+	}
+	lua_setfield(LuaState(), -2, "server");
+
 	lua_setglobal(LuaState(), "ddnetpp");
 }
 
@@ -826,6 +840,20 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 	pObj->m_FromY = (int)(FromY * 32.0f);
 	pObj->m_StartTick = StartTick;
 	return 0;
+}
+
+int CLuaPlugin::CallbackServerTick(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	lua_pushinteger(L, pGame->Server()->Tick());
+	return 1;
+}
+
+int CLuaPlugin::CallbackServerTickSpeed(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	lua_pushinteger(L, pGame->Server()->TickSpeed());
+	return 1;
 }
 
 int CLuaPlugin::CallbackPlayerId(lua_State *L)
