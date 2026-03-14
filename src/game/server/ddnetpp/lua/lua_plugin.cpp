@@ -301,6 +301,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_chat_target");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackRcon, 1);
+	lua_setfield(LuaState(), -2, "rcon");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendVoteClearOptions, 1);
 	lua_setfield(LuaState(), -2, "send_vote_clear_options");
 
@@ -501,6 +505,17 @@ int CLuaPlugin::CallbackSendChatTarget(lua_State *L)
 	int ClientId = luaL_checkinteger(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
 	pGame->GameServer()->SendChatTarget(ClientId, pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackRcon(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	const char *pCommand = luaL_checkstring(L, 1);
+	// a safer but weaker api would be turning this off by default
+	// and having another "rcon_dangerous()" method xd
+	bool InterpretSemicolons = true;
+	pGame->GameServer()->Console()->ExecuteLine(pCommand, IConsole::CLIENT_ID_UNSPECIFIED, InterpretSemicolons);
 	return 0;
 }
 
