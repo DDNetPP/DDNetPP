@@ -838,7 +838,7 @@ int CLuaPlugin::CallbackCharacterPos(lua_State *L)
 	lua_pushnumber(L, pChr->GetPos().x / 32.0f);
 	lua_settable(L, -3);
 	lua_pushstring(L, "y");
-	lua_pushnumber(L, pChr->GetPos().x / 32.0f);
+	lua_pushnumber(L, pChr->GetPos().y / 32.0f);
 	lua_settable(L, -3);
 	return 1;
 }
