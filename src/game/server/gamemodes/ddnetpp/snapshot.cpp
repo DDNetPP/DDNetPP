@@ -24,7 +24,7 @@ void CGameControllerDDNetPP::Snap(int SnappingClient)
 		pMinigame->SnapSavedPositions(SnappingClient);
 	}
 
-	Lua()->OnSnap();
+	Lua()->OnSnap(SnappingClient);
 }
 
 void CGameControllerDDNetPP::SnapFlags(int SnappingClient)

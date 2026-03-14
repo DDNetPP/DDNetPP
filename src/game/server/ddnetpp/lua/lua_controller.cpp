@@ -680,7 +680,7 @@ void CLuaController::OnTick()
 #endif
 }
 
-void CLuaController::OnSnap()
+void CLuaController::OnSnap(int SnappingClient)
 {
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
@@ -688,7 +688,7 @@ void CLuaController::OnSnap()
 		if(!pPlugin->IsActive())
 			continue;
 
-		pPlugin->OnSnap();
+		pPlugin->OnSnap(SnappingClient);
 	}
 #endif
 }

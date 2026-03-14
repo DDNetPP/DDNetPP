@@ -109,7 +109,7 @@ public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
-	void OnSnap();
+	void OnSnap(int SnappingClient);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
