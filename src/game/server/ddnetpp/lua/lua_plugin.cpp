@@ -864,6 +864,26 @@ public:
 		return Val;
 	}
 
+	int GetIntOrDefault(const char *pKey, int Default)
+	{
+		if(m_IsError)
+			return Default;
+		lua_getfield(LuaState(), -1, pKey);
+		if(lua_isnoneornil(LuaState(), -1))
+		{
+			lua_pop(LuaState(), 1);
+			return Default;
+		}
+		if(!lua_isinteger(LuaState(), -1))
+		{
+			lua_pop(LuaState(), 1);
+			return Default;
+		}
+		int Val = lua_tointeger(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+
 	float GetFloat(const char *pKey)
 	{
 		if(m_IsError)
@@ -945,15 +965,13 @@ int CLuaPlugin::CallbackSnapNewPickup(lua_State *L)
 	CLuaGame *pGame = pSelf->Game();
 	LUA_CHECK_STACK(L);
 
-	// TODO: add GetIntOrDefault() so users dont have to pass all values
-
 	CTableUnpacker Unpacker(L, "pickup");
 	int SnapId = Unpacker.GetInt("id");
 	vec2 Pos = Unpacker.GetPosition("pos");
-	int Type = Unpacker.GetInt("type");
-	int SubType = Unpacker.GetInt("sub_type");
-	int SwitchNumber = Unpacker.GetInt("switch_number");
-	int Flags = Unpacker.GetInt("flags");
+	int Type = Unpacker.GetIntOrDefault("type", POWERUP_WEAPON);
+	int SubType = Unpacker.GetIntOrDefault("sub_type", WEAPON_HAMMER);
+	int SwitchNumber = Unpacker.GetIntOrDefault("switch_number", 0);
+	int Flags = Unpacker.GetIntOrDefault("flags", 0);
 
 	CSnapContext Context = CSnapContext(
 		pGame->GameServer()->GetClientVersion(pSelf->m_SnappingClient),
