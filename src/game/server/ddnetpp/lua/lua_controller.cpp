@@ -586,6 +586,8 @@ void CLuaController::ReloadPlugins()
 			vRconCommands.emplace_back(It.second.Name());
 		for(const auto &It : pPlugin->m_ChatCommands)
 			vChatCommands.emplace_back(It.second.Name());
+
+		delete pPlugin;
 	}
 
 	// TODO: call some before and after reload hooks here for the plugins

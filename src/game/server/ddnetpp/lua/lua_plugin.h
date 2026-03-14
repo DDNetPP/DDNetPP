@@ -1,18 +1,20 @@
 #ifndef GAME_SERVER_DDNETPP_LUA_LUA_PLUGIN_H
 #define GAME_SERVER_DDNETPP_LUA_LUA_PLUGIN_H
 
-#include <generated/protocol.h>
 #ifdef CONF_LUA
 
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
 
+#include <generated/protocol.h>
+
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 extern "C" {
 #include "lauxlib.h"
@@ -42,6 +44,10 @@ public:
 	// The key is the chat command name
 	std::unordered_map<std::string, CLuaRconCommand> m_ChatCommands;
 
+	// The snap item ids that were allocated by the plugin
+	// using Server()->SnapNewId() we auto free them when the plugin is being reloaded
+	std::vector<int> m_vSnapIds;
+
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
 
@@ -50,6 +56,8 @@ public:
 	const CLuaGame *Game() const { return m_pGame; }
 
 private:
+	void FreeSnapIds();
+
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();
 

@@ -1,4 +1,3 @@
-#include <game/server/ddnetpp/lua/console_strings.h>
 #ifdef CONF_LUA
 #include "lua_plugin.h"
 
@@ -7,6 +6,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/entities/character.h>
@@ -225,9 +225,17 @@ CLuaPlugin::~CLuaPlugin()
 {
 	if(LuaState())
 	{
-		log_info("lua", "cleaning up plugin %s ...", Name());
+		log_info("lua", "cleaning up plugin '%s' ...", Name());
+		FreeSnapIds();
 		lua_close(LuaState());
 	}
+}
+
+void CLuaPlugin::FreeSnapIds()
+{
+	for(int SnapId : m_vSnapIds)
+		Game()->Server()->SnapFreeId(SnapId);
+	m_vSnapIds.clear();
 }
 
 void CLuaPlugin::RegisterPlayerMetaTable()
@@ -725,6 +733,7 @@ int CLuaPlugin::CallbackSnapNewId(lua_State *L)
 	CLuaGame *pGame = pSelf->Game();
 	int SnapId = pGame->Server()->SnapNewId();
 	lua_pushinteger(L, SnapId);
+	pSelf->m_vSnapIds.emplace_back(SnapId);
 	return 1;
 }
 
@@ -734,6 +743,9 @@ int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
 	CLuaGame *pGame = pSelf->Game();
 	int SnapId = luaL_checkinteger(L, 1);
 	pGame->Server()->SnapFreeId(SnapId);
+	pSelf->m_vSnapIds.erase(
+		std::remove(pSelf->m_vSnapIds.begin(), pSelf->m_vSnapIds.end(), SnapId),
+		pSelf->m_vSnapIds.end());
 	return 0;
 }
 
