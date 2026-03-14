@@ -6,6 +6,8 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <generated/protocol.h>
+
 #include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
@@ -388,6 +390,76 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_setfield(LuaState(), -2, "tick_speed");
 	}
 	lua_setfield(LuaState(), -2, "server");
+
+	// ddnet.protocol sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "POWERUP_HEALTH");
+		lua_pushinteger(LuaState(), POWERUP_HEALTH);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_ARMOR");
+		lua_pushinteger(LuaState(), POWERUP_ARMOR);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_WEAPON");
+		lua_pushinteger(LuaState(), POWERUP_WEAPON);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_NINJA");
+		lua_pushinteger(LuaState(), POWERUP_NINJA);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_ARMOR_SHOTGUN");
+		lua_pushinteger(LuaState(), POWERUP_ARMOR_SHOTGUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_ARMOR_GRENADE");
+		lua_pushinteger(LuaState(), POWERUP_ARMOR_GRENADE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_ARMOR_NINJA");
+		lua_pushinteger(LuaState(), POWERUP_ARMOR_NINJA);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "POWERUP_ARMOR_LASER");
+		lua_pushinteger(LuaState(), POWERUP_ARMOR_LASER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NUM_POWERUPS");
+		lua_pushinteger(LuaState(), NUM_POWERUPS);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_HAMMER");
+		lua_pushinteger(LuaState(), WEAPON_HAMMER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_GUN");
+		lua_pushinteger(LuaState(), WEAPON_GUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_SHOTGUN");
+		lua_pushinteger(LuaState(), WEAPON_SHOTGUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_GRENADE");
+		lua_pushinteger(LuaState(), WEAPON_GRENADE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_LASER");
+		lua_pushinteger(LuaState(), WEAPON_LASER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_NINJA");
+		lua_pushinteger(LuaState(), WEAPON_NINJA);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NUM_WEAPONS");
+		lua_pushinteger(LuaState(), NUM_WEAPONS);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "protocol");
 
 	lua_setglobal(LuaState(), "ddnetpp");
 }
