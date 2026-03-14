@@ -323,6 +323,15 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	// ddnet.snap sub table
 	{
 		lua_newtable(LuaState());
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewId, 1);
+		lua_setfield(LuaState(), -2, "new_id");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapFreeId, 1);
+		lua_setfield(LuaState(), -2, "free_id");
+
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewLaser, 1);
 		lua_setfield(LuaState(), -2, "new_laser");
@@ -710,22 +719,23 @@ int CLuaPlugin::CallbackPluginName(lua_State *L)
 	return 1;
 }
 
-// TODO: make this script work
-//
-//
-// function ddnetpp.on_snap()
-// 	chr = ddnetpp.get_character(0)
-// 	if chr then
-// 		ddnetpp.snap.new_laser({
-// 			id = 2,
-// 			from_x = chr:pos().x,
-// 			from_y = chr:pos().y - 3,
-// 			x = chr:pos().x,
-// 			y = chr:pos().y - 3,
-// 			start_tick = 0,
-// 		})
-// 	end
-// end
+int CLuaPlugin::CallbackSnapNewId(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	int SnapId = pGame->Server()->SnapNewId();
+	lua_pushinteger(L, SnapId);
+	return 1;
+}
+
+int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	int SnapId = luaL_checkinteger(L, 1);
+	pGame->Server()->SnapFreeId(SnapId);
+	return 0;
+}
 
 int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 {

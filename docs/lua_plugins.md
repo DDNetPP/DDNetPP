@@ -26,6 +26,24 @@ function ddnetpp.on_chat(client_id, msg)
 	end
 	return msg
 end
+
+function ddnetpp.on_snap()
+	chr = ddnetpp.get_character(0)
+	if chr then
+		pos = chr:pos()
+		-- WARNING: this is a simplified example do not use "id = 2"
+		--          checkout ddnetpp.snap.new_id() and ddnetpp.snap.free_id()
+		--          for correct snap ids
+		ddnetpp.snap.new_laser({
+			id = 2,
+			x = pos.x,
+			y = pos.y - 2,
+			from_x = pos.x,
+			from_y = pos.y - 2,
+			start_tick = 0,
+		})
+	end
+end
 ```
 
 ## trigger actions

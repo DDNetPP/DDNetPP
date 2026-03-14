@@ -85,6 +85,8 @@ private:
 	static int CallbackPluginName(lua_State *L);
 
 	// snap
+	static int CallbackSnapNewId(lua_State *L);
+	static int CallbackSnapFreeId(lua_State *L);
 	static int CallbackSnapNewLaser(lua_State *L);
 
 	// TODO: move these to some other scope? Because we have some
