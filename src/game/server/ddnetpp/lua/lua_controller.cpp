@@ -883,6 +883,24 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 #endif
 }
 
+bool CLuaController::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)
+{
+#ifdef CONF_LUA
+
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->OnFireWeapon(ClientId, Weapon, Direction, MouseTarget, ProjStartPos))
+			return true;
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
 bool CLuaController::OnClientMessage(int ClientId, const void *pData, int Size, int Flags)
 {
 #ifdef CONF_LUA

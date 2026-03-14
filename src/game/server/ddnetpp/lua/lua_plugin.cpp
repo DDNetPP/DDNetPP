@@ -1316,6 +1316,81 @@ void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
 	CallLuaVoidWithTwoInts("on_rcon_authed", ClientId, Level);
 }
 
+// TODO: move this to file with the other helpers
+static void LuaPushVec2(lua_State *L, vec2 Val)
+{
+	lua_newtable(L);
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, Val.x);
+	lua_settable(L, -3);
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, Val.y);
+	lua_settable(L, -3);
+}
+
+// translate ugly server coordinates to human friendly lua coordinates
+// the midde of the top left tile in server coordinates is 16, 16
+// and in lua coordinates it is 0.5, 0.5
+static vec2 ServerPosToLua(vec2 ServerPos)
+{
+	return vec2(
+		ServerPos.x / 32.0f,
+		ServerPos.x / 32.0f);
+}
+
+bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	LUA_CHECK_STACK(LuaState());
+
+	const char *pFunction = "on_fire_weapon";
+	lua_getglobal(LuaState(), "ddnetpp");
+
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	lua_pushinteger(LuaState(), ClientId);
+	lua_pushinteger(LuaState(), Weapon);
+	LuaPushVec2(LuaState(), Direction);
+	LuaPushVec2(LuaState(), MouseTarget);
+	LuaPushVec2(LuaState(), ServerPosToLua(ProjStartPos));
+	if(lua_pcall(LuaState(), 5, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+
+	// optional return of false to drop block the fire
+	if(lua_isboolean(LuaState(), -1))
+	{
+		bool DoFire = lua_toboolean(LuaState(), -1);
+		if(DoFire == false)
+		{
+			// global "ddnetpp" and return value
+			lua_pop(LuaState(), 2);
+			return true;
+		}
+	}
+
+	// global "ddnetpp" and return value
+	lua_pop(LuaState(), 2);
+	return false;
+}
+
 bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int Flags)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

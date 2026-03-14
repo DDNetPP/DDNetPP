@@ -6,6 +6,7 @@
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
+#include <base/vmath.h>
 
 #include <generated/protocol.h>
 
@@ -121,6 +122,7 @@ public:
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	bool OnChatCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
+	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 

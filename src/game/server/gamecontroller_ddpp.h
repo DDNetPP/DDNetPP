@@ -51,6 +51,17 @@ public:
 	}
 
 	/*
+		Function: OnFireWeapon
+			this function was added in ddnet-insta and is a non standard controller method.
+			neither ddnet nor teeworlds have this
+
+		Returns:
+			return true to skip ddnet CCharacter::FireWeapon() behavior
+			which is doing standard ddnet fire weapon things
+	*/
+	virtual bool OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos) { return false; }
+
+	/*
 		Function: OnClientPacket
 			hooks early into CServer::ProcessClientPacket
 			similar to CGameContext::OnMessage but converts both system and game messages

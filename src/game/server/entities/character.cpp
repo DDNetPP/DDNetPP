@@ -479,6 +479,7 @@ void CCharacter::FireWeapon()
 	if(m_FrozenLastTick)
 		FullAuto = true;
 
+	// WARNING: deprecated use OnFireWeapon instead
 	if(FireWeaponDDPP(FullAuto))
 		return;
 
@@ -513,6 +514,10 @@ void CCharacter::FireWeapon()
 		return;
 
 	vec2 ProjStartPos = m_Pos + Direction * GetProximityRadius() * 0.75f;
+
+	// ddnet-insta
+	if(GameServer()->m_pController->OnFireWeapon(*this, m_Core.m_ActiveWeapon, Direction, MouseTarget, ProjStartPos))
+		return;
 
 	switch(m_Core.m_ActiveWeapon)
 	{

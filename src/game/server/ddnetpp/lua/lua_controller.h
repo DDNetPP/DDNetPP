@@ -4,6 +4,7 @@
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
+#include <base/vmath.h>
 
 #include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/protocol.h>
@@ -110,6 +111,8 @@ public:
 	void OnPlayerDisconnect(int ClientId);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
+	// return true to drop fire
+	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 	bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) override;
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags) override;
 

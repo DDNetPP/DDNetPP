@@ -31,6 +31,13 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
 
+bool CGameControllerDDNetPP::OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos)
+{
+	if(Lua()->OnFireWeapon(Character.GetPlayer()->GetCid(), Weapon, Direction, MouseTarget, ProjStartPos))
+		return true;
+	return false;
+}
+
 bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker)
 {
 	// make a copy so we can consume fields
