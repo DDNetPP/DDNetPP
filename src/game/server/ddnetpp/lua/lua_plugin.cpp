@@ -297,6 +297,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_chat");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendChatTarget, 1);
+	lua_setfield(LuaState(), -2, "send_chat_target");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendVoteClearOptions, 1);
 	lua_setfield(LuaState(), -2, "send_vote_clear_options");
 
@@ -488,6 +492,15 @@ int CLuaPlugin::CallbackSendChat(lua_State *L)
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	const char *pMessage = luaL_checkstring(L, 1);
 	pGame->SendChat(pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendChatTarget(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = luaL_checkinteger(L, 1);
+	const char *pMessage = luaL_checkstring(L, 2);
+	pGame->GameServer()->SendChatTarget(ClientId, pMessage);
 	return 0;
 }
 
