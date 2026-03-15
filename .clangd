@@ -1,5 +1,9 @@
 Style:
   AngledHeaders: [
+    # ddnet-insta
+    "insta/.*",
+
+    # ddnet
     "base/.*",
     "engine/.*",
     "game/.*",
