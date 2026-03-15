@@ -111,6 +111,8 @@ private:
 	bool CallLuaVoidWithOneInt(const char *pFunction, int Num1);
 	// returns true if the function was found
 	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
+	// returns true if the function was found
+	bool CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer);
 
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
@@ -150,6 +152,7 @@ public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
+	void OnPlayerTick(const CPlayer *pPlayer);
 	void OnSnap(int SnappingClient);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);

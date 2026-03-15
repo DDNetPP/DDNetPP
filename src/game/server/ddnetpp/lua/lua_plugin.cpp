@@ -607,6 +607,40 @@ bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num
 	return true;
 }
 
+bool CLuaPlugin::CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pPlayer->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Player");
+	if(lua_pcall(LuaState(), 1, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
+	return true;
+}
+
 int CLuaPlugin::CallbackSendChat(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
@@ -1090,6 +1124,12 @@ void CLuaPlugin::OnTick()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidNoArgs("on_tick");
+}
+
+void CLuaPlugin::OnPlayerTick(const CPlayer *pPlayer)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidWithPlayer("on_player_tick", pPlayer);
 }
 
 void CLuaPlugin::OnSnap(int SnappingClient)

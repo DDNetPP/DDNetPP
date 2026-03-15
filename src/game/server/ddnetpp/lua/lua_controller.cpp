@@ -669,6 +669,14 @@ void CLuaController::OnTick()
 			continue;
 
 		SendNextCmdInfo(pPlayer->GetCid());
+
+		for(CLuaPlugin *pPlugin : m_vpPlugins)
+		{
+			if(!pPlugin->IsActive())
+				continue;
+
+			pPlugin->OnPlayerTick(pPlayer);
+		}
 	}
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
