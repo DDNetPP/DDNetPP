@@ -558,7 +558,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if(m_InfRainbow || GameServer()->IsHooked(GetCid(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
+	else if(GameServer()->IsHooked(GetCid(), 1) || (GetCharacter() && GetCharacter()->HasRainbow() && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;

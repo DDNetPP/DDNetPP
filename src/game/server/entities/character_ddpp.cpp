@@ -3037,3 +3037,12 @@ void CCharacter::SetSpawnWeapons()
 		}
 	}
 }
+
+// ddnet-insta
+
+bool CCharacter::HasRainbow()
+{
+	// missing rainbow hook logic
+	// and bomb
+	return GetPlayer()->m_InfRainbow || m_Rainbow;
+}

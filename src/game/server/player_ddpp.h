@@ -1,7 +1,6 @@
 // This file can be included several times.
 
 #ifndef IN_CLASS_PLAYER
-#include "alloc.h"
 
 // this include should perhaps be removed
 #include "captcha.h"
@@ -19,7 +18,6 @@
 #include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-#include "gamecontext.h"
 #include "score.h"
 #include "teeinfo.h"
 
@@ -692,7 +690,9 @@ public:
 	// amount of seconds to freeze on next spawn
 	int m_FreezeOnSpawn = 0;
 
+	CSkinInfoManager m_SkinInfoManager;
+
 private:
 #ifndef IN_CLASS_PLAYER
-}
+};
 #endif

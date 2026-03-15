@@ -1865,6 +1865,8 @@ void CGameContext::OnClientEnter(int ClientId)
 	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
 	NewClientInfoMsg.m_Silent = false;
 
+	pNewPlayer->m_TeeInfos = pNewPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
+
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
 		NewClientInfoMsg.m_apSkinPartNames[p] = pNewPlayer->m_TeeInfos.m_aaSkinPartNames[p];
@@ -1894,6 +1896,8 @@ void CGameContext::OnClientEnter(int ClientId)
 			ClientInfoMsg.m_pClan = Server()->ClientClan(i);
 			ClientInfoMsg.m_Country = Server()->ClientCountry(i);
 			ClientInfoMsg.m_Silent = 0;
+
+			pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
 
 			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 			{
@@ -2195,6 +2199,9 @@ void *CGameContext::PreProcessMsg(int *pMsgId, CUnpacker *pUnpacker, int ClientI
 
 			pPlayer->m_TeeInfos = CTeeInfo(pMsg7->m_apSkinPartNames, pMsg7->m_aUseCustomColors, pMsg7->m_aSkinPartColors);
 			pPlayer->m_TeeInfos.FromSixup();
+
+			pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos); // ddnet-insta
+			pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
 
 			str_copy(s_aRawMsg + sizeof(*pMsg), pPlayer->m_TeeInfos.m_aSkinName, sizeof(s_aRawMsg) - sizeof(*pMsg));
 
@@ -3005,6 +3012,9 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 	if(!Server()->IsSixup(ClientId))
 		pPlayer->m_TeeInfos.ToSixup();
 
+	pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos); // ddnet-insta
+	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
+
 	if(SixupNeedsUpdate)
 	{
 		protocol7::CNetMsg_Sv_ClientDrop Drop;
@@ -3202,6 +3212,13 @@ void CGameContext::OnStartInfoNetMessage(const CNetMsg_Cl_StartInfo *pMsg, int C
 	pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 	if(!Server()->IsSixup(ClientId))
 		pPlayer->m_TeeInfos.ToSixup();
+
+	// TODO: can this be moved to a controller method we hook at the method start?
+	pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos); // ddnet-insta
+
+	// setting tee infos is not needed because we do not send it here
+	// this is also why the code could move to the top or bottomg of this method
+	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
 
 	// send clear vote options
 	CNetMsg_Sv_VoteClearOptions ClearMsg;

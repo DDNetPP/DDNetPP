@@ -2284,6 +2284,11 @@ set(LIBS
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
+# ddnet-insta START
+include("${CMAKE_CURRENT_SOURCE_DIR}/src/insta/CMakeLists.txt")
+insta_patch_engine()
+# ddnet-insta END
+
 # Targets
 add_library(engine-gfx EXCLUDE_FROM_ALL OBJECT ${ENGINE_GFX})
 target_include_directories(engine-gfx PRIVATE ${PNG_INCLUDE_DIRS})
@@ -3049,6 +3054,10 @@ if(SERVER)
     twbl/callback_ctx.cpp
     twbl/callback_ctx.h
   )
+  # ddnet-insta START
+  insta_patch_server()
+  # ddnet-insta END
+
   set(GAME_GENERATED_SERVER
     "src/generated/server_data.cpp"
     "src/generated/server_data.h"

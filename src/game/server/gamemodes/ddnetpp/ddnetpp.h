@@ -1,10 +1,11 @@
 #ifndef GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 #define GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 
-#include "../ddnet.h"
-#include "game/race_state.h"
+#include <game/race_state.h>
 
-class CGameControllerDDNetPP : public CGameControllerDDNet
+#include <insta/server/gamemodes/insta_core/insta_core.h>
+
+class CGameControllerDDNetPP : public CGameControllerInstaCore
 {
 public:
 	CGameControllerDDNetPP(class CGameContext *pGameServer);

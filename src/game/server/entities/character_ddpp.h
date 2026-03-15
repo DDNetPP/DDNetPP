@@ -379,6 +379,10 @@ public:
 	void OnTileFinish();
 	void OnTileSpecialFinish();
 
+	// ddnet-insta
+
+	bool HasRainbow();
+
 private:
 #ifndef IN_CLASS_CHARACTER
 }

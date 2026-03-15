@@ -21,7 +21,7 @@
 #include <game/version.h>
 
 CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) :
-	CGameControllerDDNet(pGameServer)
+	CGameControllerInstaCore(pGameServer)
 {
 	m_pGameType = g_Config.m_SvTestingCommands ? g_Config.m_SvGameTypeNameTest : g_Config.m_SvGameTypeName;
 	m_GameFlags = GAMEFLAG_FLAGS;
@@ -124,7 +124,7 @@ bool CGameControllerDDNetPP::OnClientPacket(int ClientId, bool Sys, int MsgId, s
 
 void CGameControllerDDNetPP::Tick()
 {
-	CGameControllerDDNet::Tick();
+	CGameControllerInstaCore::Tick();
 
 	Lua()->OnTick();
 	FlagTick();
@@ -161,7 +161,7 @@ void CGameControllerDDNetPP::Tick()
 
 bool CGameControllerDDNetPP::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
 {
-	CGameControllerDDNet::OnEntity(Index, x, y, Layer, Flags, Initial, Number);
+	CGameControllerInstaCore::OnEntity(Index, x, y, Layer, Flags, Initial, Number);
 
 	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
 	int Team = -1;
@@ -183,14 +183,14 @@ bool CGameControllerDDNetPP::OnEntity(int Index, int x, int y, int Layer, int Fl
 void CGameControllerDDNetPP::SetArmorProgress(CCharacter *pCharacter, int Progress)
 {
 	if(!pCharacter->GetPlayer()->m_IsVanillaDmg)
-		CGameControllerDDNet::SetArmorProgress(pCharacter, Progress);
+		CGameControllerInstaCore::SetArmorProgress(pCharacter, Progress);
 }
 
 bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize)
 {
 	CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisId];
 	if(!pPlayer)
-		return CGameControllerDDNet::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
+		return CGameControllerInstaCore::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 
 	if(g_Config.m_SvRequireLoginToJoin && g_Config.m_SvAccounts)
 	{
@@ -202,22 +202,22 @@ bool CGameControllerDDNetPP::CanJoinTeam(int Team, int NotThisId, char *pErrorRe
 		}
 	}
 
-	return CGameControllerDDNet::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
+	return CGameControllerInstaCore::CanJoinTeam(Team, NotThisId, pErrorReason, ErrorReasonSize);
 }
 
 int CGameControllerDDNetPP::GetAutoTeam(int NotThisId)
 {
 	if(NotThisId < 0 || NotThisId > MAX_CLIENTS)
-		return CGameControllerDDNet::GetAutoTeam(NotThisId);
+		return CGameControllerInstaCore::GetAutoTeam(NotThisId);
 
 	CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisId];
 	if(!pPlayer)
-		return CGameControllerDDNet::GetAutoTeam(NotThisId);
+		return CGameControllerInstaCore::GetAutoTeam(NotThisId);
 
 	if(GameServer()->m_insta_survival_gamestate)
 		return TEAM_SPECTATORS;
 
-	return CGameControllerDDNet::GetAutoTeam(NotThisId);
+	return CGameControllerInstaCore::GetAutoTeam(NotThisId);
 }
 
 void CGameControllerDDNetPP::PrintJoinMessage(CPlayer *pPlayer)
@@ -236,7 +236,7 @@ void CGameControllerDDNetPP::PrintJoinMessage(CPlayer *pPlayer)
 // full overwrites ddnet's OnPlayerConnect!
 void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 {
-	// this code has to be manually kept in sync with CGameControllerDDNet::OnPlayerConnect()
+	// this code has to be manually kept in sync with CGameControllerInstaCore::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
 
 	Lua()->OnPlayerConnect(pPlayer->GetCid());
@@ -399,12 +399,12 @@ void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool
 {
 	if(!GameServer()->ShowJoinMessage(pPlayer->GetCid()))
 		DoChatMsg = false;
-	CGameControllerDDNet::DoTeamChange(pPlayer, Team, DoChatMsg);
+	CGameControllerInstaCore::DoTeamChange(pPlayer, Team, DoChatMsg);
 }
 
 int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponId)
 {
-	CGameControllerDDNet::OnCharacterDeath(pVictim, pKiller, WeaponId);
+	CGameControllerInstaCore::OnCharacterDeath(pVictim, pKiller, WeaponId);
 	int HadFlag = 0;
 
 	// drop flags
