@@ -10,7 +10,9 @@
 
 #include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
+#include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
+#include <game/server/ddnetpp/lua/table_unpacker.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
@@ -27,23 +29,6 @@ extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
-}
-
-// translate ugly server coordinates to human friendly lua coordinates
-// the midde of the top left tile in server coordinates is 16, 16
-// and in lua coordinates it is 0.5, 0.5
-static vec2 ServerPosToLua(vec2 ServerPos)
-{
-	return vec2(
-		ServerPos.x / 32.0f,
-		ServerPos.y / 32.0f);
-}
-
-static vec2 LuaPosToServer(vec2 ServerPos)
-{
-	return vec2(
-		ServerPos.x * 32.0f,
-		ServerPos.y * 32.0f);
 }
 
 // TODO: move this to a new file like luac_aux.h
@@ -913,168 +898,6 @@ int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
 		pSelf->m_vSnapIds.end());
 	return 0;
 }
-
-// what the helper class doing here
-class CTableUnpacker
-{
-	char m_aTableName[512] = "";
-	char m_aSourceFilename[512] = "";
-	int m_SourceLineNumber = -1;
-	int m_Index;
-	lua_State *m_pLuaState = nullptr;
-	lua_State *LuaState() { return m_pLuaState; }
-	bool m_IsError = false;
-
-	CLuaStackChecker m_LuaStackChecker;
-
-public:
-	bool IsError() const { return m_IsError; }
-
-	CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename = "", int SourceLineNumber = -1) :
-		m_LuaStackChecker(L, pSourceFilename, SourceLineNumber, pTableName)
-	{
-		m_pLuaState = L;
-		m_Index = Index;
-		str_copy(m_aTableName, pTableName);
-		str_copy(m_aSourceFilename, pSourceFilename);
-		m_SourceLineNumber = SourceLineNumber;
-
-		if(!lua_istable(LuaState(), m_Index))
-		{
-			Error("value is not a table");
-		}
-	}
-
-	void Error(const char *pReason)
-	{
-		m_IsError = true;
-		luaL_error(LuaState(), "error in table '%s': %s", m_aTableName, pReason);
-	}
-
-	int GetInt(const char *pKey)
-	{
-		if(m_IsError)
-			return 0;
-		lua_getfield(LuaState(), m_Index, pKey);
-		if(lua_isnoneornil(LuaState(), -1))
-		{
-			char aBuf[512];
-			str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
-			Error(aBuf);
-			return 0;
-		}
-		if(!lua_isinteger(LuaState(), -1))
-		{
-			char aBuf[512];
-			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold an integer instead got %s", pKey, luaL_typename(LuaState(), -1));
-			Error(aBuf);
-			return 0;
-		}
-		int Val = lua_tointeger(LuaState(), -1);
-		lua_pop(LuaState(), 1);
-		return Val;
-	}
-
-	std::optional<bool> GetBooleanOptional(const char *pKey)
-	{
-		if(m_IsError)
-			return std::nullopt;
-		lua_getfield(LuaState(), m_Index, pKey);
-		if(lua_isnoneornil(LuaState(), -1))
-		{
-			lua_pop(LuaState(), 1);
-			return std::nullopt;
-		}
-		if(!lua_isboolean(LuaState(), -1))
-		{
-			lua_pop(LuaState(), 1);
-			return std::nullopt;
-		}
-		bool Val = lua_toboolean(LuaState(), -1);
-		lua_pop(LuaState(), 1);
-		return Val;
-	}
-
-	std::optional<int> GetIntOptional(const char *pKey)
-	{
-		if(m_IsError)
-			return std::nullopt;
-		lua_getfield(LuaState(), m_Index, pKey);
-		if(lua_isnoneornil(LuaState(), -1))
-		{
-			lua_pop(LuaState(), 1);
-			return std::nullopt;
-		}
-		if(!lua_isinteger(LuaState(), -1))
-		{
-			lua_pop(LuaState(), 1);
-			return std::nullopt;
-		}
-		int Val = lua_tointeger(LuaState(), -1);
-		lua_pop(LuaState(), 1);
-		return Val;
-	}
-
-	int GetIntOrDefault(const char *pKey, int Default)
-	{
-		return GetIntOptional(pKey).value_or(Default);
-	}
-
-	float GetFloat(const char *pKey)
-	{
-		if(m_IsError)
-			return 0;
-		lua_getfield(LuaState(), m_Index, pKey);
-		if(lua_isnoneornil(LuaState(), -1))
-		{
-			char aBuf[512];
-			str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
-			Error(aBuf);
-			return 0;
-		}
-		if(!lua_isnumber(LuaState(), -1))
-		{
-			char aBuf[512];
-			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold a number", pKey);
-			Error(aBuf);
-			return 0;
-		}
-		float Val = lua_tonumber(LuaState(), -1);
-		lua_pop(LuaState(), 1);
-		return Val;
-	}
-
-	vec2 GetVec2(const char *pKey)
-	{
-		if(m_IsError)
-			return vec2(0.0f, 0.0f);
-		lua_getfield(LuaState(), m_Index, pKey);
-		char aNestedName[512];
-		str_format(aNestedName, sizeof(aNestedName), "%s.%s", m_aTableName, pKey);
-		vec2 Pos = vec2(0.0f, 0.0f);
-
-		// RAII scope
-		{
-			CTableUnpacker Unpacker(LuaState(), m_Index, aNestedName, m_aSourceFilename, m_SourceLineNumber);
-			Pos.x = Unpacker.GetFloat("x");
-			Pos.y = Unpacker.GetFloat("y");
-			if(Unpacker.IsError())
-			{
-				Error("nested error");
-				return vec2(0.0f, 0.0f);
-			}
-		}
-
-		// pop nested table
-		lua_pop(LuaState(), 1);
-		return Pos;
-	}
-
-	vec2 GetPosition(const char *pKey)
-	{
-		return LuaPosToServer(GetVec2(pKey));
-	}
-};
 
 int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 {
