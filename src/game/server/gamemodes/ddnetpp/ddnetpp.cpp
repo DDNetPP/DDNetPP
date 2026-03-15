@@ -157,6 +157,36 @@ void CGameControllerDDNetPP::Tick()
 				return true;
 			}),
 		GameServer()->m_vAccountRconCmdQueryResults.end());
+
+	for(CPlayer *pPlayer : GameServer()->m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+		if(!pPlayer->GetCharacter())
+			continue;
+
+		// ratelimit the 0.7 stuff because it requires net messages
+		if(Server()->Tick() % 4 == 0)
+		{
+			if(pPlayer->m_SkinInfoManager.NeedsNetMessage7())
+			{
+				pPlayer->m_SkinInfoManager.OnSendNetMessage7();
+				CTeeInfo TeeInfo = pPlayer->m_SkinInfoManager.TeeInfo();
+				protocol7::CNetMsg_Sv_SkinChange Msg;
+				Msg.m_ClientId = pPlayer->GetCid();
+				for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+				{
+					Msg.m_apSkinPartNames[p] = TeeInfo.m_aaSkinPartNames[p];
+					Msg.m_aSkinPartColors[p] = TeeInfo.m_aSkinPartColors[p];
+					Msg.m_aUseCustomColors[p] = TeeInfo.m_aUseCustomColors[p];
+				}
+
+				// FIXME: implement this
+				// bool NetworkClip = pPlayer->GetCharacter()->HasRainbow();
+				// SendSkinChangeToAllSixup(&Msg, pPlayer, NetworkClip);
+			}
+		}
+	}
 }
 
 bool CGameControllerDDNetPP::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)

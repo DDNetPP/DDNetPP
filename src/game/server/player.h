@@ -8,6 +8,8 @@
 
 #include <base/vmath.h>
 
+#include <insta/server/skin_info_manager.h>
+
 #include <engine/shared/protocol.h>
 
 #include <generated/protocol7.h>
