@@ -16,6 +16,9 @@
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
 
+#include <insta/server/skin_info_manager.h>
+
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -277,6 +280,10 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pushcfunction(LuaState(), CallbackPlayerName);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "set_skin");
+	lua_pushcfunction(LuaState(), CallbackPlayerSetSkin);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -460,6 +467,28 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_settable(LuaState(), -3);
 	}
 	lua_setfield(LuaState(), -2, "protocol");
+
+	// ddnet.skin_priority sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "USER");
+		lua_pushinteger(LuaState(), (int)ESkinPrio::USER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "LOW");
+		lua_pushinteger(LuaState(), (int)ESkinPrio::LOW);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "RAINBOW");
+		lua_pushinteger(LuaState(), (int)ESkinPrio::RAINBOW);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HIGH");
+		lua_pushinteger(LuaState(), (int)ESkinPrio::HIGH);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "skin_priority");
 
 	lua_setglobal(LuaState(), "ddnetpp");
 }
@@ -888,19 +917,24 @@ int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
 class CTableUnpacker
 {
 	char m_aTableName[512] = "";
+	int m_Index;
 	lua_State *m_pLuaState = nullptr;
 	lua_State *LuaState() { return m_pLuaState; }
 	bool m_IsError = false;
 
+	CLuaStackChecker m_LuaStackChecker;
+
 public:
 	bool IsError() const { return m_IsError; }
 
-	CTableUnpacker(lua_State *L, const char *pTableName)
+	CTableUnpacker(lua_State *L, int Index, const char *pTableName) :
+		m_LuaStackChecker(L, pTableName)
 	{
 		m_pLuaState = L;
+		m_Index = Index;
 		str_copy(m_aTableName, pTableName);
 
-		if(!lua_istable(LuaState(), 1))
+		if(!lua_istable(LuaState(), m_Index))
 		{
 			Error("value is not a table");
 		}
@@ -916,7 +950,7 @@ public:
 	{
 		if(m_IsError)
 			return 0;
-		lua_getfield(LuaState(), -1, pKey);
+		lua_getfield(LuaState(), m_Index, pKey);
 		if(lua_isnoneornil(LuaState(), -1))
 		{
 			char aBuf[512];
@@ -927,7 +961,7 @@ public:
 		if(!lua_isinteger(LuaState(), -1))
 		{
 			char aBuf[512];
-			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold an integer", pKey);
+			str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold an integer instead got %s", pKey, luaL_typename(LuaState(), -1));
 			Error(aBuf);
 			return 0;
 		}
@@ -940,7 +974,7 @@ public:
 	{
 		if(m_IsError)
 			return Default;
-		lua_getfield(LuaState(), -1, pKey);
+		lua_getfield(LuaState(), m_Index, pKey);
 		if(lua_isnoneornil(LuaState(), -1))
 		{
 			lua_pop(LuaState(), 1);
@@ -960,7 +994,7 @@ public:
 	{
 		if(m_IsError)
 			return 0;
-		lua_getfield(LuaState(), -1, pKey);
+		lua_getfield(LuaState(), m_Index, pKey);
 		if(lua_isnoneornil(LuaState(), -1))
 		{
 			char aBuf[512];
@@ -984,10 +1018,10 @@ public:
 	{
 		if(m_IsError)
 			return vec2(0.0f, 0.0f);
-		lua_getfield(LuaState(), -1, pKey);
+		lua_getfield(LuaState(), m_Index, pKey);
 		char aNestedName[512];
 		str_format(aNestedName, sizeof(aNestedName), "%s.%s", m_aTableName, pKey);
-		CTableUnpacker Unpacker(LuaState(), aNestedName);
+		CTableUnpacker Unpacker(LuaState(), m_Index, aNestedName);
 		vec2 Pos;
 		Pos.x = Unpacker.GetFloat("x");
 		Pos.y = Unpacker.GetFloat("y");
@@ -1009,7 +1043,7 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	LUA_CHECK_STACK(L);
 
-	CTableUnpacker Unpacker(L, "laser");
+	CTableUnpacker Unpacker(L, -1, "laser");
 	int SnapId = Unpacker.GetInt("id");
 	float PosX = Unpacker.GetFloat("x");
 	float PosY = Unpacker.GetFloat("y");
@@ -1037,7 +1071,7 @@ int CLuaPlugin::CallbackSnapNewPickup(lua_State *L)
 	CLuaGame *pGame = pSelf->Game();
 	LUA_CHECK_STACK(L);
 
-	CTableUnpacker Unpacker(L, "pickup");
+	CTableUnpacker Unpacker(L, -1, "pickup");
 	int SnapId = Unpacker.GetInt("id");
 	vec2 Pos = Unpacker.GetPosition("pos");
 	int Type = Unpacker.GetIntOrDefault("type", POWERUP_WEAPON);
@@ -1086,6 +1120,31 @@ int CLuaPlugin::CallbackPlayerName(lua_State *L)
 	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 	lua_pushstring(L, pPlayer->Name());
 	return 1;
+}
+
+int CLuaPlugin::CallbackPlayerSetSkin(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+
+	// TODO: the index 2 table indexing doesnt seem to work
+
+	CTableUnpacker Unpacker(L, 2, "skin_info");
+
+	// TODO: make this optional
+	int ColorBody = Unpacker.GetInt("color_body");
+
+	ESkinPrio Priority = ESkinPrio::HIGH;
+	if(NumArgs >= 3 && lua_isinteger(L, 3))
+	{
+		int LuaPrio = lua_tointeger(L, 3);
+		LuaPrio = std::clamp(LuaPrio, (int)ESkinPrio::USER, (int)ESkinPrio::NUM_SKINPRIOS - 1);
+		Priority = (ESkinPrio)LuaPrio;
+	}
+
+	pPlayer->m_SkinInfoManager.SetColorBody(Priority, ColorBody);
+
+	return 0;
 }
 
 int CLuaPlugin::CallbackCharacterPos(lua_State *L)

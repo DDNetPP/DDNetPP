@@ -20,6 +20,7 @@ public:
 	CLuaStackChecker(lua_State *L);
 	CLuaStackChecker(lua_State *L, const char *pFile, int Line);
 	CLuaStackChecker(lua_State *L, const char *pFile, int Line, const char *pDetail);
+	CLuaStackChecker(lua_State *L, const char *pDetail);
 	~CLuaStackChecker();
 };
 

@@ -139,6 +139,7 @@ private:
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);
 	static int CallbackPlayerName(lua_State *L);
+	static int CallbackPlayerSetSkin(lua_State *L);
 
 	// TODO: new scope?
 	static int CallbackCharacterPos(lua_State *L);

@@ -28,6 +28,12 @@ CLuaStackChecker::CLuaStackChecker(lua_State *L, const char *pFile, int Line, co
 	str_copy(m_aDetail, pDetail);
 }
 
+CLuaStackChecker::CLuaStackChecker(lua_State *L, const char *pDetail) :
+	CLuaStackChecker(L)
+{
+	str_copy(m_aDetail, pDetail);
+}
+
 CLuaStackChecker::~CLuaStackChecker()
 {
 	if(m_StackTop == lua_gettop(m_pLuaState))
