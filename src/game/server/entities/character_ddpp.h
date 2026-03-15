@@ -344,18 +344,18 @@ public:
 	bool HasBloody();
 
 	// finite cosmetics
-	bool m_Rainbow;
-	bool m_Bloody;
-	bool m_StrongBloody;
-	bool m_WaveBloody;
-	bool m_WaveBloodyGrow;
-	int m_WaveBloodyStrength;
-	bool m_Atom;
-	bool m_Trail;
-	bool m_Heartgun;
-	bool m_autospreadgun;
-	bool m_ninjasteam;
-	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
+	bool m_Rainbow = false;
+	bool m_Bloody = false;
+	bool m_StrongBloody = false;
+	bool m_WaveBloody = false;
+	bool m_WaveBloodyGrow = false;
+	int m_WaveBloodyStrength = 0;
+	bool m_Atom = false;
+	bool m_Trail = false;
+	bool m_Heartgun = false;
+	bool m_autospreadgun = false;
+	bool m_ninjasteam = false;
+	bool m_RandomCosmetics = false; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
 
 	bool m_HomingMissile;
 
@@ -381,6 +381,7 @@ public:
 
 	// ddnet-insta
 
+	void Rainbow(bool Activate);
 	bool HasRainbow();
 
 private:

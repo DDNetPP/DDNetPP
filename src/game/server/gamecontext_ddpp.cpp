@@ -1648,7 +1648,7 @@ void CGameContext::DeleteCosmetics(int ClientId)
 	if(!pChr)
 		return;
 
-	pChr->m_Rainbow = false;
+	pChr->Rainbow(false);
 	pChr->m_Bloody = false;
 	pChr->m_StrongBloody = false;
 	pChr->m_Atom = false;

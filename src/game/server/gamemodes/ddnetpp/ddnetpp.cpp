@@ -402,9 +402,21 @@ void CGameControllerDDNetPP::DoTeamChange(class CPlayer *pPlayer, int Team, bool
 	CGameControllerInstaCore::DoTeamChange(pPlayer, Team, DoChatMsg);
 }
 
+void CGameControllerDDNetPP::OnCharacterSpawn(class CCharacter *pChr)
+{
+	CGameControllerInstaCore::OnCharacterSpawn(pChr);
+
+	if(pChr->GetPlayer()->m_InfRainbow)
+		pChr->Rainbow(true);
+}
+
 int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponId)
 {
 	CGameControllerInstaCore::OnCharacterDeath(pVictim, pKiller, WeaponId);
+
+	if(pVictim->HasRainbow())
+		pVictim->Rainbow(false);
+
 	int HadFlag = 0;
 
 	// drop flags

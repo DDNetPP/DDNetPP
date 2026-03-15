@@ -62,12 +62,6 @@ void CCharacter::PostSpawnDDPP()
 	m_freezeShotgun = false;
 	m_isDmg = false;
 
-	// disable finite cosmetics by default
-	m_Rainbow = false;
-	m_Bloody = false;
-	m_Atom = false;
-	m_Trail = false;
-
 	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
 	{
@@ -238,7 +232,7 @@ bool CCharacter::HandleConfigTile(int Type)
 	else if(Type == CFG_TILE_GIVE_BLOODY)
 		m_Bloody = true;
 	else if(Type == CFG_TILE_GIVE_RAINBOW)
-		m_Rainbow = true;
+		Rainbow(true);
 	else if(Type == CFG_TILE_GIVE_SPREADGUN)
 		m_autospreadgun = true;
 	return false;
@@ -741,7 +735,7 @@ void CCharacter::DDPP_Tick()
 			int r = rand() % 10;
 			if(r == 0)
 			{
-				m_Rainbow ^= true;
+				Rainbow(!HasRainbow());
 			}
 			else if(r == 1)
 			{
@@ -3040,9 +3034,24 @@ void CCharacter::SetSpawnWeapons()
 
 // ddnet-insta
 
+void CCharacter::Rainbow(bool Activate)
+{
+	if(Activate == m_Rainbow)
+		return;
+
+	m_Rainbow = Activate;
+
+	if(Activate)
+		GetPlayer()->m_SkinInfoManager.SetUseCustomColor(ESkinPrio::RAINBOW, true);
+	else
+		GetPlayer()->m_SkinInfoManager.UnsetAll(ESkinPrio::RAINBOW);
+}
+
 bool CCharacter::HasRainbow()
 {
-	// missing rainbow hook logic
-	// and bomb
-	return GetPlayer()->m_InfRainbow || m_Rainbow;
+	// what about bomb?
+
+	// TODO: remove magic number for hook power
+	bool RainbowHooked = GameServer()->IsHooked(GetPlayer()->GetCid(), 1);
+	return GetPlayer()->m_InfRainbow || m_Rainbow || RainbowHooked;
 }

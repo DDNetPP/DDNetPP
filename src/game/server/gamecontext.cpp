@@ -2219,6 +2219,10 @@ void *CGameContext::PreProcessMsg(int *pMsgId, CUnpacker *pUnpacker, int ClientI
 
 			pPlayer->m_LastChangeInfo = Server()->Tick();
 
+			// ddnet-insta
+			if(m_pController->OnSkinChange7(pMsg, ClientId))
+				return nullptr;
+
 			CTeeInfo Info(pMsg->m_apSkinPartNames, pMsg->m_aUseCustomColors, pMsg->m_aSkinPartColors);
 			Info.FromSixup();
 			pPlayer->m_TeeInfos = Info;

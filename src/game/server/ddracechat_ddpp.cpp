@@ -2855,7 +2855,7 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 
 	if(!str_comp_nocase(aInput, "off"))
 	{
-		pPlayer->GetCharacter()->m_Rainbow = false;
+		pPlayer->GetCharacter()->Rainbow(false);
 		pPlayer->m_InfRainbow = false;
 		pSelf->SendChatTarget(pResult->m_ClientId, "Rainbow turned off.");
 	}
@@ -2865,7 +2865,7 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(!pPlayer->GetCharacter()->m_Rainbow)
 			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
+				pPlayer->GetCharacter()->Rainbow(true);
 				pPlayer->m_rainbow_offer--;
 				pSelf->SendChatTarget(pResult->m_ClientId, "You accepted rainbow. You can turn it off with '/rainbow off'.");
 			}
@@ -3741,7 +3741,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 			else if(!str_comp_nocase(aItem, "rainbow"))
 			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
+				pPlayer->GetCharacter()->Rainbow(true);
 				pSelf->SendChatTarget(pResult->m_ClientId, "[GIVE] Rainbow on.");
 			}
 			else if(!str_comp_nocase(aItem, "trail"))
@@ -3887,7 +3887,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 			else if(!str_comp_nocase(aItem, "rainbow"))
 			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
+				pPlayer->GetCharacter()->Rainbow(true);
 				pSelf->SendChatTarget(pResult->m_ClientId, "[GIVE] Rainbow on.");
 			}
 			else if(!str_comp_nocase(aItem, "trail"))
@@ -3998,7 +3998,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 			else if(!str_comp_nocase(aItem, "rainbow"))
 			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
+				pPlayer->GetCharacter()->Rainbow(true);
 				pSelf->SendChatTarget(pResult->m_ClientId, "[GIVE] Rainbow on.");
 			}
 			else if(!str_comp_nocase(aItem, "trail"))
@@ -4089,7 +4089,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if(!str_comp_nocase(aItem, "rainbow"))
 		{
-			pPlayer->GetCharacter()->m_Rainbow = true;
+			pPlayer->GetCharacter()->Rainbow(true);
 			pSelf->SendChatTarget(pResult->m_ClientId, "[GIVE] Rainbow on.");
 		}
 		else if(!str_comp_nocase(aItem, "trail"))

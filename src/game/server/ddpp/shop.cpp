@@ -288,7 +288,7 @@ bool CShopItemRainbow::Buy(int ClientId)
 	if(!CShopItem::CanBuy(ClientId))
 		return false;
 	CShopItem::Buy(ClientId);
-	pChr->m_Rainbow = true;
+	pChr->Rainbow(true);
 	return true;
 }
 

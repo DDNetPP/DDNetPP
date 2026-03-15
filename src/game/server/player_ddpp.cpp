@@ -20,6 +20,8 @@
 #include <game/server/gamecontroller.h>
 #include <game/server/minigames/minigame_base.h>
 
+#include <insta/server/skin_info_manager.h>
+
 #include <cinttypes>
 #include <fstream>
 
@@ -293,6 +295,7 @@ void CPlayer::DDPPTick()
 		}
 	}
 	PlayerHumanLevelTick();
+	RainbowTick();
 }
 
 bool CPlayer::SetDummyMode(EDummyMode Mode)
@@ -558,17 +561,21 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if(GameServer()->IsHooked(GetCid(), 1) || (GetCharacter() && GetCharacter()->HasRainbow() && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
-	{
-		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), m_TeeInfos.m_aSkinName);
-		pClientInfo->m_UseCustomColor = true;
-		m_RainbowColor = (m_RainbowColor + 1) % 256;
-		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
-		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
-	}
 	else
 		return false;
 	return true;
+}
+
+void CPlayer::RainbowTick()
+{
+	if(!GetCharacter())
+		return;
+	if(!GetCharacter()->HasRainbow())
+		return;
+
+	m_RainbowColor = (m_RainbowColor + 1) % 256;
+	m_SkinInfoManager.SetColorBody(ESkinPrio::RAINBOW, m_RainbowColor * 0x010000 + 0xff00);
+	m_SkinInfoManager.SetColorFeet(ESkinPrio::RAINBOW, m_RainbowColor * 0x010000 + 0xff00);
 }
 
 void CPlayer::OnDisconnectDDPP()

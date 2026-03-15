@@ -12,6 +12,8 @@
 #include <game/server/minigames/minigame_base.h>
 #include <game/server/player.h>
 
+#include <insta/server/gamemodes/insta_core/insta_core.h>
+
 void CGameControllerDDNetPP::Snap(int SnappingClient)
 {
 	CGameControllerDDNet::Snap(SnappingClient);
@@ -210,6 +212,8 @@ void CGameControllerDDNetPP::SnapGameInfo(int SnappingClient, CNetObj_GameInfo *
 // pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 void CGameControllerDDNetPP::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
 {
+	CGameControllerInstaCore::SnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
+
 	// hide players in the captcha room from the scoreboard
 	// this is 0.6 only so 0.7 players see all players at all times (too lazy to fix)
 	if(pPlayer->m_PendingCaptcha)

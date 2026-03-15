@@ -18,6 +18,7 @@
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>
+#include <game/server/entities/character.h>
 #include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
@@ -370,7 +371,7 @@ void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
-		pChr->m_Rainbow ^= true;
+		pChr->Rainbow(!pChr->HasRainbow());
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Rainbow has been %s for %s", pChr->m_Rainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
@@ -394,6 +395,9 @@ void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 	{
 		//pPlayer->m_freezeShotgun ^= true;
 		pPlayer->m_InfRainbow ^= true;
+		CCharacter *pChr = pPlayer->GetCharacter();
+		if(pChr)
+			pChr->Rainbow(pPlayer->m_InfRainbow);
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));

@@ -690,6 +690,8 @@ public:
 	// amount of seconds to freeze on next spawn
 	int m_FreezeOnSpawn = 0;
 
+	void RainbowTick();
+
 	CSkinInfoManager m_SkinInfoManager;
 
 private:

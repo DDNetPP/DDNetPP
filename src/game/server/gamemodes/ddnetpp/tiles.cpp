@@ -200,13 +200,13 @@ void CGameControllerDDNetPP::HandleCosmeticTiles(CCharacter *pChr)
 		if((pChr->m_Rainbow) || (pChr->GetPlayer()->m_InfRainbow))
 		{
 			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You lost rainbow!");
-			pChr->m_Rainbow = false;
+			pChr->Rainbow(false);
 			pChr->GetPlayer()->m_InfRainbow = false;
 		}
 		else
 		{
 			GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "You got rainbow!");
-			pChr->m_Rainbow = true;
+			pChr->Rainbow(true);
 		}
 	}
 

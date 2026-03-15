@@ -62,6 +62,16 @@ public:
 	virtual bool OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos) { return false; }
 
 	/*
+		Function: OnSkinChange7
+			gets run if a 0.7 client requested a skin change
+			after spam protection check
+
+		Returns:
+			return true to skip the default behavior and consume the event
+	*/
+	virtual bool OnSkinChange7(protocol7::CNetMsg_Cl_SkinChange *pMsg, int ClientId) { return false; }
+
+	/*
 		Function: OnClientPacket
 			hooks early into CServer::ProcessClientPacket
 			similar to CGameContext::OnMessage but converts both system and game messages
