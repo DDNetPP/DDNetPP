@@ -270,6 +270,14 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pushcfunction(LuaState(), CallbackPlayerSetSkin);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "unset_skin");
+	lua_pushcfunction(LuaState(), CallbackPlayerUnsetSkin);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "unset_skin_color_body");
+	lua_pushcfunction(LuaState(), CallbackPlayerUnsetSkinColorBody);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -992,6 +1000,8 @@ int CLuaPlugin::CallbackPlayerSetSkin(lua_State *L)
 	std::optional<int> ColorBody = Unpacker.GetIntOptional("color_body");
 	std::optional<int> ColorFeet = Unpacker.GetIntOptional("color_feet");
 	std::optional<bool> UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color");
+	char aSkinName[512] = "";
+	bool GotSkinName = Unpacker.GetStringOrFalse("name", aSkinName, sizeof(aSkinName));
 
 	ESkinPrio Priority = ESkinPrio::HIGH;
 	if(NumArgs >= 3 && lua_isinteger(L, 3))
@@ -1007,7 +1017,43 @@ int CLuaPlugin::CallbackPlayerSetSkin(lua_State *L)
 		pPlayer->m_SkinInfoManager.SetColorFeet(Priority, ColorFeet.value());
 	if(UseCustomColor.has_value())
 		pPlayer->m_SkinInfoManager.SetUseCustomColor(Priority, UseCustomColor.value());
+	if(GotSkinName)
+		pPlayer->m_SkinInfoManager.SetSkinName(Priority, aSkinName);
 
+	return 0;
+}
+
+int CLuaPlugin::CallbackPlayerUnsetSkin(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+
+	ESkinPrio Priority = ESkinPrio::HIGH;
+	if(NumArgs >= 2 && lua_isinteger(L, 2))
+	{
+		int LuaPrio = lua_tointeger(L, 2);
+		LuaPrio = std::clamp(LuaPrio, (int)ESkinPrio::USER, (int)ESkinPrio::NUM_SKINPRIOS - 1);
+		Priority = (ESkinPrio)LuaPrio;
+	}
+
+	pPlayer->m_SkinInfoManager.UnsetAll(Priority);
+	return 0;
+}
+
+int CLuaPlugin::CallbackPlayerUnsetSkinColorBody(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+
+	ESkinPrio Priority = ESkinPrio::HIGH;
+	if(NumArgs >= 2 && lua_isinteger(L, 2))
+	{
+		int LuaPrio = lua_tointeger(L, 2);
+		LuaPrio = std::clamp(LuaPrio, (int)ESkinPrio::USER, (int)ESkinPrio::NUM_SKINPRIOS - 1);
+		Priority = (ESkinPrio)LuaPrio;
+	}
+
+	pPlayer->m_SkinInfoManager.UnsetColorBody(Priority);
 	return 0;
 }
 

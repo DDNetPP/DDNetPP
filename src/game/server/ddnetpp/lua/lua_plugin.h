@@ -140,6 +140,8 @@ private:
 	static int CallbackPlayerId(lua_State *L);
 	static int CallbackPlayerName(lua_State *L);
 	static int CallbackPlayerSetSkin(lua_State *L);
+	static int CallbackPlayerUnsetSkin(lua_State *L);
+	static int CallbackPlayerUnsetSkinColorBody(lua_State *L);
 
 	// TODO: new scope?
 	static int CallbackCharacterPos(lua_State *L);

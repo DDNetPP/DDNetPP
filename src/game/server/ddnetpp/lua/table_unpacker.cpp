@@ -96,6 +96,27 @@ std::optional<int> CTableUnpacker::GetIntOptional(const char *pKey)
 	return Val;
 }
 
+bool CTableUnpacker::GetStringOrFalse(const char *pKey, char *pValue, size_t ValueSize)
+{
+	pValue[0] = '\0';
+	if(m_IsError)
+		return false;
+	lua_getfield(LuaState(), m_Index, pKey);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
+		return false;
+	}
+	if(!lua_isstring(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
+		return false;
+	}
+	str_copy(pValue, lua_tostring(LuaState(), -1), ValueSize);
+	lua_pop(LuaState(), 1);
+	return true;
+}
+
 int CTableUnpacker::GetIntOrDefault(const char *pKey, int Default)
 {
 	return GetIntOptional(pKey).value_or(Default);

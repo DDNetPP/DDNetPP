@@ -33,6 +33,8 @@ public:
 	int GetInt(const char *pKey);
 	std::optional<bool> GetBooleanOptional(const char *pKey);
 	std::optional<int> GetIntOptional(const char *pKey);
+	// writes string to pValue or returns false if the string was not found
+	bool GetStringOrFalse(const char *pKey, char *pValue, size_t ValueSize);
 	int GetIntOrDefault(const char *pKey, int Default);
 	float GetFloat(const char *pKey);
 	vec2 GetVec2(const char *pKey);
