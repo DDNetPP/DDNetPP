@@ -19,6 +19,7 @@
 #include <insta/server/skin_info_manager.h>
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -974,24 +975,49 @@ public:
 		return Val;
 	}
 
-	int GetIntOrDefault(const char *pKey, int Default)
+	std::optional<bool> GetBooleanOptional(const char *pKey)
 	{
 		if(m_IsError)
-			return Default;
+			return std::nullopt;
 		lua_getfield(LuaState(), m_Index, pKey);
 		if(lua_isnoneornil(LuaState(), -1))
 		{
 			lua_pop(LuaState(), 1);
-			return Default;
+			return std::nullopt;
+		}
+		if(!lua_isboolean(LuaState(), -1))
+		{
+			lua_pop(LuaState(), 1);
+			return std::nullopt;
+		}
+		bool Val = lua_toboolean(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+
+	std::optional<int> GetIntOptional(const char *pKey)
+	{
+		if(m_IsError)
+			return std::nullopt;
+		lua_getfield(LuaState(), m_Index, pKey);
+		if(lua_isnoneornil(LuaState(), -1))
+		{
+			lua_pop(LuaState(), 1);
+			return std::nullopt;
 		}
 		if(!lua_isinteger(LuaState(), -1))
 		{
 			lua_pop(LuaState(), 1);
-			return Default;
+			return std::nullopt;
 		}
 		int Val = lua_tointeger(LuaState(), -1);
 		lua_pop(LuaState(), 1);
 		return Val;
+	}
+
+	int GetIntOrDefault(const char *pKey, int Default)
+	{
+		return GetIntOptional(pKey).value_or(Default);
 	}
 
 	float GetFloat(const char *pKey)
@@ -1139,12 +1165,10 @@ int CLuaPlugin::CallbackPlayerSetSkin(lua_State *L)
 	int NumArgs = lua_gettop(L);
 	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 
-	// TODO: the index 2 table indexing doesnt seem to work
-
 	CTableUnpacker Unpacker(L, 2, "skin_info");
-
-	// TODO: make this optional
-	int ColorBody = Unpacker.GetInt("color_body");
+	std::optional<int> ColorBody = Unpacker.GetIntOptional("color_body");
+	std::optional<int> ColorFeet = Unpacker.GetIntOptional("color_feet");
+	std::optional<bool> UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color");
 
 	ESkinPrio Priority = ESkinPrio::HIGH;
 	if(NumArgs >= 3 && lua_isinteger(L, 3))
@@ -1154,7 +1178,12 @@ int CLuaPlugin::CallbackPlayerSetSkin(lua_State *L)
 		Priority = (ESkinPrio)LuaPrio;
 	}
 
-	pPlayer->m_SkinInfoManager.SetColorBody(Priority, ColorBody);
+	if(ColorBody.has_value())
+		pPlayer->m_SkinInfoManager.SetColorBody(Priority, ColorBody.value());
+	if(ColorFeet.has_value())
+		pPlayer->m_SkinInfoManager.SetColorFeet(Priority, ColorFeet.value());
+	if(UseCustomColor.has_value())
+		pPlayer->m_SkinInfoManager.SetUseCustomColor(Priority, UseCustomColor.value());
 
 	return 0;
 }
