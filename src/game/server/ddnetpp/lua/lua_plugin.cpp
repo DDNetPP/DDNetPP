@@ -917,6 +917,8 @@ int CLuaPlugin::CallbackSnapFreeId(lua_State *L)
 class CTableUnpacker
 {
 	char m_aTableName[512] = "";
+	char m_aSourceFilename[512] = "";
+	int m_SourceLineNumber = -1;
 	int m_Index;
 	lua_State *m_pLuaState = nullptr;
 	lua_State *LuaState() { return m_pLuaState; }
@@ -927,12 +929,14 @@ class CTableUnpacker
 public:
 	bool IsError() const { return m_IsError; }
 
-	CTableUnpacker(lua_State *L, int Index, const char *pTableName) :
-		m_LuaStackChecker(L, pTableName)
+	CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename = "", int SourceLineNumber = -1) :
+		m_LuaStackChecker(L, pSourceFilename, SourceLineNumber, pTableName)
 	{
 		m_pLuaState = L;
 		m_Index = Index;
 		str_copy(m_aTableName, pTableName);
+		str_copy(m_aSourceFilename, pSourceFilename);
+		m_SourceLineNumber = SourceLineNumber;
 
 		if(!lua_istable(LuaState(), m_Index))
 		{
@@ -1021,14 +1025,22 @@ public:
 		lua_getfield(LuaState(), m_Index, pKey);
 		char aNestedName[512];
 		str_format(aNestedName, sizeof(aNestedName), "%s.%s", m_aTableName, pKey);
-		CTableUnpacker Unpacker(LuaState(), m_Index, aNestedName);
-		vec2 Pos;
-		Pos.x = Unpacker.GetFloat("x");
-		Pos.y = Unpacker.GetFloat("y");
-		if(Unpacker.IsError())
-			Error("nested error");
-		else
-			lua_pop(LuaState(), 1);
+		vec2 Pos = vec2(0.0f, 0.0f);
+
+		// RAII scope
+		{
+			CTableUnpacker Unpacker(LuaState(), m_Index, aNestedName, m_aSourceFilename, m_SourceLineNumber);
+			Pos.x = Unpacker.GetFloat("x");
+			Pos.y = Unpacker.GetFloat("y");
+			if(Unpacker.IsError())
+			{
+				Error("nested error");
+				return vec2(0.0f, 0.0f);
+			}
+		}
+
+		// pop nested table
+		lua_pop(LuaState(), 1);
 		return Pos;
 	}
 
@@ -1043,7 +1055,7 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	LUA_CHECK_STACK(L);
 
-	CTableUnpacker Unpacker(L, -1, "laser");
+	CTableUnpacker Unpacker(L, -1, "laser", __FILE__, __LINE__);
 	int SnapId = Unpacker.GetInt("id");
 	float PosX = Unpacker.GetFloat("x");
 	float PosY = Unpacker.GetFloat("y");
@@ -1071,7 +1083,7 @@ int CLuaPlugin::CallbackSnapNewPickup(lua_State *L)
 	CLuaGame *pGame = pSelf->Game();
 	LUA_CHECK_STACK(L);
 
-	CTableUnpacker Unpacker(L, -1, "pickup");
+	CTableUnpacker Unpacker(L, -1, "pickup", __FILE__, __LINE__);
 	int SnapId = Unpacker.GetInt("id");
 	vec2 Pos = Unpacker.GetPosition("pos");
 	int Type = Unpacker.GetIntOrDefault("type", POWERUP_WEAPON);
