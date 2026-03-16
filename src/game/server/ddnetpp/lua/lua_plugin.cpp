@@ -8,6 +8,7 @@
 
 #include <generated/protocol.h>
 
+#include <game/mapitems.h>
 #include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/position.h>
@@ -394,6 +395,28 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "server");
 
+	// ddnet.collision sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackCollisionWidth, 1);
+		lua_setfield(LuaState(), -2, "width");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackCollisionHeight, 1);
+		lua_setfield(LuaState(), -2, "height");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackCollisionGetTileIndex, 1);
+		lua_setfield(LuaState(), -2, "get_tile_index");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackCollisionGetTile, 1);
+		lua_setfield(LuaState(), -2, "get_tile");
+	}
+	lua_setfield(LuaState(), -2, "collision");
+
 	// ddnet.protocol sub table
 	{
 		lua_newtable(LuaState());
@@ -485,6 +508,28 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_settable(LuaState(), -3);
 	}
 	lua_setfield(LuaState(), -2, "skin_priority");
+
+	// ddnet.tile sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "AIR");
+		lua_pushinteger(LuaState(), TILE_AIR);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "SOLID");
+		lua_pushinteger(LuaState(), TILE_SOLID);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "DEATH");
+		lua_pushinteger(LuaState(), TILE_DEATH);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NOHOOK");
+		lua_pushinteger(LuaState(), TILE_NOHOOK);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "tile");
 
 	lua_setglobal(LuaState(), "ddnetpp");
 }
@@ -1010,6 +1055,77 @@ int CLuaPlugin::CallbackServerTickSpeed(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	lua_pushinteger(L, pGame->Server()->TickSpeed());
+	return 1;
+}
+
+int CLuaPlugin::CallbackCollisionWidth(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	lua_pushinteger(L, pGame->Collision()->GetWidth());
+	return 1;
+}
+
+int CLuaPlugin::CallbackCollisionHeight(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	lua_pushinteger(L, pGame->Collision()->GetHeight());
+	return 1;
+}
+
+int CLuaPlugin::CallbackCollisionGetTileIndex(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	// omega user friendly api
+	// lua can call get_tile_index(0, 0) to get the origin tile top left
+	// and          get_tile_index(1, 1) to get the one diagonal one further right and one further down
+	// but can also do get_tile_index(1.2, 1.9) and get the exact same tile. Which is nice for passing character:pos() in there
+
+	ivec2 Pos;
+	if(lua_isinteger(L, 1))
+		Pos.x = luaL_checkinteger(L, 1) * 32;
+	else
+		Pos.x = ((int)luaL_checknumber(L, 1)) * 32;
+	if(lua_isinteger(L, 2))
+		Pos.y = luaL_checkinteger(L, 2) * 32;
+	else
+		Pos.y = ((int)luaL_checknumber(L, 2)) * 32;
+	int TileIndex = pGame->Collision()->GetTile(Pos.x, Pos.y);
+	lua_pushinteger(L, TileIndex);
+	return 1;
+}
+
+int CLuaPlugin::CallbackCollisionGetTile(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	ivec2 LuaPos;
+	CTableUnpacker Unpacker(L, 1, "pos");
+	LuaPos.x = Unpacker.GetIntOrFloat("x");
+	LuaPos.y = Unpacker.GetIntOrFloat("y");
+	ivec2 RealPos = LuaPos * 32;
+
+	int TileIndex = pGame->Collision()->GetTile(RealPos.x, RealPos.y);
+	int TileFlags = pGame->Collision()->GetTileFlags(
+		pGame->Collision()->GetIndex(RealPos.x, RealPos.y));
+
+	lua_newtable(L);
+
+	lua_pushstring(L, "x");
+	lua_pushinteger(L, LuaPos.x);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "y");
+	lua_pushinteger(L, LuaPos.y);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "index");
+	lua_pushinteger(L, TileIndex);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "flags");
+	lua_pushinteger(L, TileFlags);
+	lua_settable(L, -3);
+
 	return 1;
 }
 

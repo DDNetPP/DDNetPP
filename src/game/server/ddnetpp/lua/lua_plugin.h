@@ -137,6 +137,12 @@ private:
 	static int CallbackServerTick(lua_State *L);
 	static int CallbackServerTickSpeed(lua_State *L);
 
+	// collision
+	static int CallbackCollisionWidth(lua_State *L);
+	static int CallbackCollisionHeight(lua_State *L);
+	static int CallbackCollisionGetTileIndex(lua_State *L);
+	static int CallbackCollisionGetTile(lua_State *L);
+
 	// TODO: move these to some other scope? Because we have some
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);

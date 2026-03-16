@@ -11,6 +11,7 @@ class IGameController;
 class CGameContext;
 class IServer;
 class CLuaRconCommand;
+class CCollision;
 
 /// represents the "Game" table in lua
 ///
@@ -33,6 +34,8 @@ public:
 	CGameContext *GameServer() { return m_pGameServer; }
 	const IServer *Server() const;
 	IServer *Server();
+	const CCollision *Collision() const;
+	CCollision *Collision();
 
 	void Init(IGameController *pController, CGameContext *pGameServer);
 

@@ -19,6 +19,16 @@ IServer *CLuaGame::Server()
 	return GameServer()->Server();
 }
 
+const CCollision *CLuaGame::Collision() const
+{
+	return m_pGameServer->Collision();
+}
+
+CCollision *CLuaGame::Collision()
+{
+	return GameServer()->Collision();
+}
+
 void CLuaGame::Init(IGameController *pController, CGameContext *pGameServer)
 {
 	m_pController = pController;

@@ -23,13 +23,20 @@ class CTableUnpacker
 	lua_State *LuaState() { return m_pLuaState; }
 	bool m_IsError = false;
 
-	CLuaStackChecker m_LuaStackChecker;
+	// nice for debugging but it makes the unpacker annoying to use
+	// because after you are done using the unpacker you need to
+	// cleanup the scope before being able to use the lua api again
+	// this just creates the need for useless scopes
+	// so far the table unpacker seems to be correct so we no longer need
+	// to assert this anyways we can now just assert it in the outer scope
+	// CLuaStackChecker m_LuaStackChecker;
 
 public:
 	bool IsError() const { return m_IsError; }
 
 	CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename = "", int SourceLineNumber = -1);
 	void Error(const char *pReason);
+	int GetIntOrFloat(const char *pKey);
 	int GetInt(const char *pKey);
 	std::optional<bool> GetBooleanOptional(const char *pKey);
 	std::optional<int> GetIntOptional(const char *pKey);

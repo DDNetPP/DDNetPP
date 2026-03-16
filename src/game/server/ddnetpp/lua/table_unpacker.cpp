@@ -11,8 +11,8 @@ extern "C" {
 #include "lualib.h"
 }
 
-CTableUnpacker::CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename, int SourceLineNumber) :
-	m_LuaStackChecker(L, pSourceFilename, SourceLineNumber, pTableName)
+CTableUnpacker::CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename, int SourceLineNumber)
+// : m_LuaStackChecker(L, pSourceFilename, SourceLineNumber, pTableName)
 {
 	m_pLuaState = L;
 	m_Index = Index;
@@ -30,6 +30,36 @@ void CTableUnpacker::Error(const char *pReason)
 {
 	m_IsError = true;
 	luaL_error(LuaState(), "error in table '%s': %s", m_aTableName, pReason);
+}
+
+int CTableUnpacker::GetIntOrFloat(const char *pKey)
+{
+	if(m_IsError)
+		return 0;
+	lua_getfield(LuaState(), m_Index, pKey);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
+		Error(aBuf);
+		return 0;
+	}
+	if(lua_isinteger(LuaState(), -1))
+	{
+		int Val = lua_tointeger(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+	if(lua_isnumber(LuaState(), -1))
+	{
+		int Val = (int)lua_tonumber(LuaState(), -1);
+		lua_pop(LuaState(), 1);
+		return Val;
+	}
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold an integer or number instead got %s", pKey, luaL_typename(LuaState(), -1));
+	Error(aBuf);
+	return 0;
 }
 
 int CTableUnpacker::GetInt(const char *pKey)
