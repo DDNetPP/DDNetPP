@@ -531,6 +531,48 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "tile");
 
+	// ddnet.weapon sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "GAME");
+		lua_pushinteger(LuaState(), WEAPON_GAME);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "SELF");
+		lua_pushinteger(LuaState(), WEAPON_SELF);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WORLD");
+		lua_pushinteger(LuaState(), WEAPON_WORLD);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HAMMER");
+		lua_pushinteger(LuaState(), WEAPON_HAMMER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GUN");
+		lua_pushinteger(LuaState(), WEAPON_GUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "SHOTGUN");
+		lua_pushinteger(LuaState(), WEAPON_SHOTGUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GRENADE");
+		lua_pushinteger(LuaState(), WEAPON_GRENADE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "LASER");
+		lua_pushinteger(LuaState(), WEAPON_LASER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NINJA");
+		lua_pushinteger(LuaState(), WEAPON_NINJA);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "weapon");
+
 	lua_setglobal(LuaState(), "ddnetpp");
 }
 
