@@ -335,6 +335,10 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterPlayer);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "die");
+	lua_pushcfunction(LuaState(), CallbackCharacterDie);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -1321,6 +1325,27 @@ int CLuaPlugin::CallbackCharacterPlayer(lua_State *L)
 	pPlayerHandle->Init(pCharacterHandle->m_UniqueClientId, pCharacterHandle->m_pPlugin);
 	luaL_setmetatable(L, "Player");
 	return 1;
+}
+
+int CLuaPlugin::CallbackCharacterDie(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	// TODO: cursed ddnet++ kill code ignores the weapon
+	//       and does not show it in kill feed
+	//       https://github.com/DDNetPP/DDNetPP/issues/529
+
+	int KillerId = pChr->GetPlayer()->GetCid();
+	int Weapon = WEAPON_GAME;
+
+	if(NumArgs > 1)
+		KillerId = luaL_checkinteger(L, 2);
+	if(NumArgs > 2)
+		Weapon = luaL_checkinteger(L, 3);
+
+	pChr->Die(KillerId, Weapon);
+	return 0;
 }
 
 void CLuaPlugin::OnInit()
