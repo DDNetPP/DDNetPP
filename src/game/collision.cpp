@@ -865,6 +865,20 @@ bool CCollision::TileExists(int Index) const
 	if(Index < 0)
 		return false;
 
+#ifdef CONF_LUA
+	// how bad is this for performance?
+	// reasoning about the code i am doubting the usefulness
+	// of the entire TileExists approach
+	// but I did not properly test this maybe it actually has performance impact idk
+	// But the majority of time tees spend in tiles such as
+	// air, freeze, unfreeze and so on
+	// which are either still skipped or werent skipped before either
+	// what is new is things like TILE_SOLID and TILE_NOHOOK
+	// tees don't often spend time in there so it doesnt really matter
+	// but even if it cant be worse than TILE_FREEZE, TILE_XYZ.. can it?
+	if(m_pTiles[Index].m_Index != TILE_AIR)
+		return true;
+#endif
 	if(m_pTiles[Index].m_Index == TILE_CAPTCHA_VERIFY)
 		return true;
 	if(m_pTiles[Index].m_Index >= TILE_MONEY_PLUS && m_pTiles[Index].m_Index <= TILE_END_CUSTOM)

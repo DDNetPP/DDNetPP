@@ -61,15 +61,6 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
 	HandleCosmeticTiles(pChr);
 
-	// TODO: this does not get called for all tiles!
-	//       so lua can not make up new indices
-	//       not even TILE_AIR is hit because the collision code has only a whitelist
-	//       not sure how to proceed here yet
-	//       can allow lua to write to the whitelist but even if that is powerful
-	//       its a bit too annoying for a lua plugin imo
-	//       maybe we should just call it for all tiles. How slow would that be?
-	//       Can't be worse than any other on tick method can it? Or is this called
-	//       way more often?
 	// TODO: make sure lua can not actually delete pChr and segfault here
 	if(Lua()->OnCharacterTile(pChr, TileIndex, TileFIndex))
 		return;
