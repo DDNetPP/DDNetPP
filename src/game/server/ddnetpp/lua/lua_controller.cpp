@@ -525,6 +525,7 @@ CLuaController::~CLuaController()
 	{
 		delete pPlugin;
 	}
+	m_vpPlugins.clear();
 #endif
 }
 

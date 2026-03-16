@@ -1596,6 +1596,10 @@ bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 Mou
 	return false;
 }
 
+// WARNING: if this method uses a logger the rcon command "reload plugins"
+//          will receive a rcon line message which calls this method again
+//          so there is a high risk of recursion
+//          https://github.com/DDNetPP/DDNetPP/issues/524
 bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int Flags)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
@@ -1625,7 +1629,8 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 	if(lua_pcall(LuaState(), 3, 1, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
-		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		// WARNING: we can not use any kind of logger here it would cause recursion
+		// log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
 		SetError(pErrorMsg);
 		// pop error and global "ddnetpp"
 		lua_pop(LuaState(), 2);
@@ -1648,7 +1653,8 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 			LuaInfo.linedefined,
 			pFunction,
 			luaL_typename(LuaState(), -1));
-		log_error("lua", "%s", aError);
+		// WARNING: we can not use any kind of logger here it would cause recursion
+		// log_error("lua", "%s", aError);
 		SetError(aError);
 		// pop error and global "ddnetpp"
 		lua_pop(LuaState(), 2);
