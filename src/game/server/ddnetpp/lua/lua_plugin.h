@@ -154,6 +154,8 @@ private:
 
 	// TODO: new scope?
 	static int CallbackCharacterPos(lua_State *L);
+	static int CallbackCharacterId(lua_State *L);
+	static int CallbackCharacterPlayer(lua_State *L);
 
 public:
 	// Calling lua from C++

@@ -99,6 +99,30 @@ static CCharacter *LuaCheckCharacter(lua_State *L, int Index)
 	return pChr;
 }
 
+static CLuaPlayerHandle *LuaCheckCharacterHandle(lua_State *L, int Index)
+{
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Character"));
+	if(!pPlayerHandle)
+		return nullptr;
+	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
+	if(!pPlayer)
+	{
+		// Is it weird to say "invalid Player"
+		// when calling a character instance method?
+		// Its technically the correct error but weird to expose that to the user.
+		// Hmm...
+		luaL_error(L, "invalid Player");
+		return nullptr;
+	}
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+	{
+		luaL_error(L, "invalid Character");
+		return nullptr;
+	}
+	return pPlayerHandle;
+}
+
 // https://github.com/DDNetPP/DDNetPP/issues/512
 //
 // this is basically copy pasted from here
@@ -301,6 +325,14 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	// Add methods
 	lua_pushstring(LuaState(), "pos");
 	lua_pushcfunction(LuaState(), CallbackCharacterPos);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "id");
+	lua_pushcfunction(LuaState(), CallbackCharacterId);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "player");
+	lua_pushcfunction(LuaState(), CallbackCharacterPlayer);
 	lua_settable(LuaState(), -3);
 
 	// Set __index = method_table
@@ -1271,6 +1303,23 @@ int CLuaPlugin::CallbackCharacterPos(lua_State *L)
 	lua_pushstring(L, "y");
 	lua_pushnumber(L, pChr->GetPos().y / 32.0f);
 	lua_settable(L, -3);
+	return 1;
+}
+
+int CLuaPlugin::CallbackCharacterId(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+	lua_pushinteger(L, pChr->GetPlayer()->GetCid());
+	return 1;
+}
+
+int CLuaPlugin::CallbackCharacterPlayer(lua_State *L)
+{
+	CLuaPlayerHandle *pCharacterHandle = LuaCheckCharacterHandle(L, 1);
+
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(L, sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pCharacterHandle->m_UniqueClientId, pCharacterHandle->m_pPlugin);
+	luaL_setmetatable(L, "Player");
 	return 1;
 }
 
