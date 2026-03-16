@@ -22,11 +22,13 @@ class IGameController;
 class CGameContext;
 struct lua_State;
 
+#ifdef CONF_LUA
 class CLuaPlayerState
 {
 public:
 	CCmdSender m_CmdSender;
 };
+#endif
 
 class CLuaController : public ILuaController
 {
@@ -97,7 +99,9 @@ public:
 	void Init(IGameController *pController, CGameContext *pGameServer);
 	~CLuaController() override;
 
+#ifdef CONF_LUA
 	CLuaPlayerState m_aPlayers[MAX_CLIENTS];
+#endif
 
 	// rcon commands
 	void ListPlugins();
