@@ -521,9 +521,10 @@ void CLuaController::Init(IGameController *pController, CGameContext *pGameServe
 CLuaController::~CLuaController()
 {
 #ifdef CONF_LUA
-	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	for(auto &pPlugin : m_vpPlugins)
 	{
 		delete pPlugin;
+		pPlugin = nullptr;
 	}
 	m_vpPlugins.clear();
 #endif
@@ -577,7 +578,7 @@ void CLuaController::ReloadPlugins()
 	std::vector<std::string> vRconCommands;
 	std::vector<std::string> vChatCommands;
 	log_info("lua", "reloading %" PRIzu " plugins ..", m_vpPlugins.size());
-	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	for(auto &pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
 			continue;
@@ -589,6 +590,7 @@ void CLuaController::ReloadPlugins()
 			vChatCommands.emplace_back(It.second.Name());
 
 		delete pPlugin;
+		pPlugin = nullptr;
 	}
 
 	// TODO: call some before and after reload hooks here for the plugins
@@ -925,6 +927,9 @@ bool CLuaController::OnServerMessage(int ClientId, const void *pData, int Size, 
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
+		// https://github.com/DDNetPP/DDNetPP/issues/524#issuecomment-4066439351
+		if(!pPlugin)
+			continue;
 		if(!pPlugin->IsActive())
 			continue;
 

@@ -233,7 +233,9 @@ CLuaPlugin::~CLuaPlugin()
 {
 	if(LuaState())
 	{
-		log_info("lua", "cleaning up plugin '%s' ...", Name());
+		// WARNING: logging here segfaults on rcon command "plugins reload"
+		//          https://github.com/DDNetPP/DDNetPP/issues/524#issuecomment-4066439351
+		// log_info("lua", "cleaning up plugin '%s' ...", Name());
 		FreeSnapIds();
 		lua_close(LuaState());
 	}
