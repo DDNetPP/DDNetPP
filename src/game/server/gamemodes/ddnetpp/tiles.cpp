@@ -61,7 +61,6 @@ void CGameControllerDDNetPP::HandleCharacterTiles(class CCharacter *pChr, int Ma
 	HandleCharacterTilesDDPP(pChr, TileIndex, TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
 	HandleCosmeticTiles(pChr);
 
-	// TODO: make sure lua can not actually delete pChr and segfault here
 	if(Lua()->OnCharacterTile(pChr, TileIndex, TileFIndex))
 		return;
 	if(HandleTilesThatCanKill(pChr))
