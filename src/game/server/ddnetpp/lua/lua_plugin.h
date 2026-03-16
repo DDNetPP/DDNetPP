@@ -25,6 +25,7 @@ extern "C" {
 class IGameController;
 class CGameContext;
 class CPlayer;
+class CCharacter;
 
 class CLuaPlugin
 {
@@ -159,6 +160,7 @@ public:
 	void OnInit();
 	void OnTick();
 	void OnPlayerTick(const CPlayer *pPlayer);
+	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	void OnSnap(int SnappingClient);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);

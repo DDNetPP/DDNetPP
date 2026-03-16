@@ -1250,6 +1250,55 @@ void CLuaPlugin::OnPlayerTick(const CPlayer *pPlayer)
 	CallLuaVoidWithPlayer("on_player_tick", pPlayer);
 }
 
+bool CLuaPlugin::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	if(!pChr->IsAlive())
+		return true;
+	int ClientId = pChr->GetPlayer()->GetCid();
+
+	const char *pFunction = "on_character_tile";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pChr->GetPlayer()->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Character");
+	lua_pushinteger(LuaState(), GameIndex);
+	lua_pushinteger(LuaState(), FrontIndex);
+	if(lua_pcall(LuaState(), 3, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
+
+	// If the plugin kills or kicks the character or player
+	// we need to return true
+	// to skip the other tile handle code that would follow
+	// otherwise it will segfault
+	if(!Game()->GameServer()->GetPlayerChar(ClientId))
+		return true;
+	return false;
+}
+
 void CLuaPlugin::OnSnap(int SnappingClient)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

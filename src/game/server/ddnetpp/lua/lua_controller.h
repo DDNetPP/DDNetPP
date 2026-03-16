@@ -17,6 +17,7 @@
 
 #include <vector>
 
+class CCharacter;
 class CLuaPlugin;
 class IGameController;
 class CGameContext;
@@ -109,6 +110,7 @@ public:
 
 	void OnInit() override;
 	void OnTick();
+	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	void OnSnap(int SnappingClient);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
