@@ -1258,7 +1258,7 @@ bool CCharacter::DDPP_Respawn()
 	return true;
 }
 
-int CCharacter::DDPP_DIE(int Killer, int Weapon, bool FngScore)
+int CCharacter::DDPP_DIE(int Killer, int &Weapon, bool FngScore)
 {
 #if defined(CONF_DEBUG)
 	dbg_msg("debug", "character die Id: %d Name: %s", m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()));
@@ -1627,7 +1627,7 @@ void CCharacter::KillSpeed()
 	m_Core.m_Vel.y = 0.0f;
 }
 
-int CCharacter::BlockPointsMain(int Killer, int Weapon, bool FngScore)
+int CCharacter::BlockPointsMain(int Killer, int &Weapon, bool FngScore)
 {
 	bool FreezeBlock = m_pPlayer->m_LastToucherId != -1 && m_FreezeTime;
 	bool SpikeKill = m_pPlayer->m_LastToucherId != -1 && Weapon == WEAPON_WORLD;
@@ -1638,7 +1638,9 @@ int CCharacter::BlockPointsMain(int Killer, int Weapon, bool FngScore)
 	if(m_pPlayer->m_IsInstaMode_fng && !FngScore)
 		return Killer; // Killer = KilledId --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
-	Killer = m_pPlayer->m_LastToucherId; // kill message
+	// kill message
+	Killer = m_pPlayer->m_LastToucherId;
+	Weapon = m_LastHitWeapon;
 
 	if(m_pPlayer->m_LastToucherId == m_pPlayer->GetCid())
 	{

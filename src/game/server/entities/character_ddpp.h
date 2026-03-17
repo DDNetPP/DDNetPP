@@ -114,7 +114,7 @@ public:
 	void PostSpawnDDPP();
 	void DDPPPostCoreTick();
 	bool DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon);
-	int DDPP_DIE(int Killer, int Weapon, bool FngScore = false);
+	int DDPP_DIE(int Killer, int &Weapon, bool FngScore = false);
 	void TwblTick();
 	void DummyTick();
 
@@ -139,7 +139,7 @@ public:
 	int m_ci_freezetime;
 
 	//Block
-	int BlockPointsMain(int Killer, int Weapon, bool FngScore = false);
+	int BlockPointsMain(int Killer, int &Weapon, bool FngScore = false);
 	void XpOnKill(int Killer);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
@@ -225,6 +225,7 @@ public:
 	int m_FirstHookAttachTick = 0;
 	int HookingSinceSeconds();
 
+	// TODO: remove use ddnet-insta's last toucher concept instead
 	int m_LastHitWeapon;
 	int m_OldLastHookedPlayer;
 	bool m_GotTasered;

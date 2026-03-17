@@ -1095,10 +1095,7 @@ void CCharacter::SendDeathMessageIfNotInLockedTeam(int Killer, int Weapon, int M
 			GameServer()->m_apPlayers[Killer]->FixForNoName(0); // just for the name to appear because otherwise there would be no name in the kill msg
 
 		m_pPlayer->m_MsgKiller = Killer;
-		if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
-			m_pPlayer->m_MsgWeapon = m_LastHitWeapon;
-		else
-			m_pPlayer->m_MsgWeapon = Weapon;
+		m_pPlayer->m_MsgWeapon = Weapon;
 		m_pPlayer->m_MsgModeSpecial = ModeSpecial;
 		m_pPlayer->FixForNoName(2);
 	}
@@ -1107,10 +1104,7 @@ void CCharacter::SendDeathMessageIfNotInLockedTeam(int Killer, int Weapon, int M
 		CNetMsg_Sv_KillMsg Msg;
 		Msg.m_Killer = Killer;
 		Msg.m_Victim = m_pPlayer->GetCid();
-		if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
-			Msg.m_Weapon = m_LastHitWeapon;
-		else
-			Msg.m_Weapon = Weapon;
+		Msg.m_Weapon = Weapon;
 		Msg.m_ModeSpecial = ModeSpecial;
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 	}

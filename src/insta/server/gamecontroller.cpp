@@ -28,14 +28,6 @@ void IGameController::OnCharacterDeathImpl(CCharacter *pVictim, int Killer, int 
 
 	LogKillMessage(pVictim, Killer, Weapon, ModeSpecial);
 
-	// TODO: move this to ddnet++ controller
-	// ddnet++
-	if(Killer < 0 || Killer == pVictim->GetPlayer()->GetCid())
-	{
-		pVictim->m_LastHitWeapon = -1;
-		Weapon = -1;
-	}
-
 	if(SendKillMsg)
 	{
 		SendDeathInfoMessage(pVictim, Killer, Weapon, ModeSpecial);
