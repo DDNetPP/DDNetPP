@@ -6,6 +6,8 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <engine/shared/protocol.h>
+
 #include <generated/protocol.h>
 
 #include <game/gamecore.h>
@@ -423,6 +425,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewPlayerInfo, 1);
 		lua_setfield(LuaState(), -2, "new_player_info");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewClientInfo, 1);
+		lua_setfield(LuaState(), -2, "new_client_info");
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
@@ -1272,6 +1278,46 @@ int CLuaPlugin::CallbackSnapNewPlayerInfo(lua_State *L)
 	pItem->m_Team = Unpacker.GetIntOrDefault("team", TEAM_GAME);
 	pItem->m_Score = Unpacker.GetIntOrDefault("score", 0);
 	pItem->m_Latency = Unpacker.GetIntOrDefault("latency", 0);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSnapNewClientInfo(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+
+	int SnappingClient = pSelf->m_SnappingClient;
+	if(pGame->Server()->IsSixup(SnappingClient))
+	{
+		// TODO: implement
+		return 0;
+	}
+
+	CTableUnpacker Unpacker(L, 1, "client_info");
+	int SnapId = Unpacker.GetInt("id");
+
+	CNetObj_ClientInfo *pItem = pGame->Server()->SnapNewItem<CNetObj_ClientInfo>(SnapId);
+	if(!pItem)
+		return 0;
+
+	char aName[MAX_NAME_LENGTH] = "";
+	bool GotName = Unpacker.GetStringOrFalse("name", aName, sizeof(aName));
+
+	char aClan[MAX_CLAN_LENGTH] = "";
+	bool GotClan = Unpacker.GetStringOrFalse("clan", aClan, sizeof(aClan));
+
+	StrToInts(pItem->m_aName, std::size(pItem->m_aName), GotName ? aName : "lua");
+	StrToInts(pItem->m_aClan, std::size(pItem->m_aClan), GotClan ? aClan : "");
+
+	pItem->m_Country = Unpacker.GetIntOrDefault("country", -1);
+
+	char aSkin[MAX_SKIN_LENGTH] = "";
+	bool GotSkin = Unpacker.GetStringOrFalse("skin", aSkin, sizeof(aSkin));
+	StrToInts(pItem->m_aSkin, std::size(pItem->m_aSkin), GotSkin ? aSkin : "default");
+
+	pItem->m_UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color").value_or(false);
+	pItem->m_ColorBody = Unpacker.GetIntOrDefault("color_body", 2);
+	pItem->m_ColorFeet = Unpacker.GetIntOrDefault("color_feet", 2);
 	return 0;
 }
 
