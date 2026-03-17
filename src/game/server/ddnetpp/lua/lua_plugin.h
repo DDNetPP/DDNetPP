@@ -118,6 +118,10 @@ private:
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackSendChatTarget(lua_State *L);
+	static int CallbackSendBroadcast(lua_State *L);
+	static int CallbackSendBroadcastTarget(lua_State *L);
+	static int CallbackSendMotd(lua_State *L);
+	static int CallbackSendMotdTarget(lua_State *L);
 	static int CallbackRcon(lua_State *L);
 	static int CallbackSendVoteClearOptions(lua_State *L);
 	static int CallbackSendVoteOptionAdd(lua_State *L);

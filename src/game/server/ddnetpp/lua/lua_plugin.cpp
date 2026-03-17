@@ -315,6 +315,22 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_chat_target");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendBroadcast, 1);
+	lua_setfield(LuaState(), -2, "send_broadcast");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendBroadcastTarget, 1);
+	lua_setfield(LuaState(), -2, "send_broadcast_target");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendMotd, 1);
+	lua_setfield(LuaState(), -2, "send_motd");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendMotdTarget, 1);
+	lua_setfield(LuaState(), -2, "send_motd_target");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
 	lua_setfield(LuaState(), -2, "rcon");
 
@@ -821,6 +837,40 @@ int CLuaPlugin::CallbackSendChatTarget(lua_State *L)
 	int ClientId = LuaCheckClientId(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
 	pGame->GameServer()->SendChatTarget(ClientId, pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendBroadcast(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	const char *pMessage = luaL_checkstring(L, 1);
+	pGame->GameServer()->SendBroadcastAll(pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendBroadcastTarget(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	const char *pMessage = luaL_checkstring(L, 2);
+	pGame->GameServer()->SendBroadcast(pMessage, ClientId);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendMotd(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	const char *pMessage = luaL_checkstring(L, 1);
+	pGame->GameServer()->AbuseMotd(pMessage, -1);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendMotdTarget(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	const char *pMessage = luaL_checkstring(L, 2);
+	pGame->GameServer()->AbuseMotd(pMessage, ClientId);
 	return 0;
 }
 
