@@ -183,9 +183,15 @@ std::optional<float> CTableUnpacker::GetFloatOptional(const char *pKey)
 		return std::nullopt;
 	lua_getfield(LuaState(), m_Index, pKey);
 	if(lua_isnoneornil(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
 		return std::nullopt;
+	}
 	if(!lua_isnumber(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
 		return std::nullopt;
+	}
 	float Val = lua_tonumber(LuaState(), -1);
 	lua_pop(LuaState(), 1);
 	return Val;
@@ -252,9 +258,15 @@ std::optional<int> CTableUnpacker::GetCoordinateOptional(const char *pKey)
 		return std::nullopt;
 	lua_getfield(LuaState(), m_Index, pKey);
 	if(lua_isnoneornil(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
 		return std::nullopt;
+	}
 	if(!lua_isnumber(LuaState(), -1) && !lua_isinteger(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
 		return std::nullopt;
+	}
 	int Val = LuaCheckCoordinate(LuaState(), -1);
 	lua_pop(LuaState(), 1);
 	return Val;
