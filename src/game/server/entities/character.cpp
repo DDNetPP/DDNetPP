@@ -1689,6 +1689,11 @@ void CCharacter::HandleTiles(int Index)
 		m_LastRefillJumps = false;
 		m_LastPenalty = false;
 		m_LastBonus = false;
+
+		// ddnet++ explicitly inform lua when no tile was hit at all
+		// so we can detect the first touch of a tile better
+		GameServer()->Lua()->OnCharacterTile(this, TILE_AIR, TILE_AIR);
+
 		return;
 	}
 	SetTimeCheckpoint(Collision()->IsTimeCheckpoint(MapIndex));

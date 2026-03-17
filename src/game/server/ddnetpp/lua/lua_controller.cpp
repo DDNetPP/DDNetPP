@@ -694,6 +694,7 @@ void CLuaController::OnTick()
 bool CLuaController::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex)
 {
 #ifdef CONF_LUA
+
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
@@ -701,6 +702,14 @@ bool CLuaController::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontI
 
 		if(pPlugin->OnCharacterTile(pChr, GameIndex, FrontIndex))
 			return true;
+
+		CLuaPlayerState &State = m_aPlayers[pChr->GetPlayer()->GetCid()];
+		if(State.m_PreviousGameTileIndex != GameIndex)
+		{
+			if(pPlugin->OnCharacterGameTileChange(pChr, GameIndex))
+				return true;
+		}
+		State.m_PreviousGameTileIndex = GameIndex;
 	}
 	return false;
 #else

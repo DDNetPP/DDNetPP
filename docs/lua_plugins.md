@@ -84,6 +84,25 @@ function ddnetpp.on_chat(client_id, msg)
 end
 ```
 
+## implement custom tiles
+
+```lua
+function ddnetpp.on_character_game_tile_change(chr, tile)
+	if tile == ddnetpp.tile.FREEZE then
+		-- this only gets called once when touching freeze
+		ddnetpp.send_chat_target(chr, "woah you suck xd")
+	end
+end
+
+function ddnetpp.on_character_tile(chr, tile)
+	if tile == 159 then
+		-- assuming index 159 is not used in the gamelayer
+		-- you can implement your own tile here
+		-- this will be called every tick
+	end
+end
+```
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.

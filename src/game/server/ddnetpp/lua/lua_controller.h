@@ -28,6 +28,7 @@ class CLuaPlayerState
 {
 public:
 	CCmdSender m_CmdSender;
+	int m_PreviousGameTileIndex = -1;
 };
 #endif
 
