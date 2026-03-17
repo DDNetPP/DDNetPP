@@ -11,6 +11,7 @@
 #include <game/mapitems.h>
 #include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
+#include <game/gamecore.h>
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
@@ -414,6 +415,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewPickup, 1);
 		lua_setfield(LuaState(), -2, "new_pickup");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewCharacter, 1);
+		lua_setfield(LuaState(), -2, "new_character");
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
@@ -608,6 +613,50 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_settable(LuaState(), -3);
 	}
 	lua_setfield(LuaState(), -2, "weapon");
+
+	// ddnet.hook sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "RETRACTED");
+		lua_pushinteger(LuaState(), HOOK_RETRACTED);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "IDLE");
+		lua_pushinteger(LuaState(), HOOK_IDLE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "RETRACT_START");
+		lua_pushinteger(LuaState(), HOOK_RETRACT_START);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "RETRACT_END");
+		lua_pushinteger(LuaState(), HOOK_RETRACT_END);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "FLYING");
+		lua_pushinteger(LuaState(), HOOK_FLYING);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GRABBED");
+		lua_pushinteger(LuaState(), HOOK_GRABBED);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "hook");
+
+	// ddnet.eye_emote sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "NORMAL");
+		lua_pushinteger(LuaState(), EMOTE_NORMAL);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PAIN");
+		lua_pushinteger(LuaState(), EMOTE_PAIN);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "eye_emote");
 
 	lua_setglobal(LuaState(), "ddnetpp");
 }
@@ -1119,6 +1168,53 @@ int CLuaPlugin::CallbackSnapNewPickup(lua_State *L)
 		SubType,
 		SwitchNumber,
 		Flags);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+
+	int SnappingClient = pSelf->m_SnappingClient;
+	if(pGame->Server()->IsSixup(SnappingClient))
+	{
+		// TODO: implement
+		// TODO: we can even allow passing the 0.7 only m_TriggeredEvents
+		//       as an optional argument from lua
+		return 0;
+	}
+
+	CTableUnpacker Unpacker(L, 1, "character");
+	int SnapId = Unpacker.GetInt("id");
+
+	CNetObj_Character *pCharacter = pGame->Server()->SnapNewItem<CNetObj_Character>(SnapId);
+	if(!pCharacter)
+		return 0;
+
+	// TODO: add more sensible defaults so lua plugins can get something to work with less code
+	pCharacter->m_Tick = Unpacker.GetIntOrDefault("tick", 0);
+	pCharacter->m_X = Unpacker.GetInt("x");
+	pCharacter->m_Y = Unpacker.GetInt("y");
+	pCharacter->m_VelX = Unpacker.GetInt("vel_x");
+	pCharacter->m_VelY = Unpacker.GetInt("vel_y");
+	pCharacter->m_Angle = Unpacker.GetInt("angle");
+	pCharacter->m_Direction = Unpacker.GetInt("direction");
+	pCharacter->m_Jumped = Unpacker.GetInt("jumped");
+	pCharacter->m_HookedPlayer = Unpacker.GetInt("hooked_player");
+	pCharacter->m_HookState = Unpacker.GetInt("hook_state");
+	pCharacter->m_HookTick = Unpacker.GetInt("hook_tick");
+	pCharacter->m_HookX = Unpacker.GetInt("hook_x");
+	pCharacter->m_HookY = Unpacker.GetInt("hook_y");
+	pCharacter->m_HookDx = Unpacker.GetInt("hook_dx");
+	pCharacter->m_HookDy = Unpacker.GetInt("hook_dy");
+	pCharacter->m_PlayerFlags = Unpacker.GetInt("player_flags");
+	pCharacter->m_Health = Unpacker.GetInt("health");
+	pCharacter->m_Armor = Unpacker.GetInt("armor");
+	pCharacter->m_AmmoCount = Unpacker.GetInt("ammo_count");
+	pCharacter->m_Weapon = Unpacker.GetInt("weapon");
+	pCharacter->m_Emote = Unpacker.GetInt("eye_emote");
+	pCharacter->m_AttackTick = Unpacker.GetInt("attack_tick");
 	return 0;
 }
 
