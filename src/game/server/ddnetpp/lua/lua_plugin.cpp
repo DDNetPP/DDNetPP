@@ -1309,18 +1309,12 @@ int CLuaPlugin::CallbackCollisionGetTileIndex(lua_State *L)
 	// omega user friendly api
 	// lua can call get_tile_index(0, 0) to get the origin tile top left
 	// and          get_tile_index(1, 1) to get the one diagonal one further right and one further down
-	// but can also do get_tile_index(1.2, 1.9) and get the exact same tile. Which is nice for passing character:pos() in there
+	// but can also do get_tile_index(1.2, 1.9) and get the exact same tile. Which is nice for passing character:pos() fields in there
+	//
+	// and we also overload it with a table so one can do get_tile_index({x=1,y=1}) or pass in the full character:pos()
 
-	// TODO: use LuaCheckCoordinate
 	ivec2 Pos;
-	if(lua_isinteger(L, 1))
-		Pos.x = luaL_checkinteger(L, 1) * 32;
-	else
-		Pos.x = ((int)luaL_checknumber(L, 1)) * 32;
-	if(lua_isinteger(L, 2))
-		Pos.y = luaL_checkinteger(L, 2) * 32;
-	else
-		Pos.y = ((int)luaL_checknumber(L, 2)) * 32;
+	LuaCheckPosOrXandY(L, 1, Pos);
 	int TileIndex = pGame->Collision()->GetTile(Pos.x, Pos.y);
 	lua_pushinteger(L, TileIndex);
 	return 1;

@@ -2,6 +2,7 @@
 
 #include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/lua_plugin.h>
+#include <game/server/ddnetpp/lua/table_unpacker.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
@@ -106,6 +107,21 @@ int LuaCheckClientId(lua_State *L, int Index)
 	// when getting an invalid type say we want an integer because thats the fastes
 	// even if we accept character and player too
 	return luaL_checkinteger(L, Index);
+}
+
+int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos)
+{
+	if(lua_isinteger(L, Index))
+	{
+		OutPos.x = LuaCheckCoordinate(L, Index);
+		OutPos.y = LuaCheckCoordinate(L, Index + 1);
+		return 1;
+	}
+
+	CTableUnpacker Unpacker(L, Index, "pos");
+	OutPos.x = Unpacker.GetCoordinate("x");
+	OutPos.y = Unpacker.GetCoordinate("y");
+	return 2;
 }
 
 #endif
