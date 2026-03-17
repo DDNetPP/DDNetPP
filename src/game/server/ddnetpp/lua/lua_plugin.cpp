@@ -1940,7 +1940,14 @@ bool CLuaPlugin::OnChatCommand(int ClientId, const char *pCommand, const char *p
 		// this does get shown to the user actually but is not ideal
 		// "chatresp" might be better or sending rcon line to the client id directly
 		// otherwise this does not work with econ, chat or threads
+		//
+		// UPDATE: i just checked with "chatresp" and it did not work for chat commands
+		//         not sure what broke the log scope here we should still be on the main thread
+		//         directly in the chat command scope.
+		//         but somehow it gets logged to server scope
+		//         anyways will just to sendchattarget
 		log_error("lua", "%s", aError);
+		Game()->GameServer()->SendChatTarget(ClientId, aError);
 		return true;
 	}
 
