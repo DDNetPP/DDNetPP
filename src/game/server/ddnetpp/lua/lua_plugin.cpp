@@ -666,6 +666,38 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "team");
 
+	// ddnetpp.flags sub table
+	{
+		lua_newtable(LuaState());
+
+		// ddnetpp.flags.gameinfo sub sub table
+		{
+			lua_newtable(LuaState());
+
+			lua_pushstring(LuaState(), "TIMESCORE");
+			lua_pushinteger(LuaState(), GAMEINFOFLAG_TIMESCORE);
+			lua_settable(LuaState(), -3);
+
+			lua_pushstring(LuaState(), "GAMETYPE_RACE");
+			lua_pushinteger(LuaState(), GAMEINFOFLAG_GAMETYPE_RACE);
+			lua_settable(LuaState(), -3);
+
+			lua_pushstring(LuaState(), "GAMETYPE_FASTCAP");
+			lua_pushinteger(LuaState(), GAMEINFOFLAG_GAMETYPE_FASTCAP);
+			lua_settable(LuaState(), -3);
+
+			lua_pushstring(LuaState(), "GAMETYPE_FNG");
+			lua_pushinteger(LuaState(), GAMEINFOFLAG_GAMETYPE_FNG);
+			lua_settable(LuaState(), -3);
+
+			lua_pushstring(LuaState(), "GAMETYPE_DDRACE");
+			lua_pushinteger(LuaState(), GAMEINFOFLAG_GAMETYPE_DDRACE);
+			lua_settable(LuaState(), -3);
+		}
+		lua_setfield(LuaState(), -2, "gameinfo");
+	}
+	lua_setfield(LuaState(), -2, "flags");
+
 	lua_setglobal(LuaState(), "ddnetpp");
 }
 

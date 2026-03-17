@@ -31,6 +31,17 @@ CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) 
 
 CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
 
+int CGameControllerDDNetPP::SnapGameInfoExFlags(int SnappingClient, int DDRaceFlags)
+{
+	int Flags = DDRaceFlags;
+	return Flags;
+}
+
+int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
+{
+	return DDRaceFlags;
+}
+
 bool CGameControllerDDNetPP::OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos)
 {
 	if(Lua()->OnFireWeapon(Character.GetPlayer()->GetCid(), Weapon, Direction, MouseTarget, ProjStartPos))

@@ -99,6 +99,9 @@ public:
 	*/
 	virtual void LogKillMessage(class CCharacter *pVictim, int Killer, int Weapon, int ModeSpecial);
 
+	virtual int SnapGameInfoExFlags(int SnappingClient, int DDRaceFlags) { return DDRaceFlags; }
+	virtual int SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags) { return DDRaceFlags; }
+
 private:
 #ifndef IN_CLASS_IGAMECONTROLLER
 };

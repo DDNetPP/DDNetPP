@@ -17,6 +17,8 @@ public:
 	class IConsole *Console() { return GameServer()->Console(); }
 	class IStorage *Storage() { return GameServer()->Storage(); }
 
+	int SnapGameInfoExFlags(int SnappingClient, int DDRaceFlags) override;
+	int SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags) override;
 	void SetArmorProgress(CCharacter *pCharacter, int Progress) override;
 
 	bool OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos) override;
