@@ -366,7 +366,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
 	lua_setfield(LuaState(), -2, "plugin_name");
 
-	// ddnet.snap sub table
+	// ddnetpp.snap sub table
 	{
 		lua_newtable(LuaState());
 
@@ -400,7 +400,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
-	// ddnet.server sub table
+	// ddnetpp.server sub table
 	{
 		lua_newtable(LuaState());
 
@@ -414,7 +414,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "server");
 
-	// ddnet.collision sub table
+	// ddnetpp.collision sub table
 	{
 		lua_newtable(LuaState());
 
@@ -436,7 +436,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "collision");
 
-	// ddnet.protocol sub table
+	// ddnetpp.protocol sub table
 	{
 		lua_newtable(LuaState());
 
@@ -506,7 +506,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "protocol");
 
-	// ddnet.skin_priority sub table
+	// ddnetpp.skin_priority sub table
 	{
 		lua_newtable(LuaState());
 
@@ -528,7 +528,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "skin_priority");
 
-	// ddnet.tile sub table
+	// ddnetpp.tile sub table
 	{
 		lua_newtable(LuaState());
 
@@ -554,7 +554,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "tile");
 
-	// ddnet.weapon sub table
+	// ddnetpp.weapon sub table
 	{
 		lua_newtable(LuaState());
 
@@ -596,7 +596,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "weapon");
 
-	// ddnet.hook sub table
+	// ddnetpp.hook sub table
 	{
 		lua_newtable(LuaState());
 
@@ -626,7 +626,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "hook");
 
-	// ddnet.eye_emote sub table
+	// ddnetpp.eye_emote sub table
 	{
 		lua_newtable(LuaState());
 
@@ -640,7 +640,7 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	}
 	lua_setfield(LuaState(), -2, "eye_emote");
 
-	// ddnet.team sub table
+	// ddnetpp.team sub table
 	{
 		lua_newtable(LuaState());
 
