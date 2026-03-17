@@ -13,6 +13,7 @@
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -112,6 +113,8 @@ private:
 	bool CallLuaVoidWithOneInt(const char *pFunction, int Num1);
 	// returns true if the function was found
 	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
+	// returns value if the function was found
+	std::optional<int> CallLuaIntWithTwoInts(const char *pFunction, int Num1, int Num2);
 	// returns true if the function was found
 	bool CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer);
 
@@ -174,6 +177,8 @@ public:
 	bool OnCharacterGameTileChange(CCharacter *pChr, int GameIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
 	void OnSnap(int SnappingClient);
+	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
+	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);

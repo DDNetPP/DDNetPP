@@ -821,6 +821,64 @@ bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num
 	return true;
 }
 
+std::optional<int> CLuaPlugin::CallLuaIntWithTwoInts(const char *pFunction, int Num1, int Num2)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return std::nullopt;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return std::nullopt;
+	}
+	lua_pushinteger(LuaState(), Num1);
+	lua_pushinteger(LuaState(), Num2);
+	if(lua_pcall(LuaState(), 2, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+
+	if(!lua_isinteger(LuaState(), -1))
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d return value for '%s' should be integer, got %s",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			luaL_typename(LuaState(), -1));
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		// pop error and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+
+	int Value = lua_tointeger(LuaState(), -1);
+	// pop value and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+	return Value;
+}
+
 bool CLuaPlugin::CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer)
 {
 	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
@@ -1778,6 +1836,18 @@ void CLuaPlugin::OnSnap(int SnappingClient)
 	dbg_assert(IsActive(), "called inactive plugin");
 	m_SnappingClient = SnappingClient;
 	CallLuaVoidWithOneInt("on_snap", SnappingClient);
+}
+
+int CLuaPlugin::OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	return CallLuaIntWithTwoInts("on_snap_gameinfo_flags", SnappingClient, DDRaceFlags).value_or(DDRaceFlags);
+}
+
+int CLuaPlugin::OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	return CallLuaIntWithTwoInts("on_snap_gameinfo_flags2", SnappingClient, DDRaceFlags).value_or(DDRaceFlags);
 }
 
 bool CLuaPlugin::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)

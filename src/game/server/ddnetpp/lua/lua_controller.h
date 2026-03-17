@@ -114,6 +114,8 @@ public:
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
 	void OnSnap(int SnappingClient);
+	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
+	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);

@@ -33,13 +33,12 @@ CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
 
 int CGameControllerDDNetPP::SnapGameInfoExFlags(int SnappingClient, int DDRaceFlags)
 {
-	int Flags = DDRaceFlags;
-	return Flags;
+	return Lua()->OnSnapGameInfoExFlags(SnappingClient, DDRaceFlags);
 }
 
 int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
 {
-	return DDRaceFlags;
+	return Lua()->OnSnapGameInfoExFlags2(SnappingClient, DDRaceFlags);
 }
 
 bool CGameControllerDDNetPP::OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos)

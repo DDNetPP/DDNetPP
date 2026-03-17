@@ -748,6 +748,38 @@ void CLuaController::OnSnap(int SnappingClient)
 #endif
 }
 
+int CLuaController::OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		DDRaceFlags = pPlugin->OnSnapGameInfoExFlags(SnappingClient, DDRaceFlags);
+	}
+	return DDRaceFlags;
+#else
+	return DDRaceFlags;
+#endif
+}
+
+int CLuaController::OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		DDRaceFlags = pPlugin->OnSnapGameInfoExFlags2(SnappingClient, DDRaceFlags);
+	}
+	return DDRaceFlags;
+#else
+	return DDRaceFlags;
+#endif
+}
+
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA
