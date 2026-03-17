@@ -44,9 +44,11 @@ public:
 	bool GetStringOrFalse(const char *pKey, char *pValue, size_t ValueSize);
 	int GetIntOrDefault(const char *pKey, int Default);
 	float GetFloat(const char *pKey);
+	std::optional<float> GetFloatOptional(const char *pKey);
 	vec2 GetVec2(const char *pKey);
 	vec2 GetPosition(const char *pKey);
 	int GetCoordinate(const char *pKey);
+	std::optional<int> GetCoordinateOptional(const char *pKey);
 };
 
 #endif

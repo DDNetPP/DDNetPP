@@ -1254,11 +1254,11 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 
 	CTableUnpacker Unpacker(L, -1, "laser", __FILE__, __LINE__);
 	int SnapId = Unpacker.GetInt("id");
-	float PosX = Unpacker.GetFloat("x");
-	float PosY = Unpacker.GetFloat("y");
-	float FromX = Unpacker.GetFloat("from_x");
-	float FromY = Unpacker.GetFloat("from_y");
-	int StartTick = Unpacker.GetInt("start_tick");
+	int PosX = Unpacker.GetCoordinate("x");
+	int PosY = Unpacker.GetCoordinate("y");
+	int FromX = Unpacker.GetCoordinateOptional("from_x").value_or(PosX);
+	int FromY = Unpacker.GetCoordinateOptional("from_y").value_or(PosY);
+	int StartTick = Unpacker.GetIntOrDefault("start_tick", 0);
 
 	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
 	if(!pObj)
@@ -1266,10 +1266,10 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 
 	// log_info("lua", "snapping laser with id=%d ...", SnapId);
 
-	pObj->m_X = (int)(PosX * 32.0f);
-	pObj->m_Y = (int)(PosY * 32.0f);
-	pObj->m_FromX = (int)(FromX * 32.0f);
-	pObj->m_FromY = (int)(FromY * 32.0f);
+	pObj->m_X = PosX;
+	pObj->m_Y = PosY;
+	pObj->m_FromX = FromX;
+	pObj->m_FromY = FromY;
 	pObj->m_StartTick = StartTick;
 	return 0;
 }
