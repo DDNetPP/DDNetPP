@@ -1064,47 +1064,12 @@ void CCharacter::StopRecording()
 
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool FngScore)
 {
-	if(Killer != WEAPON_GAME && m_SetSavePos[RESCUEMODE_AUTO])
-		GetPlayer()->m_LastDeath = m_RescueTee[RESCUEMODE_AUTO];
-	StopRecording();
+	// ddnet-insta death handler
+	GameServer()->m_pController->OnCharacterDeathImpl(this, Killer, Weapon, SendKillMsg);
 
-	// TODO: remove DDPP_DIE and use the ddnet-insta approach instead
-	Killer = DDPP_DIE(Killer, Weapon, FngScore);
-
-	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
-
-	log_info("game", "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
-		Killer, Server()->ClientName(Killer),
-		m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()), Weapon, ModeSpecial);
-
-	// TODO: move this to ddnet++ controller
-	// ddnet++
-	if(Killer < 0 || Killer == m_pPlayer->GetCid())
-	{
-		m_LastHitWeapon = -1;
-		Weapon = -1;
-	}
-
-	if(SendKillMsg)
-	{
-		SendDeathMessageIfNotInLockedTeam(Killer, Weapon, ModeSpecial);
-	}
-
-	// a nice sound, and bursting tee death effect
-	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE, TeamMask());
-	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid(), TeamMask());
-
-	// this is to rate limit respawning to 3 secs
-	m_pPlayer->m_PreviousDieTick = m_pPlayer->m_DieTick;
-	m_pPlayer->m_DieTick = Server()->Tick();
-
-	m_Alive = false;
-	SetSolo(false);
-
-	GameServer()->m_World.RemoveEntity(this);
-	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCid()] = nullptr;
-	Teams()->OnCharacterDeath(GetPlayer()->GetCid(), Weapon);
-	CancelSwapRequests();
+	// WARNING: all code in this method has been removed in ddnet-insta
+	//          if you get a git conflict here while merging into ddnet make sure to apply all ddnet code changes that
+	//          happened in this method to the `IGameController::OnCharacterDeathImpl`
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)

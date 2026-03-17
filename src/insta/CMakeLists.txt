@@ -3,6 +3,8 @@ endfunction()
 
 function(insta_patch_server)
     set_src(INSTA_SERVER GLOB_RECURSE src/insta/server
+      gamecontroller.cpp
+      gamecontroller.h
       gamemodes/insta_core/insta_core.cpp
       gamemodes/insta_core/insta_core.h
       skin_info_manager.cpp

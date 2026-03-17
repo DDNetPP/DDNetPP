@@ -39,6 +39,7 @@
 class CCharacter : public CEntity
 {
 #endif
+	friend class IGameController;
 
 public:
 	~CCharacter();

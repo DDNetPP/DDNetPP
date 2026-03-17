@@ -24,7 +24,7 @@ struct CScoreLoadBestTimeResult;
 class IGameController
 {
 #define IN_CLASS_IGAMECONTROLLER
-#include <game/server/gamecontroller_ddpp.h>
+#include <insta/includes/gamecontroller.h>
 
 	friend class CSaveTeam; // need access to GameServer() and Server()
 
