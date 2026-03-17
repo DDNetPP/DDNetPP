@@ -155,21 +155,21 @@ int CTableUnpacker::GetIntOrDefault(const char *pKey, int Default)
 float CTableUnpacker::GetFloat(const char *pKey)
 {
 	if(m_IsError)
-		return 0;
+		return 0.0f;
 	lua_getfield(LuaState(), m_Index, pKey);
 	if(lua_isnoneornil(LuaState(), -1))
 	{
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
 		Error(aBuf);
-		return 0;
+		return 0.0f;
 	}
 	if(!lua_isnumber(LuaState(), -1))
 	{
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold a number", pKey);
 		Error(aBuf);
-		return 0;
+		return 0.0f;
 	}
 	float Val = lua_tonumber(LuaState(), -1);
 	lua_pop(LuaState(), 1);
@@ -205,6 +205,30 @@ vec2 CTableUnpacker::GetVec2(const char *pKey)
 vec2 CTableUnpacker::GetPosition(const char *pKey)
 {
 	return LuaPosToServer(GetVec2(pKey));
+}
+
+int CTableUnpacker::GetCoordinate(const char *pKey)
+{
+	if(m_IsError)
+		return 0;
+	lua_getfield(LuaState(), m_Index, pKey);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "missing key '%s'", pKey);
+		Error(aBuf);
+		return 0;
+	}
+	if(!lua_isnumber(LuaState(), -1) && !lua_isinteger(LuaState(), -1))
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "expected key '%s' to hold a number", pKey);
+		Error(aBuf);
+		return 0;
+	}
+	int Val = LuaCheckCoordinate(LuaState(), -1);
+	lua_pop(LuaState(), 1);
+	return Val;
 }
 
 #endif

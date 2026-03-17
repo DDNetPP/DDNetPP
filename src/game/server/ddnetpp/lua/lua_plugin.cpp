@@ -1230,8 +1230,9 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 
 	// TODO: add more sensible defaults so lua plugins can get something to work with less code
 	pCharacter->m_Tick = Unpacker.GetIntOrDefault("tick", 0);
-	pCharacter->m_X = Unpacker.GetInt("x");
-	pCharacter->m_Y = Unpacker.GetInt("y");
+	pCharacter->m_X = Unpacker.GetCoordinate("x");
+	pCharacter->m_Y = Unpacker.GetCoordinate("y");
+	// TODO: do we need to scale velocity similar to how we do it with coordinates and positions?
 	pCharacter->m_VelX = Unpacker.GetInt("vel_x");
 	pCharacter->m_VelY = Unpacker.GetInt("vel_y");
 	pCharacter->m_Angle = Unpacker.GetInt("angle");
@@ -1240,8 +1241,8 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 	pCharacter->m_HookedPlayer = Unpacker.GetInt("hooked_player");
 	pCharacter->m_HookState = Unpacker.GetInt("hook_state");
 	pCharacter->m_HookTick = Unpacker.GetInt("hook_tick");
-	pCharacter->m_HookX = Unpacker.GetInt("hook_x");
-	pCharacter->m_HookY = Unpacker.GetInt("hook_y");
+	pCharacter->m_HookX = Unpacker.GetCoordinate("hook_x");
+	pCharacter->m_HookY = Unpacker.GetCoordinate("hook_y");
 	pCharacter->m_HookDx = Unpacker.GetInt("hook_dx");
 	pCharacter->m_HookDy = Unpacker.GetInt("hook_dy");
 	pCharacter->m_PlayerFlags = Unpacker.GetInt("player_flags");
@@ -1358,6 +1359,7 @@ int CLuaPlugin::CallbackCollisionGetTileIndex(lua_State *L)
 	// and          get_tile_index(1, 1) to get the one diagonal one further right and one further down
 	// but can also do get_tile_index(1.2, 1.9) and get the exact same tile. Which is nice for passing character:pos() in there
 
+	// TODO: use LuaCheckCoordinate
 	ivec2 Pos;
 	if(lua_isinteger(L, 1))
 		Pos.x = luaL_checkinteger(L, 1) * 32;

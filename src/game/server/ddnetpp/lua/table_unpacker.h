@@ -46,6 +46,7 @@ public:
 	float GetFloat(const char *pKey);
 	vec2 GetVec2(const char *pKey);
 	vec2 GetPosition(const char *pKey);
+	int GetCoordinate(const char *pKey);
 };
 
 #endif
