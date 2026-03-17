@@ -103,6 +103,18 @@ function ddnetpp.on_character_tile(chr, tile)
 end
 ```
 
+## override existing tiles
+
+```lua
+function ddnetpp.on_skip_game_tile(chr, tile)
+	-- if a player uses the name "hacker" they become immune to freeze tiles
+	if tile == ddnetpp.tile.FREEZE and chr:player():name() == "hacker" then
+		return true
+	end
+	return false
+end
+```
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.

@@ -1684,16 +1684,22 @@ void CCharacter::HandleTiles(int Index)
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
 	m_TileFIndex = Collision()->GetFrontTileIndex(MapIndex);
 	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos, 18.0f, MapIndex, &m_Core.m_DDNetPP.m_RestrictionData);
+
+	// ddnet++ start
+	// ddnet++ explicitly inform lua when no tile was hit at all
+	// so we can detect the first touch of a tile better
+	// the same branch is implemented a few lines below by ddnet and it returns
+	if(Index < 0)
+		GameServer()->Lua()->OnCharacterTile(this, TILE_AIR, TILE_AIR);
+	else if(GameServer()->Lua()->OnSkipGameTile(this, m_TileIndex))
+		return;
+	// ddnet++ end
+
 	if(Index < 0)
 	{
 		m_LastRefillJumps = false;
 		m_LastPenalty = false;
 		m_LastBonus = false;
-
-		// ddnet++ explicitly inform lua when no tile was hit at all
-		// so we can detect the first touch of a tile better
-		GameServer()->Lua()->OnCharacterTile(this, TILE_AIR, TILE_AIR);
-
 		return;
 	}
 	SetTimeCheckpoint(Collision()->IsTimeCheckpoint(MapIndex));

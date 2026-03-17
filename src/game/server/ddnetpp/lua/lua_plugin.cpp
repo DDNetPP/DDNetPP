@@ -1614,6 +1614,83 @@ bool CLuaPlugin::OnCharacterGameTileChange(CCharacter *pChr, int GameIndex)
 	return false;
 }
 
+bool CLuaPlugin::OnSkipGameTile(CCharacter *pChr, int GameIndex)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	if(!pChr->IsAlive())
+		return false;
+	int ClientId = pChr->GetPlayer()->GetCid();
+
+	const char *pFunction = "on_skip_game_tile";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pChr->GetPlayer()->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Character");
+	lua_pushinteger(LuaState(), GameIndex);
+	if(lua_pcall(LuaState(), 2, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+
+	// If the plugin kills or kicks the character or player
+	// we need to return true
+	// to skip the other tile handle code that would follow
+	// otherwise it will segfault
+	if(!Game()->GameServer()->GetPlayerChar(ClientId))
+	{
+		// pop global "ddnetpp"
+		lua_pop(LuaState(), 1);
+		return true;
+	}
+
+	int Type = lua_type(LuaState(), -1);
+	if(Type != LUA_TBOOLEAN)
+	{
+		lua_Debug LuaInfo;
+		lua_getglobal(LuaState(), pFunction);
+		lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+		char aError[512];
+		str_format(
+			aError,
+			sizeof(aError),
+			"%s:%d return value for '%s' should be boolean, got %s",
+			LuaInfo.short_src,
+			LuaInfo.linedefined,
+			pFunction,
+			luaL_typename(LuaState(), -1));
+		log_error("lua", "%s", aError);
+		SetError(aError);
+		// pop error and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return false;
+	}
+
+	bool Skip = lua_toboolean(LuaState(), -1);
+	// pop skip and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+	return Skip;
+}
+
 void CLuaPlugin::OnSnap(int SnappingClient)
 {
 	dbg_assert(IsActive(), "called inactive plugin");

@@ -717,6 +717,24 @@ bool CLuaController::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontI
 #endif
 }
 
+bool CLuaController::OnSkipGameTile(CCharacter *pChr, int GameIndex)
+{
+#ifdef CONF_LUA
+
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->OnSkipGameTile(pChr, GameIndex))
+			return true;
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
 void CLuaController::OnSnap(int SnappingClient)
 {
 #ifdef CONF_LUA

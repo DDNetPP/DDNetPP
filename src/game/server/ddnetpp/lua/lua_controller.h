@@ -112,6 +112,7 @@ public:
 	void OnInit() override;
 	void OnTick();
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
+	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
 	void OnSnap(int SnappingClient);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
