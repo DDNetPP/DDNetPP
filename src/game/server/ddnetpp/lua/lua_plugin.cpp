@@ -8,10 +8,10 @@
 
 #include <generated/protocol.h>
 
+#include <game/gamecore.h>
 #include <game/mapitems.h>
 #include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
-#include <game/gamecore.h>
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
@@ -419,6 +419,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewCharacter, 1);
 		lua_setfield(LuaState(), -2, "new_character");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewPlayerInfo, 1);
+		lua_setfield(LuaState(), -2, "new_player_info");
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
@@ -657,6 +661,32 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_settable(LuaState(), -3);
 	}
 	lua_setfield(LuaState(), -2, "eye_emote");
+
+	// ddnet.team sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "ALL");
+		lua_pushinteger(LuaState(), TEAM_ALL);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "SPECTATORS");
+		lua_pushinteger(LuaState(), TEAM_SPECTATORS);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "RED");
+		lua_pushinteger(LuaState(), TEAM_RED);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "BLUE");
+		lua_pushinteger(LuaState(), TEAM_BLUE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GAME");
+		lua_pushinteger(LuaState(), TEAM_GAME);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "team");
 
 	lua_setglobal(LuaState(), "ddnetpp");
 }
@@ -1215,6 +1245,33 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 	pCharacter->m_Weapon = Unpacker.GetInt("weapon");
 	pCharacter->m_Emote = Unpacker.GetInt("eye_emote");
 	pCharacter->m_AttackTick = Unpacker.GetInt("attack_tick");
+	return 0;
+}
+
+int CLuaPlugin::CallbackSnapNewPlayerInfo(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+
+	int SnappingClient = pSelf->m_SnappingClient;
+	if(pGame->Server()->IsSixup(SnappingClient))
+	{
+		// TODO: implement
+		return 0;
+	}
+
+	CTableUnpacker Unpacker(L, 1, "player_info");
+	int SnapId = Unpacker.GetInt("id");
+
+	CNetObj_PlayerInfo *pItem = pGame->Server()->SnapNewItem<CNetObj_PlayerInfo>(SnapId);
+	if(!pItem)
+		return 0;
+
+	pItem->m_Local = Unpacker.GetBooleanOptional("is_local").value_or(false);
+	pItem->m_ClientId = Unpacker.GetInt("client_id");
+	pItem->m_Team = Unpacker.GetIntOrDefault("team", TEAM_GAME);
+	pItem->m_Score = Unpacker.GetIntOrDefault("score", 0);
+	pItem->m_Latency = Unpacker.GetIntOrDefault("latency", 0);
 	return 0;
 }
 

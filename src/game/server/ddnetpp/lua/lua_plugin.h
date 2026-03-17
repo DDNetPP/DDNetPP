@@ -134,6 +134,7 @@ private:
 	static int CallbackSnapNewLaser(lua_State *L);
 	static int CallbackSnapNewPickup(lua_State *L);
 	static int CallbackSnapNewCharacter(lua_State *L);
+	static int CallbackSnapNewPlayerInfo(lua_State *L);
 
 	// server
 	static int CallbackServerTick(lua_State *L);
