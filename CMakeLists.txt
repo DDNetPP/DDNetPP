@@ -2852,6 +2852,8 @@ if(SERVER)
     ddnetpp/lua/cmd_sender.h
     ddnetpp/lua/console_strings.cpp
     ddnetpp/lua/console_strings.h
+    ddnetpp/lua/custom_lua_types.cpp
+    ddnetpp/lua/custom_lua_types.h
     ddnetpp/lua/lua_controller.cpp
     ddnetpp/lua/lua_controller.h
     ddnetpp/lua/lua_game.cpp

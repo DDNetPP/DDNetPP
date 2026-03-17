@@ -24,11 +24,4 @@ vec2 LuaPosToServer(vec2 ServerPos)
 		ServerPos.y * 32.0f);
 }
 
-int LuaCheckCoordinate(lua_State *L, int Index)
-{
-	if(lua_isinteger(L, Index))
-		return luaL_checkinteger(L, Index) * 32;
-	return ((int)luaL_checknumber(L, Index)) * 32;
-}
-
 #endif

@@ -2,6 +2,7 @@
 
 #include <base/str.h>
 
+#include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
 

@@ -15,7 +15,5 @@ extern "C" {
 vec2 ServerPosToLua(vec2 ServerPos);
 vec2 LuaPosToServer(vec2 ServerPos);
 
-int LuaCheckCoordinate(lua_State *L, int Index);
-
 #endif
 #endif

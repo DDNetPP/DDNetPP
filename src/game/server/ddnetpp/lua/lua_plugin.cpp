@@ -13,6 +13,7 @@
 #include <game/gamecore.h>
 #include <game/mapitems.h>
 #include <game/server/ddnetpp/lua/console_strings.h>
+#include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
@@ -51,55 +52,6 @@ static const char *LuaCheckStringStrict(lua_State *L, int Index)
 
 	// unreachable
 	return "";
-}
-
-// TODO: move to same file like LuaCheckStringStrict?
-static CPlayer *LuaCheckPlayer(lua_State *L, int Index)
-{
-	// int Type = lua_type(L, Index);
-	// if(Type != LUA_TUSERDATA)
-	// {
-	// 	char aError[512];
-	// 	str_format(aError, sizeof(aError), "Player expected, got %s", luaL_typename(L, Index));
-	// 	luaL_argerror(L, Index, aError);
-	// 	return nullptr;
-	// }
-
-	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Player"));
-	if(!pPlayerHandle)
-		return nullptr;
-	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
-	if(!pPlayer)
-	{
-		luaL_error(L, "invalid Player");
-		return nullptr;
-	}
-	return pPlayer;
-}
-
-// TODO: move to same file like LuaCheckStringStrict?
-static CCharacter *LuaCheckCharacter(lua_State *L, int Index)
-{
-	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Character"));
-	if(!pPlayerHandle)
-		return nullptr;
-	CPlayer *pPlayer = pPlayerHandle->m_pPlugin->Game()->GameServer()->GetPlayerByUniqueId(pPlayerHandle->m_UniqueClientId);
-	if(!pPlayer)
-	{
-		// Is it weird to say "invalid Player"
-		// when calling a character instance method?
-		// Its technically the correct error but weird to expose that to the user.
-		// Hmm...
-		luaL_error(L, "invalid Player");
-		return nullptr;
-	}
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if(!pChr)
-	{
-		luaL_error(L, "invalid Character");
-		return nullptr;
-	}
-	return pChr;
 }
 
 static CLuaPlayerHandle *LuaCheckCharacterHandle(lua_State *L, int Index)
@@ -862,7 +814,7 @@ int CLuaPlugin::CallbackSendChat(lua_State *L)
 int CLuaPlugin::CallbackSendChatTarget(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
-	int ClientId = luaL_checkinteger(L, 1);
+	int ClientId = LuaCheckClientId(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
 	pGame->GameServer()->SendChatTarget(ClientId, pMessage);
 	return 0;
@@ -1541,7 +1493,7 @@ int CLuaPlugin::CallbackCharacterDie(lua_State *L)
 	int Weapon = WEAPON_GAME;
 
 	if(NumArgs > 1)
-		KillerId = luaL_checkinteger(L, 2);
+		KillerId = LuaCheckClientId(L, 2);
 	if(NumArgs > 2)
 		Weapon = luaL_checkinteger(L, 3);
 
