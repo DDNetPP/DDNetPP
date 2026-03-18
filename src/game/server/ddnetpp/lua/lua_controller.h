@@ -15,12 +15,14 @@
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
 
+#include <optional>
 #include <vector>
 
 class CCharacter;
 class CLuaPlugin;
 class IGameController;
 class CGameContext;
+class CPlayer;
 struct lua_State;
 
 #ifdef CONF_LUA
@@ -119,6 +121,7 @@ public:
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
+	std::optional<vec2> OnPickSpawnPos(CPlayer *pPlayer);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	// return true to drop fire

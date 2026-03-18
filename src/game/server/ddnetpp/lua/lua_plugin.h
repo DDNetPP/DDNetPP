@@ -12,6 +12,7 @@
 
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
+#include <game/server/minigames/minigame_base.h>
 
 #include <optional>
 #include <string>
@@ -118,6 +119,11 @@ private:
 	// returns true if the function was found
 	bool CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer);
 
+	// throw lua error if the return value from an event was not a table
+	// it does not throw a C++ exception so you need to look at the return value
+	// if it is false there is an error
+	[[nodiscard]] bool LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName);
+
 	// Calling C++ from lua
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackSendChatTarget(lua_State *L);
@@ -183,6 +189,7 @@ public:
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
+	std::optional<vec2> OnPickSpawnPos(CPlayer *pPlayer);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	bool OnChatCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);

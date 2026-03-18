@@ -1818,6 +1818,7 @@ bool CLuaPlugin::OnSkipGameTile(CCharacter *pChr, int GameIndex)
 		return true;
 	}
 
+	// TODO: move this into a helper
 	int Type = lua_type(LuaState(), -1);
 	if(Type != LUA_TBOOLEAN)
 	{
@@ -2007,6 +2008,138 @@ void CLuaPlugin::OnPlayerDisconnect(int ClientId)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidWithOneInt("on_player_disconnect", ClientId);
+}
+
+std::optional<vec2> CLuaPlugin::OnPickSpawnPos(CPlayer *pPlayer)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	const char *pFunction = "on_pick_spawn_pos";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return std::nullopt;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return std::nullopt;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pPlayer->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Player");
+	if(lua_pcall(LuaState(), 1, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		// pop error and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+
+	// the return value can be "nil" or a table
+	// any other type will crash the plugin to avoid confusion
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop pos return value and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+
+	// table unpacker below also throws an error
+	// but this error message is nicer because it mentions
+	// the function name
+	if(!LuaReturnValueIsTableOrError(pFunction, -1, "pos"))
+	{
+		// pop pos return value and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+
+	vec2 Pos;
+	std::optional<int> Coord;
+	CTableUnpacker Unpacker(LuaState(), -1, "pos");
+
+	// TODO: refactor this
+	Coord = Unpacker.GetCoordinateOptional("x");
+	if(!Coord.has_value())
+	{
+		char aError[512] = "";
+		str_format(
+			aError,
+			sizeof(aError),
+			"returned table from '%s()' is missing the key 'x'",
+			pFunction);
+		log_error("lua", "plugin '%s' error: %s", Name(), aError);
+		SetError(aError);
+
+		// pop pos return value and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+	Pos.x = Coord.value();
+
+	Coord = Unpacker.GetCoordinateOptional("y");
+	if(!Coord.has_value())
+	{
+		char aError[512] = "";
+		str_format(
+			aError,
+			sizeof(aError),
+			"returned table from '%s()' is missing the key 'y'",
+			pFunction);
+		log_error("lua", "plugin '%s' error: %s", Name(), aError);
+		SetError(aError);
+
+		// pop pos return value and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return std::nullopt;
+	}
+	Pos.y = Coord.value();
+
+	// pop pos return value and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+	return Pos;
+}
+
+bool CLuaPlugin::LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	if(lua_type(LuaState(), Index) == LUA_TTABLE)
+		return true;
+
+	lua_Debug LuaInfo;
+	lua_getglobal(LuaState(), pFunction);
+	lua_getinfo(LuaState(), ">Sl", &LuaInfo);
+
+	char aError[512];
+	str_format(
+		aError,
+		sizeof(aError),
+		"%s:%d return value for '%s' should be the '%s' table, got %s",
+		LuaInfo.short_src,
+		LuaInfo.linedefined,
+		pFunction,
+		pExpectedTableName,
+		luaL_typename(LuaState(), Index));
+	log_error("lua", "%s", aError);
+	SetError(aError);
+
+	// TODO: the stack checker doesnt like it
+	//       but i dont know why
+	//       getglobal pushes onto the stack for sure
+	//       and getinfo shouldnt pop it as far as i understand
+
+	// // pop error
+	// lua_pop(LuaState(), 1);
+	return false;
 }
 
 // https://github.com/DDNetPP/DDNetPP/issues/512
@@ -2371,6 +2504,7 @@ bool CLuaPlugin::OnServerMessage(int ClientId, const void *pData, int Size, int 
 		return false;
 	}
 
+	// TODO: move this into a helper
 	int Type = lua_type(LuaState(), -1);
 	if(Type != LUA_TBOOLEAN)
 	{

@@ -103,6 +103,23 @@ function ddnetpp.on_character_tile(chr, tile)
 end
 ```
 
+## set custom spawn points
+
+```lua
+function ddnetpp.on_pick_spawn_pos(player)
+	-- player with client id 1 (second joining player on fresh server)
+	-- will always spawn at the top right of the map
+	if player:id() == 1 then
+		return {
+			x = 0,
+			y = 0,
+		}
+	end
+	-- other players spawn at default spawn
+	return nil
+end
+```
+
 ## override existing tiles
 
 ```lua

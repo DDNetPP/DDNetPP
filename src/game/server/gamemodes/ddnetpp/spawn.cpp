@@ -8,6 +8,8 @@
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
 
+#include <optional>
+
 bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, int ClientId)
 {
 	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(ClientId);
@@ -19,7 +21,21 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, int ClientId)
 		return false;
 
 	CSpawnEval Eval;
+
+	// TODO: this makes little sense. We are spawning so there is no character yet
+	//       this should be about picking a spawn pos not side effects in the character
+	//       I even tested this just to be sure. On connect pChr is null and on selfkill
+	//       pChr is null too. This code probably does nothing other than misleading the reader.
 	CCharacter *pChr = pPlayer->GetCharacter();
+
+	// this lua callsite is not stable yet
+	// https://github.com/DDNetPP/DDNetPP/issues/538
+	std::optional<vec2> LuaSpawn = Lua()->OnPickSpawnPos(pPlayer);
+	if(LuaSpawn.has_value())
+	{
+		*pOutPos = LuaSpawn.value();
+		return true;
+	}
 
 	if(pPlayer->DummyMode() == DUMMYMODE_SHOPBOT)
 	{

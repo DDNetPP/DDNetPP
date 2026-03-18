@@ -15,6 +15,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -909,6 +910,24 @@ void CLuaController::OnPlayerDisconnect(int ClientId)
 
 		pPlugin->OnPlayerDisconnect(ClientId);
 	}
+#endif
+}
+
+std::optional<vec2> CLuaController::OnPickSpawnPos(CPlayer *pPlayer)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		std::optional<vec2> Pos = pPlugin->OnPickSpawnPos(pPlayer);
+		if(Pos.has_value())
+			return Pos;
+	}
+	return std::nullopt;
+#else
+	return std::nullopt;
 #endif
 }
 
