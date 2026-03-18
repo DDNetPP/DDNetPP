@@ -5,6 +5,7 @@
 #include <base/log.h>
 #include <base/str.h>
 #include <base/types.h>
+#include <base/vmath.h>
 
 #include <engine/shared/protocol.h>
 
@@ -2053,60 +2054,56 @@ std::optional<vec2> CLuaPlugin::OnPickSpawnPos(CPlayer *pPlayer)
 		return std::nullopt;
 	}
 
-	// table unpacker below also throws an error
-	// but this error message is nicer because it mentions
-	// the function name
-	if(!LuaReturnValueIsTableOrError(pFunction, -1, "pos"))
-	{
-		// pop pos return value and global "ddnetpp"
-		lua_pop(LuaState(), 2);
-		return std::nullopt;
-	}
-
 	vec2 Pos;
-	std::optional<int> Coord;
-	CTableUnpacker Unpacker(LuaState(), -1, "pos");
-
-	// TODO: refactor this
-	Coord = Unpacker.GetCoordinateOptional("x");
-	if(!Coord.has_value())
+	if(!LuaGetPositionReturnValueOrError(pFunction, -1, &Pos))
 	{
-		char aError[512] = "";
-		str_format(
-			aError,
-			sizeof(aError),
-			"returned table from '%s()' is missing the key 'x'",
-			pFunction);
-		log_error("lua", "plugin '%s' error: %s", Name(), aError);
-		SetError(aError);
-
 		// pop pos return value and global "ddnetpp"
 		lua_pop(LuaState(), 2);
 		return std::nullopt;
 	}
-	Pos.x = Coord.value();
-
-	Coord = Unpacker.GetCoordinateOptional("y");
-	if(!Coord.has_value())
-	{
-		char aError[512] = "";
-		str_format(
-			aError,
-			sizeof(aError),
-			"returned table from '%s()' is missing the key 'y'",
-			pFunction);
-		log_error("lua", "plugin '%s' error: %s", Name(), aError);
-		SetError(aError);
-
-		// pop pos return value and global "ddnetpp"
-		lua_pop(LuaState(), 2);
-		return std::nullopt;
-	}
-	Pos.y = Coord.value();
 
 	// pop pos return value and global "ddnetpp"
 	lua_pop(LuaState(), 2);
 	return Pos;
+}
+
+bool CLuaPlugin::LuaGetPositionReturnValueOrError(const char *pFunction, int Index, vec2 *pOutPos)
+{
+	// table unpacker below also throws an error
+	// but this error message is nicer because it mentions
+	// the function name
+	if(!LuaReturnValueIsTableOrError(pFunction, -1, "pos"))
+		return false;
+
+	CTableUnpacker Unpacker(LuaState(), -1, "pos");
+	const char *apKeys[] = {"x", "y"};
+	// TODO: this is some weird code, i tried to be smart and write dry code but it became
+	//       kinda complicated and slow
+	for(const char *pKey : apKeys)
+	{
+		std::optional<int> Coord = Unpacker.GetCoordinateOptional(pKey);
+		if(!Coord.has_value())
+		{
+			char aError[512] = "";
+			str_format(
+				aError,
+				sizeof(aError),
+				"returned table from '%s()' is missing the key '%s'",
+				pFunction,
+				pKey);
+			log_error("lua", "plugin '%s' error: %s", Name(), aError);
+			SetError(aError);
+			return false;
+		}
+		if(pOutPos)
+		{
+			if(!str_comp(pKey, "x"))
+				pOutPos->x = Coord.value();
+			if(!str_comp(pKey, "y"))
+				pOutPos->y = Coord.value();
+		}
+	}
+	return true;
 }
 
 bool CLuaPlugin::LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName)

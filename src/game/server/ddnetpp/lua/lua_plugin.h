@@ -119,7 +119,12 @@ private:
 	// returns true if the function was found
 	bool CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer);
 
-	// throw lua error if the return value from an event was not a table
+	// Returns false if there was no position table found at the index
+	// and sets the plugin into error state
+	// otherwise returns true and writes position to pOutPos
+	[[nodiscard]] bool LuaGetPositionReturnValueOrError(const char *pFunction, int Index, vec2 *pOutPos);
+
+	// set plugin to error state (but do NOT throw lua error) if the return value from an event was not a table
 	// it does not throw a C++ exception so you need to look at the return value
 	// if it is false there is an error
 	[[nodiscard]] bool LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName);
