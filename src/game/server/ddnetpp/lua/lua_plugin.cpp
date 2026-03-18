@@ -282,6 +282,10 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterPos);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "set_position");
+	lua_pushcfunction(LuaState(), CallbackCharacterSetPosition);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "id");
 	lua_pushcfunction(LuaState(), CallbackCharacterId);
 	lua_settable(LuaState(), -3);
@@ -1599,6 +1603,18 @@ int CLuaPlugin::CallbackCharacterPos(lua_State *L)
 	lua_pushnumber(L, pChr->GetPos().y / 32.0f);
 	lua_settable(L, -3);
 	return 1;
+}
+
+int CLuaPlugin::CallbackCharacterSetPosition(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+	ivec2 Pos;
+	LuaCheckPosOrXandY(L, 2, Pos);
+	vec2 FloatPos;
+	FloatPos.x = Pos.x;
+	FloatPos.y = Pos.y;
+	pChr->SetPosition(FloatPos);
+	return 0;
 }
 
 int CLuaPlugin::CallbackCharacterId(lua_State *L)
