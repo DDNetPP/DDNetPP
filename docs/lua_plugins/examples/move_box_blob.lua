@@ -58,7 +58,7 @@ ddnetpp.register_chat("blob", "?i[amount]", "spawn a new blob", function (client
 	for _ = 1, num do
 		local blob = new_blob()
 		blob.pos = chr:pos()
-		blob.vel.y = math.random(-1, -20)
+		blob.vel.y = math.random(-20, -2)
 		blob.vel.x = math.random(-10, 10)
 		table.insert(blobs, blob)
 	end
