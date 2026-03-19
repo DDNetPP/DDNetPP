@@ -524,6 +524,15 @@ CLuaController::~CLuaController()
 #ifdef CONF_LUA
 	for(auto &pPlugin : m_vpPlugins)
 	{
+		// when the lua controller gets shutdown
+		// the entire snap pool should usually also get shutdown
+		// because we never "reload" the lua controller
+		// this only happens when the entire server does a reload or shutdown
+		// and in that case pointers such as IServer might be invalid already
+		// so we can not free the snap pool without risking a crash
+		// so we just preclean the vector
+		// https://github.com/DDNetPP/DDNetPP/issues/541
+		pPlugin->m_vSnapIds.clear();
 		delete pPlugin;
 		pPlugin = nullptr;
 	}
