@@ -1514,10 +1514,10 @@ int CLuaPlugin::CallbackCollisionMoveBox(lua_State *L)
 		Elast = LuaCheckArgVec2(L, 4, "elasticity");
 	}
 
-	log_info("lua", "move box got pos %.2f %.2f", Pos.x, Pos.y);
-	log_info("lua", " move box got vel %.2f %.2f", Vel.x, Vel.y);
-	log_info("lua", " move box got size %.2f %.2f", Size.x, Size.y);
-	log_info("lua", " move box got elast %.2f %.2f", Elast.x, Elast.y);
+	// log_info("lua", "move box got pos %.2f %.2f", Pos.x, Pos.y);
+	// log_info("lua", " move box got vel %.2f %.2f", Vel.x, Vel.y);
+	// log_info("lua", " move box got size %.2f %.2f", Size.x, Size.y);
+	// log_info("lua", " move box got elast %.2f %.2f", Elast.x, Elast.y);
 
 	bool IsGrounded = false;
 	pGame->Collision()->MoveBox(
@@ -1527,9 +1527,9 @@ int CLuaPlugin::CallbackCollisionMoveBox(lua_State *L)
 		Elast,
 		&IsGrounded);
 
-	log_info("lua", "  after movebox pos -> %.2f %.2f", Pos.x, Pos.y);
-	log_info("lua", "  after movebox pos friendly coord -> %.2f %.2f", Pos.x / 32, Pos.y / 32);
-	log_info("lua", "  after movebox vel -> %.2f %.2f", Vel.x, Vel.y);
+	// log_info("lua", "  after movebox pos -> %.2f %.2f", Pos.x, Pos.y);
+	// log_info("lua", "  after movebox pos friendly coord -> %.2f %.2f", Pos.x / 32, Pos.y / 32);
+	// log_info("lua", "  after movebox vel -> %.2f %.2f", Vel.x, Vel.y);
 
 	LuaPushPosition(L, Pos);
 	LuaPushVec2(L, Vel);
