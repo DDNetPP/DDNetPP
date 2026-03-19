@@ -132,6 +132,11 @@ function ddnetpp.on_skip_game_tile(chr, tile)
 end
 ```
 
+## objects with gravity and collision
+
+Have a look at the [move_box_blob.lua](./examples/move_box_blob.lua) example if
+you want to create your own entity that collides with the world.
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.
