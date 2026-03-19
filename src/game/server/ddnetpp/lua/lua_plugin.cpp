@@ -295,6 +295,18 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_newtable(LuaState());
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackLogInfo, 1);
+	lua_setfield(LuaState(), -2, "log_info");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackLogWarn, 1);
+	lua_setfield(LuaState(), -2, "log_warn");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackLogError, 1);
+	lua_setfield(LuaState(), -2, "log_error");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendChat, 1);
 	lua_setfield(LuaState(), -2, "send_chat");
 
@@ -907,6 +919,72 @@ bool CLuaPlugin::CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPl
 	// pop global "ddnetpp"
 	lua_pop(LuaState(), 1);
 	return true;
+}
+
+int CLuaPlugin::CallbackLogInfo(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pPlugin = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	if(NumArgs == 1)
+	{
+		const char *pMessage = luaL_checkstring(L, 1);
+		log_info(pPlugin->Name(), "%s", pMessage);
+	}
+	else if(NumArgs == 2)
+	{
+		const char *pSystem = luaL_checkstring(L, 1);
+		const char *pMessage = luaL_checkstring(L, 2);
+		log_info(pSystem, "%s", pMessage);
+	}
+	else
+	{
+		luaL_error(L, "too many arguments for logger");
+	}
+	return 0;
+}
+
+int CLuaPlugin::CallbackLogWarn(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pPlugin = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	if(NumArgs == 1)
+	{
+		const char *pMessage = luaL_checkstring(L, 1);
+		log_warn(pPlugin->Name(), "%s", pMessage);
+	}
+	else if(NumArgs == 2)
+	{
+		const char *pSystem = luaL_checkstring(L, 1);
+		const char *pMessage = luaL_checkstring(L, 2);
+		log_warn(pSystem, "%s", pMessage);
+	}
+	else
+	{
+		luaL_error(L, "too many arguments for logger");
+	}
+	return 0;
+}
+
+int CLuaPlugin::CallbackLogError(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pPlugin = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	if(NumArgs == 1)
+	{
+		const char *pMessage = luaL_checkstring(L, 1);
+		log_error(pPlugin->Name(), "%s", pMessage);
+	}
+	else if(NumArgs == 2)
+	{
+		const char *pSystem = luaL_checkstring(L, 1);
+		const char *pMessage = luaL_checkstring(L, 2);
+		log_error(pSystem, "%s", pMessage);
+	}
+	else
+	{
+		luaL_error(L, "too many arguments for logger");
+	}
+	return 0;
 }
 
 int CLuaPlugin::CallbackSendChat(lua_State *L)

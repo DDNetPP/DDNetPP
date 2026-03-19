@@ -130,6 +130,9 @@ private:
 	[[nodiscard]] bool LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName);
 
 	// Calling C++ from lua
+	static int CallbackLogInfo(lua_State *L);
+	static int CallbackLogWarn(lua_State *L);
+	static int CallbackLogError(lua_State *L);
 	static int CallbackSendChat(lua_State *L);
 	static int CallbackSendChatTarget(lua_State *L);
 	static int CallbackSendBroadcast(lua_State *L);
