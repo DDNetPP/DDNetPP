@@ -2,6 +2,7 @@
 
 #include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/lua_plugin.h>
+#include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
@@ -10,6 +11,24 @@
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
+}
+
+void LuaPushVec2(lua_State *L, vec2 Vec)
+{
+	lua_newtable(L);
+
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, Vec.x);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, Vec.y);
+	lua_settable(L, -3);
+}
+
+void LuaPushPosition(lua_State *L, vec2 ServerPos)
+{
+	LuaPushVec2(L, ServerPosToLua(ServerPos));
 }
 
 int LuaCheckCoordinate(lua_State *L, int Index)
@@ -122,6 +141,102 @@ int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos)
 	OutPos.x = Unpacker.GetCoordinate("x");
 	OutPos.y = Unpacker.GetCoordinate("y");
 	return 2;
+}
+
+vec2 LuaCheckArgVec2(lua_State *L, int Index, const char *pTableName)
+{
+	char aError[512];
+	if(lua_type(L, Index) != LUA_TTABLE)
+	{
+		str_format(aError, sizeof(aError), "%s table expected, got %s", pTableName, luaL_typename(L, Index));
+		luaL_argerror(L, Index, aError);
+		return vec2(0.0f, 0.0f);
+	}
+
+	vec2 Pos;
+	CTableUnpacker Unpacker(L, Index, pTableName);
+
+	auto CoordInt = Unpacker.GetIntOptional("x");
+	if(CoordInt.has_value())
+	{
+		Pos.x = CoordInt.value();
+	}
+	else
+	{
+		auto CoordFloat = Unpacker.GetFloatOptional("x");
+		if(!CoordFloat.has_value())
+		{
+			str_format(aError, sizeof(aError), "in table %s missing key 'x'", pTableName);
+			luaL_argerror(L, Index, aError);
+			return vec2(0.0f, 0.0f);
+		}
+		Pos.x = CoordFloat.value();
+	}
+
+	CoordInt = Unpacker.GetIntOptional("y");
+	if(CoordInt.has_value())
+	{
+		Pos.y = CoordInt.value();
+	}
+	else
+	{
+		auto CoordFloat = Unpacker.GetFloatOptional("y");
+		if(!CoordFloat.has_value())
+		{
+			str_format(aError, sizeof(aError), "in table %s missing key 'y'", pTableName);
+			luaL_argerror(L, Index, aError);
+			return vec2(0.0f, 0.0f);
+		}
+		Pos.y = CoordFloat.value();
+	}
+
+	return Pos;
+}
+
+vec2 LuaCheckArgPosition(lua_State *L, int Index)
+{
+	char aError[512];
+	if(lua_type(L, Index) != LUA_TTABLE)
+	{
+		str_format(aError, sizeof(aError), "pos table expected, got %s", luaL_typename(L, Index));
+		luaL_argerror(L, Index, aError);
+		return vec2(0.0f, 0.0f);
+	}
+
+	vec2 Pos;
+	CTableUnpacker Unpacker(L, Index, "pos");
+
+	auto Coord = Unpacker.GetCoordinateOptional("x");
+	if(!Coord.has_value())
+	{
+		luaL_argerror(L, Index, "in table pos missing key 'x'");
+		return vec2(0.0f, 0.0f);
+	}
+	Pos.x = Coord.value();
+
+	Coord = Unpacker.GetCoordinateOptional("y");
+	if(!Coord.has_value())
+	{
+		luaL_argerror(L, Index, "in table pos missing key 'y'");
+		return vec2(0.0f, 0.0f);
+	}
+	Pos.y = Coord.value();
+
+	return Pos;
+}
+
+const char *LuaCheckArgStringStrict(lua_State *L, int Index)
+{
+	int Type = lua_type(L, Index);
+	if(Type == LUA_TSTRING)
+		return luaL_checkstring(L, Index);
+
+	char aError[512];
+	str_format(aError, sizeof(aError), "string expected, got %s", luaL_typename(L, Index));
+	luaL_argerror(L, Index, aError);
+
+	// unreachable
+	return "";
 }
 
 #endif

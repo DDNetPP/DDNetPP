@@ -37,24 +37,6 @@ extern "C" {
 #include "lualib.h"
 }
 
-// TODO: move this to a new file like luac_aux.h
-//       and rename it to luaC_checkstringstrict()
-//       Same applies to any other static functions that operate on lua state
-//       like maybe the table copy one
-static const char *LuaCheckStringStrict(lua_State *L, int Index)
-{
-	int Type = lua_type(L, Index);
-	if(Type == LUA_TSTRING)
-		return luaL_checkstring(L, Index);
-
-	char aError[512];
-	str_format(aError, sizeof(aError), "string expected, got %s", luaL_typename(L, Index));
-	luaL_argerror(L, Index, aError);
-
-	// unreachable
-	return "";
-}
-
 static CLuaPlayerHandle *LuaCheckCharacterHandle(lua_State *L, int Index)
 {
 	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(luaL_checkudata(L, Index, "Character"));
@@ -438,6 +420,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackCollisionGetTile, 1);
 		lua_setfield(LuaState(), -2, "get_tile");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackCollisionMoveBox, 1);
+		lua_setfield(LuaState(), -2, "move_box");
 	}
 	lua_setfield(LuaState(), -2, "collision");
 
@@ -992,7 +978,7 @@ int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	int ClientId = luaL_checkinteger(L, 1);
-	const char *pDescription = LuaCheckStringStrict(L, 2);
+	const char *pDescription = LuaCheckArgStringStrict(L, 2);
 	pGame->SendVoteOptionAdd(ClientId, pDescription);
 	return 0;
 }
@@ -1083,9 +1069,9 @@ int CLuaPlugin::CallbackRegisterRcon(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	const char *pName = LuaCheckStringStrict(L, 1);
-	const char *pParams = LuaCheckStringStrict(L, 2);
-	const char *pHelp = LuaCheckStringStrict(L, 3);
+	const char *pName = LuaCheckArgStringStrict(L, 1);
+	const char *pParams = LuaCheckArgStringStrict(L, 2);
+	const char *pHelp = LuaCheckArgStringStrict(L, 3);
 	luaL_checktype(L, 4, LUA_TFUNCTION);
 
 	std::vector<CLuaRconCommand::CParam> vParams;
@@ -1155,9 +1141,9 @@ int CLuaPlugin::CallbackRegisterChat(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	const char *pName = LuaCheckStringStrict(L, 1);
-	const char *pParams = LuaCheckStringStrict(L, 2);
-	const char *pHelp = LuaCheckStringStrict(L, 3);
+	const char *pName = LuaCheckArgStringStrict(L, 1);
+	const char *pParams = LuaCheckArgStringStrict(L, 2);
+	const char *pHelp = LuaCheckArgStringStrict(L, 3);
 	luaL_checktype(L, 4, LUA_TFUNCTION);
 
 	std::vector<CLuaRconCommand::CParam> vParams;
@@ -1501,6 +1487,54 @@ int CLuaPlugin::CallbackCollisionGetTile(lua_State *L)
 	lua_settable(L, -3);
 
 	return 1;
+}
+
+int CLuaPlugin::CallbackCollisionMoveBox(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+
+	// TODO: is it weird that we translate coordinates but not velocity? As in multiply by 32
+	vec2 Vel = LuaCheckArgVec2(L, 2, "vel");
+
+	vec2 Size = CCharacterCore::PhysicalSizeVec2();
+	if(NumArgs >= 3)
+	{
+		// TODO: same question for size. If lua coordinates use 1 unit for one tile instead of 32
+		//       does it then make sense to measure a box size in a 32 scaled factor?
+		Size = LuaCheckArgVec2(L, 3, "size");
+	}
+
+	vec2 Elast = vec2(pGame->GameServer()->GlobalTuning()->m_GroundElasticityX,
+		pGame->GameServer()->GlobalTuning()->m_GroundElasticityY);
+	if(NumArgs >= 4)
+	{
+		Elast = LuaCheckArgVec2(L, 4, "elasticity");
+	}
+
+	log_info("lua", "move box got pos %.2f %.2f", Pos.x, Pos.y);
+	log_info("lua", " move box got vel %.2f %.2f", Vel.x, Vel.y);
+	log_info("lua", " move box got size %.2f %.2f", Size.x, Size.y);
+	log_info("lua", " move box got elast %.2f %.2f", Elast.x, Elast.y);
+
+	bool IsGrounded = false;
+	pGame->Collision()->MoveBox(
+		&Pos,
+		&Vel,
+		Size,
+		Elast,
+		&IsGrounded);
+
+	log_info("lua", "  after movebox pos -> %.2f %.2f", Pos.x, Pos.y);
+	log_info("lua", "  after movebox pos friendly coord -> %.2f %.2f", Pos.x / 32, Pos.y / 32);
+	log_info("lua", "  after movebox vel -> %.2f %.2f", Vel.x, Vel.y);
+
+	LuaPushPosition(L, Pos);
+	LuaPushVec2(L, Vel);
+	lua_pushboolean(L, IsGrounded);
+	return 3;
 }
 
 int CLuaPlugin::CallbackPlayerId(lua_State *L)
@@ -2393,18 +2427,6 @@ void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
 	//                          and  "on_rcon_logout(clientid)"
 
 	CallLuaVoidWithTwoInts("on_rcon_authed", ClientId, Level);
-}
-
-// TODO: move this to file with the other helpers
-static void LuaPushVec2(lua_State *L, vec2 Val)
-{
-	lua_newtable(L);
-	lua_pushstring(L, "x");
-	lua_pushnumber(L, Val.x);
-	lua_settable(L, -3);
-	lua_pushstring(L, "y");
-	lua_pushnumber(L, Val.y);
-	lua_settable(L, -3);
 }
 
 bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)

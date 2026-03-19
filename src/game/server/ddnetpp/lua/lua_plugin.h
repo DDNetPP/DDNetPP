@@ -164,6 +164,7 @@ private:
 	static int CallbackCollisionHeight(lua_State *L);
 	static int CallbackCollisionGetTileIndex(lua_State *L);
 	static int CallbackCollisionGetTile(lua_State *L);
+	static int CallbackCollisionMoveBox(lua_State *L);
 
 	// TODO: move these to some other scope? Because we have some
 	//       for the game instance and some for the player
