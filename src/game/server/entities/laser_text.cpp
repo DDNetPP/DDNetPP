@@ -6,6 +6,8 @@
 
 #include "laser_text.h"
 
+#include <base/log.h>
+#include <base/str.h>
 #include <base/system.h>
 
 #include <game/server/gamecontext.h>
@@ -20,8 +22,18 @@ CLaserText::CLaserText(CGameWorld *pGameWorld, vec2 Pos, int AliveTicks, const c
 	m_StartTick = Server()->Tick();
 	m_AliveTicks = AliveTicks;
 
-	str_copy(m_aText, pText, sizeof(m_aText));
-	m_TextLen = str_length(m_aText);
+	// TODO: support lowercase letters too, and replace for loop for this
+	{
+		int i = 0;
+		for(i = 0; pText[i] && i < ((int)sizeof(m_aText) - 1); i++)
+			m_aText[i] = str_uppercase(pText[i]);
+		m_aText[i] = '\0';
+		m_TextLen = i;
+	}
+
+	// // TODO: remove for loop above and use this:
+	// str_copy(m_aText, pText, sizeof(m_aText));
+	// m_TextLen = str_length(m_aText);
 
 	m_NumPlasma = 0;
 	m_MaxPlasmas = 0;

@@ -20,6 +20,7 @@
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
 #include <game/server/entities/character.h>
+#include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
@@ -316,6 +317,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendMotdTarget, 1);
 	lua_setfield(LuaState(), -2, "send_motd_target");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackLaserText, 1);
+	lua_setfield(LuaState(), -2, "laser_text");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
@@ -952,6 +957,26 @@ int CLuaPlugin::CallbackSendMotdTarget(lua_State *L)
 	int ClientId = LuaCheckClientId(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
 	pGame->GameServer()->AbuseMotd(pMessage, ClientId);
+	return 0;
+}
+
+int CLuaPlugin::CallbackLaserText(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	const char *pMessage = luaL_checkstring(L, 2);
+	int AliveTicks = pGame->Server()->TickSpeed() * 3;
+	if(lua_isinteger(L, 3))
+	{
+		AliveTicks = lua_tointeger(L, 3);
+	}
+
+	new CLaserText(
+		&pGame->GameServer()->m_World,
+		Pos,
+		AliveTicks,
+		pMessage);
 	return 0;
 }
 
