@@ -47,8 +47,8 @@ public:
 	std::optional<float> GetFloatOptional(const char *pKey);
 	vec2 GetVec2(const char *pKey);
 	vec2 GetPosition(const char *pKey);
-	int GetCoordinate(const char *pKey);
-	std::optional<int> GetCoordinateOptional(const char *pKey);
+	float GetCoordinate(const char *pKey);
+	std::optional<float> GetCoordinateOptional(const char *pKey);
 };
 
 #endif

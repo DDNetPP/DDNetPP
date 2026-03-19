@@ -19,7 +19,7 @@ void LuaPushVec2(lua_State *L, vec2 Vec);
 // it will translate it to friendly lua coordinates unit
 void LuaPushPosition(lua_State *L, vec2 ServerPos);
 
-int LuaCheckCoordinate(lua_State *L, int Index);
+float LuaCheckCoordinate(lua_State *L, int Index);
 
 CPlayer *LuaCheckPlayer(lua_State *L, int Index);
 CCharacter *LuaCheckCharacter(lua_State *L, int Index);

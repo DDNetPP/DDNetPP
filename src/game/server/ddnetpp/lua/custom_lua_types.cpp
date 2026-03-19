@@ -31,11 +31,11 @@ void LuaPushPosition(lua_State *L, vec2 ServerPos)
 	LuaPushVec2(L, ServerPosToLua(ServerPos));
 }
 
-int LuaCheckCoordinate(lua_State *L, int Index)
+float LuaCheckCoordinate(lua_State *L, int Index)
 {
-	if(lua_isinteger(L, Index))
-		return luaL_checkinteger(L, Index) * 32;
-	return ((int)luaL_checknumber(L, Index)) * 32;
+	if(lua_isnumber(L, Index))
+		return luaL_checknumber(L, Index) * 32;
+	return luaL_checkinteger(L, Index) * 32;
 }
 
 CPlayer *LuaCheckPlayer(lua_State *L, int Index)
