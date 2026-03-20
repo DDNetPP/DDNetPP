@@ -340,6 +340,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "create_damage_indicator");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateHammerHit, 1);
+	lua_setfield(LuaState(), -2, "create_hammer_hit");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackCreateExplosion, 1);
 	lua_setfield(LuaState(), -2, "create_explosion");
 
@@ -1086,6 +1090,22 @@ int CLuaPlugin::CallbackCreateDamageIndicator(lua_State *L)
 		Mask = LuaCheckArgClientMask(L, 4);
 
 	pGame->GameServer()->CreateDamageInd(Pos, Angle, Amount, Mask);
+
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateHammerHit(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	CClientMask Mask;
+	Mask.set();
+	if(NumArgs >= 2)
+		Mask = LuaCheckArgClientMask(L, 2);
+
+	pGame->GameServer()->CreateHammerHit(Pos);
 
 	return 0;
 }
