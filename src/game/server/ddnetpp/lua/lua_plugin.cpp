@@ -1073,6 +1073,8 @@ int CLuaPlugin::CallbackCreateExplosion(lua_State *L)
 	int Weapon = WEAPON_GRENADE;
 	bool NoDamage = false;
 	int ActivatedTeam = TEAM_FLOCK;
+	CClientMask Mask;
+	Mask.set();
 
 	if(NumArgs >= 2)
 		OwnerId = LuaCheckClientId(L, 2);
@@ -1082,8 +1084,10 @@ int CLuaPlugin::CallbackCreateExplosion(lua_State *L)
 		NoDamage = lua_toboolean(L, 4); // TODO: where luaL_checkboolean?
 	if(NumArgs >= 5)
 		ActivatedTeam = luaL_checkinteger(L, 5);
+	if(NumArgs >= 6)
+		Mask = LuaCheckArgClientMask(L, 6);
 
-	pGame->GameServer()->CreateExplosion(Pos, OwnerId, Weapon, NoDamage, ActivatedTeam);
+	pGame->GameServer()->CreateExplosion(Pos, OwnerId, Weapon, NoDamage, ActivatedTeam, Mask);
 	return 0;
 }
 

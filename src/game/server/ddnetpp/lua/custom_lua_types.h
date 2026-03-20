@@ -4,6 +4,8 @@
 
 #include <base/vmath.h>
 
+#include <engine/shared/protocol.h>
+
 class CPlayer;
 class CCharacter;
 
@@ -40,6 +42,8 @@ int LuaCheckClientId(lua_State *L, int Index);
 // returns the amount of elements consumed
 // either 1 for a {x, y} table or 2 for two positional arguments x and y
 int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos);
+
+CClientMask LuaCheckArgClientMask(lua_State *L, int Index);
 
 // Call this from your C++ callback to check arguments passed by lua.
 // Expects a lua table with x and y at Index and returns it as a float vec2

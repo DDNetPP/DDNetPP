@@ -137,6 +137,30 @@ end
 Have a look at the [move_box_blob.lua](./examples/move_box_blob.lua) example if
 you want to create your own entity that collides with the world.
 
+## explosions with client mask
+
+In C++ there is a `CClientMask` which in lua is represented as a table
+with integer keys representing client ids. All keys set will be included in the mask.
+You can use this to show for example explosions only to two players with id 0 and 2.
+
+```lua
+function ddnetpp.on_tick()
+	local mask = {}
+	-- only players with the client id 0 and 2 will
+	-- see the explosion
+	mask[0] = true
+	mask[2] = true
+	ddnetpp.create_explosion(
+		{ x = 20, y = 20 }, -- pos
+		-1, -- owner
+		ddnetpp.weapon.GRENADE, -- weapon
+		false, -- no damage
+		0, -- team
+		mask -- client mask
+	)
+end
+```
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.

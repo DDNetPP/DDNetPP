@@ -1,5 +1,7 @@
 #ifdef CONF_LUA
 
+#include <engine/shared/protocol.h>
+
 #include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 #include <game/server/ddnetpp/lua/position.h>
@@ -141,6 +143,41 @@ int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos)
 	OutPos.x = Unpacker.GetCoordinate("x");
 	OutPos.y = Unpacker.GetCoordinate("y");
 	return 2;
+}
+
+CClientMask LuaCheckArgClientMask(lua_State *L, int Index)
+{
+	// LUA_CHECK_STACK(L);
+	CClientMask Mask;
+	char aError[512];
+	if(lua_type(L, Index) != LUA_TTABLE)
+	{
+		str_format(aError, sizeof(aError), "mask table expected, got %s", luaL_typename(L, Index));
+		luaL_argerror(L, Index, aError);
+		return Mask;
+	}
+
+	// TODO: go as fast as possible here
+	//       if there are only a few keys set in the table iterate all keys
+	//       if there are many keys set possibly even more than MAX_CLIENTS or close to MAX_CLIENTS
+	//       then iterate MAX_CLIENTS instead of all keys
+	//       ---
+	//       or should i not try to optimize code without benchmarks
+	//       without fully understanding it? xd
+	//       i feel like rawgeti should be fast enough to always iterate 128 times here
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		lua_rawgeti(L, Index, i);
+		if(!lua_isnil(L, -1))
+			Mask.set(i);
+		// TODO: i feel like it might be faster to checkstack first
+		//       and then pop all 128 after the loop
+		lua_pop(L, 1);
+	}
+	// lua_pop(L, MAX_CLIENTS);
+
+	return Mask;
 }
 
 vec2 LuaCheckArgVec2(lua_State *L, int Index, const char *pTableName)
