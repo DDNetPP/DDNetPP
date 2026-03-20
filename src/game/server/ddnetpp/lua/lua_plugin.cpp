@@ -1872,8 +1872,30 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 	int Owner = Unpacker.GetIntOrDefault("owner", -1);
 	int SwitchNumber = Unpacker.GetIntOrDefault("switch_number", -1);
 	int TuneZone = Unpacker.GetIntOrDefault("tune_zone", -1);
-	// TODO: support flags table with named keys as alternative for integer
-	int Flags = Unpacker.GetIntOrDefault("flags", 0);
+
+	int Flags = 0;
+	std::optional<int> OptFlags = Unpacker.GetIntOptional("flags");
+	if(OptFlags.has_value())
+	{
+		Flags = OptFlags.value();
+	}
+	else
+	{
+		lua_getfield(L, -1, "flags");
+		CTableUnpacker FlagsUnpacker(L, -1, "projectile.flags", __FILE__, __LINE__);
+
+		if(FlagsUnpacker.GetBooleanOptional("bounce_horizontal").value_or(false))
+			Flags |= PROJECTILEFLAG_BOUNCE_HORIZONTAL;
+		if(FlagsUnpacker.GetBooleanOptional("bounce_vertical").value_or(false))
+			Flags |= PROJECTILEFLAG_BOUNCE_VERTICAL;
+		if(FlagsUnpacker.GetBooleanOptional("explosive").value_or(false))
+			Flags |= PROJECTILEFLAG_EXPLOSIVE;
+		if(FlagsUnpacker.GetBooleanOptional("freeze").value_or(false))
+			Flags |= PROJECTILEFLAG_FREEZE;
+		if(FlagsUnpacker.GetBooleanOptional("normalize_vel").value_or(false))
+			Flags |= PROJECTILEFLAG_NORMALIZE_VEL;
+		lua_pop(L, 1);
+	}
 
 	int SnappingClientVersion = pGame->GameServer()->GetClientVersion(pSelf->m_SnappingClient);
 
