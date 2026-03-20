@@ -430,6 +430,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackSnapNewClientInfo, 1);
 		lua_setfield(LuaState(), -2, "new_client_info");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackSnapNewProjectile, 1);
+		lua_setfield(LuaState(), -2, "new_projectile");
 	}
 	lua_setfield(LuaState(), -2, "snap");
 
@@ -1846,6 +1850,40 @@ int CLuaPlugin::CallbackSnapNewClientInfo(lua_State *L)
 	pItem->m_UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color").value_or(false);
 	pItem->m_ColorBody = Unpacker.GetIntOrDefault("color_body", 2);
 	pItem->m_ColorFeet = Unpacker.GetIntOrDefault("color_feet", 2);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+
+	LUA_CHECK_STACK(L);
+
+	CTableUnpacker Unpacker(L, -1, "projectile", __FILE__, __LINE__);
+	int SnapId = Unpacker.GetInt("id");
+	float PosX = Unpacker.GetCoordinate("x");
+	float PosY = Unpacker.GetCoordinate("y");
+	int VelX = Unpacker.GetFloatOptional("vel_x").value_or(0.0f);
+	int VelY = Unpacker.GetCoordinateOptional("vel_y").value_or(PosY);
+	int Type = Unpacker.GetIntOrDefault("type", WEAPON_GRENADE);
+	int StartTick = Unpacker.GetIntOrDefault("start_tick", pGame->Server()->Tick() - 3);
+
+	// TODO: ddnet ex projectiles if receiver is new enough, use optional lua fields
+
+	CNetObj_Projectile *pObj = pGame->Server()->SnapNewItem<CNetObj_Projectile>(SnapId);
+	if(!pObj)
+		return false;
+
+	// log_info("lua", "snapping projectile ith id=%d at %.2f %.2f", SnapId, PosX / 32, PosY / 32);
+
+	pObj->m_X = (int)PosX;
+	pObj->m_Y = (int)PosY;
+	pObj->m_VelX = VelX;
+	pObj->m_VelY = VelY;
+	pObj->m_Type = Type;
+	pObj->m_StartTick = StartTick;
+
 	return 0;
 }
 

@@ -165,6 +165,7 @@ private:
 	static int CallbackSnapNewCharacter(lua_State *L);
 	static int CallbackSnapNewPlayerInfo(lua_State *L);
 	static int CallbackSnapNewClientInfo(lua_State *L);
+	static int CallbackSnapNewProjectile(lua_State *L);
 
 	// server
 	static int CallbackServerTick(lua_State *L);
