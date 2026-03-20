@@ -140,6 +140,7 @@ private:
 	static int CallbackSendMotd(lua_State *L);
 	static int CallbackSendMotdTarget(lua_State *L);
 	static int CallbackLaserText(lua_State *L);
+	static int CallbackCreateDamageIndicator(lua_State *L);
 	static int CallbackCreateExplosion(lua_State *L);
 	static int CallbackRcon(lua_State *L);
 	static int CallbackSendVoteClearOptions(lua_State *L);

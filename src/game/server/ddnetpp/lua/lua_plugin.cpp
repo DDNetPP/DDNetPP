@@ -336,6 +336,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "laser_text");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateDamageIndicator, 1);
+	lua_setfield(LuaState(), -2, "create_damage_indicator");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackCreateExplosion, 1);
 	lua_setfield(LuaState(), -2, "create_explosion");
 
@@ -1060,6 +1064,29 @@ int CLuaPlugin::CallbackLaserText(lua_State *L)
 		Pos,
 		AliveTicks,
 		pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateDamageIndicator(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	float Angle = 0.0f;
+	int Amount = 1;
+	CClientMask Mask;
+	Mask.set();
+
+	if(NumArgs >= 2)
+		Angle = luaL_checknumber(L, 2);
+	if(NumArgs >= 3)
+		Amount = luaL_checkinteger(L, 3);
+	if(NumArgs >= 4)
+		Mask = LuaCheckArgClientMask(L, 4);
+
+	pGame->GameServer()->CreateDamageInd(Pos, Angle, Amount, Mask);
+
 	return 0;
 }
 
