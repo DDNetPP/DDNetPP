@@ -356,6 +356,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "create_death");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateSound, 1);
+	lua_setfield(LuaState(), -2, "create_sound");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateSoundGlobal, 1);
+	lua_setfield(LuaState(), -2, "create_sound_global");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
 	lua_setfield(LuaState(), -2, "rcon");
 
@@ -694,6 +702,176 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_settable(LuaState(), -3);
 	}
 	lua_setfield(LuaState(), -2, "team");
+
+	// ddnetpp.sound sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushstring(LuaState(), "GUN_FIRE");
+		lua_pushinteger(LuaState(), SOUND_GUN_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "SHOTGUN_FIRE");
+		lua_pushinteger(LuaState(), SOUND_SHOTGUN_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GRENADE_FIRE");
+		lua_pushinteger(LuaState(), SOUND_GRENADE_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HAMMER_FIRE");
+		lua_pushinteger(LuaState(), SOUND_HAMMER_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HAMMER_HIT");
+		lua_pushinteger(LuaState(), SOUND_HAMMER_HIT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NINJA_FIRE");
+		lua_pushinteger(LuaState(), SOUND_NINJA_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "GRENADE_EXPLODE");
+		lua_pushinteger(LuaState(), SOUND_GRENADE_EXPLODE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "NINJA_HIT");
+		lua_pushinteger(LuaState(), SOUND_NINJA_HIT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "LASER_FIRE");
+		lua_pushinteger(LuaState(), SOUND_LASER_FIRE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "LASER_BOUNCE");
+		lua_pushinteger(LuaState(), SOUND_LASER_BOUNCE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_SWITCH");
+		lua_pushinteger(LuaState(), SOUND_WEAPON_SWITCH);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_PAIN_SHORT");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_PAIN_SHORT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_PAIN_LONG");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_PAIN_LONG);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "BODY_LAND");
+		lua_pushinteger(LuaState(), SOUND_BODY_LAND);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_AIRJUMP");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_AIRJUMP);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_JUMP");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_JUMP);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_DIE");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_DIE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_SPAWN");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_SPAWN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PLAYER_SKID");
+		lua_pushinteger(LuaState(), SOUND_PLAYER_SKID);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "TEE_CRY");
+		lua_pushinteger(LuaState(), SOUND_TEE_CRY);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HOOK_LOOP");
+		lua_pushinteger(LuaState(), SOUND_HOOK_LOOP);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HOOK_ATTACH_GROUND");
+		lua_pushinteger(LuaState(), SOUND_HOOK_ATTACH_GROUND);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HOOK_ATTACH_PLAYER");
+		lua_pushinteger(LuaState(), SOUND_HOOK_ATTACH_PLAYER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HOOK_NOATTACH");
+		lua_pushinteger(LuaState(), SOUND_HOOK_NOATTACH);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PICKUP_HEALTH");
+		lua_pushinteger(LuaState(), SOUND_PICKUP_HEALTH);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PICKUP_ARMOR");
+		lua_pushinteger(LuaState(), SOUND_PICKUP_ARMOR);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PICKUP_GRENADE");
+		lua_pushinteger(LuaState(), SOUND_PICKUP_GRENADE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PICKUP_SHOTGUN");
+		lua_pushinteger(LuaState(), SOUND_PICKUP_SHOTGUN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "PICKUP_NINJA");
+		lua_pushinteger(LuaState(), SOUND_PICKUP_NINJA);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_SPAWN");
+		lua_pushinteger(LuaState(), SOUND_WEAPON_SPAWN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "WEAPON_NOAMMO");
+		lua_pushinteger(LuaState(), SOUND_WEAPON_NOAMMO);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "HIT");
+		lua_pushinteger(LuaState(), SOUND_HIT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CHAT_SERVER");
+		lua_pushinteger(LuaState(), SOUND_CHAT_SERVER);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CHAT_CLIENT");
+		lua_pushinteger(LuaState(), SOUND_CHAT_CLIENT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CHAT_HIGHLIGHT");
+		lua_pushinteger(LuaState(), SOUND_CHAT_HIGHLIGHT);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CTF_DROP");
+		lua_pushinteger(LuaState(), SOUND_CTF_DROP);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CTF_RETURN");
+		lua_pushinteger(LuaState(), SOUND_CTF_RETURN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CTF_GRAB_PL");
+		lua_pushinteger(LuaState(), SOUND_CTF_GRAB_PL);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CTF_GRAB_EN");
+		lua_pushinteger(LuaState(), SOUND_CTF_GRAB_EN);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "CTF_CAPTURE");
+		lua_pushinteger(LuaState(), SOUND_CTF_CAPTURE);
+		lua_settable(LuaState(), -3);
+
+		lua_pushstring(LuaState(), "MENU");
+		lua_pushinteger(LuaState(), SOUND_MENU);
+		lua_settable(LuaState(), -3);
+	}
+	lua_setfield(LuaState(), -2, "sound");
 
 	// ddnetpp.flags sub table
 	{
@@ -1177,6 +1355,42 @@ int CLuaPlugin::CallbackCreateDeath(lua_State *L)
 		Mask = LuaCheckArgClientMask(L, 3);
 
 	pGame->GameServer()->CreateDeath(Pos, ClientId, Mask);
+
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateSound(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	int SoundId = SOUND_HAMMER_FIRE;
+	CClientMask Mask;
+	Mask.set();
+	if(NumArgs >= 2)
+		SoundId = luaL_checkinteger(L, 2);
+	if(NumArgs >= 3)
+		Mask = LuaCheckArgClientMask(L, 3);
+
+	pGame->GameServer()->CreateSound(Pos, SoundId, Mask);
+
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateSoundGlobal(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	int SoundId = SOUND_HAMMER_FIRE;
+	int TargetId = -1;
+	if(NumArgs >= 1)
+		SoundId = luaL_checkinteger(L, 1);
+	if(NumArgs >= 2)
+		TargetId = luaL_checkinteger(L, 2);
+
+	pGame->GameServer()->CreateSoundGlobal(SoundId, TargetId);
 
 	return 0;
 }
