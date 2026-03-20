@@ -1869,20 +1869,49 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 	int Type = Unpacker.GetIntOrDefault("type", WEAPON_GRENADE);
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", pGame->Server()->Tick() - 3);
 
-	// TODO: ddnet ex projectiles if receiver is new enough, use optional lua fields
+	int Owner = Unpacker.GetIntOrDefault("owner", -1);
+	int SwitchNumber = Unpacker.GetIntOrDefault("switch_number", -1);
+	int TuneZone = Unpacker.GetIntOrDefault("tune_zone", -1);
+	// TODO: support flags table with named keys as alternative for integer
+	int Flags = Unpacker.GetIntOrDefault("flags", 0);
 
-	CNetObj_Projectile *pObj = pGame->Server()->SnapNewItem<CNetObj_Projectile>(SnapId);
-	if(!pObj)
-		return false;
+	int SnappingClientVersion = pGame->GameServer()->GetClientVersion(pSelf->m_SnappingClient);
 
-	// log_info("lua", "snapping projectile ith id=%d at %.2f %.2f", SnapId, PosX / 32, PosY / 32);
+	if(SnappingClientVersion >= VERSION_DDNET_ENTITY_NETOBJS)
+	{
+		CNetObj_DDNetProjectile *pObj = static_cast<CNetObj_DDNetProjectile *>(
+			pGame->Server()->SnapNewItem(NETOBJTYPE_DDNETPROJECTILE,
+				SnapId,
+				sizeof(CNetObj_DDNetProjectile)));
+		if(!pObj)
+			return 0;
 
-	pObj->m_X = (int)PosX;
-	pObj->m_Y = (int)PosY;
-	pObj->m_VelX = VelX;
-	pObj->m_VelY = VelY;
-	pObj->m_Type = Type;
-	pObj->m_StartTick = StartTick;
+		pObj->m_X = round_to_int(PosX * 100.0f);
+		pObj->m_Y = round_to_int(PosY * 100.0f);
+		pObj->m_VelX = VelX;
+		pObj->m_VelY = VelY;
+		pObj->m_Type = Type;
+		pObj->m_StartTick = StartTick;
+
+		// ddnet extensions
+		pObj->m_Owner = Owner;
+		pObj->m_SwitchNumber = SwitchNumber;
+		pObj->m_TuneZone = TuneZone;
+		pObj->m_Flags = Flags;
+	}
+	else
+	{
+		CNetObj_Projectile *pObj = pGame->Server()->SnapNewItem<CNetObj_Projectile>(SnapId);
+		if(!pObj)
+			return 0;
+
+		pObj->m_X = (int)PosX;
+		pObj->m_Y = (int)PosY;
+		pObj->m_VelX = VelX;
+		pObj->m_VelY = VelY;
+		pObj->m_Type = Type;
+		pObj->m_StartTick = StartTick;
+	}
 
 	return 0;
 }
