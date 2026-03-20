@@ -348,6 +348,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "create_explosion");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreatePlayerSpawn, 1);
+	lua_setfield(LuaState(), -2, "create_player_spawn");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateDeath, 1);
+	lua_setfield(LuaState(), -2, "create_death");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
 	lua_setfield(LuaState(), -2, "rcon");
 
@@ -1135,6 +1143,41 @@ int CLuaPlugin::CallbackCreateExplosion(lua_State *L)
 		Mask = LuaCheckArgClientMask(L, 6);
 
 	pGame->GameServer()->CreateExplosion(Pos, OwnerId, Weapon, NoDamage, ActivatedTeam, Mask);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreatePlayerSpawn(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	CClientMask Mask;
+	Mask.set();
+	if(NumArgs >= 2)
+		Mask = LuaCheckArgClientMask(L, 2);
+
+	pGame->GameServer()->CreatePlayerSpawn(Pos, Mask);
+
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateDeath(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	int ClientId = 0;
+	CClientMask Mask;
+	Mask.set();
+	if(NumArgs >= 2)
+		ClientId = luaL_checkinteger(L, 2);
+	if(NumArgs >= 3)
+		Mask = LuaCheckArgClientMask(L, 3);
+
+	pGame->GameServer()->CreateDeath(Pos, ClientId, Mask);
+
 	return 0;
 }
 

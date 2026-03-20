@@ -143,6 +143,8 @@ private:
 	static int CallbackCreateDamageIndicator(lua_State *L);
 	static int CallbackCreateHammerHit(lua_State *L);
 	static int CallbackCreateExplosion(lua_State *L);
+	static int CallbackCreatePlayerSpawn(lua_State *L);
+	static int CallbackCreateDeath(lua_State *L);
 	static int CallbackRcon(lua_State *L);
 	static int CallbackSendVoteClearOptions(lua_State *L);
 	static int CallbackSendVoteOptionAdd(lua_State *L);
