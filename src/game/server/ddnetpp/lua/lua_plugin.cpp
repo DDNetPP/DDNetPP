@@ -24,6 +24,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
+#include <game/teamscore.h>
 
 #include <insta/server/skin_info_manager.h>
 
@@ -333,6 +334,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackLaserText, 1);
 	lua_setfield(LuaState(), -2, "laser_text");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateExplosion, 1);
+	lua_setfield(LuaState(), -2, "create_explosion");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
@@ -1055,6 +1060,30 @@ int CLuaPlugin::CallbackLaserText(lua_State *L)
 		Pos,
 		AliveTicks,
 		pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateExplosion(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	int OwnerId = -1;
+	int Weapon = WEAPON_GRENADE;
+	bool NoDamage = false;
+	int ActivatedTeam = TEAM_FLOCK;
+
+	if(NumArgs >= 2)
+		OwnerId = LuaCheckClientId(L, 2);
+	if(NumArgs >= 3)
+		Weapon = luaL_checkinteger(L, 3);
+	if(NumArgs >= 4)
+		NoDamage = lua_toboolean(L, 4); // TODO: where luaL_checkboolean?
+	if(NumArgs >= 5)
+		ActivatedTeam = luaL_checkinteger(L, 5);
+
+	pGame->GameServer()->CreateExplosion(Pos, OwnerId, Weapon, NoDamage, ActivatedTeam);
 	return 0;
 }
 
