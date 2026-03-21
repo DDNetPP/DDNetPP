@@ -79,8 +79,8 @@ struct CAccountData
 		m_HomingMissilesAmmo = 0;
 
 		m_BlockPoints = 0;
-		m_BlockPoints_Kills = 0;
-		m_BlockPoints_Deaths = 0;
+		m_BlockPointsKills = 0;
+		m_BlockPointsDeaths = 0;
 		m_BlockSkill = 0;
 
 		m_IsModerator = false;
@@ -182,8 +182,8 @@ struct CAccountData
 	int m_HomingMissilesAmmo;
 
 	int m_BlockPoints; //KILLS + other stuff like block tournaments won
-	int m_BlockPoints_Kills; //Block points (blocked others)
-	int m_BlockPoints_Deaths; //Block -points (blocked by others)
+	int m_BlockPointsKills; //Block points (blocked others)
+	int m_BlockPointsDeaths; //Block -points (blocked by others)
 	int m_BlockSkill;
 
 	bool m_IsModerator;

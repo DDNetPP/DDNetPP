@@ -22,7 +22,6 @@ class CGameWorld
 {
 #define IN_CLASS_GAMEWORLD
 #include "gameworld_ddpp.h"
-public:
 	enum
 	{
 		ENTTYPE_PROJECTILE = 0,

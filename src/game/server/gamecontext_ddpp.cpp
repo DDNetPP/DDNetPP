@@ -1430,9 +1430,9 @@ void CGameContext::ShowDDPPStats(int RequestingId, int RequestedId)
 	SendChatTarget(RequestingId, aBuf);
 	str_format(aBuf, sizeof(aBuf), "%s: %d", pPoints, pPlayer->m_Account.m_BlockPoints);
 	SendChatTarget(RequestingId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "%s: %d", pKills, pPlayer->m_Account.m_BlockPoints_Kills);
+	str_format(aBuf, sizeof(aBuf), "%s: %d", pKills, pPlayer->m_Account.m_BlockPointsKills);
 	SendChatTarget(RequestingId, aBuf);
-	str_format(aBuf, sizeof(aBuf), "%s: %d", pDeaths, pPlayer->m_Account.m_BlockPoints_Deaths);
+	str_format(aBuf, sizeof(aBuf), "%s: %d", pDeaths, pPlayer->m_Account.m_BlockPointsDeaths);
 	SendChatTarget(RequestingId, aBuf);
 
 	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsId));

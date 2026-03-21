@@ -1675,12 +1675,12 @@ int CCharacter::BlockPointsMain(int Killer, int &Weapon, bool FngScore)
 			{
 				if(g_Config.m_SvDummyBlockPoints)
 				{
-					m_pPlayer->m_Account.m_BlockPoints_Deaths++;
+					m_pPlayer->m_Account.m_BlockPointsDeaths++;
 				}
 			}
 			else
 			{
-				m_pPlayer->m_Account.m_BlockPoints_Deaths++;
+				m_pPlayer->m_Account.m_BlockPointsDeaths++;
 			}
 		}
 	}
@@ -1698,7 +1698,7 @@ int CCharacter::BlockPointsMain(int Killer, int &Weapon, bool FngScore)
 					{
 						GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 					}
-					GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPoints_Kills++;
+					GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPointsKills++;
 				}
 			}
 			else
@@ -1707,7 +1707,7 @@ int CCharacter::BlockPointsMain(int Killer, int &Weapon, bool FngScore)
 				{
 					GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 				}
-				GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPoints_Kills++;
+				GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPointsKills++;
 			}
 		}
 		// bounty money reward to the blocker

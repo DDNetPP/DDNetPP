@@ -276,8 +276,8 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindString(Index++, pAcc->m_ProfileTwitter);
 	pSqlServer->BindInt(Index++, pAcc->m_HomingMissilesAmmo);
 	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints);
-	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints_Kills);
-	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints_Deaths);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockPointsKills);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockPointsDeaths);
 	pSqlServer->BindInt(Index++, pAcc->m_BlockSkill);
 	pSqlServer->BindInt(Index++, pAcc->m_IsModerator);
 	pSqlServer->BindInt(Index++, pAcc->m_IsSuperModerator);
@@ -448,8 +448,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileTwitter, sizeof(pResult->m_Account.m_ProfileTwitter));
 		pResult->m_Account.m_HomingMissilesAmmo = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_BlockPoints = pSqlServer->GetInt(Index++);
-		pResult->m_Account.m_BlockPoints_Kills = pSqlServer->GetInt(Index++);
-		pResult->m_Account.m_BlockPoints_Deaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockPointsKills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockPointsDeaths = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_BlockSkill = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_IsModerator = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_IsSuperModerator = pSqlServer->GetInt(Index++);

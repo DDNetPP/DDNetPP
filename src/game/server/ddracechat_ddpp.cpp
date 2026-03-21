@@ -91,12 +91,12 @@ bool CGameContext::DDPPPoints(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 				return true;
 			}
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPoints, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPoints_Kills, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPoints_Deaths);
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPoints, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPointsKills, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPointsDeaths);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 		else //show own
 		{
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientId), pPlayer->m_Account.m_BlockPoints, pPlayer->m_Account.m_BlockPoints_Kills, pPlayer->m_Account.m_BlockPoints_Deaths);
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientId), pPlayer->m_Account.m_BlockPoints, pPlayer->m_Account.m_BlockPointsKills, pPlayer->m_Account.m_BlockPointsDeaths);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 	}

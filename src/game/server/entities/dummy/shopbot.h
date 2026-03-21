@@ -7,8 +7,8 @@ class CDummyShopBot : public CDummyBase
 {
 public:
 	CDummyShopBot(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual ~CDummyShopBot() {}
+	void OnTick() override;
+	~CDummyShopBot() override = default;
 	const char *ModeStr() override { return "Shopbot"; }
 };
 
