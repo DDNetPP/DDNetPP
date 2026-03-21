@@ -1570,6 +1570,7 @@ set(EXPECTED_DATA
   mapres/winter_mountains2.png
   mapres/winter_mountains3.png
   maps/LearnToPlay.map
+  maps/Sunny\ Side\ Up.map
   maps/Tutorial.map
   maps/coverage.map
   maps/ddnetpp-test.map
