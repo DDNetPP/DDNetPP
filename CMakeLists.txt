@@ -2860,6 +2860,7 @@ if(SERVER)
     ddnetpp/lua/lua_game.h
     ddnetpp/lua/lua_plugin.cpp
     ddnetpp/lua/lua_plugin.h
+    ddnetpp/lua/lua_rcon_command.cpp
     ddnetpp/lua/lua_rcon_command.h
     ddnetpp/lua/position.cpp
     ddnetpp/lua/position.h
