@@ -78,6 +78,10 @@ public:
 		m_pKernel->RegisterInterface(pEngineAntibot);
 		m_pKernel->RegisterInterface(static_cast<IAntibot *>(pEngineAntibot), false);
 
+		// ddnet++
+		ILuaController *pLua = CreateLuaController();
+		m_pKernel->RegisterInterface(pLua);
+
 		m_pGameServer = CreateGameServer();
 		m_pKernel->RegisterInterface(m_pGameServer);
 
