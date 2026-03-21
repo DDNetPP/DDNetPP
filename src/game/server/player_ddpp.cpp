@@ -1,6 +1,5 @@
 /* CPlayer related ddnet++ methods */
 
-#include "game/race_state.h"
 #include "gamecontext.h"
 #include "player.h"
 
@@ -13,6 +12,7 @@
 #include <generated/protocol.h>
 
 #include <game/mapitems.h>
+#include <game/race_state.h>
 #include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/shop.h>

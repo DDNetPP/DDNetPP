@@ -2,7 +2,6 @@
 // see also ddnetpp/tiles.cpp
 
 #include "character.h"
-#include "game/race_state.h"
 
 #include <base/system.h>
 
@@ -11,6 +10,7 @@
 
 #include <game/mapitems.h>
 #include <game/mapitems_ddpp.h>
+#include <game/race_state.h>
 #include <game/server/ddpp/shop.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/ddnet.h>
