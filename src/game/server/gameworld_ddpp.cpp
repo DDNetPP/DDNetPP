@@ -480,7 +480,7 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 				continue;
 		}
 
-		if(p->isFreezed)
+		if(p->m_FreezeTime)
 			continue;
 
 		float Len = distance(Pos, p->m_Pos);
@@ -517,7 +517,7 @@ CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCha
 				continue;
 		}
 
-		if(p->isFreezed) //freezed -> continue
+		if(p->m_FreezeTime) //freezed -> continue
 			continue;
 
 		float Len = distance(Pos, p->m_Pos);

@@ -55,8 +55,8 @@ bool CDummyBase::IsGrounded() { return m_pCharacter->IsGrounded(); }
 bool CDummyBase::IsFrozen(CCharacter *pChr)
 {
 	if(!pChr)
-		return m_pCharacter->isFreezed;
-	return pChr->isFreezed;
+		return m_pCharacter->m_FreezeTime;
+	return pChr->m_FreezeTime;
 }
 int CDummyBase::GetTargetX() { return m_pCharacter->Input()->m_TargetX; }
 int CDummyBase::GetTargetY() { return m_pCharacter->Input()->m_TargetY; }

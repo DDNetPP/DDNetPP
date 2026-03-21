@@ -6395,10 +6395,6 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "Frozen: DEEP");
 		}
-		else if(pLive->GetCharacter()->isFreezed)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientId, "Frozen: TRUE");
-		}
 		else if(pLive->GetCharacter()->m_FreezeTime)
 		{
 			str_format(aBuf, sizeof(aBuf), "Frozen: Freezetime: %d", pLive->GetCharacter()->m_FreezeTime);

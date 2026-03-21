@@ -156,7 +156,7 @@ void CCharacter::DDPPDDRacePostCoreTick()
 	if(!IsAlive())
 		return;
 
-	if(!isFreezed)
+	if(!m_FreezeTime)
 		m_FirstFreezeTick = 0;
 }
 
@@ -477,7 +477,7 @@ void CCharacter::DropWeapon(int WeaponId)
 
 	if(!g_Config.m_SvAllowDroppingWeapons)
 		return;
-	if(isFreezed || m_FreezeTime)
+	if(m_FreezeTime)
 		return;
 	if(!m_Core.m_aWeapons[WeaponId].m_Got)
 		return;
@@ -796,7 +796,7 @@ void CCharacter::DDPP_Tick()
 	}
 
 	//Block points (clear touchid on freeze and unfreeze again)
-	//if (m_pPlayer->m_LastToucherId != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
+	//if (m_pPlayer->m_LastToucherId != -1 && m_FreezeTime) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
 	//{
 	//	m_pPlayer->m_BlockWasTouchedAndFreezed = true;
 	//}
@@ -2055,7 +2055,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 void CCharacter::CITick()
 {
 	//Check for stuck --> restart
-	if(isFreezed)
+	if(m_FreezeTime)
 	{
 		m_CiFreezetime++;
 	}
@@ -2176,7 +2176,7 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 	{
 		if(m_IsBomb) //if bomb hits others --> they get bomb
 		{
-			if(!pTarget->isFreezed && !pTarget->m_FreezeTime) //you cant bomb freezed players
+			if(!pTarget->m_FreezeTime) //you cant bomb freezed players
 			{
 				m_IsBomb = false;
 				pTarget->m_IsBomb = true;
@@ -2921,7 +2921,6 @@ void CCharacter::KillFreeze(bool Unfreeze)
 
 bool CCharacter::ForceFreeze(int Seconds)
 {
-	isFreezed = true;
 	if(Seconds <= 0 || m_FreezeTime == -1)
 		return false;
 	if(m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
@@ -2960,7 +2959,6 @@ bool CCharacter::ForceFreeze(int Seconds)
 bool CCharacter::FreezeFloat(float Seconds)
 {
 	KillFreeze(false);
-	isFreezed = true;
 	if((Seconds <= 0 || m_Core.m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
 		return false;
 	if(m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)

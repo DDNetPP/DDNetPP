@@ -45,7 +45,7 @@ void CDummyBlmapV3Arena::OnTick()
 		 **************************************************/
 
 		//swing enemy up
-		if(GetPos().y < pChr->GetPos().y - 20 && !IsGrounded() && !pChr->isFreezed)
+		if(GetPos().y < pChr->GetPos().y - 20 && !IsGrounded() && !pChr->m_FreezeTime)
 		{
 			Hook();
 			float dist = distance(pChr->GetPos(), GetPos());
@@ -98,11 +98,11 @@ void CDummyBlmapV3Arena::OnTick()
 				}
 			}
 
-			//if (pChr->GetPos().y > 77 * 32 - 1 + V3_OFFSET_Y && pChr->IsGrounded() == false && pChr->isFreezed)
+			//if (pChr->GetPos().y > 77 * 32 - 1 + V3_OFFSET_Y && pChr->IsGrounded() == false && pChr->m_FreezeTime)
 			//{
 			//	Hook(0); //rekt -> let him fall
 			//}
-			if(pChr->isFreezed)
+			if(pChr->m_FreezeTime)
 			{
 				Hook(0);
 			}

@@ -111,7 +111,7 @@ void CDummyChillBlock5Police::OnTick()
 		{
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hello officär");
 			m_DummyClosestPolice = true;
-			//if (pChr->isFreezed)
+			//if (pChr->m_FreezeTime)
 			//{
 			//	m_Dummy_dmm31 = 2;
 			//}
@@ -170,7 +170,7 @@ void CDummyChillBlock5Police::OnTick()
 					m_DummyDmm31 = 1; //LOCAL: ENEMY ATTACK
 				}
 			}
-			if(pChr->isFreezed)
+			if(pChr->m_FreezeTime)
 			{
 				m_DummyDmm31 = 0; //maybe add here a mode where the bot moves the nonPolices away to find failed polices
 			}
@@ -250,12 +250,12 @@ void CDummyChillBlock5Police::OnTick()
 				Hook(0);
 				Jump(0);
 			}
-			if(IsGrounded() && pChr->isFreezed)
+			if(IsGrounded() && pChr->m_FreezeTime)
 			{
 				Jump();
 			}
 
-			if(pChr->isFreezed)
+			if(pChr->m_FreezeTime)
 			{
 				if(pChr->GetPos().x > GetPos().x)
 				{

@@ -139,7 +139,6 @@ public:
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 	CClientMask TeamMask();
 
-	bool isFreezed; // TODO: this was added for ddnet++ and should be removed use m_FreezeTime from ddnet instead
 	CCharacterCore *Core() { return &m_Core; } // ddnet++ added non const override
 	int m_NeededFaketuning; // sowwy ChillerDragon made it public
 	void SetPosition(const vec2 &Position);
@@ -172,7 +171,6 @@ private:
 	int m_MoveRestrictions;
 
 	int m_DamageTaken;
-	//bool isFreezed; //ChillerDragon moved this public
 
 	int m_EmoteType;
 	int m_EmoteStop;
