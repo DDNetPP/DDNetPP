@@ -21,7 +21,7 @@ def create_flags_table(names):
 	lines = []
 	lines += ["enum", "{"]
 	for i, name in enumerate(names):
-		lines += [f"\t{name} = 1<<{int(i)},"]
+		lines += [f"\t{name} = 1U<<{int(i)},"]
 	lines += ["};"]
 	return lines
 
@@ -144,7 +144,10 @@ def gen_network_source():
 	print("""\
 #include "protocol.h"
 
-#include <base/system.h>
+#include <base/dbg.h>
+#include <base/mem.h>
+#include <base/str.h>
+
 #include <engine/uuid.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>

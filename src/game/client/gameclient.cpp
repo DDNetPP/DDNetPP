@@ -2366,7 +2366,12 @@ void CGameClient::OnNewSnapshot()
 				if(IsOtherTeam(i))
 					Alpha = g_Config.m_ClShowOthersAlpha / 100.0f;
 				const float Volume = 1.0f; // TODO snd_game_volume_others
-				m_Effects.AirJump(Pos, Alpha, Volume);
+
+				const bool Grounded = Collision()->IsOnGround(vec2(m_Snap.m_aCharacters[i].m_Prev.m_X, m_Snap.m_aCharacters[i].m_Prev.m_Y), CCharacterCore::PhysicalSize());
+				if(!Grounded)
+				{
+					m_Effects.AirJump(Pos, Alpha, Volume);
+				}
 			}
 		}
 	}
