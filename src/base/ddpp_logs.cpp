@@ -4,8 +4,6 @@
 
 #include <base/time.h>
 
-#include <X11/X.h>
-
 #include <cstdio>
 
 /*
