@@ -19,10 +19,12 @@
 #include <utility>
 #include <vector>
 
+#ifdef CONF_LUA
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
 }
+#endif
 
 int CLuaController::FsLoadDirPlugin(const char *pDirname, int DirType, void *pUser)
 {
