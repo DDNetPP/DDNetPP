@@ -13,7 +13,7 @@ int CGameContext::C3_GetFreeSlots()
 {
 	int c = g_Config.m_SvChidraqulSlots;
 	for(auto &Player : m_apPlayers)
-		if(Player && Player->m_C3_GameState == 2)
+		if(Player && Player->m_C3GameState == 2)
 			c--;
 	return c;
 }
@@ -22,21 +22,21 @@ int CGameContext::C3_GetOnlinePlayers()
 {
 	int c = 0;
 	for(auto &Player : m_apPlayers)
-		if(Player && Player->m_C3_GameState == 2)
+		if(Player && Player->m_C3GameState == 2)
 			c++;
 	return c;
 }
 
 void CGameContext::C3_MultiPlayer_GameTick(int id)
 {
-	if(m_apPlayers[id]->m_C3_UpdateFrame || Server()->Tick() % 120 == 0)
+	if(m_apPlayers[id]->m_C3UpdateFrame || Server()->Tick() % 120 == 0)
 	{
 		C3_RenderFrame();
 		for(auto &Player : m_apPlayers)
 		{
 			if(Player)
 			{
-				Player->m_C3_UpdateFrame = false; //only render once a tick
+				Player->m_C3UpdateFrame = false; //only render once a tick
 			}
 		}
 	}
@@ -58,7 +58,7 @@ void CGameContext::C3_RenderFrame()
 	//place players
 	for(auto &Player : m_apPlayers)
 	{
-		if(Player && Player->m_C3_GameState == 2)
+		if(Player && Player->m_C3GameState == 2)
 		{
 			aWorld[Player->m_HashPos] = Player->m_HashSkin[0];
 		}
@@ -70,7 +70,7 @@ void CGameContext::C3_RenderFrame()
 	//add hud and send to players
 	for(auto &Player : m_apPlayers)
 	{
-		if(Player && Player->m_C3_GameState == 2)
+		if(Player && Player->m_C3GameState == 2)
 		{
 			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", Player->m_HashPos, players, g_Config.m_SvChidraqulSlots);
 			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);

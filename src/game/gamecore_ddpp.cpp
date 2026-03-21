@@ -84,7 +84,7 @@ bool CCharacterCore::HookFlag()
 
 void CCharacterCore::DDPPTick()
 {
-	m_updateFlagVel = 0;
+	m_UpdateFlagVel = 0;
 
 	if(m_DDNetPP.m_LastHookedTick != -1)
 	{
@@ -138,7 +138,7 @@ void CCharacterCore::DDPPTick()
 
 			if(m_HookedPlayer == CLIENT_ID_FLAG_RED)
 			{
-				m_updateFlagVel = CLIENT_ID_FLAG_RED;
+				m_UpdateFlagVel = CLIENT_ID_FLAG_RED;
 				Temp = m_DDNetPP.m_aFlags[0].m_Vel;
 				FlagVel = m_DDNetPP.m_aFlags[0].m_Vel;
 				FPos = m_DDNetPP.m_aFlags[0].m_Pos;
@@ -147,7 +147,7 @@ void CCharacterCore::DDPPTick()
 			}
 			if(m_HookedPlayer == CLIENT_ID_FLAG_BLUE)
 			{
-				m_updateFlagVel = CLIENT_ID_FLAG_BLUE;
+				m_UpdateFlagVel = CLIENT_ID_FLAG_BLUE;
 				Temp = m_DDNetPP.m_aFlags[1].m_Vel;
 				FlagVel = m_DDNetPP.m_aFlags[1].m_Vel;
 				FPos = m_DDNetPP.m_aFlags[1].m_Pos;

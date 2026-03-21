@@ -36,14 +36,14 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
-		pChr->m_freezeShotgun ^= true;
-		pChr->m_isDmg ^= true;
+		pChr->m_FreezeShotgun ^= true;
+		pChr->m_IsDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_freezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_FreezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "freezeShotgun was %s by %s", pChr->m_freezeShotgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "freezeShotgun was %s by %s", pChr->m_FreezeShotgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
@@ -151,7 +151,7 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
 		//GameServer()->CreateDeath(Position, ClientId);
 		pChr->IncreaseHealth(10);
-		pChr->m_isHeal = true; //hier wird der heil effekt getriggat yuuu!
+		pChr->m_IsHeal = true; //hier wird der heil effekt getriggat yuuu!
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "%s has been given full health.", pSelf->Server()->ClientName(ClientId));
@@ -260,15 +260,15 @@ void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
-		pSelf->m_apPlayers[ClientId]->m_disarm ^= true;
+		pSelf->m_apPlayers[ClientId]->m_Disarm ^= true;
 
 		//  kommentiert wegen disarm bugs xD
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_Disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Hammer has been %s for your next respawn by %s", pPlayer->m_disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "Hammer has been %s for your next respawn by %s", pPlayer->m_Disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
@@ -284,13 +284,13 @@ void CGameContext::Conninjasteam(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
-		pPlayer->m_ninjasteam ^= true;
+		pPlayer->m_Ninjasteam ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "ninjasteam has been %s for %s", pPlayer->m_ninjasteam ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "ninjasteam has been %s for %s", pPlayer->m_Ninjasteam ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "ninjasteam was %s by %s", pPlayer->m_ninjasteam ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "ninjasteam was %s by %s", pPlayer->m_Ninjasteam ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
@@ -529,13 +529,13 @@ void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
-		pChr->m_autospreadgun ^= true;
+		pChr->m_Autospreadgun ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Spread gun has been %s for %s", pChr->m_autospreadgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "Spread gun has been %s for %s", pChr->m_Autospreadgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Spread Gun was %s by %s", pChr->m_autospreadgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "Spread Gun was %s by %s", pChr->m_Autospreadgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
@@ -699,13 +699,13 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
-		pChr->m_isDmg ^= true;
+		pChr->m_IsDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s.", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
+		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s.", pChr->m_IsDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s.", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s.", pChr->m_IsDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
@@ -727,18 +727,18 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
 		//GameServer()->CreateDeath(Position, ClientId);
 		pChr->IncreaseHealth(10);
-		pChr->m_isHeal = true; //hier wird der heil effekt getriggat yuuu!
-		pChr->m_isDmg ^= true;
-		pChr->m_hammerfight ^= true;
+		pChr->m_IsHeal = true; //hier wird der heil effekt getriggat yuuu!
+		pChr->m_IsDmg ^= true;
+		pChr->m_Hammerfight ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "For %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientId), pChr->m_hammerfight ? "ON" : "OFF");
+		str_format(aBuf, sizeof(aBuf), "For %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientId), pChr->m_Hammerfight ? "ON" : "OFF");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "You were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "You were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_Hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTarget(ClientId, aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "hammerfight-mode has been turned %s for %s by %s", pChr->m_hammerfight ? "ON" : "OFF", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
+		str_format(aBuf, sizeof(aBuf), "hammerfight-mode has been turned %s for %s by %s", pChr->m_Hammerfight ? "ON" : "OFF", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChat(-1, TEAM_ALL, aBuf);
 	}
 }
@@ -1056,7 +1056,7 @@ void CGameContext::ConPlugins(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConSql_ADD(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConSqlAdd(IConsole::IResult *pResult, void *pUserData)
 {
 	//CGameContext *pSelf = (CGameContext *)pUserData;
 	//if (!CheckClientId(pResult->m_ClientId))

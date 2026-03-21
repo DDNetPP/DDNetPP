@@ -77,7 +77,7 @@ CONSOLE_COMMAND("reload_spamfilters", "", CFGFLAG_SERVER, ConReloadSpamfilters, 
 CONSOLE_COMMAND("add_spamfilter", "s[filter]", CFGFLAG_SERVER, ConAddSpamfilter, this, "writes to spamfilters.txt (see also list_spamfilters)")
 CONSOLE_COMMAND("list_spamfilters", "", CFGFLAG_SERVER, ConListSpamfilters, this, "prints active spamfilters (see also reload_spamfilters)")
 
-CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSql_ADD, this, "adds an new column to the table")
+CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSqlAdd, this, "adds an new column to the table")
 
 CONSOLE_COMMAND("set_shop_item_price", "s[item] s[price]", CFGFLAG_SERVER, ConSetShopItemPrice, this, "sets the price of a shop item")
 CONSOLE_COMMAND("set_shop_item_description", "s[item] s[description]", CFGFLAG_SERVER, ConSetShopItemDescription, this, "sets the description of a shop item")

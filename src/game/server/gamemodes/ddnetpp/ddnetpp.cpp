@@ -224,7 +224,7 @@ int CGameControllerDDNetPP::GetAutoTeam(int NotThisId)
 	if(!pPlayer)
 		return CGameControllerInstaCore::GetAutoTeam(NotThisId);
 
-	if(GameServer()->m_insta_survival_gamestate)
+	if(GameServer()->m_InstaSurvivalGamestate)
 		return TEAM_SPECTATORS;
 
 	return CGameControllerInstaCore::GetAutoTeam(NotThisId);

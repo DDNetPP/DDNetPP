@@ -151,7 +151,7 @@ public:
 	virtual void SetFlagMask(int FlagMask) = 0;
 
 	// DDNet++
-	virtual void PrintDDPPLogs(int type) = 0;
+	virtual void PrintDDPPLogs(int Type) = 0;
 };
 
 std::unique_ptr<IConsole> CreateConsole(int FlagMask);

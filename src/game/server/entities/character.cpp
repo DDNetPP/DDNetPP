@@ -563,7 +563,7 @@ void CCharacter::FireWeapon()
 			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 				m_pPlayer->GetCid(), m_Core.m_ActiveWeapon);
 
-			if(!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
+			if(!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaModeFng)
 				pTarget->Unfreeze();
 
 			if(m_FreezeHammer) //ddnet++
@@ -2473,7 +2473,7 @@ bool CCharacter::Unfreeze()
 	if(m_FreezeTime > 0)
 	{
 		//BlockWave
-		BlockWaveFreezeTicks = 0;
+		m_BlockWaveFreezeTicks = 0;
 		m_pPlayer->m_IsBlockWaveDead = false;
 
 		if(!m_pPlayer->m_IsVanillaDmg)

@@ -179,11 +179,11 @@ int CGameControllerDDNetPP::SnapScoreLimit(int SnappingClient)
 
 	if(pSnapReceiver->IsInstagibMinigame())
 	{
-		if(pSnapReceiver->m_IsInstaMode_fng)
+		if(pSnapReceiver->m_IsInstaModeFng)
 		{
-			if(pSnapReceiver->m_IsInstaMode_idm)
+			if(pSnapReceiver->m_IsInstaModeIdm)
 				return g_Config.m_SvRifleScorelimit;
-			else if(pSnapReceiver->m_IsInstaMode_gdm)
+			else if(pSnapReceiver->m_IsInstaModeGdm)
 				return g_Config.m_SvGrenadeScorelimit;
 		}
 	}

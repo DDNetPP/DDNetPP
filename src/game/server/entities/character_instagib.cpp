@@ -17,7 +17,7 @@
 
 void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 {
-	if(m_Godmode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_InstaGrenadeRoundEndTickTicker) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_InstaRifleRoundEndTickTicker))
+	if(m_Godmode || (m_pPlayer->m_IsInstaArenaGdm && GameServer()->m_InstaGrenadeRoundEndTickTicker) || (m_pPlayer->m_IsInstaArenaIdm && GameServer()->m_InstaRifleRoundEndTickTicker))
 	{
 		//CHEATER!!
 	}
@@ -30,7 +30,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 		if(From != m_pPlayer->GetCid() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 		{
-			if(m_pPlayer->m_IsInstaMode_fng || GameServer()->m_apPlayers[From]->m_IsInstaMode_fng)
+			if(m_pPlayer->m_IsInstaModeFng || GameServer()->m_apPlayers[From]->m_IsInstaModeFng)
 			{
 				if(!m_FreezeTime)
 				{
@@ -153,11 +153,11 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 
 		InstagibKillingSpree(Killer, Weapon);
 	}
-	else if(m_pPlayer->m_IsInstaArena_gdm)
+	else if(m_pPlayer->m_IsInstaArenaGdm)
 	{
 		m_pPlayer->m_Account.m_GrenadeDeaths++;
 	}
-	else if(m_pPlayer->m_IsInstaArena_idm)
+	else if(m_pPlayer->m_IsInstaArenaIdm)
 	{
 		m_pPlayer->m_Account.m_RifleDeaths++;
 	}
@@ -165,11 +165,11 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 	//=== KILLS ===
 	if(GameServer()->m_apPlayers[Killer])
 	{
-		if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+		if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArenaGdm) //gdm & zCatch grenade
 		{
 			GameServer()->m_apPlayers[Killer]->m_Account.m_GrenadeKills++;
 		}
-		else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // idm & zCatch rifle
+		else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArenaIdm) // idm & zCatch rifle
 		{
 			GameServer()->m_apPlayers[Killer]->m_Account.m_RifleKills++;
 		}
@@ -178,38 +178,38 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 		if(Killer != m_pPlayer->GetCid()) // don't count selkills as multi
 		{
 			time_t ttmp = time(NULL);
-			if((ttmp - GameServer()->m_apPlayers[Killer]->m_lastkilltime) <= 5)
+			if((ttmp - GameServer()->m_apPlayers[Killer]->m_Lastkilltime) <= 5)
 			{
-				GameServer()->m_apPlayers[Killer]->m_multi++;
-				if(GameServer()->m_apPlayers[Killer]->m_max_multi < GameServer()->m_apPlayers[Killer]->m_multi)
+				GameServer()->m_apPlayers[Killer]->m_Multi++;
+				if(GameServer()->m_apPlayers[Killer]->m_MaxMulti < GameServer()->m_apPlayers[Killer]->m_Multi)
 				{
-					GameServer()->m_apPlayers[Killer]->m_max_multi = GameServer()->m_apPlayers[Killer]->m_multi;
+					GameServer()->m_apPlayers[Killer]->m_MaxMulti = GameServer()->m_apPlayers[Killer]->m_Multi;
 				}
 				char aBuf[128];
 				if(GameServer()->IsDDPPgametype("fng"))
 				{
-					str_format(aBuf, sizeof(aBuf), "'%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+					str_format(aBuf, sizeof(aBuf), "'%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Multi);
 					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 				}
-				if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng)
+				if(GameServer()->m_apPlayers[Killer]->m_IsInstaArenaFng)
 				{
-					if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) // grenade
+					if(GameServer()->m_apPlayers[Killer]->m_IsInstaArenaGdm) // grenade
 					{
-						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Multi);
 						GameServer()->SendChatInsta(aBuf, WEAPON_GRENADE);
 					}
-					else if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // rifle
+					else if(GameServer()->m_apPlayers[Killer]->m_IsInstaArenaIdm) // rifle
 					{
-						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Multi);
 						GameServer()->SendChatInsta(aBuf, WEAPON_LASER);
 					}
 				}
 			}
 			else
 			{
-				GameServer()->m_apPlayers[Killer]->m_multi = 1;
+				GameServer()->m_apPlayers[Killer]->m_Multi = 1;
 			}
-			GameServer()->m_apPlayers[Killer]->m_lastkilltime = ttmp;
+			GameServer()->m_apPlayers[Killer]->m_Lastkilltime = ttmp;
 		}
 	}
 }

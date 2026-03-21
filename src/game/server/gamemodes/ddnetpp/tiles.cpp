@@ -113,7 +113,7 @@ void CGameControllerDDNetPP::HandleCharacterTilesDDPP(
 		pChr->OnTileFinish();
 	}
 
-	if(((TileIndex == TILE_DDPP_END) || (TileFIndex == TILE_DDPP_END)) && !pChr->m_DDPP_Finished)
+	if(((TileIndex == TILE_DDPP_END) || (TileFIndex == TILE_DDPP_END)) && !pChr->m_DdppFinished)
 	{
 		pChr->OnTileSpecialFinish();
 	}
@@ -277,16 +277,16 @@ void CGameControllerDDNetPP::HandleCosmeticTiles(CCharacter *pChr)
 		if(((pChr->m_LastIndexTile == TILE_SPREAD_GUN) || (pChr->m_LastIndexFrontTile == TILE_SPREAD_GUN)))
 			return;
 
-		if(pChr->m_autospreadgun || pPlayer->m_InfAutoSpreadGun)
+		if(pChr->m_Autospreadgun || pPlayer->m_InfAutoSpreadGun)
 		{
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "You lost spread gun!");
-			pChr->m_autospreadgun = false;
+			pChr->m_Autospreadgun = false;
 			pPlayer->m_InfAutoSpreadGun = false;
 		}
 		else
 		{
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "You got spread gun!");
-			pChr->m_autospreadgun = true;
+			pChr->m_Autospreadgun = true;
 		}
 	}
 

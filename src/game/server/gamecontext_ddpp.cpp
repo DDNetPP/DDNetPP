@@ -75,19 +75,19 @@ void CGameContext::ConstructDDPP(int Resetting)
 	m_vDropLimit.resize(2);
 	m_BalanceId1 = -1;
 	m_BalanceId2 = -1;
-	m_survivalgamestate = 0;
-	m_survival_game_countdown = 0;
+	m_Survivalgamestate = 0;
+	m_SurvivalGameCountdown = 0;
 	m_BlockWaveGameState = 0;
-	m_insta_survival_gamestate = 0;
+	m_InstaSurvivalGamestate = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
 	m_WrongRconAttempts = 0;
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
-	m_iBroadcastDelay = 0;
+	m_IBroadcastDelay = 0;
 	m_BombGameState = 0;
-	m_survivalgamestate = 0;
+	m_Survivalgamestate = 0;
 	m_BalanceBattleState = 0;
 	m_CreateShopBot = false;
 	m_InstaGrenadeRoundEndTickTicker = 0;
@@ -562,8 +562,8 @@ void CGameContext::OnClientEnterDDPP(int ClientId)
 	{
 		if(m_apPlayers[ClientId])
 		{
-			m_apPlayers[ClientId]->m_IsInstaMode_idm = true;
-			m_apPlayers[ClientId]->m_IsInstaMode_fng = true;
+			m_apPlayers[ClientId]->m_IsInstaModeIdm = true;
+			m_apPlayers[ClientId]->m_IsInstaModeFng = true;
 		}
 	}
 	InitDDPPScore(ClientId);
@@ -989,19 +989,19 @@ void CGameContext::LoadFNNvalues()
 		std::string Line;
 
 		std::getline(ReadFile, Line); //distance
-		m_FNN_best_distance = atoi(Line.c_str());
+		m_FnnBestDistance = atoi(Line.c_str());
 
 		std::getline(ReadFile, Line); //fitness
-		m_FNN_best_fitness = atoi(Line.c_str());
+		m_FnnBestFitness = atoi(Line.c_str());
 
 		std::getline(ReadFile, Line); //distance_finish
-		m_FNN_best_distance_finish = atoi(Line.c_str());
+		m_FnnBestDistanceFinish = atoi(Line.c_str());
 	}
 	else
 	{
-		m_FNN_best_distance = -9999999;
-		m_FNN_best_fitness = -9999999;
-		m_FNN_best_distance_finish = 9999999;
+		m_FnnBestDistance = -9999999;
+		m_FnnBestFitness = -9999999;
+		m_FnnBestDistanceFinish = 9999999;
 		dbg_msg("FNN", "LoadFNNvalues() error failed to load best stats. failed to open '%s'", aFilePath);
 	}
 }
@@ -1150,9 +1150,9 @@ void CGameContext::ShowHideConfigBoolToChar(int ClientId)
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
 	pPlayer->m_Account.m_aShowHideConfig[0] = BoolToChar(pPlayer->m_ShowBlockPoints);
 	pPlayer->m_Account.m_aShowHideConfig[1] = BoolToChar(pPlayer->m_HideBlockXp);
-	pPlayer->m_Account.m_aShowHideConfig[2] = BoolToChar(pPlayer->m_xpmsg);
-	pPlayer->m_Account.m_aShowHideConfig[3] = BoolToChar(pPlayer->m_hidejailmsg);
-	pPlayer->m_Account.m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1_killmessages);
+	pPlayer->m_Account.m_aShowHideConfig[2] = BoolToChar(pPlayer->m_Xpmsg);
+	pPlayer->m_Account.m_aShowHideConfig[3] = BoolToChar(pPlayer->m_Hidejailmsg);
+	pPlayer->m_Account.m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1Killmessages);
 	pPlayer->m_Account.m_aShowHideConfig[5] = BoolToChar(pPlayer->m_HideQuestProgress);
 	pPlayer->m_Account.m_aShowHideConfig[6] = BoolToChar(pPlayer->m_HideQuestWarning);
 	pPlayer->m_Account.m_aShowHideConfig[7] = '\0';
@@ -1169,9 +1169,9 @@ void CGameContext::ShowHideConfigCharToBool(int ClientId)
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
 	pPlayer->m_ShowBlockPoints = CharToBool(pPlayer->m_Account.m_aShowHideConfig[0]);
 	pPlayer->m_HideBlockXp = CharToBool(pPlayer->m_Account.m_aShowHideConfig[1]);
-	pPlayer->m_xpmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[2]);
-	pPlayer->m_hidejailmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[3]);
-	pPlayer->m_HideInsta1on1_killmessages = CharToBool(pPlayer->m_Account.m_aShowHideConfig[4]);
+	pPlayer->m_Xpmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[2]);
+	pPlayer->m_Hidejailmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[3]);
+	pPlayer->m_HideInsta1on1Killmessages = CharToBool(pPlayer->m_Account.m_aShowHideConfig[4]);
 	pPlayer->m_HideQuestProgress = CharToBool(pPlayer->m_Account.m_aShowHideConfig[5]);
 	pPlayer->m_HideQuestWarning = CharToBool(pPlayer->m_Account.m_aShowHideConfig[6]);
 #if defined(CONF_DEBUG)
@@ -1208,7 +1208,7 @@ void CGameContext::FNN_LoadRun(const char *path, int BotId)
 	CDummyFNN *pDummyFNN = (CDummyFNN *)pPlayer->m_pDummyMode;
 
 	//reset values
-	pDummyFNN->m_FNN_CurrentMoveIndex = 0;
+	pDummyFNN->m_FnnCurrentMoveIndex = 0;
 	float LoadedDistance = 0;
 	float LoadedFitness = 0;
 	float LoadedDistanceFinish = 0;
@@ -1228,7 +1228,7 @@ void CGameContext::FNN_LoadRun(const char *path, int BotId)
 		std::getline(ReadFile, Line); // read but ignore header
 
 		std::getline(ReadFile, Line); //moveticks
-		pDummyFNN->m_FNN_ticks_loaded_run = atoi(Line.c_str());
+		pDummyFNN->m_FnnTicksLoadedRun = atoi(Line.c_str());
 
 		std::getline(ReadFile, Line); //distance
 		LoadedDistance = atof(Line.c_str());
@@ -1248,12 +1248,12 @@ void CGameContext::FNN_LoadRun(const char *path, int BotId)
 	else
 	{
 		dbg_msg("FNN", "failed to load move. failed to open '%s'", aFilePath);
-		pPlayer->m_dmm25 = -1;
+		pPlayer->m_Dmm25 = -1;
 	}
 
 	//start run
-	pPlayer->m_dmm25 = 4; //replay submode
-	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FNN_ticks_loaded_run, LoadedDistance, LoadedFitness, LoadedDistanceFinish);
+	pPlayer->m_Dmm25 = 4; //replay submode
+	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FnnTicksLoadedRun, LoadedDistance, LoadedFitness, LoadedDistanceFinish);
 	SendChat(BotId, TEAM_ALL, aBuf);
 }
 
@@ -1616,7 +1616,7 @@ void CGameContext::SaveCosmetics(int ClientId)
 	pPlayer->m_IsBackupStrongBloody = pChr->m_StrongBloody;
 	pPlayer->m_IsBackupAtom = pChr->m_Atom;
 	pPlayer->m_IsBackupTrail = pChr->m_Trail;
-	pPlayer->m_IsBackupAutospreadgun = pChr->m_autospreadgun;
+	pPlayer->m_IsBackupAutospreadgun = pChr->m_Autospreadgun;
 	pPlayer->m_IsBackupWaveBloody = pChr->m_WaveBloody;
 }
 
@@ -1635,7 +1635,7 @@ void CGameContext::LoadCosmetics(int ClientId)
 	pChr->m_StrongBloody = pPlayer->m_IsBackupStrongBloody;
 	pChr->m_Atom = pPlayer->m_IsBackupAtom;
 	pChr->m_Trail = pPlayer->m_IsBackupTrail;
-	pChr->m_autospreadgun = pPlayer->m_IsBackupAutospreadgun;
+	pChr->m_Autospreadgun = pPlayer->m_IsBackupAutospreadgun;
 	pChr->m_WaveBloody = pPlayer->m_IsBackupWaveBloody;
 }
 
@@ -1653,7 +1653,7 @@ void CGameContext::DeleteCosmetics(int ClientId)
 	pChr->m_StrongBloody = false;
 	pChr->m_Atom = false;
 	pChr->m_Trail = false;
-	pChr->m_autospreadgun = false;
+	pChr->m_Autospreadgun = false;
 	pChr->m_RandomCosmetics = false;
 	pChr->m_WaveBloody = false;
 	pChr->UnsetSpookyGhost();
@@ -1692,8 +1692,8 @@ void CGameContext::DDPP_Tick()
 	if(g_Config.m_SvOffDDPP)
 		return;
 
-	if(m_iBroadcastDelay > 0)
-		m_iBroadcastDelay--;
+	if(m_IBroadcastDelay > 0)
+		m_IBroadcastDelay--;
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->Tick();
@@ -1706,15 +1706,15 @@ void CGameContext::DDPP_Tick()
 		BombTick();
 	if(m_BlockWaveGameState)
 		BlockWaveGameTick();
-	if(m_survivalgamestate == 1)
+	if(m_Survivalgamestate == 1)
 		SurvivalLobbyTick();
 	else
 	{
-		if(m_survival_game_countdown > 0)
+		if(m_SurvivalGameCountdown > 0)
 		{
-			m_survival_game_countdown--;
+			m_SurvivalGameCountdown--;
 		}
-		if(m_survival_game_countdown == 0)
+		if(m_SurvivalGameCountdown == 0)
 		{
 			SendChatSurvival("[SURVIVAL] Game ended due to timeout. Nobody won.");
 			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
@@ -1731,7 +1731,7 @@ void CGameContext::DDPP_Tick()
 			}
 			SurvivalSetGameState(SURVIVAL_LOBBY);
 		}
-		if(m_survivalgamestate == SURVIVAL_DM_COUNTDOWN)
+		if(m_Survivalgamestate == SURVIVAL_DM_COUNTDOWN)
 		{
 			SurvivalDeathmatchTick();
 		}
@@ -1870,7 +1870,7 @@ void CGameContext::DDPP_SlowTick()
 
 	if(StopSurvival)
 	{
-		m_survivalgamestate = 0; //don't waste resource on lobby checks if nobody is playing
+		m_Survivalgamestate = 0; //don't waste resource on lobby checks if nobody is playing
 	}
 	if(g_Config.m_SvAllowGlobalChat)
 	{
@@ -1879,15 +1879,15 @@ void CGameContext::DDPP_SlowTick()
 
 	if(g_Config.m_SvMinDoubleTilePlayers > 0)
 	{
-		if(CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers) // MoneyTileDouble();  bla bla
+		if(CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && m_MoneyDoubleEnoughPlayers) // MoneyTileDouble();  bla bla
 		{
 			SendChat(-1, TEAM_ALL, "The double-moneytile has been activated!");
-			MoneyDoubleEnoughPlayers = false;
+			m_MoneyDoubleEnoughPlayers = false;
 		}
-		if(CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && !MoneyDoubleEnoughPlayers)
+		if(CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && !m_MoneyDoubleEnoughPlayers)
 		{
 			SendChat(-1, TEAM_ALL, "The double-moneytile has been deactivated!");
-			MoneyDoubleEnoughPlayers = true;
+			m_MoneyDoubleEnoughPlayers = true;
 		}
 	}
 	CheckDDPPshutdown();
@@ -3003,14 +3003,14 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 	if(!pPlayer)
 		return;
 
-	if(pPlayer->m_IsInstaArena_fng && (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm))
+	if(pPlayer->m_IsInstaArenaFng && (pPlayer->m_IsInstaArenaGdm || pPlayer->m_IsInstaArenaIdm))
 	{
-		if(pPlayer->m_IsInstaArena_gdm)
+		if(pPlayer->m_IsInstaArenaGdm)
 			str_copy(pBuf, "boomfng", BufSize);
-		else if(pPlayer->m_IsInstaArena_idm)
+		else if(pPlayer->m_IsInstaArenaIdm)
 			str_copy(pBuf, "fng", BufSize);
 	}
-	else if(pPlayer->m_IsInstaArena_gdm)
+	else if(pPlayer->m_IsInstaArenaGdm)
 	{
 		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_Account.m_GrenadeSpree)
 		{
@@ -3019,7 +3019,7 @@ void CGameContext::GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool I
 		}
 		str_copy(pBuf, "grenade", BufSize);
 	}
-	else if(pPlayer->m_IsInstaArena_idm)
+	else if(pPlayer->m_IsInstaArenaIdm)
 	{
 		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_Account.m_RifleSpree)
 		{

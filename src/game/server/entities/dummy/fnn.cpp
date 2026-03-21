@@ -39,21 +39,21 @@ CDummyFNN::CDummyFNN(class CPlayer *pPlayer) :
 
 void CDummyFNN::OnDeath()
 {
-	m_Dummy_nn_stop = false;
-	m_Dummy_nn_ready_time = 0;
-	m_FNN_start_servertick = 0;
-	m_FNN_stop_servertick = 0;
+	m_DummyNnStop = false;
+	m_DummyNnReadyTime = 0;
+	m_FnnStartServertick = 0;
+	m_FnnStopServertick = 0;
 	m_StartPos = vec2(0, 0);
 }
 
 void CDummyFNN::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	// isTouched check
-	if(From >= 0 && m_Dummy_nn_ready && From != m_pPlayer->GetCid())
+	if(From >= 0 && m_DummyNnReady && From != m_pPlayer->GetCid())
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
-			m_Dummy_nn_touched_by_humans = true;
+			m_DummyNnTouchedByHumans = true;
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
 			GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
@@ -65,7 +65,7 @@ void CDummyFNN::OnTick()
 {
 	char aBuf[256];
 
-	if(m_pPlayer->m_dmm25 == -2) //stopped
+	if(m_pPlayer->m_Dmm25 == -2) //stopped
 	{
 		Hook(0);
 		Jump(0);
@@ -73,7 +73,7 @@ void CDummyFNN::OnTick()
 		Fire(0);
 		m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
 	}
-	else if(!m_Dummy_nn_ready) //first get the right start pos
+	else if(!m_DummyNnReady) //first get the right start pos
 	{
 		Hook(0);
 		Jump(0);
@@ -118,19 +118,19 @@ void CDummyFNN::OnTick()
 		{
 			if(IsGrounded()) //only start on ground because air is unpredictable
 			{
-				m_Dummy_nn_ready = true;
+				m_DummyNnReady = true;
 				m_StartPos = GetPos();
 				dbg_msg("FNN", "Found start position (%.2f/%.2f) -> starting process", GetPos().x / 32, GetPos().y / 32);
 			}
 		}
 
 		//Catch errors
-		if(m_Dummy_nn_ready_time > 300)
+		if(m_DummyNnReadyTime > 300)
 		{
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Starting process failed. Get in start position took too long -> restarting...");
 			Die();
 		}
-		m_Dummy_nn_ready_time++;
+		m_DummyNnReadyTime++;
 		//char aBuf[256];
 		//str_format(aBuf, sizeof(aBuf), "time: %d", m_Dummy_nn_ready_time);
 		//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
@@ -174,7 +174,7 @@ void CDummyFNN::OnTick()
 			{
 				//Hooked = true;
 				//m_aMoveId = i;
-				m_Dummy_nn_touched_by_humans = true;
+				m_DummyNnTouchedByHumans = true;
 				GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "[FNN] DONT TOUCH ME HOOK WTF");
 			}
 
@@ -195,7 +195,7 @@ void CDummyFNN::OnTick()
 		{
 			if(pChr->GetPos().x < GetPos().x + 60 && pChr->GetPos().x > GetPos().x - 60 && pChr->GetPos().y < GetPos().y + 60 && pChr->GetPos().y > GetPos().y - 60)
 			{
-				m_Dummy_nn_touched_by_humans = true;
+				m_DummyNnTouchedByHumans = true;
 				GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "[FNN] dont touch my body with yours pls");
 			}
 		}
@@ -203,7 +203,7 @@ void CDummyFNN::OnTick()
 		//always set to black
 		m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
-		if(m_pPlayer->m_dmm25 == -1) //error
+		if(m_pPlayer->m_Dmm25 == -1) //error
 		{
 			Hook(0);
 			Jump(0);
@@ -211,7 +211,7 @@ void CDummyFNN::OnTick()
 			Fire(0);
 			m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
 		}
-		else if(m_pPlayer->m_dmm25 == 0) //submode[0] write
+		else if(m_pPlayer->m_Dmm25 == 0) //submode[0] write
 		{
 			// m_pPlayer->m_TeeInfos.m_Name = "writing...";
 			// m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
@@ -305,28 +305,28 @@ void CDummyFNN::OnTick()
 			// Jump(0);
 			// rand_Fire = 0;
 
-			if(m_FNN_CurrentMoveIndex == 0)
+			if(m_FnnCurrentMoveIndex == 0)
 			{
-				m_FNN_start_servertick = Server()->Tick();
-				dbg_msg("FNN", "starting record on x=%f y=%f servertick=%d", GetPos().x, GetPos().y, m_FNN_start_servertick);
+				m_FnnStartServertick = Server()->Tick();
+				dbg_msg("FNN", "starting record on x=%f y=%f servertick=%d", GetPos().x, GetPos().y, m_FnnStartServertick);
 			}
 
 			//save values in array
-			m_aRecMove[m_FNN_CurrentMoveIndex] = GetDirection();
+			m_aRecMove[m_FnnCurrentMoveIndex] = GetDirection();
 			// dbg_msg("fnn", "dir: %d", GetDirection());
-			m_FNN_CurrentMoveIndex++;
-			m_aRecMove[m_FNN_CurrentMoveIndex] = GetJump();
+			m_FnnCurrentMoveIndex++;
+			m_aRecMove[m_FnnCurrentMoveIndex] = GetJump();
 			// dbg_msg("fnn", "jump: %d", GetJump());
-			m_FNN_CurrentMoveIndex++;
-			m_aRecMove[m_FNN_CurrentMoveIndex] = GetHook();
+			m_FnnCurrentMoveIndex++;
+			m_aRecMove[m_FnnCurrentMoveIndex] = GetHook();
 			// dbg_msg("fnn", "hook: %d", GetHook());
-			m_FNN_CurrentMoveIndex++;
-			m_aRecMove[m_FNN_CurrentMoveIndex] = GetTargetX();
+			m_FnnCurrentMoveIndex++;
+			m_aRecMove[m_FnnCurrentMoveIndex] = GetTargetX();
 			// dbg_msg("fnn", "targetX: %d", GetTargetX());
-			m_FNN_CurrentMoveIndex++;
-			m_aRecMove[m_FNN_CurrentMoveIndex] = GetTargetY();
+			m_FnnCurrentMoveIndex++;
+			m_aRecMove[m_FnnCurrentMoveIndex] = GetTargetY();
 			// dbg_msg("fnn", "targetY: %d", GetTargetY());
-			m_FNN_CurrentMoveIndex++;
+			m_FnnCurrentMoveIndex++;
 
 			if(RandWeapon == 0)
 			{
@@ -367,31 +367,31 @@ void CDummyFNN::OnTick()
 				Fire();
 			}
 
-			if(m_FNN_CurrentMoveIndex > FNN_MOVE_LEN - 12) //minus inputs because every tick the index gets incremented by 5
+			if(m_FnnCurrentMoveIndex > FNN_MOVE_LEN - 12) //minus inputs because every tick the index gets incremented by 5
 			{
 				float NewestDistance = distance(m_StartPos, GetPos());
 				vec2 CurrentPos(0, 0);
 				CurrentPos.x = GetPos().x / 32;
 				CurrentPos.y = GetPos().y / 32;
 				float NewestDistanceFinish = distance(CurrentPos, GameServer()->m_FinishTilePos);
-				float NewestFitness = NewestDistanceFinish / m_FNN_CurrentMoveIndex;
-				str_format(aBuf, sizeof(aBuf), "[FNN] ran out of memory ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, NewestDistance, NewestFitness, NewestDistanceFinish);
+				float NewestFitness = NewestDistanceFinish / m_FnnCurrentMoveIndex;
+				str_format(aBuf, sizeof(aBuf), "[FNN] ran out of memory ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FnnCurrentMoveIndex, NewestDistance, NewestFitness, NewestDistanceFinish);
 				GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
 				//Die();
-				m_Dummy_nn_stop = true;
+				m_DummyNnStop = true;
 			}
 
-			if(g_Config.m_SvFNNtimeout && !m_Dummy_nn_stop)
+			if(g_Config.m_SvFNNtimeout && !m_DummyNnStop)
 			{
-				if(m_FNN_CurrentMoveIndex > g_Config.m_SvFNNtimeout)
+				if(m_FnnCurrentMoveIndex > g_Config.m_SvFNNtimeout)
 				{
-					str_format(aBuf, sizeof(aBuf), "[FNN] timeouted after ticks=%d", m_FNN_CurrentMoveIndex);
+					str_format(aBuf, sizeof(aBuf), "[FNN] timeouted after ticks=%d", m_FnnCurrentMoveIndex);
 					GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
-					m_Dummy_nn_stop = true;
+					m_DummyNnStop = true;
 				}
 			}
 
-			if((GetVel().y == 0.000000f && GetVel().x < 0.01f && GetVel().x > -0.01f && IsFrozen()) || m_Dummy_nn_stop)
+			if((GetVel().y == 0.000000f && GetVel().x < 0.01f && GetVel().x > -0.01f && IsFrozen()) || m_DummyNnStop)
 			{
 				if(Server()->Tick() % 10 == 0)
 				{
@@ -400,7 +400,7 @@ void CDummyFNN::OnTick()
 				if(Server()->Tick() % 40 == 0)
 				{
 					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "======================================");
-					if(m_Dummy_nn_touched_by_humans)
+					if(m_DummyNnTouchedByHumans)
 					{
 						str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", GetPos().x / 32, GetPos().y / 32);
 						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
@@ -410,15 +410,15 @@ void CDummyFNN::OnTick()
 					else //no interaction with humans --> save normal
 					{
 						str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", GetPos().x / 32, GetPos().y / 32);
-						m_FNN_stop_servertick = Server()->Tick();
-						dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FNN_stop_servertick, m_FNN_stop_servertick - m_FNN_start_servertick);
+						m_FnnStopServertick = Server()->Tick();
+						dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FnnStopServertick, m_FnnStopServertick - m_FnnStartServertick);
 						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
 						//Die(); //moved to the end because we use character variables but im not sure.. maybe it had a sense its here
 
 						//prepare data
-						if(m_FNN_CurrentMoveIndex > FNN_MOVE_LEN) //dont overload arraylength
+						if(m_FnnCurrentMoveIndex > FNN_MOVE_LEN) //dont overload arraylength
 						{
-							m_FNN_CurrentMoveIndex = FNN_MOVE_LEN;
+							m_FnnCurrentMoveIndex = FNN_MOVE_LEN;
 						}
 
 						float NewestDistance = distance(m_StartPos, GetPos());
@@ -426,9 +426,9 @@ void CDummyFNN::OnTick()
 						CurrentPos.x = GetPos().x / 32;
 						CurrentPos.y = GetPos().y / 32;
 						float NewestDistanceFinish = distance(CurrentPos, GameServer()->m_FinishTilePos);
-						float NewestFitness = NewestDistanceFinish / m_FNN_CurrentMoveIndex;
+						float NewestFitness = NewestDistanceFinish / m_FnnCurrentMoveIndex;
 						dbg_msg("FNN", "distance=%.2f", NewestDistance);
-						dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
+						dbg_msg("FNN", "moveticks=%d", m_FnnCurrentMoveIndex);
 						dbg_msg("FNN", "fitness=%.2f", NewestFitness);
 						dbg_msg("FNN", "distance_finish=%.2f", NewestDistanceFinish);
 
@@ -440,13 +440,13 @@ void CDummyFNN::OnTick()
 						 *                                      *
 						 ****************************************/
 
-						if(NewestDistance > GameServer()->m_FNN_best_distance)
+						if(NewestDistance > GameServer()->m_FnnBestDistance)
 						{
 							//saving the distance
 							// dbg_msg("FNN","new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, newest_distance);
-							str_format(aBuf, sizeof(aBuf), "[FNN] new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, NewestDistance);
+							str_format(aBuf, sizeof(aBuf), "[FNN] new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FnnBestDistance, NewestDistance);
 							GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
-							GameServer()->m_FNN_best_distance = NewestDistance;
+							GameServer()->m_FnnBestDistance = NewestDistance;
 							std::ofstream Statsfile;
 							char aFilePath[512];
 							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
@@ -457,9 +457,9 @@ void CDummyFNN::OnTick()
 								// statsfile << std::endl;
 								Statsfile << NewestDistance; //distance
 								Statsfile << '\n';
-								Statsfile << GameServer()->m_FNN_best_fitness; //fitness
+								Statsfile << GameServer()->m_FnnBestFitness; //fitness
 								Statsfile << '\n';
-								Statsfile << GameServer()->m_FNN_best_distance_finish; //distance_finish
+								Statsfile << GameServer()->m_FnnBestDistanceFinish; //distance_finish
 								Statsfile << '\n';
 							}
 							else
@@ -477,7 +477,7 @@ void CDummyFNN::OnTick()
 								//first five lines are stats
 								Savefile << "-- stats distance --";
 								Savefile << '\n';
-								Savefile << m_FNN_CurrentMoveIndex; //moveticks
+								Savefile << m_FnnCurrentMoveIndex; //moveticks
 								Savefile << '\n';
 								Savefile << NewestDistance; //distance
 								Savefile << '\n';
@@ -486,7 +486,7 @@ void CDummyFNN::OnTick()
 								Savefile << NewestDistanceFinish; //distance_finish
 								Savefile << '\n';
 
-								for(int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+								for(int i = 0; i < m_FnnCurrentMoveIndex; i++)
 								{
 									Savefile << m_aRecMove[i];
 									Savefile << '\n';
@@ -507,13 +507,13 @@ void CDummyFNN::OnTick()
 						 *                                      *
 						 ****************************************/
 
-						if(NewestFitness > GameServer()->m_FNN_best_fitness)
+						if(NewestFitness > GameServer()->m_FnnBestFitness)
 						{
 							//saving the fitness
 							// dbg_msg("FNN", "new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
-							str_format(aBuf, sizeof(aBuf), "[FNN] new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, NewestFitness);
+							str_format(aBuf, sizeof(aBuf), "[FNN] new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FnnBestFitness, NewestFitness);
 							GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
-							GameServer()->m_FNN_best_fitness = NewestFitness;
+							GameServer()->m_FnnBestFitness = NewestFitness;
 							std::ofstream StatsFile;
 							char aFilePath[512];
 							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
@@ -522,11 +522,11 @@ void CDummyFNN::OnTick()
 							{
 								// statsfile << "-- total stats --";
 								// statsfile << std::endl;
-								StatsFile << GameServer()->m_FNN_best_distance; //distance
+								StatsFile << GameServer()->m_FnnBestDistance; //distance
 								StatsFile << '\n';
 								StatsFile << NewestFitness; //fitness
 								StatsFile << '\n';
-								StatsFile << GameServer()->m_FNN_best_distance_finish; //distance_finish
+								StatsFile << GameServer()->m_FnnBestDistanceFinish; //distance_finish
 								StatsFile << '\n';
 							}
 							else
@@ -544,7 +544,7 @@ void CDummyFNN::OnTick()
 								//first five lines are stats
 								SaveFile << "-- stats fitness --";
 								SaveFile << '\n';
-								SaveFile << m_FNN_CurrentMoveIndex; //moveticks
+								SaveFile << m_FnnCurrentMoveIndex; //moveticks
 								SaveFile << '\n';
 								SaveFile << NewestDistance; //distance
 								SaveFile << '\n';
@@ -553,7 +553,7 @@ void CDummyFNN::OnTick()
 								SaveFile << NewestDistanceFinish; //distance_finish
 								SaveFile << '\n';
 
-								for(int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+								for(int i = 0; i < m_FnnCurrentMoveIndex; i++)
 								{
 									SaveFile << m_aRecMove[i];
 									SaveFile << '\n';
@@ -574,13 +574,13 @@ void CDummyFNN::OnTick()
 						 *                                      *
 						 ****************************************/
 
-						if(NewestDistanceFinish < GameServer()->m_FNN_best_distance_finish)
+						if(NewestDistanceFinish < GameServer()->m_FnnBestDistanceFinish)
 						{
 							//saving the distance_finish
 							// dbg_msg("FNN", "new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
-							str_format(aBuf, sizeof(aBuf), "[FNN] new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, NewestDistanceFinish);
+							str_format(aBuf, sizeof(aBuf), "[FNN] new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FnnBestDistanceFinish, NewestDistanceFinish);
 							GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
-							GameServer()->m_FNN_best_distance_finish = NewestDistanceFinish;
+							GameServer()->m_FnnBestDistanceFinish = NewestDistanceFinish;
 							std::ofstream StatsFile;
 							char aFilePath[512];
 							str_copy(aFilePath, "FNN/move_stats.fnn", sizeof(aFilePath));
@@ -589,9 +589,9 @@ void CDummyFNN::OnTick()
 							{
 								// statsfile << "-- total stats --";
 								// statsfile << std::endl;
-								StatsFile << GameServer()->m_FNN_best_distance; //distance
+								StatsFile << GameServer()->m_FnnBestDistance; //distance
 								StatsFile << '\n';
-								StatsFile << GameServer()->m_FNN_best_fitness; //fitness
+								StatsFile << GameServer()->m_FnnBestFitness; //fitness
 								StatsFile << '\n';
 								StatsFile << NewestDistanceFinish; //distance_finish
 								StatsFile << '\n';
@@ -611,7 +611,7 @@ void CDummyFNN::OnTick()
 								//first five lines are stats
 								SaveFile << "-- stats distance finish --";
 								SaveFile << '\n';
-								SaveFile << m_FNN_CurrentMoveIndex; //moveticks
+								SaveFile << m_FnnCurrentMoveIndex; //moveticks
 								SaveFile << '\n';
 								SaveFile << NewestDistance; //distance
 								SaveFile << '\n';
@@ -620,7 +620,7 @@ void CDummyFNN::OnTick()
 								SaveFile << NewestDistanceFinish; //distance_finish
 								SaveFile << '\n';
 
-								for(int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+								for(int i = 0; i < m_FnnCurrentMoveIndex; i++)
 								{
 									SaveFile << m_aRecMove[i];
 									SaveFile << '\n';
@@ -633,48 +633,48 @@ void CDummyFNN::OnTick()
 							SaveFile.close();
 						}
 
-						m_FNN_CurrentMoveIndex = 0;
+						m_FnnCurrentMoveIndex = 0;
 						Die();
 					}
 					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "======================================");
 				}
 			}
 		}
-		else if(m_pPlayer->m_dmm25 == 1) //submode[1] read/load distance
+		else if(m_pPlayer->m_Dmm25 == 1) //submode[1] read/load distance
 		{
 			GameServer()->FNN_LoadRun("FNN/move_distance.fnn", m_pPlayer->GetCid());
 		}
-		else if(m_pPlayer->m_dmm25 == 2) //submode[2] read/load fitness
+		else if(m_pPlayer->m_Dmm25 == 2) //submode[2] read/load fitness
 		{
 			GameServer()->FNN_LoadRun("FNN/move_fitness.fnn", m_pPlayer->GetCid());
 		}
-		else if(m_pPlayer->m_dmm25 == 3) //submode[3] read/load lowest distance_finish
+		else if(m_pPlayer->m_Dmm25 == 3) //submode[3] read/load lowest distance_finish
 		{
 			GameServer()->FNN_LoadRun("FNN/move_distance_finish.fnn", m_pPlayer->GetCid());
 		}
-		else if(m_pPlayer->m_dmm25 == 4) //submode[4] play loaded run
+		else if(m_pPlayer->m_Dmm25 == 4) //submode[4] play loaded run
 		{
-			if(m_FNN_CurrentMoveIndex == 0)
+			if(m_FnnCurrentMoveIndex == 0)
 			{
-				m_FNN_start_servertick = Server()->Tick();
-				dbg_msg("FNN", "starting play on x=%f y=%f servertick=%d", GetPos().x, GetPos().y, m_FNN_start_servertick);
+				m_FnnStartServertick = Server()->Tick();
+				dbg_msg("FNN", "starting play on x=%f y=%f servertick=%d", GetPos().x, GetPos().y, m_FnnStartServertick);
 			}
 
-			SetDirection(m_aRecMove[m_FNN_CurrentMoveIndex]);
+			SetDirection(m_aRecMove[m_FnnCurrentMoveIndex]);
 			// dbg_msg("fnn", "dir: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
-			m_FNN_CurrentMoveIndex++;
-			Jump(m_aRecMove[m_FNN_CurrentMoveIndex]);
+			m_FnnCurrentMoveIndex++;
+			Jump(m_aRecMove[m_FnnCurrentMoveIndex]);
 			// dbg_msg("fnn", "jump: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
-			m_FNN_CurrentMoveIndex++;
-			Hook(m_aRecMove[m_FNN_CurrentMoveIndex]);
+			m_FnnCurrentMoveIndex++;
+			Hook(m_aRecMove[m_FnnCurrentMoveIndex]);
 			// dbg_msg("fnn", "hook: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
-			m_FNN_CurrentMoveIndex++;
-			AimX(m_aRecMove[m_FNN_CurrentMoveIndex]);
+			m_FnnCurrentMoveIndex++;
+			AimX(m_aRecMove[m_FnnCurrentMoveIndex]);
 			// dbg_msg("fnn", "targetX: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
-			m_FNN_CurrentMoveIndex++;
-			AimY(m_aRecMove[m_FNN_CurrentMoveIndex]);
+			m_FnnCurrentMoveIndex++;
+			AimY(m_aRecMove[m_FnnCurrentMoveIndex]);
 			// dbg_msg("fnn", "targetY: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
-			m_FNN_CurrentMoveIndex++;
+			m_FnnCurrentMoveIndex++;
 
 			// ignore latest input for now
 			// dbg_msg("fnn", "r: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
@@ -682,22 +682,22 @@ void CDummyFNN::OnTick()
 			// dbg_msg("fnn", "r: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 			// m_FNN_CurrentMoveIndex++;
 
-			if(m_FNN_CurrentMoveIndex >= m_FNN_ticks_loaded_run)
+			if(m_FnnCurrentMoveIndex >= m_FnnTicksLoadedRun)
 			{
-				m_pPlayer->m_dmm25 = -1; //stop bot
+				m_pPlayer->m_Dmm25 = -1; //stop bot
 				float NewestDistance = distance(m_StartPos, GetPos());
 				vec2 CurrentPos(0, 0);
 				CurrentPos.x = GetPos().x / 32;
 				CurrentPos.y = GetPos().y / 32;
 				float NewestDistanceFinish = distance(CurrentPos, GameServer()->m_FinishTilePos);
-				float NewestFitness = NewestDistanceFinish / m_FNN_CurrentMoveIndex;
-				m_FNN_stop_servertick = Server()->Tick();
-				dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FNN_stop_servertick, m_FNN_stop_servertick - m_FNN_start_servertick);
+				float NewestFitness = NewestDistanceFinish / m_FnnCurrentMoveIndex;
+				m_FnnStopServertick = Server()->Tick();
+				dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FnnStopServertick, m_FnnStopServertick - m_FnnStartServertick);
 				dbg_msg("FNN", "distance=%.2f", NewestDistance);
-				dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
+				dbg_msg("FNN", "moveticks=%d", m_FnnCurrentMoveIndex);
 				dbg_msg("FNN", "fitness=%.2f", NewestFitness);
 				dbg_msg("FNN", "distance_finish=%.2f", NewestDistanceFinish);
-				str_format(aBuf, sizeof(aBuf), "[FNN] finished replay ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, NewestDistance, NewestFitness, NewestDistanceFinish);
+				str_format(aBuf, sizeof(aBuf), "[FNN] finished replay ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FnnCurrentMoveIndex, NewestDistance, NewestFitness, NewestDistanceFinish);
 				GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, aBuf);
 			}
 		}

@@ -98,7 +98,7 @@ void CPlayer::ResetDDPP()
 	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
-	m_dmm25 = -1; //set to offline default
+	m_Dmm25 = -1; //set to offline default
 	m_MapSaveLoaded = false;
 
 	if(g_Config.m_SvNoboSpawnTime)
@@ -117,17 +117,17 @@ void CPlayer::ResetDDPP()
 	m_ChilliWarnings = 0;
 	m_TROLL166 = false;
 	m_TROLL420 = false;
-	m_Dummy_nn_time = 0;
-	m_Dummy_nn_latest_fitness = 0.0f;
-	m_Dummy_nn_highest_fitness = 0.0f;
-	m_Dummy_nn_latest_Distance = 0.0f;
-	m_Dummy_nn_highest_Distance = 0.0f;
-	m_Dummy_nn_highest_Distance_touched = 0.0f;
-	m_Minigameworld_size_x = 30;
-	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
-	m_ci_latest_dest_dist = 0;
-	m_Insta1on1_id = -1;
-	m_BalanceBattle_id = -1;
+	m_DummyNnTime = 0;
+	m_DummyNnLatestFitness = 0.0f;
+	m_DummyNnHighestFitness = 0.0f;
+	m_DummyNnLatestDistance = 0.0f;
+	m_DummyNnHighestDistance = 0.0f;
+	m_DummyNnHighestDistanceTouched = 0.0f;
+	m_MinigameworldSizeX = 30;
+	m_CiLowestDestDist = 2147483646; //max long len 2147483647
+	m_CiLatestDestDist = 0;
+	m_Insta1on1Id = -1;
+	m_BalanceBattleId = -1;
 	m_TradeItem = -1;
 	m_TradeMoney = -1;
 	m_TradeId = -1;
@@ -136,9 +136,9 @@ void CPlayer::ResetDDPP()
 	//dbg_msg("debug", "init player showhide='%s'", m_Account.m_aShowHideConfig);
 	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually because the gamecontext function cant be called here
 	m_HideBlockXp = GameServer()->CharToBool(m_Account.m_aShowHideConfig[1]);
-	m_xpmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[2]);
-	m_hidejailmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[3]);
-	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_Account.m_aShowHideConfig[4]);
+	m_Xpmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[2]);
+	m_Hidejailmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[3]);
+	m_HideInsta1on1Killmessages = GameServer()->CharToBool(m_Account.m_aShowHideConfig[4]);
 	m_HideQuestProgress = GameServer()->CharToBool(m_Account.m_aShowHideConfig[5]);
 	m_HideQuestWarning = GameServer()->CharToBool(m_Account.m_aShowHideConfig[6]);
 	//GameServer()->ShowHideConfigCharToBool(this->GetCid()); //cant be called because somehow players doesnt exist for gameconext idk
@@ -152,11 +152,11 @@ void CPlayer::ResetDDPP()
 	m_InfTrail = false;
 	m_InfAutoSpreadGun = false;
 	// disable cosmetic offers by default
-	m_rainbow_offer = false;
-	m_bloody_offer = false;
-	m_atom_offer = false;
-	m_trail_offer = false;
-	m_autospreadgun_offer = false;
+	m_RainbowOffer = false;
+	m_BloodyOffer = false;
+	m_AtomOffer = false;
+	m_TrailOffer = false;
+	m_AutospreadgunOffer = false;
 	//Block points
 	m_LastToucherId = -1;
 	m_DisplayScore = GameServer()->m_DisplayScore;
@@ -234,7 +234,7 @@ void CPlayer::DDPPTick()
 		m_AccountQueryResult = nullptr;
 	}
 	// ChillerDragon chidraqul3 the hash game
-	if(m_C3_GameState == 1) //singleplayer
+	if(m_C3GameState == 1) //singleplayer
 	{
 		chidraqul3_GameTick();
 	}
@@ -541,14 +541,14 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 			if(GameServer()->m_BombColor > 254)
 			{
-				GameServer()->m_bwff = false;
+				GameServer()->m_Bwff = false;
 			}
 			if(GameServer()->m_BombColor < 1)
 			{
-				GameServer()->m_bwff = true;
+				GameServer()->m_Bwff = true;
 			}
 
-			if(GameServer()->m_bwff) //black -> white
+			if(GameServer()->m_Bwff) //black -> white
 			{
 				GameServer()->m_BombColor += ColorChangeVal;
 			}
@@ -580,9 +580,9 @@ void CPlayer::RainbowTick()
 
 void CPlayer::OnDisconnectDDPP()
 {
-	if(m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
+	if(m_Insta1on1Id != -1 && (m_IsInstaArenaGdm || m_IsInstaArenaIdm))
 	{
-		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCid());
+		GameServer()->WinInsta1on1(m_Insta1on1Id, GetCid());
 	}
 	if(m_Account.m_JailTime)
 	{
@@ -609,18 +609,18 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_Account.m_EscapeTime = EscapeTime;
 
 	//reset values to default to prevent cheating
-	m_neededxp = 0;
+	m_Neededxp = 0;
 	m_TaserOn = false;
-	m_money_transaction9[0] = '\0';
-	m_money_transaction8[0] = '\0';
-	m_money_transaction7[0] = '\0';
-	m_money_transaction6[0] = '\0';
-	m_money_transaction5[0] = '\0';
-	m_money_transaction4[0] = '\0';
-	m_money_transaction3[0] = '\0';
-	m_money_transaction2[0] = '\0';
-	m_money_transaction1[0] = '\0';
-	m_money_transaction0[0] = '\0';
+	m_MoneyTransaction9[0] = '\0';
+	m_MoneyTransaction8[0] = '\0';
+	m_MoneyTransaction7[0] = '\0';
+	m_MoneyTransaction6[0] = '\0';
+	m_MoneyTransaction5[0] = '\0';
+	m_MoneyTransaction4[0] = '\0';
+	m_MoneyTransaction3[0] = '\0';
+	m_MoneyTransaction2[0] = '\0';
+	m_MoneyTransaction1[0] = '\0';
+	m_MoneyTransaction0[0] = '\0';
 
 	CCharacter *pChr = GetCharacter();
 	if(pChr)
@@ -850,232 +850,232 @@ void CPlayer::SaveFileBased()
 
 void CPlayer::CalcExp()
 {
-	int64_t OldNeededXp = m_neededxp;
+	int64_t OldNeededXp = m_Neededxp;
 	dbg_msg("account", "CalcExp() neededxp=%" PRId64 " xp=%" PRId64 "", OldNeededXp, GetXP());
 
 	//										xp diff
 	if(GetLevel() == 0)
-		m_neededxp = 5000;
+		m_Neededxp = 5000;
 	else if(GetLevel() == 1) //5 000
-		m_neededxp = 15000;
+		m_Neededxp = 15000;
 	else if(GetLevel() == 2) //10 000
-		m_neededxp = 25000;
+		m_Neededxp = 25000;
 	else if(GetLevel() == 3) //10 000
-		m_neededxp = 35000;
+		m_Neededxp = 35000;
 	else if(GetLevel() == 4) //10 000
-		m_neededxp = 50000;
+		m_Neededxp = 50000;
 	else if(GetLevel() == 5) //15 000			Rainbow
-		m_neededxp = 65000;
+		m_Neededxp = 65000;
 	else if(GetLevel() == 6) //15 000
-		m_neededxp = 80000;
+		m_Neededxp = 80000;
 	else if(GetLevel() == 7) //15 000
-		m_neededxp = 100000;
+		m_Neededxp = 100000;
 	else if(GetLevel() == 8) //20 000
-		m_neededxp = 120000;
+		m_Neededxp = 120000;
 	else if(GetLevel() == 9) //20 000
-		m_neededxp = 130000;
+		m_Neededxp = 130000;
 	else if(GetLevel() == 10) //30 000
-		m_neededxp = 160000;
+		m_Neededxp = 160000;
 	else if(GetLevel() == 11) //30 000
-		m_neededxp = 200000;
+		m_Neededxp = 200000;
 	else if(GetLevel() == 12) //40 000
-		m_neededxp = 240000;
+		m_Neededxp = 240000;
 	else if(GetLevel() == 13) //40 000
-		m_neededxp = 280000;
+		m_Neededxp = 280000;
 	else if(GetLevel() == 14) //40 000
-		m_neededxp = 325000;
+		m_Neededxp = 325000;
 	else if(GetLevel() == 15) //45 000			Bloody
-		m_neededxp = 370000;
+		m_Neededxp = 370000;
 	else if(GetLevel() == 16) //50 000			room_key
-		m_neededxp = 420000;
+		m_Neededxp = 420000;
 	else if(GetLevel() == 17) //50 000
-		m_neededxp = 470000;
+		m_Neededxp = 470000;
 	else if(GetLevel() == 18) //50 000			Police[1]
-		m_neededxp = 520000;
+		m_Neededxp = 520000;
 	else if(GetLevel() == 19) //50 000
-		m_neededxp = 600000;
+		m_Neededxp = 600000;
 	else if(GetLevel() == 20) //80 000
-		m_neededxp = 680000;
+		m_Neededxp = 680000;
 	else if(GetLevel() == 21) //80 000			Ninja jetpack
-		m_neededxp = 760000;
+		m_Neededxp = 760000;
 	else if(GetLevel() == 22) //90 000
-		m_neededxp = 850000;
+		m_Neededxp = 850000;
 	else if(GetLevel() == 23) //100 000
-		m_neededxp = 950000;
+		m_Neededxp = 950000;
 	else if(GetLevel() == 24) //150 000
-		m_neededxp = 1200000;
+		m_Neededxp = 1200000;
 	else if(GetLevel() == 25) //200 000			Police[2]		policehelper && jail codes
-		m_neededxp = 1400000;
+		m_Neededxp = 1400000;
 	else if(GetLevel() == 26) //200 000
-		m_neededxp = 1600000;
+		m_Neededxp = 1600000;
 	else if(GetLevel() == 27) //200 000
-		m_neededxp = 1800000;
+		m_Neededxp = 1800000;
 	else if(GetLevel() == 28) //200 000
-		m_neededxp = 2000000;
+		m_Neededxp = 2000000;
 	else if(GetLevel() == 29) //210 000
-		m_neededxp = 2210000;
+		m_Neededxp = 2210000;
 	else if(GetLevel() == 30) //220 000			Police[3]		taser
-		m_neededxp = 2430000;
+		m_Neededxp = 2430000;
 	else if(GetLevel() == 31) //230 000
-		m_neededxp = 2660000;
+		m_Neededxp = 2660000;
 	else if(GetLevel() == 32) //240 000
-		m_neededxp = 2900000;
+		m_Neededxp = 2900000;
 	else if(GetLevel() == 33) //250 000
-		m_neededxp = 3150000;
+		m_Neededxp = 3150000;
 	else if(GetLevel() == 34) //350 000
-		m_neededxp = 3500000;
+		m_Neededxp = 3500000;
 	else if(GetLevel() == 35) //450 000
-		m_neededxp = 3950000;
+		m_Neededxp = 3950000;
 	else if(GetLevel() == 36) //550 000
-		m_neededxp = 4500000;
+		m_Neededxp = 4500000;
 	else if(GetLevel() == 37) //750 000
-		m_neededxp = 5250000;
+		m_Neededxp = 5250000;
 	else if(GetLevel() == 38) //850 000			spawn weapons
-		m_neededxp = 6100000;
+		m_Neededxp = 6100000;
 	else if(GetLevel() == 39) //900 000
-		m_neededxp = 7000000;
+		m_Neededxp = 7000000;
 	else if(GetLevel() == 40) //1 000 000			Police[4]		homing missels
-		m_neededxp = 8000000;
+		m_Neededxp = 8000000;
 	else if(GetLevel() == 41) //1 000 000
-		m_neededxp = 9000000;
+		m_Neededxp = 9000000;
 	else if(GetLevel() == 42) //1 000 000
-		m_neededxp = 10000000;
+		m_Neededxp = 10000000;
 	else if(GetLevel() == 43) //1 000 000
-		m_neededxp = 11000000;
+		m_Neededxp = 11000000;
 	else if(GetLevel() == 44) //1 000 000
-		m_neededxp = 12000000;
+		m_Neededxp = 12000000;
 	else if(GetLevel() == 45) //1 000 000
-		m_neededxp = 13000000;
+		m_Neededxp = 13000000;
 	else if(GetLevel() == 46) //1 000 000
-		m_neededxp = 14000000;
+		m_Neededxp = 14000000;
 	else if(GetLevel() == 47) //1 000 000
-		m_neededxp = 15000000;
+		m_Neededxp = 15000000;
 	else if(GetLevel() == 48) //1 000 000
-		m_neededxp = 16000000;
+		m_Neededxp = 16000000;
 	else if(GetLevel() == 49) //1 000 000
-		m_neededxp = 17000000;
+		m_Neededxp = 17000000;
 	else if(GetLevel() == 50) //1 000 000			Police[5]		'/jail arrest <time>' hammer command
-		m_neededxp = 18000000;
+		m_Neededxp = 18000000;
 	else if(GetLevel() == 51) //1 000 000
-		m_neededxp = 19000000;
+		m_Neededxp = 19000000;
 	else if(GetLevel() == 52) //1 000 000
-		m_neededxp = 20000000;
+		m_Neededxp = 20000000;
 	else if(GetLevel() == 53) //1 000 000
-		m_neededxp = 21000000;
+		m_Neededxp = 21000000;
 	else if(GetLevel() == 54) //1 000 000
-		m_neededxp = 22000000;
+		m_Neededxp = 22000000;
 	else if(GetLevel() == 55) //1 000 000
-		m_neededxp = 23000000;
+		m_Neededxp = 23000000;
 	else if(GetLevel() == 56) //1 000 000
-		m_neededxp = 24000000;
+		m_Neededxp = 24000000;
 	else if(GetLevel() == 57) //1 000 000
-		m_neededxp = 25000000;
+		m_Neededxp = 25000000;
 	else if(GetLevel() == 58) //1 000 000
-		m_neededxp = 26000000;
+		m_Neededxp = 26000000;
 	else if(GetLevel() == 59) //1 000 000
-		m_neededxp = 27000000;
+		m_Neededxp = 27000000;
 	else if(GetLevel() == 60) //1 000 000
-		m_neededxp = 28000000;
+		m_Neededxp = 28000000;
 	else if(GetLevel() == 61) //1 000 000
-		m_neededxp = 29000000;
+		m_Neededxp = 29000000;
 	else if(GetLevel() == 62) //1 000 000
-		m_neededxp = 30000000;
+		m_Neededxp = 30000000;
 	else if(GetLevel() == 63) //1 000 000
-		m_neededxp = 31000000;
+		m_Neededxp = 31000000;
 	else if(GetLevel() == 64) //1 000 000
-		m_neededxp = 32000000;
+		m_Neededxp = 32000000;
 	else if(GetLevel() == 65) //1 000 000
-		m_neededxp = 33000000;
+		m_Neededxp = 33000000;
 	else if(GetLevel() == 66) //1 000 000
-		m_neededxp = 34000000;
+		m_Neededxp = 34000000;
 	else if(GetLevel() == 67) //1 000 000
-		m_neededxp = 35000000;
+		m_Neededxp = 35000000;
 	else if(GetLevel() == 68) //1 000 000
-		m_neededxp = 36000000;
+		m_Neededxp = 36000000;
 	else if(GetLevel() == 69) //1 000 000
-		m_neededxp = 37000000;
+		m_Neededxp = 37000000;
 	else if(GetLevel() == 70) //1 000 000
-		m_neededxp = 38000000;
+		m_Neededxp = 38000000;
 	else if(GetLevel() == 71) //1 000 000
-		m_neededxp = 39000000;
+		m_Neededxp = 39000000;
 	else if(GetLevel() == 72) //1 000 000
-		m_neededxp = 40000000;
+		m_Neededxp = 40000000;
 	else if(GetLevel() == 73) //1 010 000
-		m_neededxp = 41010000;
+		m_Neededxp = 41010000;
 	else if(GetLevel() == 74) //1 010 000
-		m_neededxp = 42020000;
+		m_Neededxp = 42020000;
 	else if(GetLevel() == 75) //1 010 000
-		m_neededxp = 43030000;
+		m_Neededxp = 43030000;
 	else if(GetLevel() == 76) //1 010 000
-		m_neededxp = 44040000;
+		m_Neededxp = 44040000;
 	else if(GetLevel() == 77) //1 010 000
-		m_neededxp = 45050000;
+		m_Neededxp = 45050000;
 	else if(GetLevel() == 78) //1 010 000
-		m_neededxp = 46060000;
+		m_Neededxp = 46060000;
 	else if(GetLevel() == 79) //1 010 000
-		m_neededxp = 47070000;
+		m_Neededxp = 47070000;
 	else if(GetLevel() == 80) //1 010 000
-		m_neededxp = 48080000;
+		m_Neededxp = 48080000;
 	else if(GetLevel() == 81) //1 010 000
-		m_neededxp = 49090000;
+		m_Neededxp = 49090000;
 	else if(GetLevel() == 82) //1 010 000
-		m_neededxp = 50100000;
+		m_Neededxp = 50100000;
 	else if(GetLevel() == 83) //1 010 000
-		m_neededxp = 51110000;
+		m_Neededxp = 51110000;
 	else if(GetLevel() == 84) //1 010 000
-		m_neededxp = 52120000;
+		m_Neededxp = 52120000;
 	else if(GetLevel() == 85) //1 010 000
-		m_neededxp = 53130000;
+		m_Neededxp = 53130000;
 	else if(GetLevel() == 86) //1 010 000
-		m_neededxp = 54140000;
+		m_Neededxp = 54140000;
 	else if(GetLevel() == 87) //1 010 000
-		m_neededxp = 55150000;
+		m_Neededxp = 55150000;
 	else if(GetLevel() == 88) //1 010 000
-		m_neededxp = 56160000;
+		m_Neededxp = 56160000;
 	else if(GetLevel() == 89) //1 010 000
-		m_neededxp = 57170000;
+		m_Neededxp = 57170000;
 	else if(GetLevel() == 90) //1 010 000
-		m_neededxp = 58180000;
+		m_Neededxp = 58180000;
 	else if(GetLevel() == 91) //1 010 000
-		m_neededxp = 59190000;
+		m_Neededxp = 59190000;
 	else if(GetLevel() == 92) //1 010 000
-		m_neededxp = 60200000;
+		m_Neededxp = 60200000;
 	else if(GetLevel() == 93) //1 100 000
-		m_neededxp = 61300000;
+		m_Neededxp = 61300000;
 	else if(GetLevel() == 94) //1 100 000
-		m_neededxp = 62400000;
+		m_Neededxp = 62400000;
 	else if(GetLevel() == 95) //1 100 000
-		m_neededxp = 63500000;
+		m_Neededxp = 63500000;
 	else if(GetLevel() == 96) //1 100 000
-		m_neededxp = 64600000;
+		m_Neededxp = 64600000;
 	else if(GetLevel() == 97) //1 100 000
-		m_neededxp = 65700000;
+		m_Neededxp = 65700000;
 	else if(GetLevel() == 98) //1 100 000
-		m_neededxp = 66800000;
+		m_Neededxp = 66800000;
 	else if(GetLevel() == 99) //1 100 000
-		m_neededxp = 67900000;
+		m_Neededxp = 67900000;
 	else if(GetLevel() == 100) //12 100 000
-		m_neededxp = 80000000;
+		m_Neededxp = 80000000;
 	else if(GetLevel() == 101) //20 000 000
-		m_neededxp = 100000000;
+		m_Neededxp = 100000000;
 	else if(GetLevel() == 102) //20 000 000
-		m_neededxp = 120000000;
+		m_Neededxp = 120000000;
 	else if(GetLevel() == 103) //20 000 000
-		m_neededxp = 140000000;
+		m_Neededxp = 140000000;
 	else if(GetLevel() == 104) //20 000 000
-		m_neededxp = 160000000;
+		m_Neededxp = 160000000;
 	else if(GetLevel() == 105) //20 000 000
-		m_neededxp = 180000000;
+		m_Neededxp = 180000000;
 	else if(GetLevel() == 106) //20 000 000
-		m_neededxp = 200000000;
+		m_Neededxp = 200000000;
 	else if(GetLevel() == 107) //20 000 000
-		m_neededxp = 220000000;
+		m_Neededxp = 220000000;
 	else if(GetLevel() == 108) //20 000 000
-		m_neededxp = 240000000;
+		m_Neededxp = 240000000;
 	else if(GetLevel() == 109) //20 000 000
-		m_neededxp = 260000000;
+		m_Neededxp = 260000000;
 	else
-		m_neededxp = 404000000000000; //404 error
+		m_Neededxp = 404000000000000; //404 error
 
 	// make sure to update ACC_MAX_LEVEL when adding more level (neededxp has only to be defined until max level - 1)
 
@@ -1094,10 +1094,10 @@ void CPlayer::CheckLevel()
 	if(IsMaxLevel())
 		return;
 
-	if(m_neededxp <= 0)
+	if(m_Neededxp <= 0)
 		CalcExp();
 
-	if(GetXP() >= m_neededxp)
+	if(GetXP() >= m_Neededxp)
 	{
 		SetLevel(GetLevel() + 1);
 
@@ -1126,21 +1126,21 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 		return;
 	char aDesc[64];
 	str_format(aDesc, sizeof(aDesc), "%s%d (%s)", Amount > 0 ? "+" : "", Amount, Description);
-	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
-	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
-	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);
-	str_format(m_money_transaction6, sizeof(m_money_transaction6), "%s", m_money_transaction5);
-	str_format(m_money_transaction5, sizeof(m_money_transaction5), "%s", m_money_transaction4);
-	str_format(m_money_transaction4, sizeof(m_money_transaction4), "%s", m_money_transaction3);
-	str_format(m_money_transaction3, sizeof(m_money_transaction3), "%s", m_money_transaction2);
-	str_format(m_money_transaction2, sizeof(m_money_transaction2), "%s", m_money_transaction1);
-	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
-	str_format(m_money_transaction0, sizeof(m_money_transaction0), "%s", aDesc);
+	str_format(m_MoneyTransaction9, sizeof(m_MoneyTransaction9), "%s", m_MoneyTransaction9);
+	str_format(m_MoneyTransaction8, sizeof(m_MoneyTransaction8), "%s", m_MoneyTransaction8);
+	str_format(m_MoneyTransaction7, sizeof(m_MoneyTransaction7), "%s", m_MoneyTransaction7);
+	str_format(m_MoneyTransaction6, sizeof(m_MoneyTransaction6), "%s", m_MoneyTransaction5);
+	str_format(m_MoneyTransaction5, sizeof(m_MoneyTransaction5), "%s", m_MoneyTransaction4);
+	str_format(m_MoneyTransaction4, sizeof(m_MoneyTransaction4), "%s", m_MoneyTransaction3);
+	str_format(m_MoneyTransaction3, sizeof(m_MoneyTransaction3), "%s", m_MoneyTransaction2);
+	str_format(m_MoneyTransaction2, sizeof(m_MoneyTransaction2), "%s", m_MoneyTransaction1);
+	str_format(m_MoneyTransaction1, sizeof(m_MoneyTransaction1), "%s", m_MoneyTransaction0);
+	str_format(m_MoneyTransaction0, sizeof(m_MoneyTransaction0), "%s", aDesc);
 }
 
 bool CPlayer::IsInstagibMinigame() const
 {
-	return m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng;
+	return m_IsInstaArenaGdm || m_IsInstaArenaIdm || m_IsInstaArenaFng;
 }
 
 void CPlayer::chidraqul3_GameTick()
@@ -1151,7 +1151,7 @@ void CPlayer::chidraqul3_GameTick()
 	if(g_Config.m_SvAllowChidraqul == 0)
 	{
 		GameServer()->SendChatTarget(m_ClientId, "Admin has disabled chidraqul3.");
-		m_C3_GameState = false;
+		m_C3GameState = false;
 	}
 	else if(g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
 	{
@@ -1188,7 +1188,7 @@ void CPlayer::chidraqul3_GameTick()
 		//y: 3
 		//y: 2
 		//y: 1
-		for(int i = 0; i < m_Minigameworld_size_x; i++)
+		for(int i = 0; i < m_MinigameworldSizeX; i++)
 		{
 			char aCreateWorld[126];
 			if(i == m_HashPos && m_HashPosY == 1)
@@ -1204,7 +1204,7 @@ void CPlayer::chidraqul3_GameTick()
 		}
 		str_format(aWorld, sizeof(aWorld), "%s\n", aWorld);
 		//y: 0
-		for(int i = 0; i < m_Minigameworld_size_x; i++)
+		for(int i = 0; i < m_MinigameworldSizeX; i++)
 		{
 			char aCreateWorld[126];
 			if(i == m_HashPos && m_HashPosY == 0)
@@ -1291,9 +1291,9 @@ void CPlayer::chidraqul3_GameTick()
 	}
 	else if(g_Config.m_SvAllowChidraqul == 3) //next generation
 	{
-		if(m_C3_UpdateFrame)
+		if(m_C3UpdateFrame)
 		{
-			m_C3_UpdateFrame = false;
+			m_C3UpdateFrame = false;
 			char aBuf[128];
 			char aHUD[64];
 			char aWorld[64]; //max world size
@@ -1313,7 +1313,7 @@ void CPlayer::chidraqul3_GameTick()
 		}
 		if(Server()->Tick() % 120 == 0)
 		{
-			m_C3_UpdateFrame = true;
+			m_C3UpdateFrame = true;
 		}
 	}
 }
@@ -1323,8 +1323,8 @@ bool CPlayer::JoinMultiplayer()
 	if(GameServer()->C3_GetFreeSlots() > 0)
 	{
 		GameServer()->SendChatTarget(GetCid(), "[chidraqul] joined multiplayer.");
-		m_C3_UpdateFrame = true;
-		m_C3_GameState = 2;
+		m_C3UpdateFrame = true;
+		m_C3GameState = 2;
 		return true;
 	}
 	GameServer()->SendChatTarget(GetCid(), "[chidraqul] multiplayer is full.");

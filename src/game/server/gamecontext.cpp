@@ -933,7 +933,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientId, int Importance
 		// Broadcasts to individual players are not recorded in demos
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 
-		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+		m_IBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
 		//}
 
 		m_apPlayers[ClientId]->m_LastBroadcast = Server()->Tick();

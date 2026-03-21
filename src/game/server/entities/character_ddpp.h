@@ -179,28 +179,28 @@ public:
 	int m_BlockTournaDeadTicks;
 
 	//blockwave
-	int BlockWaveFreezeTicks;
+	int m_BlockWaveFreezeTicks;
 
 	//survival
-	void SurvivalSubDieFunc(int Killer, int weapon);
+	void SurvivalSubDieFunc(int Killer, int Weapon);
 
 	//instagib
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
 	void InstagibSubDieFunc(int Killer, int Weapon);
 	void InstagibKillingSpree(int KillerId, int Weapon);
 	bool m_UpdateInstaScoreBoard;
-	bool m_hammerfight; //used for the rcon command has nothing todo with arenas yet
+	bool m_Hammerfight; //used for the rcon command has nothing todo with arenas yet
 	//bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
 	//bool m_Hammerarena_exit_request;
 	//int m_Hammerarena_exit_request_time;
 	//
 	bool m_IsPvpArenaing = false;
-	bool m_isHeal;
-	bool m_freezeShotgun;
+	bool m_IsHeal;
+	bool m_FreezeShotgun;
 	bool m_FreezeLaser;
-	bool m_isDmg;
+	bool m_IsDmg;
 	int64_t m_FirstFreezeTick;
-	bool m_fake_super;
+	bool m_FakeSuper;
 	bool m_Godmode;
 	bool m_Fire;
 	/*
@@ -244,8 +244,8 @@ public:
 	int FrozenSinceSeconds();
 
 	// drop pickups
-	void DropHealth(int amount = 1);
-	void DropArmor(int amount = 1);
+	void DropHealth(int Amount = 1);
+	void DropArmor(int Amount = 1);
 	void DropWeapon(int WeaponId);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
@@ -306,7 +306,7 @@ public:
 	int m_OnMoneytile;
 
 	//battlegores
-	void KillFreeze(bool unfreeze);
+	void KillFreeze(bool Unfreeze);
 
 	bool HandleConfigTile(int Type);
 
@@ -316,15 +316,16 @@ public:
 
 	// trail vars
 	std::vector<CStableProjectile *> m_TrailProjs;
-	struct HistoryPoint
+	class CHistoryPoint
 	{
+	public:
 		vec2 m_Pos;
 		float m_Dist;
 
-		HistoryPoint(vec2 Pos, float Dist) :
+		CHistoryPoint(vec2 Pos, float Dist) :
 			m_Pos(Pos), m_Dist(Dist) {}
 	};
-	std::deque<HistoryPoint> m_TrailHistory;
+	std::deque<CHistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
 	CNetObj_PlayerInput *Input() { return &m_Input; }
@@ -340,8 +341,8 @@ public:
 	int m_aWeaponsBackup[NUM_WEAPONS][2];
 	bool m_WeaponsBackupped;
 	int64_t m_AliveSince;
-	int m_survivexpvalue;
-	bool m_DDPP_Finished;
+	int m_Survivexpvalue;
+	bool m_DdppFinished;
 
 	bool HasBloody();
 
@@ -355,8 +356,8 @@ public:
 	bool m_Atom = false;
 	bool m_Trail = false;
 	bool m_Heartgun = false;
-	bool m_autospreadgun = false;
-	bool m_ninjasteam = false;
+	bool m_Autospreadgun = false;
+	bool m_Ninjasteam = false;
 	bool m_RandomCosmetics = false; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
 
 	bool m_HomingMissile;

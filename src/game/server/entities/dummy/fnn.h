@@ -9,26 +9,26 @@ class CDummyFNN : public CDummyBase
 {
 public:
 	CDummyFNN(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual void OnDeath() override;
-	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon) override;
-	virtual ~CDummyFNN() {}
+	void OnTick() override;
+	void OnDeath() override;
+	void TakeDamage(vec2 Force, int Dmg, int From, int Weapon) override;
+	~CDummyFNN() override = default;
 	const char *ModeStr() override { return "FNN"; }
 
 	int m_RandDirection = 0;
 
-	bool m_Dummy_nn_ready;
-	bool m_Dummy_nn_touched_by_humans;
+	bool m_DummyNnReady;
+	bool m_DummyNnTouchedByHumans;
 	int m_aRecMove[FNN_MOVE_LEN];
-	int m_FNN_ticks_loaded_run;
-	int m_FNN_CurrentMoveIndex;
+	int m_FnnTicksLoadedRun;
+	int m_FnnCurrentMoveIndex;
 
 private:
 	//dummymode 25 FNN vars
-	bool m_Dummy_nn_stop;
-	int m_Dummy_nn_ready_time;
-	int m_FNN_start_servertick;
-	int m_FNN_stop_servertick;
+	bool m_DummyNnStop;
+	int m_DummyNnReadyTime;
+	int m_FnnStartServertick;
+	int m_FnnStopServertick;
 	vec2 m_StartPos;
 };
 

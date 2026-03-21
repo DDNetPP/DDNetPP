@@ -139,7 +139,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE)) && !m_Core.m_Super && !m_Core.m_DeepFrozen)
 	{
 		//Chiller Special
-		if(m_Core.m_Pos.y > 223 * 32 && m_Core.m_Pos.y < 225 * 32 && m_Core.m_Pos.x < 438 * 32 && m_Core.m_Pos.x > 427 * 32 && m_fake_super)
+		if(m_Core.m_Pos.y > 223 * 32 && m_Core.m_Pos.y < 225 * 32 && m_Core.m_Pos.x < 438 * 32 && m_Core.m_Pos.x > 427 * 32 && m_FakeSuper)
 			Unfreeze();
 		else
 			m_DummyFreezed = true;
@@ -236,7 +236,7 @@ void CCharacter::OnTileStart()
 			GetPlayer()->m_QuestFailed = false;
 		}
 	}
-	m_DDPP_Finished = false;
+	m_DdppFinished = false;
 }
 
 void CCharacter::OnTileFinish()
@@ -335,7 +335,7 @@ void CCharacter::OnTileSpecialFinish()
 		}
 	}
 
-	m_DDPP_Finished = true;
+	m_DdppFinished = true;
 }
 
 void CCharacter::OnTileMoney()
@@ -380,7 +380,7 @@ void CCharacter::OnTileMoney()
 	}
 	if(m_pPlayer->IsMaxLevel())
 	{
-		if(m_pPlayer->m_xpmsg)
+		if(m_pPlayer->m_Xpmsg)
 		{
 			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
@@ -413,7 +413,7 @@ void CCharacter::OnTileMoney()
 	}
 
 	// tile gain and survival bonus
-	XP += 1 + m_survivexpvalue;
+	XP += 1 + m_Survivexpvalue;
 	Money += 1;
 
 	// give money & xp
@@ -422,10 +422,10 @@ void CCharacter::OnTileMoney()
 	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
-	if(m_pPlayer->m_xpmsg)
+	if(m_pPlayer->m_Xpmsg)
 	{
 		// skip if other broadcasts activated:
-		if(!m_pPlayer->m_hidejailmsg)
+		if(!m_pPlayer->m_Hidejailmsg)
 		{
 			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
@@ -434,7 +434,7 @@ void CCharacter::OnTileMoney()
 		}
 
 		char FixBroadcast[32];
-		if((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
+		if((m_pPlayer->GetXP() >= 1000000) && m_Survivexpvalue > 0)
 			str_copy(FixBroadcast, "                                       ", sizeof(FixBroadcast));
 		else
 			FixBroadcast[0] = '\0';
@@ -462,9 +462,9 @@ void CCharacter::OnTileMoney()
 			str_format(aBuf, sizeof(aBuf), " +%d vip", VIPBonus);
 			str_append(aXp, aBuf, sizeof(aXp));
 		}
-		if(m_survivexpvalue > 0)
+		if(m_Survivexpvalue > 0)
 		{
-			str_format(aBuf, sizeof(aBuf), " +%d survival", m_survivexpvalue);
+			str_format(aBuf, sizeof(aBuf), " +%d survival", m_Survivexpvalue);
 			str_append(aXp, aBuf, sizeof(aXp));
 		}
 
@@ -508,7 +508,7 @@ void CCharacter::OnTileMoneyPolice()
 	}
 	if(m_pPlayer->IsMaxLevel())
 	{
-		if(m_pPlayer->m_xpmsg)
+		if(m_pPlayer->m_Xpmsg)
 		{
 			GameServer()->SendBroadcast("You have reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
@@ -535,7 +535,7 @@ void CCharacter::OnTileMoneyPolice()
 	}
 
 	// tile gain and survival bonus
-	XP += 2 + m_survivexpvalue;
+	XP += 2 + m_Survivexpvalue;
 	Money += 1 + m_pPlayer->m_Account.m_PoliceRank;
 
 	// give money & xp
@@ -544,10 +544,10 @@ void CCharacter::OnTileMoneyPolice()
 	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
-	if(m_pPlayer->m_xpmsg)
+	if(m_pPlayer->m_Xpmsg)
 	{
 		// skip if other broadcasts activated:
-		if(!m_pPlayer->m_hidejailmsg)
+		if(!m_pPlayer->m_Hidejailmsg)
 		{
 			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
@@ -556,7 +556,7 @@ void CCharacter::OnTileMoneyPolice()
 		}
 
 		char FixBroadcast[64];
-		if((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
+		if((m_pPlayer->GetXP() >= 1000000) && m_Survivexpvalue > 0)
 			str_copy(FixBroadcast, "                                       ", sizeof(FixBroadcast));
 		else
 			FixBroadcast[0] = '\0';
@@ -587,9 +587,9 @@ void CCharacter::OnTileMoneyPolice()
 			str_format(aBuf, sizeof(aBuf), " +%d vip", VIPBonus);
 			str_append(aXp, aBuf, sizeof(aXp));
 		}
-		if(m_survivexpvalue > 0)
+		if(m_Survivexpvalue > 0)
 		{
-			str_format(aBuf, sizeof(aBuf), " +%d survival", m_survivexpvalue);
+			str_format(aBuf, sizeof(aBuf), " +%d survival", m_Survivexpvalue);
 			str_append(aXp, aBuf, sizeof(aXp));
 		}
 
@@ -657,7 +657,7 @@ void CCharacter::OnTileMoneyDouble()
 	}
 	if(m_pPlayer->IsMaxLevel())
 	{
-		if(m_pPlayer->m_xpmsg)
+		if(m_pPlayer->m_Xpmsg)
 		{
 			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
@@ -674,7 +674,7 @@ void CCharacter::OnTileMoneyDouble()
 	}
 
 	// tile gain and survival bonus
-	int Survival = (m_survivexpvalue + 1);
+	int Survival = (m_Survivexpvalue + 1);
 	Exp += 2 * Survival;
 	Money += 4;
 
@@ -684,10 +684,10 @@ void CCharacter::OnTileMoneyDouble()
 	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
-	if(m_pPlayer->m_xpmsg)
+	if(m_pPlayer->m_Xpmsg)
 	{
 		// skip if other broadcasts activated:
-		if(!m_pPlayer->m_hidejailmsg)
+		if(!m_pPlayer->m_Hidejailmsg)
 		{
 			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
@@ -706,7 +706,7 @@ void CCharacter::OnTileMoneyDouble()
 		// xp
 		if(GameServer()->m_pController->HasFlag(this) != -1)
 			str_append(aXp, " +2 flag", sizeof(aXp));
-		if(m_survivexpvalue > 0)
+		if(m_Survivexpvalue > 0)
 		{
 			str_format(aBuf, sizeof(aBuf), " +%d survival", Survival);
 			str_append(aXp, aBuf, sizeof(aXp));
@@ -734,7 +734,7 @@ void CCharacter::OnTileMoneyPlus()
 		GameServer()->SendChatTarget(m_pPlayer->GetCid(), "You touched a MoneyTile Plus! +2500xp  +500money");
 		m_pPlayer->GiveXP(2500);
 	}
-	if(m_pPlayer->m_xpmsg && m_pPlayer->IsLoggedIn())
+	if(m_pPlayer->m_Xpmsg && m_pPlayer->IsLoggedIn())
 	{
 		char aBuf[128];
 		str_format(

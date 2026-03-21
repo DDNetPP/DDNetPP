@@ -32,9 +32,9 @@ bool CGameContext::IsMinigaming(int ClientId)
 		return true;
 
 	// TODO: move these to minigame components
-	if(pPlayer->m_IsInstaArena_gdm)
+	if(pPlayer->m_IsInstaArenaGdm)
 		return true;
-	if(pPlayer->m_IsInstaArena_idm)
+	if(pPlayer->m_IsInstaArenaIdm)
 		return true;
 	if(pPlayer->m_IsBlockDeathmatch)
 		return true;
@@ -58,11 +58,11 @@ int CGameContext::IsMinigame(int playerId) //if you update this function please 
 	{
 		return -1;
 	}
-	if(pPlayer->m_IsInstaArena_gdm)
+	if(pPlayer->m_IsInstaArenaGdm)
 	{
 		return 1;
 	}
-	if(pPlayer->m_IsInstaArena_idm)
+	if(pPlayer->m_IsInstaArenaIdm)
 	{
 		return 2;
 	}

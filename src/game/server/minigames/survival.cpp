@@ -18,7 +18,7 @@ bool CSurvival::IsActive(int ClientId)
 
 vec2 CGameContext::GetNextSurvivalSpawn(int ClientId)
 {
-	vec2 Spawn = Collision()->GetSurvivalSpawn(m_survival_spawn_counter++);
+	vec2 Spawn = Collision()->GetSurvivalSpawn(m_SurvivalSpawnCounter++);
 	if(Spawn == vec2(-1, -1))
 	{
 		SendChatTarget(ClientId, "[SURVIVAL] No arena set.");
@@ -45,20 +45,20 @@ void CGameContext::SurvivalLobbyTick()
 
 	if(CountSurvivalPlayers() >= g_Config.m_SvSurvivalStartPlayers)
 	{
-		m_survivallobbycountdown--;
-		if(m_survivallobbycountdown % Server()->TickSpeed() == 0 && m_survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
+		m_Survivallobbycountdown--;
+		if(m_Survivallobbycountdown % Server()->TickSpeed() == 0 && m_Survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
 		{
 			if(!str_comp_nocase(m_aLastSurvivalWinnerName, ""))
 			{
-				str_format(aBuf, sizeof(aBuf), "survival game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+				str_format(aBuf, sizeof(aBuf), "survival game starts in %d seconds", m_Survivallobbycountdown / Server()->TickSpeed());
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "Winner: %s\nsurvival game starts in %d seconds", m_aLastSurvivalWinnerName, m_survivallobbycountdown / Server()->TickSpeed());
+				str_format(aBuf, sizeof(aBuf), "Winner: %s\nsurvival game starts in %d seconds", m_aLastSurvivalWinnerName, m_Survivallobbycountdown / Server()->TickSpeed());
 			}
 			SendBroadcastSurvival(aBuf);
 
-			if(m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
+			if(m_Survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
 			{
 				for(auto &Player : m_apPlayers)
 				{
@@ -86,10 +86,10 @@ void CGameContext::SurvivalLobbyTick()
 		{
 			SendBroadcastSurvival(aBuf);
 		}
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		m_Survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 	}
 
-	if(m_survivallobbycountdown < 1)
+	if(m_Survivallobbycountdown < 1)
 	{
 		SurvivalStartGame();
 	}
@@ -98,20 +98,20 @@ void CGameContext::SurvivalLobbyTick()
 void CGameContext::SurvivalDeathmatchTick()
 {
 	char aBuf[256];
-	m_survival_dm_countdown--;
+	m_SurvivalDmCountdown--;
 
-	if(m_survival_dm_countdown % Server()->TickSpeed() == 0 && m_survival_dm_countdown - 10 < Server()->TickSpeed() * 10) //every second if seconds < 10
+	if(m_SurvivalDmCountdown % Server()->TickSpeed() == 0 && m_SurvivalDmCountdown - 10 < Server()->TickSpeed() * 10) //every second if seconds < 10
 	{
-		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d seconds", m_survival_dm_countdown / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d seconds", m_SurvivalDmCountdown / Server()->TickSpeed());
 		SendBroadcastSurvival(aBuf);
 	}
-	else if(m_survival_dm_countdown % (Server()->TickSpeed() * 60) == 0 && m_survival_dm_countdown - 10 < (Server()->TickSpeed() * 60) * 5) //every minute if minutes < 5
+	else if(m_SurvivalDmCountdown % (Server()->TickSpeed() * 60) == 0 && m_SurvivalDmCountdown - 10 < (Server()->TickSpeed() * 60) * 5) //every minute if minutes < 5
 	{
-		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_SurvivalDmCountdown / (Server()->TickSpeed() * 60));
 		SendChatSurvival(aBuf);
 	}
 
-	if(m_survival_dm_countdown < 1)
+	if(m_SurvivalDmCountdown < 1)
 	{
 		SurvivalSetGameState(SURVIVAL_DM);
 	}
@@ -132,7 +132,7 @@ void CGameContext::SurvivalCheckWinnerAndDeathMatch()
 	else if(AliveTees < g_Config.m_SvSurvivalDmPlayers)
 	{
 		SurvivalSetGameState(SURVIVAL_DM_COUNTDOWN);
-		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_SurvivalDmCountdown / (Server()->TickSpeed() * 60));
 		SendChatSurvival(aBuf);
 	}
 }
@@ -207,7 +207,7 @@ void CGameContext::SetPlayerSurvival(int ClientId, int Mode) //0=off 1=lobby 2=i
 		m_apPlayers[ClientId]->m_IsVanillaWeapons = true;
 		m_apPlayers[ClientId]->m_IsVanillaCompetitive = true;
 		m_apPlayers[ClientId]->m_IsSurvivalLobby = true;
-		if(!m_survivalgamestate) //no game running --> start lobby
+		if(!m_Survivalgamestate) //no game running --> start lobby
 		{
 			SurvivalSetGameState(SURVIVAL_LOBBY);
 			dbg_msg("survival", "lobby started");
@@ -296,7 +296,7 @@ int CGameContext::CountSurvivalPlayers(bool Alive)
 
 void CGameContext::SurvivalSetGameState(int State)
 {
-	m_survivalgamestate = State;
+	m_Survivalgamestate = State;
 	if(State == SURVIVAL_OFF)
 	{
 		for(auto &Player : m_apPlayers)
@@ -305,15 +305,15 @@ void CGameContext::SurvivalSetGameState(int State)
 	}
 	else if(State == SURVIVAL_LOBBY)
 	{
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		m_Survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 		for(auto &Player : m_apPlayers)
 			if(Player && Player->m_IsSurvivaling)
 				Player->Pause(CPlayer::PAUSE_NONE, true);
 	}
 	else if(State == SURVIVAL_INGAME)
 	{
-		m_survival_spawn_counter = 0;
-		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
+		m_SurvivalSpawnCounter = 0;
+		m_SurvivalGameCountdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
 		for(auto &Player : m_apPlayers)
 		{
 			if(Player && Player->m_IsSurvivaling)
@@ -327,11 +327,11 @@ void CGameContext::SurvivalSetGameState(int State)
 				SetPlayerSurvival(Player->GetCid(), SURVIVAL_INGAME);
 			}
 		}
-		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implement a afk state it should only count the active ones.
+		m_SurvivalStartPlayers = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implement a afk state it should only count the active ones.
 	}
 	else if(State == SURVIVAL_DM_COUNTDOWN)
 	{
-		m_survival_dm_countdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
+		m_SurvivalDmCountdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
 	}
 	else if(State == SURVIVAL_DM)
 	{

@@ -62,7 +62,7 @@ void CPvpArena::Join(CPlayer *pPlayer)
 			pPlayer->m_Account.m_PvpArenaTickets--;
 			pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			pChr->m_IsPvpArenaing = true;
-			pChr->m_isDmg = true;
+			pChr->m_IsDmg = true;
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
 		})
 		.OnFailure([=, this](const char *pShort, const char *pLong) {
@@ -102,7 +102,7 @@ void CPvpArena::Leave(CPlayer *pPlayer)
 			pPlayer->m_Account.m_PvpArenaTickets++;
 			pChr->SetHealth(10);
 			pChr->m_IsPvpArenaing = false;
-			pChr->m_isDmg = false;
+			pChr->m_IsDmg = false;
 
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] Successfully teleported out of arena.");
 			GameServer()->SendChatTarget(pPlayer->GetCid(), "[PVP] You got your ticket back because you have survived.");
@@ -135,7 +135,7 @@ void CPvpArena::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 			{
 				if(GameServer()->m_apPlayers[Killer]->IsMaxLevel() ||
 					GameServer()->IsSameIp(Killer, pPlayer->GetCid()) || // dont give xp on dummy kill
-					GameServer()->IsSameIp(pPlayer->GetCid(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
+					GameServer()->IsSameIp(pPlayer->GetCid(), GameServer()->m_apPlayers[Killer]->m_PvpArenaLastKillId) // dont give xp on killing same ip twice in a row
 				)
 				{
 					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
@@ -160,7 +160,7 @@ void CPvpArena::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaTickets++;
 					GameServer()->SendChatTarget(Killer, "[PVP] +1 pvp_arena_ticket        (special random drop for kill)");
 				}
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = pPlayer->GetCid();
+				GameServer()->m_apPlayers[Killer]->m_PvpArenaLastKillId = pPlayer->GetCid();
 			}
 		}
 	}

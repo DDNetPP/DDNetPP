@@ -4,29 +4,26 @@
 
 // this include should perhaps be removed
 #include "captcha.h"
-#include "entities/character.h"
+#include "twbl/state.h"
 
 #include <generated/protocol.h>
 
 #include <game/server/ddnetpp/db/accounts.h>
+#include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/ddpp/minigame_player_state.h>
+#include <game/server/entities/dummy/dummybase.h>
+#include <game/server/entities/weapon.h>
 #include <game/server/minigames/one_vs_one_block.h>
+#include <game/server/minigames/tdm_block.h>
 #include <game/version.h>
 
+#include <insta/server/skin_info_manager.h>
+
 #include <memory>
-#include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-#include "score.h"
 #include "teeinfo.h"
-
-enum
-{
-	WEAPON_GAME = -3, // team switching etc
-	WEAPON_SELF = -2, // console kill command
-	WEAPON_WORLD = -1, // death tiles etc
-};
 
 // player object
 class CPlayer
@@ -65,9 +62,9 @@ public:
 	const char *Name() const;
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame() const;
-	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
-	bool IsLoggedIn() { return GetAccId() != 0; } // -1 filebased acc >0 sql id
-	int GetAccId() { return m_Account.m_Id; }
+	bool IsMaxLevel() const { return GetLevel() >= ACC_MAX_LEVEL; }
+	bool IsLoggedIn() const { return GetAccId() != 0; } // -1 filebased acc >0 sql id
+	int GetAccId() const { return m_Account.m_Id; }
 	void SetAccId(int Id);
 	/*
 		GiveXP(int value)
@@ -75,7 +72,7 @@ public:
 		Use this function to add value xp to a players stats
 		It takes care of max level.
 	*/
-	void GiveXP(int value);
+	void GiveXP(int Value);
 	/*
 		GiveBlockPoints(int Points)
 
@@ -89,12 +86,12 @@ public:
 		WARNING you probably want to use GiveXp(int value); instead!
 		SetXP() should only be used if it is really needed
 	*/
-	void SetXP(int xp);
-	int64_t GetXP() { return m_Account.m_XP; }
-	int64_t GetNeededXP() { return m_neededxp; }
-	int64_t GetLevel() { return m_Account.m_Level; }
+	void SetXP(int Xp);
+	int64_t GetXP() const { return m_Account.m_XP; }
+	int64_t GetNeededXP() const { return m_Neededxp; }
+	int64_t GetLevel() const { return m_Account.m_Level; }
 	void SetLevel(int Level);
-	int64_t GetMoney() { return m_Account.m_Money; }
+	int64_t GetMoney() const { return m_Account.m_Money; }
 	/*
 		SetMoney()
 
@@ -212,43 +209,43 @@ public:
 	// chidraqul3 (minigame)
 	void chidraqul3_GameTick();
 	bool JoinMultiplayer();
-	bool m_C3_UpdateFrame;
+	bool m_C3UpdateFrame;
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
 	bool m_GoldAlive;
 	int m_HashGold;
-	int m_Minigameworld_size_x;
+	int m_MinigameworldSizeX;
 	char m_HashSkin[12];
 	int m_HashPos;
 	int m_HashPosY;
 	bool m_BoughtGame;
-	int m_C3_GameState; //0=off 1=singleplayer 2=multiplayer
+	int m_C3GameState; //0=off 1=singleplayer 2=multiplayer
 
 	//profiles
 	char m_LastViewedProfile[32];
 	bool m_IsProfileViewLoaded;
 
 	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
-	int m_pvp_arena_last_kill_id;
+	int m_PvpArenaLastKillId;
 
-	bool m_IsInstaArena_gdm;
-	bool m_IsInstaArena_idm;
-	bool m_IsInstaArena_fng; //depends on gdm or idm can be boomfng and fng
-	bool m_IsInstaMode_gdm; // THESE MODES ARE USED FOR THE INSTAGIB
-	bool m_IsInstaMode_idm; // SERVER AND ARE DIFFERENT FROM THE MINIGAME
-	bool m_IsInstaMode_fng; // THEY USE THE SCOARBOARD AND A BIT DIFFERENT RESTRICTIONS
-	int m_Insta1on1_id; //also used as Is1on1ing bool (id != -1 ---> is in 1on1)
-	int m_Insta1on1_mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
-	int m_Insta1on1_score;
+	bool m_IsInstaArenaGdm;
+	bool m_IsInstaArenaIdm;
+	bool m_IsInstaArenaFng; //depends on gdm or idm can be boomfng and fng
+	bool m_IsInstaModeGdm; // THESE MODES ARE USED FOR THE INSTAGIB
+	bool m_IsInstaModeIdm; // SERVER AND ARE DIFFERENT FROM THE MINIGAME
+	bool m_IsInstaModeFng; // THEY USE THE SCOARBOARD AND A BIT DIFFERENT RESTRICTIONS
+	int m_Insta1on1Id; //also used as Is1on1ing bool (id != -1 ---> is in 1on1)
+	int m_Insta1on1Mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
+	int m_Insta1on1Score;
 	int m_InstaScore;
-	bool m_HideInsta1on1_killmessages;
+	bool m_HideInsta1on1Killmessages;
 	vec2 m_InstaRoundEndPos;
 	bool m_HasInstaRoundEndPos;
-	int m_lastkilltime;
-	int m_multi;
-	int m_max_multi;
+	int m_Lastkilltime;
+	int m_Multi;
+	int m_MaxMulti;
 
-	int m_BalanceBattle_id;
+	int m_BalanceBattleId;
 	bool m_IsBalanceBatteling;
 	bool m_IsBalanceBattlePlayer1;
 	bool m_IsBalanceBattleDummy;
@@ -295,11 +292,6 @@ public:
 	int m_SpawnRifleActive;
 
 	std::vector<CWeapon *> m_aWeaponLimit[NUM_WEAPONS];
-
-	//city stuff
-	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
-	bool m_cheats_aimbot;
-	bool m_dummy_member; //trusted by dummy
 
 	//##########
 	//city stuff
@@ -376,19 +368,19 @@ public:
 
 	//money and traiding
 
-	int m_StockMarket_item_Cucumbers;
+	int m_StockMarketItemCucumbers;
 	int m_MoneyTilesMoney;
 
-	char m_money_transaction0[512];
-	char m_money_transaction1[512];
-	char m_money_transaction2[512];
-	char m_money_transaction3[512];
-	char m_money_transaction4[512];
-	char m_money_transaction5[512];
-	char m_money_transaction6[512];
-	char m_money_transaction7[512];
-	char m_money_transaction8[512];
-	char m_money_transaction9[512];
+	char m_MoneyTransaction0[512];
+	char m_MoneyTransaction1[512];
+	char m_MoneyTransaction2[512];
+	char m_MoneyTransaction3[512];
+	char m_MoneyTransaction4[512];
+	char m_MoneyTransaction5[512];
+	char m_MoneyTransaction6[512];
+	char m_MoneyTransaction7[512];
+	char m_MoneyTransaction8[512];
+	char m_MoneyTransaction9[512];
 
 	int m_TradeMoney;
 	int m_TradeItem;
@@ -400,7 +392,7 @@ public:
 	int64_t m_ShopBotAntiSpamTick;
 	int m_ShopBotMessagesReceived;
 
-	void JailPlayer(int seconds);
+	void JailPlayer(int Seconds);
 	float TaserFreezeTime();
 	int m_TaserPrice;
 	bool m_TaserOn;
@@ -422,8 +414,8 @@ public:
 	bool m_HideQuestProgress;
 	bool m_HideQuestWarning;
 	bool m_ShowBlockPoints;
-	bool m_xpmsg;
-	bool m_hidejailmsg;
+	bool m_Xpmsg;
+	bool m_Hidejailmsg;
 	bool m_ShowInstaScoreBroadcast;
 
 	// quests
@@ -439,7 +431,7 @@ public:
 	char m_aQuestString[512]; // stores the quest information
 	int m_aQuestProgress[2]; // stores the quest progress information
 	bool m_QuestFailed;
-	bool IsQuesting() { return m_QuestState != QUEST_OFF; }
+	bool IsQuesting() const { return m_QuestState != QUEST_OFF; }
 	enum
 	{
 		QUEST_OFF = 0,
@@ -448,7 +440,7 @@ public:
 		QUEST_RACE = 3,
 		QUEST_RIFLE = 4,
 		QUEST_FARM = 5,
-		QUEST_NUM_PLUS_ONE,
+		QUEST_NUM_PLUS_ONE = 6,
 		QUEST_NUM = QUEST_NUM_PLUS_ONE - 1,
 
 		QUEST_NUM_LEVEL = 9
@@ -539,15 +531,9 @@ public:
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;
 	bool m_IsTest;
-	int m_failed_escapes;
-	int m_escape_skill;
-	bool m_escape_plan;
-	bool m_escape_plan_b;
-	bool m_escape_plan_c;
 	bool m_BoughtRoom;
-	int m_aliveplusxp;
 	bool m_MoneyTilePlus;
-	bool m_fake_admin;
+	bool m_FakeAdmin;
 	int64_t m_LastFight;
 
 	char m_aSqlNameName[32]; //used to save account name admins interact with in the '/sql_name' command
@@ -575,24 +561,20 @@ public:
 	CDummyBase *m_pDummyMode; // TODO: make private
 	EDummyTest m_DummyTest = EDummyTest::NONE;
 
-	int m_dmm25; //change dummy modes in the mode 25  ( choose sub modes)
-	float m_Dummy_nn_latest_Distance;
-	float m_Dummy_nn_highest_Distance;
-	float m_Dummy_nn_highest_Distance_touched;
-	float m_Dummy_nn_latest_fitness;
-	float m_Dummy_nn_highest_fitness;
-	int m_Dummy_nn_time;
-
-	// dummy 32 vars
-	bool m_Dummy_32dummy;
-	int m_Dummy_32look;
+	int m_Dmm25; //change dummy modes in the mode 25  ( choose sub modes)
+	float m_DummyNnLatestDistance;
+	float m_DummyNnHighestDistance;
+	float m_DummyNnHighestDistanceTouched;
+	float m_DummyNnLatestFitness;
+	float m_DummyNnHighestFitness;
+	int m_DummyNnTime;
 
 	//REAL DUMMY 32 VARS blmapchill police
 	int m_DummyModeSpawn;
 
 	//dummy 33 vars (Chillintelligenz)
-	long m_ci_lowest_dest_dist; //max long len 2147483647
-	long m_ci_latest_dest_dist;
+	long m_CiLowestDestDist; //max long len 2147483647
+	long m_CiLatestDestDist;
 
 	CTwblPersistentState m_TwblPersistentState;
 
@@ -614,11 +596,11 @@ public:
 	bool m_InfAutoSpreadGun;
 
 	// cosmetic offers
-	int m_rainbow_offer;
-	int m_bloody_offer;
-	int m_atom_offer;
-	int m_trail_offer;
-	int m_autospreadgun_offer;
+	int m_RainbowOffer;
+	int m_BloodyOffer;
+	int m_AtomOffer;
+	int m_TrailOffer;
+	int m_AutospreadgunOffer;
 
 	//dummy rainbow
 	int m_DummyRainbowOfferAmount;
@@ -665,8 +647,8 @@ public:
 
 	//bool m_hammerfight;
 	//bool m_isHeal;
-	bool m_ninjasteam;
-	bool m_disarm;
+	bool m_Ninjasteam;
+	bool m_Disarm;
 	//bool m_freezeShotgun;
 	int m_RainbowColor;
 
@@ -679,7 +661,7 @@ public:
 	bool m_RconFreeze;
 
 private: // private ddnet+++
-	int64_t m_neededxp;
+	int64_t m_Neededxp;
 	EDummyMode m_DummyMode;
 
 public:

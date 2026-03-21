@@ -107,11 +107,11 @@ bool CGameControllerDDNetPP::CanSpawn(int Team, vec2 *pOutPos, int ClientId)
 		Eval.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
 		Eval.m_Got = true;
 	}
-	else if(pPlayer->m_IsInstaArena_gdm)
+	else if(pPlayer->m_IsInstaArenaGdm)
 	{
 		EvaluateSpawnType(&Eval, SPAWNTYPE_RED, pPlayer->GetCid());
 	}
-	else if(pPlayer->m_IsInstaArena_idm)
+	else if(pPlayer->m_IsInstaArenaIdm)
 	{
 		EvaluateSpawnType(&Eval, SPAWNTYPE_BLUE, pPlayer->GetCid());
 	}

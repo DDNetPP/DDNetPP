@@ -57,17 +57,17 @@ void CCharacter::DummyTick()
 	if(GameServer()->IsServerEmpty() && m_pPlayer->m_DummyTest == EDummyTest::NONE)
 		return;
 
-	if((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)
+	if((m_pPlayer->m_RainbowOffer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)
 	{
 		Rainbow(true);
-		m_pPlayer->m_rainbow_offer = 0;
-		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;
+		m_pPlayer->m_RainbowOffer = 0;
+		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_RainbowOffer;
 	}
-	else if((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)
+	else if((m_pPlayer->m_RainbowOffer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)
 	{
 		Rainbow(false);
-		m_pPlayer->m_rainbow_offer = 0;
-		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;
+		m_pPlayer->m_RainbowOffer = 0;
+		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_RainbowOffer;
 	}
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_CHILLINTELLIGENCE)

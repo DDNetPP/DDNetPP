@@ -290,7 +290,7 @@ public:
 	bool HookFlag();
 
 	// TODO: wtf is this shit?
-	int m_updateFlagVel;
+	int m_UpdateFlagVel;
 	vec2 m_UFlagVel;
 
 	bool IsValidHookedPlayer() const { return m_HookedPlayer >= 0 && m_HookedPlayer < MAX_CLIENTS; }

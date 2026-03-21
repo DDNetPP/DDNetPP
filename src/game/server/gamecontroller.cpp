@@ -581,23 +581,23 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 	pChr->IncreaseHealth(10);
 
 	//zCatch ChillerDragon
-	if(pChr->GetPlayer()->m_IsInstaMode_fng)
+	if(pChr->GetPlayer()->m_IsInstaModeFng)
 	{
 		pChr->GiveWeapon(WEAPON_HAMMER);
 	}
 
-	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || pChr->GetPlayer()->m_IsInstaMode_gdm) //gdm & zCatch grenade
+	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || pChr->GetPlayer()->m_IsInstaModeGdm) //gdm & zCatch grenade
 	{
 		pChr->GiveWeapon(WEAPON_GRENADE);
 	}
-	else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || pChr->GetPlayer()->m_IsInstaMode_idm) // idm & zCatch rifle
+	else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || pChr->GetPlayer()->m_IsInstaModeIdm) // idm & zCatch rifle
 	{
 		pChr->GiveWeapon(WEAPON_LASER);
 	}
 	else
 	{
 		// give default weapons              ---    dragon test disarm
-		if(pChr->GetPlayer()->m_disarm)
+		if(pChr->GetPlayer()->m_Disarm)
 		{
 			pChr->GiveWeapon(WEAPON_GUN);
 		}

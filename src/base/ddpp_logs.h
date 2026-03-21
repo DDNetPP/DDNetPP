@@ -13,7 +13,10 @@ enum
 	DDPP_LOG_WRONG_RCON,
 	DDPP_LOG_FLOOD,
 	DDPP_NUM_LOGS,
+};
 
+enum
+{
 	DDPP_LOG_SIZE = 8
 };
 

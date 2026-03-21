@@ -26,12 +26,12 @@ CDummyChillBlock5Police::CDummyChillBlock5Police(class CPlayer *pPlayer) :
 
 void CDummyChillBlock5Police::OnDeath()
 {
-	m_Dummy_GotStuck = false;
-	m_Dummy_GetSpeed = false;
-	m_Dummy_ClosestPolice = false;
-	m_Dummy_SpawnAnimation = false;
-	m_Dummy_SpawnAnimation_delay = 0;
-	m_Dummy_AttackMode = 0;
+	m_DummyGotStuck = false;
+	m_DummyGetSpeed = false;
+	m_DummyClosestPolice = false;
+	m_DummySpawnAnimation = false;
+	m_DummySpawnAnimationDelay = 0;
+	m_DummyAttackMode = 0;
 }
 
 void CDummyChillBlock5Police::OnTick()
@@ -48,16 +48,16 @@ void CDummyChillBlock5Police::OnTick()
 	if(GetPos().x < 460 * 32) //spawn
 	{
 		m_pCharacter->SetPosition(vec2(484 * 32, 234 * 32));
-		m_Dummy_SpawnAnimation = true;
+		m_DummySpawnAnimation = true;
 	}
 	//do spawnanimation in police base
-	if(m_Dummy_SpawnAnimation)
+	if(m_DummySpawnAnimation)
 	{
-		m_Dummy_SpawnAnimation_delay++;
-		if(m_Dummy_SpawnAnimation_delay > 2)
+		m_DummySpawnAnimationDelay++;
+		if(m_DummySpawnAnimationDelay > 2)
 		{
 			GameServer()->CreatePlayerSpawn(GetPos());
-			m_Dummy_SpawnAnimation = false;
+			m_DummySpawnAnimation = false;
 		}
 	}
 
@@ -105,12 +105,12 @@ void CDummyChillBlock5Police::OnTick()
 		//{
 		//	if (p)
 		//}
-		m_Dummy_ClosestPolice = false;
+		m_DummyClosestPolice = false;
 		//If a policerank escapes from jail he is treated like a non police
 		if((pChr->GetPlayer()->m_Account.m_PoliceRank > 0 && pChr->GetPlayer()->m_Account.m_EscapeTime == 0) || (pChr->GetPlayer()->m_PoliceHelper && pChr->GetPlayer()->m_Account.m_EscapeTime == 0))
 		{
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hello officär");
-			m_Dummy_ClosestPolice = true;
+			m_DummyClosestPolice = true;
 			//if (pChr->isFreezed)
 			//{
 			//	m_Dummy_dmm31 = 2;
@@ -146,15 +146,15 @@ void CDummyChillBlock5Police::OnTick()
 		//##############################################
 		//[STRUCT][1]: Check what sub-mode should be used
 		//##############################################
-		if(m_Dummy_ClosestPolice) //police
+		if(m_DummyClosestPolice) //police
 		{
 			if(pChr->m_FreezeTime > 0 && GetPos().x < 477 * 32)
 			{
-				m_Dummy_dmm31 = 2; // LOCAL: POLICE HELP
+				m_DummyDmm31 = 2; // LOCAL: POLICE HELP
 			}
 			else
 			{
-				m_Dummy_dmm31 = 0; // LOCAL: NOTHING IS GOING ON
+				m_DummyDmm31 = 0; // LOCAL: NOTHING IS GOING ON
 			}
 		}
 		else //not police
@@ -167,12 +167,12 @@ void CDummyChillBlock5Police::OnTick()
 				}
 				else
 				{
-					m_Dummy_dmm31 = 1; //LOCAL: ENEMY ATTACK
+					m_DummyDmm31 = 1; //LOCAL: ENEMY ATTACK
 				}
 			}
 			if(pChr->isFreezed)
 			{
-				m_Dummy_dmm31 = 0; //maybe add here a mode where the bot moves the nonPolices away to find failed polices
+				m_DummyDmm31 = 0; //maybe add here a mode where the bot moves the nonPolices away to find failed polices
 			}
 		}
 
@@ -180,7 +180,7 @@ void CDummyChillBlock5Police::OnTick()
 		//[STRUCT][2]: Do stuff depending on sub - modes
 		//##############################################
 
-		if(m_Dummy_dmm31 == 0) //nothing is going on
+		if(m_DummyDmm31 == 0) //nothing is going on
 		{
 			AimPos(pChr->GetPos());
 			if(Server()->Tick() % 90 == 0)
@@ -188,7 +188,7 @@ void CDummyChillBlock5Police::OnTick()
 				SetWeapon(1);
 			}
 		}
-		else if(m_Dummy_dmm31 == 1) //Attack enemys
+		else if(m_DummyDmm31 == 1) //Attack enemys
 		{
 			AimPos(pChr->GetPos());
 
@@ -202,13 +202,13 @@ void CDummyChillBlock5Police::OnTick()
 				Fire();
 			}
 
-			m_Dummy_AttackMode = 0;
+			m_DummyAttackMode = 0;
 			if(GetPos().x < 466 * 32 + 20 && pChr->GetPos().x > 469 * 32 + 20) //hook enemy in air (rightside)
 			{
-				m_Dummy_AttackMode = 1;
+				m_DummyAttackMode = 1;
 			}
 
-			if(m_Dummy_AttackMode == 0) //default mode
+			if(m_DummyAttackMode == 0) //default mode
 			{
 				if(GetPos().x < 466 * 32 - 5) //only get bored on lovely place
 				{
@@ -223,7 +223,7 @@ void CDummyChillBlock5Police::OnTick()
 					}
 				}
 			}
-			else if(m_Dummy_AttackMode == 1) //hook enemy escaping (rightside)
+			else if(m_DummyAttackMode == 1) //hook enemy escaping (rightside)
 			{
 				if(pChr->GetVel().x > 1.3f)
 				{
@@ -237,7 +237,7 @@ void CDummyChillBlock5Police::OnTick()
 				Hook(0);
 			}
 		}
-		else if(m_Dummy_dmm31 == 2) //help police dudes
+		else if(m_DummyDmm31 == 2) //help police dudes
 		{
 			AimPos(pChr->GetPos());
 
@@ -308,7 +308,7 @@ void CDummyChillBlock5Police::OnTick()
 				Hook(0);
 			}
 		}
-		else if(m_Dummy_dmm31 == 3) //EXTERNAL: Enemy attack (right side /jail side)
+		else if(m_DummyDmm31 == 3) //EXTERNAL: Enemy attack (right side /jail side)
 		{
 			if(GetPos().x < 461 * 32)
 			{
@@ -356,29 +356,29 @@ void CDummyChillBlock5Police::OnTick()
 	//but some submodes use the same thats why its listed external here
 	//Movement
 	//JailSpawn
-	if(m_Dummy_dmm31 < 3)
+	if(m_DummyDmm31 < 3)
 	{
 		if(GetPos().x > 482 * 32 + 20 && GetPos().y < 236 * 32)
 		{
 			if(GetVel().x > -8.2f && GetPos().x < 484 * 32 - 20)
 			{
-				m_Dummy_GetSpeed = true;
+				m_DummyGetSpeed = true;
 			}
 			if(GetPos().x > 483 * 32 && !IsGrounded())
 			{
-				m_Dummy_GetSpeed = true;
+				m_DummyGetSpeed = true;
 			}
 			if(GetVel().y > 5.3f)
 			{
-				m_Dummy_GetSpeed = true;
+				m_DummyGetSpeed = true;
 			}
 
 			if(IsGrounded() && GetPos().x > 485 * 32)
 			{
-				m_Dummy_GetSpeed = false;
+				m_DummyGetSpeed = false;
 			}
 
-			if(m_Dummy_GotStuck)
+			if(m_DummyGotStuck)
 			{
 				Left();
 				if(Server()->Tick() % 33 == 0)
@@ -410,12 +410,12 @@ void CDummyChillBlock5Police::OnTick()
 			}
 			else
 			{
-				if(m_Dummy_GetSpeed)
+				if(m_DummyGetSpeed)
 				{
 					Right();
 					if(Server()->Tick() % 90 == 0)
 					{
-						m_Dummy_GotStuck = true;
+						m_DummyGotStuck = true;
 					}
 				}
 				else
@@ -425,7 +425,7 @@ void CDummyChillBlock5Police::OnTick()
 					{
 						if(Server()->Tick() % 90 == 0)
 						{
-							m_Dummy_GotStuck = true;
+							m_DummyGotStuck = true;
 						}
 					}
 				}
@@ -433,7 +433,7 @@ void CDummyChillBlock5Police::OnTick()
 		}
 		else //not Jail spawn
 		{
-			m_Dummy_GotStuck = false;
+			m_DummyGotStuck = false;
 			//TODO; add a dir 1 if he gets attacked
 			if(GetPos().x > 464 * 32)
 			{

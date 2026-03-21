@@ -40,9 +40,9 @@ void CGameContext::StopBalanceBattle()
 	{
 		if(Player)
 		{
-			if(Player->m_BalanceBattle_id != -1)
+			if(Player->m_BalanceBattleId != -1)
 			{
-				Player->m_BalanceBattle_id = -1;
+				Player->m_BalanceBattleId = -1;
 			}
 			if(Player->m_IsBalanceBattleDummy)
 			{

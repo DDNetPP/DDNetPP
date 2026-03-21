@@ -4,13 +4,20 @@
 
 #include <engine/shared/protocol.h>
 
-// layer types
+// entities
+// their internal index is shifted
+// so the user facing index that will be shown in the
+// editor game layer can be seen in the comments
 enum
 {
-	ENTITY_WEAPON_GUN = 50,
-	ENTITY_WEAPON_HAMMER,
-	ENTITY_PLANT, // 243
+	ENTITY_WEAPON_GUN = 50, // 241
+	ENTITY_WEAPON_HAMMER = 51, // 242
+	ENTITY_PLANT = 52, // 243
+};
 
+// tiles
+enum
+{
 	TILE_MONEY_PLUS = 114,
 	TILE_MONEY_DOUBLE = 115,
 
@@ -69,19 +76,6 @@ enum
 	TILE_CAPTCHA_SPAWN = 187,
 	TILE_CAPTCHA_VERIFY = 188,
 
-	// NOT ACTUAL TILES - start
-	CFG_TILE_OFF = 0,
-	CFG_TILE_FREEZE,
-	CFG_TILE_UNFREEZE,
-	CFG_TILE_DEEP,
-	CFG_TILE_UNDEEP,
-	CFG_TILE_HOOK,
-	CFG_TILE_UNHOOK,
-	CFG_TILE_DEATH,
-	CFG_TILE_GIVE_BLOODY,
-	CFG_TILE_GIVE_RAINBOW,
-	CFG_TILE_GIVE_SPREADGUN,
-	// NOT ACTUAL TILES - end
 	TILE_CONFIG_1 = 182,
 	TILE_CONFIG_2 = 183,
 
@@ -92,6 +86,22 @@ enum
 
 	// F-DDrace
 	NUM_INDICES = 256,
+};
+
+// THESE ARE NOT ACTUAL TILE INDICES
+enum
+{
+	CFG_TILE_OFF = 0,
+	CFG_TILE_FREEZE = 1,
+	CFG_TILE_UNFREEZE = 2,
+	CFG_TILE_DEEP = 3,
+	CFG_TILE_UNDEEP = 4,
+	CFG_TILE_HOOK = 5,
+	CFG_TILE_UNHOOK = 6,
+	CFG_TILE_DEATH = 7,
+	CFG_TILE_GIVE_BLOODY = 8,
+	CFG_TILE_GIVE_RAINBOW = 9,
+	CFG_TILE_GIVE_SPREADGUN = 10,
 };
 
 #endif

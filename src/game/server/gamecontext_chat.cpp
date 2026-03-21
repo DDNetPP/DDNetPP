@@ -161,7 +161,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 	}
 	else if(!str_comp(pCommand, "hax_me_admin_mummy"))
 	{
-		m_apPlayers[ClientId]->m_fake_admin = true;
+		m_apPlayers[ClientId]->m_FakeAdmin = true;
 	}
 	else if(!str_comp(pCommand, "fake_super"))
 	{
@@ -171,11 +171,11 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 			return true;
 		}
 
-		if(m_apPlayers[ClientId]->m_fake_admin)
+		if(m_apPlayers[ClientId]->m_FakeAdmin)
 		{
-			GetPlayerChar(ClientId)->m_fake_super ^= true;
+			GetPlayerChar(ClientId)->m_FakeSuper ^= true;
 
-			if(GetPlayerChar(ClientId)->m_fake_super)
+			if(GetPlayerChar(ClientId)->m_FakeSuper)
 			{
 				//SendChatTarget(ClientId, "Turned ON fake super.");
 			}

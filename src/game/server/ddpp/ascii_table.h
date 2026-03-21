@@ -10,7 +10,7 @@
 
 // Took this array of ascii chars from fng
 // so credits go to @fstd ( https://github.com/fstd )
-static const bool gs_aaaAsciiTable[ASCII_TABLE_SIZE][ASCII_CHAR_HEIGHT][ASCII_CHAR_WIDTH] = {
+static const char gs_aaaAsciiTable[ASCII_TABLE_SIZE][ASCII_CHAR_HEIGHT][ASCII_CHAR_WIDTH] = {
 	{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, // ascii 0
 	{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, // ascii 1
 	{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, // ascii 2

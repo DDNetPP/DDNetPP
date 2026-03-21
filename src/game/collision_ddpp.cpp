@@ -21,9 +21,9 @@ int CCollision::GetCustTile(int x, int y)
 
 	int Nx = std::clamp(x / 32, 0, m_Width - 1);
 	int Ny = std::clamp(y / 32, 0, m_Height - 1);
-	int pos = Ny * m_Width + Nx;
+	int Pos = Ny * m_Width + Nx;
 
-	return m_pTiles[pos].m_Index;
+	return m_pTiles[Pos].m_Index;
 }
 
 int CCollision::GetCustFTile(int x, int y)
@@ -33,9 +33,9 @@ int CCollision::GetCustFTile(int x, int y)
 
 	int Nx = std::clamp(x / 32, 0, m_Width - 1);
 	int Ny = std::clamp(y / 32, 0, m_Height - 1);
-	int pos = Ny * m_Width + Nx;
+	int Pos = Ny * m_Width + Nx;
 
-	return m_pFront[pos].m_Index;
+	return m_pFront[Pos].m_Index;
 }
 
 vec2 CCollision::GetSurvivalSpawn(int Num)

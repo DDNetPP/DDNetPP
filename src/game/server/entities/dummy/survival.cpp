@@ -247,7 +247,7 @@ void CDummySurvival::OnTick()
 		}
 
 		// end game if all humans dead
-		if(GameServer()->m_survivalgamestate > 1) // survival game running
+		if(GameServer()->m_Survivalgamestate > 1) // survival game running
 		{
 			if(m_pPlayer->m_IsSurvivalAlive)
 			{

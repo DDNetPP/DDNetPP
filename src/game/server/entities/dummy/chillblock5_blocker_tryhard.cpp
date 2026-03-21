@@ -28,22 +28,22 @@ CDummyChillBlock5BlockerTryHard::CDummyChillBlock5BlockerTryHard(class CPlayer *
 
 void CDummyChillBlock5BlockerTryHard::OnDeath()
 {
-	m_Dummy_jumped = false;
-	m_Dummy_hooked = false;
-	m_Dummy_moved_left = false;
-	m_Dummy_hook_delay = false;
-	m_Dummy_ruled = false;
-	m_Dummy_pushing = false;
-	m_Dummy_emergency = false;
-	m_Dummy_wb_hooked = false;
-	m_Dummy_left_freeze_full = false;
-	m_Dummy_happy = false;
-	m_Dummy_get_speed = false;
-	m_Dummy_bored = false;
-	m_Dummy_special_defend = false;
-	m_Dummy_special_defend_attack = false;
-	m_Dummy_bored_counter = 0;
-	m_Dummy_mode18 = 0;
+	m_DummyJumped = false;
+	m_DummyHooked = false;
+	m_DummyMovedLeft = false;
+	m_DummyHookDelay = false;
+	m_DummyRuled = false;
+	m_DummyPushing = false;
+	m_DummyEmergency = false;
+	m_DummyWbHooked = false;
+	m_DummyLeftFreezeFull = false;
+	m_DummyHappy = false;
+	m_DummyGetSpeed = false;
+	m_DummyBored = false;
+	m_DummySpecialDefend = false;
+	m_DummySpecialDefendAttack = false;
+	m_DummyBoredCounter = 0;
+	m_DummyMode18 = 0;
 	m_EmoteTickNext = 0;
 }
 
@@ -56,9 +56,9 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 	//m_Dummy_bored_counter = 5;
 
-	if(m_Dummy_bored_counter > 2)
+	if(m_DummyBoredCounter > 2)
 	{
-		m_Dummy_bored = true;
+		m_DummyBored = true;
 	}
 
 	/*
@@ -96,29 +96,29 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		if(pChr && pChr->IsAlive())
 		{
 			//Wenn der bot im tunnel ist und ein Gegner im RulerWB bereich
-			m_Dummy_mode18 = 1;
+			m_DummyMode18 = 1;
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Wayblocker gesichtet");
 		}
 	}
-	else if(m_Dummy_happy && m_Dummy_bored)
+	else if(m_DummyHappy && m_DummyBored)
 	{
-		m_Dummy_mode18 = 2;
+		m_DummyMode18 = 2;
 	}
-	else if(m_Dummy_special_defend) //Check mode 3 [Attack from tunnel wayblocker]
+	else if(m_DummySpecialDefend) //Check mode 3 [Attack from tunnel wayblocker]
 	{
-		m_Dummy_mode18 = 3;
+		m_DummyMode18 = 3;
 	}
 	else
 	{
-		m_Dummy_mode18 = 0; //change to main mode
+		m_DummyMode18 = 0; //change to main mode
 	}
 
 	//Modes:
 
-	if(m_Dummy_mode18 == 3) //special defend mode
+	if(m_DummyMode18 == 3) //special defend mode
 	{
 		//testy wenn der dummy in den special defend mode gesetzt wird pusht das sein adrenalin und ihm is nicht mehr lw
-		m_Dummy_bored_counter = 0;
+		m_DummyBoredCounter = 0;
 
 		CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(GetPos(), true, m_pCharacter);
 		if(pChr && pChr->IsAlive())
@@ -135,8 +135,8 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(pChr->m_FreezeTime == 0)
 			{
 				//wenn der gegner doch irgendwie unfreeze wird übergib an den main mode und lass den notstand das regeln
-				m_Dummy_special_defend = false;
-				m_Dummy_special_defend_attack = false;
+				m_DummySpecialDefend = false;
+				m_DummySpecialDefendAttack = false;
 			}
 			//mode18 sub mode 3
 			//Main code:
@@ -146,13 +146,13 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(pChr->GetVel().y > -0.9f && pChr->GetPos().y > 211 * 32)
 			{
 				//wenn der gegner am boden liegt starte angriff
-				m_Dummy_special_defend_attack = true;
+				m_DummySpecialDefendAttack = true;
 
 				//start jump
 				Jump();
 			}
 
-			if(m_Dummy_special_defend_attack)
+			if(m_DummySpecialDefendAttack)
 			{
 				if(GetPos().x - pChr->GetPos().x < 50) //wenn der gegner nah genung is mach dj
 				{
@@ -165,8 +165,8 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 				}
 				else //wenn der gegner weiter rechts als der bot is lass los und übergib an main deine arbeit ist hier getahen
 				{ //main mode wird evenetuell noch korrigieren mit schieben
-					m_Dummy_special_defend = false;
-					m_Dummy_special_defend_attack = false;
+					m_DummySpecialDefend = false;
+					m_DummySpecialDefendAttack = false;
 				}
 
 				//Der bot sollte möglichst weit nach rechts gehen aber natürlich nicht ins freeze
@@ -183,11 +183,11 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		}
 		else //wenn kein gegner mehr im Ruler bereich is
 		{
-			m_Dummy_special_defend = false;
-			m_Dummy_special_defend_attack = false;
+			m_DummySpecialDefend = false;
+			m_DummySpecialDefendAttack = false;
 		}
 	}
-	else if(m_Dummy_mode18 == 2) //different wayblock mode
+	else if(m_DummyMode18 == 2) //different wayblock mode
 	{
 		//rest on tick
 		Hook(0);
@@ -203,7 +203,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(Server()->Tick() % 300 == 0)
 			{
 				Die();
-				m_Dummy_happy = false;
+				m_DummyHappy = false;
 			}
 		}
 
@@ -213,9 +213,9 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			//Check ob an notstand mode18 = 0 übergeben
 			if(pChr->m_FreezeTime == 0)
 			{
-				m_Dummy_bored = false;
-				m_Dummy_bored_counter = 0;
-				m_Dummy_mode18 = 0;
+				m_DummyBored = false;
+				m_DummyBoredCounter = 0;
+				m_DummyMode18 = 0;
 			}
 
 			AimPos(pChr->GetPos());
@@ -249,7 +249,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			}
 		}
 	}
-	else if(m_Dummy_mode18 == 1) //attack in tunnel
+	else if(m_DummyMode18 == 1) //attack in tunnel
 	{
 		//Selfkills (bit random but they work)
 		if(IsFrozen())
@@ -329,11 +329,11 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			}
 			else
 			{
-				m_Dummy_mode18 = 0;
+				m_DummyMode18 = 0;
 			}
 		}
 	}
-	else if(m_Dummy_mode18 == 0) //main mode
+	else if(m_DummyMode18 == 0) //main mode
 	{
 		//if (mode18_main_init)
 		//{
@@ -391,7 +391,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			}
 			else // wenn da keiner is fülle diesen spot (linke freeze wand im ruler spot)
 			{
-				m_Dummy_left_freeze_full = false;
+				m_DummyLeftFreezeFull = false;
 			}
 		}
 
@@ -518,10 +518,10 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		//CheckSpeedInTunnel
 		if(GetPos().x > 425 * 32 && GetPos().y > 214 * 32 && GetVel().x < 9.4f) //wenn nich genung speed zum wb spot springen
 		{
-			m_Dummy_get_speed = true;
+			m_DummyGetSpeed = true;
 		}
 
-		if(m_Dummy_get_speed) //wenn schwung holen == true (tunnel)
+		if(m_DummyGetSpeed) //wenn schwung holen == true (tunnel)
 		{
 			if(GetPos().x > 422 * 32) //zu weit rechts
 			{
@@ -531,7 +531,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			else //wenn weit genung links
 			{
 				//dann kann das normale movement von dort aus genung schwung auf bauen
-				m_Dummy_get_speed = false;
+				m_DummyGetSpeed = false;
 			}
 		}
 		else
@@ -607,10 +607,10 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		*/
 
 		//Bools zurueck setzten
-		m_Dummy_pushing = false;
-		m_Dummy_emergency = false;
-		m_Dummy_wb_hooked = false;
-		m_Dummy_happy = false;
+		m_DummyPushing = false;
+		m_DummyEmergency = false;
+		m_DummyWbHooked = false;
+		m_DummyHappy = false;
 
 		//normaler internen wb spot stuff
 
@@ -712,9 +712,9 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					str_format(aBuf, sizeof(aBuf), "hookstate: %x", GetHook());
 					//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-					m_Dummy_emergency = true;
+					m_DummyEmergency = true;
 
-					if(!m_Dummy_left_freeze_full)
+					if(!m_DummyLeftFreezeFull)
 					{
 						//                                                                                                        x > 5 = 3       <-- ignorieren xD
 
@@ -732,34 +732,34 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 						//start sequenz
 						// Blocke spieler in die linke freeze wand
 
-						if(!m_Dummy_jumped)
+						if(!m_DummyJumped)
 						{
 							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "boing!");
 							Jump();
-							m_Dummy_jumped = true;
+							m_DummyJumped = true;
 						}
 						else
 						{
 							Jump(0);
 						}
 
-						if(!m_Dummy_hooked)
+						if(!m_DummyHooked)
 						{
 							if(Server()->Tick() % 30 == 0)
-								m_Dummy_hook_delay = true;
+								m_DummyHookDelay = true;
 
 							//testy removed hook here i dont know why but all works pretty good still xD
-							if(m_Dummy_hook_delay)
+							if(m_DummyHookDelay)
 								//Hook();
 
 								if(Server()->Tick() % 200 == 0)
 								{
-									m_Dummy_hooked = true;
+									m_DummyHooked = true;
 									Hook(0);
 								}
 						}
 
-						if(!m_Dummy_moved_left)
+						if(!m_DummyMovedLeft)
 						{
 							if(GetPos().x > 419 * 32 + 20)
 								Left();
@@ -768,7 +768,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 							if(Server()->Tick() % 200 == 0)
 							{
-								m_Dummy_moved_left = true;
+								m_DummyMovedLeft = true;
 								StopMoving();
 							}
 						}
@@ -842,7 +842,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					if((pChr->GetPos().x + 10 < GetPos().x && pChr->GetPos().y > 211 * 32 && pChr->GetPos().x < 418 * 32) || (pChr->m_FreezeTime > 0 && pChr->GetPos().y > 210 * 32 && pChr->GetPos().x < GetPos().x && pChr->GetPos().x > 417 * 32 - 60)) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
 					{ // oder wenn der spieler weiter weg liegt aber freeze is
 
-						if(!m_Dummy_left_freeze_full) //wenn da niemand is schieb den rein
+						if(!m_DummyLeftFreezeFull) //wenn da niemand is schieb den rein
 						{
 							// HIER TESTY TESTY CHANGES  211 * 32 + 40 stand hier
 							if(pChr->GetPos().y > 211 * 32 + 40) // wenn der gegner wirklich ganz tief genung is
@@ -1002,11 +1002,11 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					//positions check and correction 427
 
-					m_Dummy_jumped = false;
-					m_Dummy_hooked = false;
-					m_Dummy_moved_left = false;
+					m_DummyJumped = false;
+					m_DummyHooked = false;
+					m_DummyMovedLeft = false;
 
-					if(GetPos().x > 428 * 32 + 15 && m_Dummy_ruled) //wenn viel zu weit ausserhalb der ruler area wo der bot nur hingehookt werden kann
+					if(GetPos().x > 428 * 32 + 15 && m_DummyRuled) //wenn viel zu weit ausserhalb der ruler area wo der bot nur hingehookt werden kann
 					{
 						Jump();
 						Hook();
@@ -1025,8 +1025,8 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					}
 					else // im toleranz bereich -> stehen bleiben
 					{
-						m_Dummy_happy = true;
-						m_Dummy_ruled = true;
+						m_DummyHappy = true;
+						m_DummyRuled = true;
 						StopMoving();
 						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "toleranz bereich");
 						//m_Input.m_LatestTargetX = 0;
@@ -1042,7 +1042,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 							//Check ob special_defend aktiviert werden sollte
 							if(pChr->GetPos().x < 431 * 32 && pChr->GetVel().y < -12.5f && pChr->GetVel().x < -7.4f)
 							{
-								m_Dummy_special_defend = true;
+								m_DummySpecialDefend = true;
 							}
 
 							//debuggn special_defend
@@ -1070,7 +1070,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									if(GetPos().x < 428 * 32 + 10) //bei (429 * 32) gibts voll jiggle xD
 									{
 										Right(); //schieb ihn runter
-										m_Dummy_pushing = true;
+										m_DummyPushing = true;
 									}
 									else
 									{
@@ -1090,7 +1090,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 								//}
 
-								if(!m_Dummy_emergency) //wayblock stuff hook ja nein pipapo nicht im notfall
+								if(!m_DummyEmergency) //wayblock stuff hook ja nein pipapo nicht im notfall
 								{
 									CCharacter *pChrRulerWB = GameServer()->m_World.ClosestCharTypeRulerWB(GetPos(), true, m_pCharacter); //wenn jemand oben is (nur im wb bereich)
 									if(pChrRulerWB && pChrRulerWB->IsAlive())
@@ -1107,13 +1107,13 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 											Hook(0);
 											Hook();
-											m_Dummy_wb_hooked = true;
+											m_DummyWbHooked = true;
 											if(Server()->Tick() % 30 == 0) //nicht zu hart spammen wenn iwas abgeht
 											{
 												GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
-												m_Dummy_bored_counter++; //zähl mal mit wie lange der bot hier rum gurkt und wieviele spieler er so wayblockt
+												m_DummyBoredCounter++; //zähl mal mit wie lange der bot hier rum gurkt und wieviele spieler er so wayblockt
 												char aBuf[256];
-												str_format(aBuf, sizeof(aBuf), "dummy_bored_count: %d", m_Dummy_bored_counter);
+												str_format(aBuf, sizeof(aBuf), "dummy_bored_count: %d", m_DummyBoredCounter);
 												GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 											}
 										}
@@ -1127,7 +1127,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									}
 								}
 								//unnötiges festgehalte unten verhindern
-								if(!m_Dummy_emergency) //auch hier wieder nur wenn kein notfall is
+								if(!m_DummyEmergency) //auch hier wieder nur wenn kein notfall is
 								{
 									// CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), true, m_pCharacter);
 									if(pChr && pChr->IsAlive())
@@ -1261,7 +1261,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		//wenn kein notfall is und der bot glücklich mit seiner position ist
 		//dann sollte er auch nicht springen und somit irgendwie spielern helfen die er gerade hookt
 
-		if(!m_Dummy_emergency && m_Dummy_happy)
+		if(!m_DummyEmergency && m_DummyHappy)
 		{
 			Jump(0);
 		}
@@ -1275,6 +1275,6 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		StopMoving();
 		Fire(0);
 
-		m_Dummy_mode18 = 0;
+		m_DummyMode18 = 0;
 	}
 }

@@ -33,7 +33,7 @@ bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
 		//quests (before unfreeze to have information about the tee was being frozzn)
 		QuestHitCharacter(pHit, pOwnerChar);
 
-		if(pOwnerChar->GetPlayer()->m_IsInstaMode_fng)
+		if(pOwnerChar->GetPlayer()->m_IsInstaModeFng)
 		{
 			if(g_Config.m_SvOnFireMode == 1 && pHit->m_FreezeTime == 0)
 			{

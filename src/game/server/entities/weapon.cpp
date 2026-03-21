@@ -133,13 +133,13 @@ void CWeapon::Pickup()
 		if((m_Jetpack || m_SpreadGun) && !pChar->GetWeaponGot(WEAPON_GUN))
 			return;
 
-		if(m_SpreadGun && m_Jetpack && pChar->Core()->m_Jetpack && (pChar->m_autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
+		if(m_SpreadGun && m_Jetpack && pChar->Core()->m_Jetpack && (pChar->m_Autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
 			return;
 
 		if(!m_SpreadGun && m_Jetpack && pChar->Core()->m_Jetpack)
 			return;
 
-		if(!m_Jetpack && m_SpreadGun && (pChar->m_autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
+		if(!m_Jetpack && m_SpreadGun && (pChar->m_Autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
 			return;
 
 		if(m_Type == WEAPON_LASER)
@@ -156,9 +156,9 @@ void CWeapon::Pickup()
 		if((m_Bullets != -1) && !pChar->GetPlayer()->m_IsSurvivaling)
 			pChar->m_aDecreaseAmmo[m_Type] = true;
 
-		if(m_SpreadGun && (!pChar->m_autospreadgun && !pChar->GetPlayer()->m_InfAutoSpreadGun))
+		if(m_SpreadGun && (!pChar->m_Autospreadgun && !pChar->GetPlayer()->m_InfAutoSpreadGun))
 		{
-			pChar->m_autospreadgun = true;
+			pChar->m_Autospreadgun = true;
 			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCid(), "You have a spread gun");
 		}
 		if(m_Jetpack && !pChar->Core()->m_Jetpack)

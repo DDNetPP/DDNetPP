@@ -2,8 +2,6 @@
 
 #ifndef IN_CLASS_GAMECONTEXT
 #include "ddpp/dummymode.h"
-#include "drop_pickup.h"
-#include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
 #include "minigames/bomb.h"
@@ -13,10 +11,11 @@
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
 #include "minigames/tdm_block.h"
-#include "weapon.h"
 
 #include <engine/antibot.h>
+#include <engine/console.h>
 #include <engine/http.h>
+#include <engine/server.h>
 #include <engine/shared/ddnetpp/lua_controller.h>
 
 #include <generated/protocol.h>
@@ -27,13 +26,13 @@
 #include <game/server/ddpp/letters.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
+#include <game/server/minigames/balance.h>
 #include <game/server/save.h>
 #include <game/server/twbl/callback_ctx.h>
 
 #include <server/ddnet_callback_ctx.h>
 
 #include <atomic>
-#include <deque>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -70,15 +69,15 @@ public:
 	// true if the server detected reconnect spam that is flooding the chat
 	// It then tries to silence all spamming/automated reconnects
 	// while still printing the join and leave messages of real players
-	bool ReconnectFlood() { return m_IsReconnectFloodDetected; }
+	bool ReconnectFlood() const { return m_IsReconnectFloodDetected; }
 
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
 	void ConstructDDPP(int Resetting);
 
-	virtual void LogoutAllPlayers() override;
-	virtual void OnStartBlockTournament() override;
+	void LogoutAllPlayers() override;
+	void OnStartBlockTournament() override;
 	//virtual void OnDDPPshutdown();
 
 	class CAccounts *Accounts() { return m_pAccounts; }
@@ -205,9 +204,8 @@ public:
 	void WriteWrongLoginJson(int ClientId, const char *pName, const char *pPassword);
 	//Instagib Survival
 	void WinInsta1on1(int WinnerId, int LooserId);
-	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);
-	int m_insta_survival_gamestate; //0=prepearing 1=running 2=deathmatch
-	int m_insta_survival_delay;
+	bool CanJoinInstaArena(bool Grenade, bool PrivateMatch);
+	int m_InstaSurvivalGamestate; //0=prepearing 1=running 2=deathmatch
 	int GetNextClientId();
 
 	// dummy
@@ -243,7 +241,7 @@ public:
 	CPlayer *GetPlayerByUniqueId(uint32_t UniqueClientId) const;
 
 	// deprecated use IsMinigaming() instead
-	int IsMinigame(int playerId);
+	int IsMinigame(int PlayerId);
 
 	// also returns true for jail
 	bool IsMinigaming(int ClientId);
@@ -265,7 +263,7 @@ public:
 	int CountIngameHumans();
 	int CountConnectedBots();
 	int CountTimeoutCodePlayers();
-	bool IsServerEmpty() { return m_IsServerEmpty; }
+	bool IsServerEmpty() const { return m_IsServerEmpty; }
 	void CheckServerEmpty();
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
@@ -303,7 +301,7 @@ public:
 	CLetters *m_pLetters;
 
 	// sql
-	void SQLaccount(int mode, int ClientId, const char *pUsername, const char *pPassword = "");
+	void SQLaccount(int Mode, int ClientId, const char *pUsername, const char *pPassword = "");
 	void SQLcleanZombieAccounts(int ClientId);
 
 	// is set to time_get() when sv_accounts was attempted to be set to 1
@@ -347,7 +345,7 @@ public:
 	void ShowDDPPStats(int RequestingId, int RequestedId);
 	void LeaveInstagib(int Id);
 	void SendChatInsta(const char *pMsg, int Weapon);
-	void DoInstaScore(int score, int ClientId);
+	void DoInstaScore(int Score, int ClientId);
 	void CheckInstaWin(int ClientId);
 	void InstaGrenadeRoundEndTick(int ClientId);
 	int m_InstaGrenadeRoundEndTickTicker;
@@ -390,12 +388,12 @@ public:
 	bool m_IsDebug;
 
 	// double moneytile announcement
-	bool MoneyDoubleEnoughPlayers;
+	bool m_MoneyDoubleEnoughPlayers;
 
 	//ddpp init
-	float m_FNN_best_distance;
-	float m_FNN_best_fitness;
-	float m_FNN_best_distance_finish;
+	float m_FnnBestDistance;
+	float m_FnnBestFitness;
+	float m_FnnBestDistanceFinish;
 	void LoadFNNvalues();
 
 	// currently using the default ddnet context shipped by twbl
@@ -423,7 +421,7 @@ public:
 
 	struct CBinaryStorage
 	{
-		int x, space1, space2; // wtf? xd
+		int x, m_Space1, m_Space2; // wtf? xd
 	};
 
 	// TODO: make this a own class
@@ -509,12 +507,12 @@ public:
 		4	SURVIVAL_DM
 		should only be set by SurvivalSetGameState()
 	*/
-	int m_survivalgamestate;
-	int m_survivallobbycountdown;
-	int m_survival_dm_countdown;
-	int m_survival_game_countdown;
-	int m_survival_start_players;
-	int m_survival_spawn_counter;
+	int m_Survivalgamestate;
+	int m_Survivallobbycountdown;
+	int m_SurvivalDmCountdown;
+	int m_SurvivalGameCountdown;
+	int m_SurvivalStartPlayers;
+	int m_SurvivalSpawnCounter;
 	char m_aLastSurvivalWinnerName[32];
 	enum
 	{
@@ -523,7 +521,9 @@ public:
 		SURVIVAL_INGAME, // gamestate	playerstate
 		SURVIVAL_DM_COUNTDOWN, // gamestate
 		SURVIVAL_DM, // gamestate
-
+	};
+	enum
+	{
 		SURVIVAL_DIE = 3 // playerstate
 	};
 
@@ -598,7 +598,7 @@ public:
 
 	int m_BombFinalColor;
 	int m_BombColor;
-	bool m_bwff; // black white flip flip
+	bool m_Bwff; // black white flip flip
 
 	// drop pickups
 	std::vector<std::vector<CDropPickup *>> m_vDropLimit;
@@ -648,8 +648,7 @@ public:
 	//int TestShareValue;
 	int m_CucumberShareValue;
 
-	char aBroadcastMSG[128];
-	int m_iBroadcastDelay;
+	int m_IBroadcastDelay;
 
 	struct CJail // probably doesn't belong here, but whatever
 	{
@@ -806,7 +805,7 @@ public:
 	void SetIpJailed(int ClientId);
 	bool CheckIpJailed(int ClientId);
 
-	virtual void IncrementWrongRconAttempts() override;
+	void IncrementWrongRconAttempts() override;
 
 private:
 	bool InitTileDDPP(int Index, int x, int y);
@@ -1039,7 +1038,7 @@ private:
 	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
 
 	//SQL
-	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlAdd(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRunTest(IConsole::IResult *pResult, void *pUserData);
 	static void ConDeferCommand(IConsole::IResult *pResult, void *pUserData);
@@ -1060,7 +1059,7 @@ private:
 	static void ConSqlName(IConsole::IResult *pResult, void *pUserData);
 	static void ConSqlLogout(IConsole::IResult *pResult, void *pUserData);
 	static void ConSqlLogoutAll(IConsole::IResult *pResult, void *pUserData);
-	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
+	static void ConAccInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
 	static void ConAscii(IConsole::IResult *pResult, void *pUserData);

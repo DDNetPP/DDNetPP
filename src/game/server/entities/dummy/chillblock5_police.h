@@ -7,19 +7,19 @@ class CDummyChillBlock5Police : public CDummyBase
 {
 public:
 	CDummyChillBlock5Police(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual void OnDeath() override;
-	virtual ~CDummyChillBlock5Police() {}
+	void OnTick() override;
+	void OnDeath() override;
+	~CDummyChillBlock5Police() override = default;
 	const char *ModeStr() override { return "ChillBlock5 Police"; }
 
 private:
-	bool m_Dummy_GotStuck;
-	bool m_Dummy_GetSpeed;
-	bool m_Dummy_SpawnAnimation;
-	bool m_Dummy_ClosestPolice;
-	int m_Dummy_SpawnAnimation_delay;
-	int m_Dummy_dmm31;
-	int m_Dummy_AttackMode;
+	bool m_DummyGotStuck;
+	bool m_DummyGetSpeed;
+	bool m_DummySpawnAnimation;
+	bool m_DummyClosestPolice;
+	int m_DummySpawnAnimationDelay;
+	int m_DummyDmm31;
+	int m_DummyAttackMode;
 };
 
 #endif

@@ -46,9 +46,9 @@ bool CGameContext::AbortTeamChange(int ClientId, CPlayer *pPlayer)
 
 bool CGameContext::AbortKill(int ClientId, CPlayer *pPlayer, CCharacter *pChr)
 {
-	if(m_InstaGrenadeRoundEndTickTicker && m_apPlayers[ClientId]->m_IsInstaArena_gdm)
+	if(m_InstaGrenadeRoundEndTickTicker && m_apPlayers[ClientId]->m_IsInstaArenaGdm)
 		return true; //yy evil silent return
-	if(m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientId]->m_IsInstaArena_idm)
+	if(m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientId]->m_IsInstaArenaIdm)
 		return true; //yy evil silent return
 
 	for(auto &Minigame : m_vMinigames)
@@ -84,7 +84,7 @@ bool CGameContext::AbortKill(int ClientId, CPlayer *pPlayer, CCharacter *pChr)
 		}
 		//else == off
 	}
-	if(m_apPlayers[ClientId]->m_IsInstaArena_fng && pChr->m_FreezeTime)
+	if(m_apPlayers[ClientId]->m_IsInstaArenaFng && pChr->m_FreezeTime)
 	{
 		SendChatTarget(ClientId, "[INSTA] You can't suicide in fng games while being frozen.");
 		return true;
