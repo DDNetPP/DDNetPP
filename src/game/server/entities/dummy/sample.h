@@ -7,8 +7,8 @@ class CDummySample : public CDummyBase
 {
 public:
 	CDummySample(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual ~CDummySample() {}
+	void OnTick() override;
+	~CDummySample() override = default;
 	const char *ModeStr() override { return "Sample"; }
 };
 

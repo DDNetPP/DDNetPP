@@ -226,7 +226,7 @@ public:
 
 	// DDNet++
 
-	virtual void PrintDDPPLogs(int type) override;
+	void PrintDDPPLogs(int Type) override;
 };
 
 #endif

@@ -1,28 +1,6 @@
 // This file can be included several times.
 
 #ifndef IN_CLASS_CHARACTER
-#include "drop_pickup.h"
-#include "dummy/adventure.h"
-#include "dummy/blmapchill_police.h"
-#include "dummy/blmapv3_arena.h"
-#include "dummy/blmapv5_lower_blocker.h"
-#include "dummy/blmapv5_upper_blocker.h"
-#include "dummy/blockwave.h"
-#include "dummy/chillblock5_balance.h"
-#include "dummy/chillblock5_blocker.h"
-#include "dummy/chillblock5_blocker_tryhard.h"
-#include "dummy/chillblock5_police.h"
-#include "dummy/chillblock5_race.h"
-#include "dummy/ctf5_pvp.h"
-#include "dummy/fnn.h"
-#include "dummy/grenade_fng.h"
-#include "dummy/quest.h"
-#include "dummy/rifle_fng.h"
-#include "dummy/sample.h"
-#include "dummy/shopbot.h"
-#include "dummy/survival.h"
-#include "weapon.h"
-
 #include <engine/antibot.h>
 
 #include <generated/protocol.h>
@@ -42,7 +20,7 @@ class CCharacter : public CEntity
 	friend class IGameController;
 
 public:
-	~CCharacter();
+	~CCharacter() override;
 
 private:
 	// hooks
@@ -102,8 +80,8 @@ public:
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); }
-	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon dupe of CEntitiy::GetPos() ??
-	vec2 GetVel() { return m_Core.m_Vel; }
+	vec2 GetPosition() const { return m_Core.m_Pos; } //proudly mede by ChillerDragon dupe of CEntitiy::GetPos() ??
+	vec2 GetVel() const { return m_Core.m_Vel; }
 	void SetHealth(int Health) { m_Health = Health; }
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
 	bool m_OnFire;
@@ -136,7 +114,7 @@ public:
 	void CIRestart();
 	int CIGetDestDist() const;
 
-	int m_ci_freezetime;
+	int m_CiFreezetime;
 
 	//Block
 	int BlockPointsMain(int Killer, int &Weapon, bool FngScore = false);
@@ -330,7 +308,7 @@ public:
 
 	CNetObj_PlayerInput *Input() { return &m_Input; }
 	void Fire(bool Fire = true);
-	int GetReloadTimer() { return m_ReloadTimer; }
+	int GetReloadTimer() const { return m_ReloadTimer; }
 	void MineTeeBreakBlock();
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -389,5 +367,5 @@ public:
 
 private:
 #ifndef IN_CLASS_CHARACTER
-}
+};
 #endif

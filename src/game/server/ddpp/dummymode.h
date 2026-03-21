@@ -29,7 +29,7 @@ enum EDummyMode
 
 	DUMMYMODE_TWBL_START = 106, // define your twbl mode below
 	DUMMYMODE_TWBL_TEST = 107,
-	DUMMYMODE_TWBL_END, // define your twbl mode above
+	DUMMYMODE_TWBL_END = 108, // define your twbl mode above
 
 };
 

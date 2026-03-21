@@ -24,27 +24,27 @@ CDummyChillBlock5Race::CDummyChillBlock5Race(class CPlayer *pPlayer) :
 
 void CDummyChillBlock5Race::OnDeath()
 {
-	m_Dummy_help_m8_before_hf_hook = 0;
-	m_Dummy_help_emergency = false;
-	m_Dummy_help_no_emergency = false;
-	m_Dummy_hook_mate_after_hammer = false;
-	m_Dummy_help_before_fly = false;
-	m_Dummy_2p_panic_while_helping = false;
-	m_Dummy_panic_balance = false;
-	m_Dummy_mate_failed = false;
-	m_Dummy_hh_hook = false;
-	m_Dummy_collected_weapons = false;
-	m_Dummy_mate_collected_weapons = false;
-	m_Dummy_rjumped2 = false;
-	m_Dummy_dd_helphook = false;
-	m_Dummy_2p_hook = false;
-	m_Dummy_2p_state = 0;
-	m_Dummy_mode23 = 0;
-	m_Dummy_nothing_happens_counter = 0;
-	m_Dummy_panic_weapon = 0;
-	m_Dummy_sent_chat_msg = 0;
-	m_Dummy_mate_help_mode = 0;
-	m_Dummy_movement_mode23 = 0;
+	m_DummyHelpM8BeforeHfHook = 0;
+	m_DummyHelpEmergency = false;
+	m_DummyHelpNoEmergency = false;
+	m_DummyHookMateAfterHammer = false;
+	m_DummyHelpBeforeFly = false;
+	m_Dummy2pPanicWhileHelping = false;
+	m_DummyPanicBalance = false;
+	m_DummyMateFailed = false;
+	m_DummyHhHook = false;
+	m_DummyCollectedWeapons = false;
+	m_DummyMateCollectedWeapons = false;
+	m_DummyRjumped2 = false;
+	m_DummyDdHelphook = false;
+	m_Dummy2pHook = false;
+	m_Dummy2pState = 0;
+	m_DummyMode23 = 0;
+	m_DummyNothingHappensCounter = 0;
+	m_DummyPanicWeapon = 0;
+	m_DummySentChatMsg = 0;
+	m_DummyMateHelpMode = 0;
+	m_DummyMovementMode23 = 0;
 	m_DummyFreezed = false;
 	m_EmoteTickNext = 0;
 }
@@ -68,7 +68,7 @@ void CDummyChillBlock5Race::OnTick()
 
 	if(Server()->Tick() % 50 == 0)
 	{
-		m_Dummy_mode23 = 0;
+		m_DummyMode23 = 0;
 		CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), true, m_pCharacter);
 		if(pChr && pChr->IsAlive())
 		{
@@ -95,11 +95,11 @@ void CDummyChillBlock5Race::OnTick()
 				//!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "fokkonaut") ||
 				!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "pro"))
 			{
-				m_Dummy_mode23 = 2;
+				m_DummyMode23 = 2;
 			}
 			if(!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "Drag*"))
 			{
-				m_Dummy_mode23 = 1;
+				m_DummyMode23 = 1;
 			}
 		}
 	}
@@ -308,7 +308,7 @@ void CDummyChillBlock5Race::OnTick()
 		//Selfkill
 
 		//Checken ob der bot far im race ist
-		if(m_Dummy_collected_weapons && GetPos().x > 470 * 32 && GetPos().y < 200 * 32)
+		if(m_DummyCollectedWeapons && GetPos().x > 470 * 32 && GetPos().y < 200 * 32)
 		{
 			//TODO:
 			//schau wie weit der bot is wenn er weiter is als der ClosestCharTypeFarInRace bereich is schau das du rechtzeitig n anderen triggerst
@@ -400,7 +400,7 @@ void CDummyChillBlock5Race::OnTick()
 		i dunno how to set the modes for now its hardcodet set to 1 maybe add a random switcher or depending on how frustrated the bot is
 
 		*/
-		m_Dummy_movement_mode23 = 0;
+		m_DummyMovementMode23 = 0;
 
 		if(GetPos().x < 388 * 32 && GetPos().y > 213 * 32) //jump to old spawn
 		{
@@ -411,7 +411,7 @@ void CDummyChillBlock5Race::OnTick()
 			AimY(0);
 		}
 
-		if(m_Dummy_movement_mode23 == 0)
+		if(m_DummyMovementMode23 == 0)
 		{
 			if(GetPos().x < 415 * 32) //bis zum tunnel laufen
 			{
@@ -474,7 +474,7 @@ void CDummyChillBlock5Race::OnTick()
 				Jump(0);
 			}
 		}
-		else if(m_Dummy_movement_mode23 == 1) //enter ruler area with a left jump
+		else if(m_DummyMovementMode23 == 1) //enter ruler area with a left jump
 		{
 			if(GetPos().x < 415 * 32) //bis zum tunnel laufen
 			{
@@ -541,7 +541,7 @@ void CDummyChillBlock5Race::OnTick()
 
 		//TODO:
 		//aufpassen dass er das ganze nur macht wenn er nicht schon beim 2p part ist
-		if(m_Dummy_collected_weapons)
+		if(m_DummyCollectedWeapons)
 		{
 			if(GetPos().x < 466 * 32)
 			{
@@ -606,14 +606,14 @@ void CDummyChillBlock5Race::OnTick()
 			AimY(32);
 		}
 
-		if(GetPos().x < 452 * 32 && GetPos().y > 188 * 32 && GetPos().y < 192 * 32 && GetVel().y < 0.1f && m_Dummy_collected_weapons)
+		if(GetPos().x < 452 * 32 && GetPos().y > 188 * 32 && GetPos().y < 192 * 32 && GetVel().y < 0.1f && m_DummyCollectedWeapons)
 		{
-			m_Dummy_rjumped2 = true;
+			m_DummyRjumped2 = true;
 			Fire();
 		}
 
 		//Fliegen nach rj2
-		if(m_Dummy_rjumped2)
+		if(m_DummyRjumped2)
 		{
 			Right();
 
@@ -624,7 +624,7 @@ void CDummyChillBlock5Race::OnTick()
 
 			if(GetPos().x > 478 * 32 || GetPos().y > 196 * 32)
 			{
-				m_Dummy_rjumped2 = false;
+				m_DummyRjumped2 = false;
 			}
 		}
 
@@ -635,7 +635,7 @@ void CDummyChillBlock5Race::OnTick()
 		}
 		else //wenn er sie wd verliert zb durch shields
 		{
-			m_Dummy_collected_weapons = false;
+			m_DummyCollectedWeapons = false;
 		}
 
 		if(1 == 0.5 + 0.5)
@@ -645,7 +645,7 @@ void CDummyChillBlock5Race::OnTick()
 			{
 				if(pChr->GetPos().y < 165 * 32 && pChr->GetPos().x > 451 * 32 - 10 && pChr->GetPos().x < 454 * 32 + 10)
 				{
-					m_Dummy_mate_collected_weapons = true;
+					m_DummyMateCollectedWeapons = true;
 				}
 			}
 		}
@@ -679,11 +679,11 @@ void CDummyChillBlock5Race::OnTick()
 						if(m_pCharacter->GetActiveWeapon() == WEAPON_HAMMER && m_pCharacter->m_FreezeTime == 0)
 						{
 							Fire();
-							m_Dummy_hook_mate_after_hammer = true;
+							m_DummyHookMateAfterHammer = true;
 						}
 					}
 				}
-				if(m_Dummy_hook_mate_after_hammer)
+				if(m_DummyHookMateAfterHammer)
 				{
 					if(pChr->GetVel().x < -0.3f || pChr->GetVel().x > 0.3f)
 					{
@@ -691,29 +691,29 @@ void CDummyChillBlock5Race::OnTick()
 					}
 					else
 					{
-						m_Dummy_hook_mate_after_hammer = false;
+						m_DummyHookMateAfterHammer = false;
 					}
 
 					//stop this hook after some time to prevent nonstop hooking if something went wrong
 					if(Server()->Tick() % 100 == 0)
 					{
-						m_Dummy_hook_mate_after_hammer = false;
+						m_DummyHookMateAfterHammer = false;
 					}
 				}
 
 				if(IsFrozen(pChr))
 				{
-					m_Dummy_help_before_fly = true;
+					m_DummyHelpBeforeFly = true;
 				}
 				if(pChr->m_FreezeTime == 0)
 				{
-					m_Dummy_help_before_fly = false;
+					m_DummyHelpBeforeFly = false;
 				}
 			}
 
-			if(m_Dummy_help_before_fly)
+			if(m_DummyHelpBeforeFly)
 			{
-				if(!m_Dummy_collected_weapons)
+				if(!m_DummyCollectedWeapons)
 				{
 					if(Server()->Tick() % 20 == 0)
 					{
@@ -845,7 +845,7 @@ void CDummyChillBlock5Race::OnTick()
 							if(GetPos().y > 211 * 32 + 21)
 							{
 								Jump();
-								m_Dummy_help_m8_before_hf_hook = true;
+								m_DummyHelpM8BeforeHfHook = true;
 								if(m_pCharacter->GetWeaponGot(2) && m_pCharacter->m_FreezeTime == 0)
 								{
 									Fire();
@@ -854,33 +854,33 @@ void CDummyChillBlock5Race::OnTick()
 								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "jump + hook");
 							}
 
-							if(m_Dummy_help_m8_before_hf_hook)
+							if(m_DummyHelpM8BeforeHfHook)
 							{
 								Hook();
-								m_Dummy_help_m8_before_hf_hook++;
-								if(m_Dummy_help_m8_before_hf_hook > 60 && HookState() != HOOK_GRABBED)
+								m_DummyHelpM8BeforeHfHook++;
+								if(m_DummyHelpM8BeforeHfHook > 60 && HookState() != HOOK_GRABBED)
 								{
-									m_Dummy_help_m8_before_hf_hook = 0;
+									m_DummyHelpM8BeforeHfHook = 0;
 									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stopped hook");
 								}
 							}
 						}
 						else //unknown area
 						{
-							m_Dummy_help_before_fly = false;
+							m_DummyHelpBeforeFly = false;
 						}
 					}
 					else //no freezed tee found
 					{
-						m_Dummy_help_before_fly = false;
+						m_DummyHelpBeforeFly = false;
 					}
 				}
 			}
 			//else  //old else new is if because the bot can stop helping if the closestplayer is in a unknown area fail
-			if(!m_Dummy_help_before_fly)
+			if(!m_DummyHelpBeforeFly)
 			{
 				//                                 fuck off mate i go solo fggt xD
-				if(!m_Dummy_collected_weapons /*|| !m_Dummy_mate_collected_weapons*/)
+				if(!m_DummyCollectedWeapons /*|| !m_Dummy_mate_collected_weapons*/)
 				{
 					if(Server()->Tick() % 20 == 0)
 					{
@@ -893,7 +893,7 @@ void CDummyChillBlock5Race::OnTick()
 						AimPos(pChr->GetPos());
 
 						//Hammerfly normal way
-						if(m_Dummy_mode23 == 0)
+						if(m_DummyMode23 == 0)
 						{
 							//shot schiessen schissen
 							//im freeze nicht schiessen
@@ -936,7 +936,7 @@ void CDummyChillBlock5Race::OnTick()
 								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "iwas is maechtig flasch gelaufen du bob");
 							}
 						}
-						else if(m_Dummy_mode23 == 2) //Speedhammerfly for ChillerDragon
+						else if(m_DummyMode23 == 2) //Speedhammerfly for ChillerDragon
 						{
 							//lauf zu dem hin
 							//nur wenn der nächste spieler grad nach ooben fliegt oder auf der selben höhe ist
@@ -1009,22 +1009,22 @@ void CDummyChillBlock5Race::OnTick()
 			{
 				if((pChr->GetPos().y > 198 * 32 + 10 && pChr->IsGrounded()) ||
 					(pChr->GetPos().y < 198 * 32 + 10 && pChr->GetPos().x < 472 * 32 && pChr->IsGrounded()) || // recognize mates freeze in the freeze tunnel on the left
-					(m_Dummy_mate_help_mode == 3)) // yolo hook swing mode handles mate as failed until he is unfreeze
+					(m_DummyMateHelpMode == 3)) // yolo hook swing mode handles mate as failed until he is unfreeze
 				{
 					if(IsFrozen(pChr))
-						m_Dummy_mate_failed = true;
+						m_DummyMateFailed = true;
 				}
 				if(pChr->m_FreezeTime == 0)
 				{
-					m_Dummy_mate_failed = false;
-					m_Dummy_mate_help_mode = 2; // set it to something not 3 because help mode 3 cant do the part (cant play if not failed)
+					m_DummyMateFailed = false;
+					m_DummyMateHelpMode = 2; // set it to something not 3 because help mode 3 cant do the part (cant play if not failed)
 				}
 			}
 
 			//schau ob der bot den part geschafft hat und auf state -1 gehen soll
 			if(GetPos().x > 485 * 32)
 			{
-				m_Dummy_2p_state = -1; //part geschafft --> mach aus
+				m_Dummy2pState = -1; //part geschafft --> mach aus
 			}
 
 			if(GetPos().x > 466 * 32)
@@ -1036,7 +1036,7 @@ void CDummyChillBlock5Race::OnTick()
 
 					//holla
 					//if (m_Dummy_collected_weapons && m_pCharacter->m_FreezeTime == 0 && GetPos().x > 478 * 32 && GetPos().x < 485 * 32 && pChr->GetPos().x > 476 * 32)
-					if(m_Dummy_collected_weapons && m_pCharacter->m_FreezeTime == 0 && GetPos().x > 478 * 32 && GetPos().x < 492 * 32 + 10 && pChr->GetPos().x > 476 * 32) //new testy
+					if(m_DummyCollectedWeapons && m_pCharacter->m_FreezeTime == 0 && GetPos().x > 478 * 32 && GetPos().x < 492 * 32 + 10 && pChr->GetPos().x > 476 * 32) //new testy
 					{
 						//New direct in state
 						//if (m_Dummy_2p_state == 1)
@@ -1051,13 +1051,13 @@ void CDummyChillBlock5Race::OnTick()
 
 						if(pChr->GetPos().y > 198 * 32) //wenn pChr iwiw runter gefallen is dann mach den hook weg
 						{
-							m_Dummy_2p_hook = false;
+							m_Dummy2pHook = false;
 						}
 
 						//STRUCT[1]: Check if bot should change m_Dummy_2p_state
-						if(GetPos().x < 477 * 32 || m_Dummy_mate_failed) //TODO: add if pChr wants to make the part
+						if(GetPos().x < 477 * 32 || m_DummyMateFailed) //TODO: add if pChr wants to make the part
 						{
-							m_Dummy_2p_state = -1;
+							m_Dummy2pState = -1;
 						}
 						//                                                                                     || neu resette wenn der spieler kurz von der platform springt
 						// NEW: added the bool to not start doing the part while helping
@@ -1065,76 +1065,76 @@ void CDummyChillBlock5Race::OnTick()
 						{
 							if(pChr->m_FreezeTime == 0 && m_pCharacter->m_FreezeTime == 0) //wenn beide unfreeze sind zeih auf
 							{
-								m_Dummy_2p_state = 0;
+								m_Dummy2pState = 0;
 								//m_Dummy_2p_hook = false;
 								//m_Dummy_2p_hook_grabbed = false;
 							}
 							//																								// NEW testy || stuff
 							if((GetPos().x > pChr->GetPos().x && pChr->GetPos().y == GetPos().y && GetPos().x > 481 * 32) || (pChr->GetPos().x > 476 * 32 - 10 && GetPos().x > pChr->GetPos().x && pChr->GetPos().y > 191 * 32 - 10 && GetPos().x < 482 * 32 + 10))
 							{
-								m_Dummy_2p_state = 1; //starting to do the part->walking left and hammerin'
-								if(Server()->Tick() % 30 == 0 && m_Dummy_nothing_happens_counter == 0)
+								m_Dummy2pState = 1; //starting to do the part->walking left and hammerin'
+								if(Server()->Tick() % 30 == 0 && m_DummyNothingHappensCounter == 0)
 								{
 									SetWeapon(0);
 								}
 								//m_Dummy_2p_hammer1 = false;
 							}
 							//                                                                                 NEW TESTY || stuff     wenn der schonmal ausgelöst wurde bleib da bis der nexte ausgelöst wird oder pChr runter füllt
-							if((m_Dummy_2p_state == 1 && pChr->GetVel().y > 0.5f && pChr->GetPos().x < 479 * 32) || m_Dummy_2p_hook)
+							if((m_Dummy2pState == 1 && pChr->GetVel().y > 0.5f && pChr->GetPos().x < 479 * 32) || m_Dummy2pHook)
 							{
-								m_Dummy_2p_state = 2; //keep going doing the part->hookin' and walking to the right
-								m_Dummy_2p_hook = true;
+								m_Dummy2pState = 2; //keep going doing the part->hookin' and walking to the right
+								m_Dummy2pHook = true;
 								/*						if (HookState() == HOOK_GRABBED)
 								{
 								m_Dummy_2p_hook_grabbed = true;
 								}*/
 							}
 
-							if(m_Dummy_2p_state == 2 && pChr->GetPos().x > 485 * 32 + 8)
+							if(m_Dummy2pState == 2 && pChr->GetPos().x > 485 * 32 + 8)
 							{
-								m_Dummy_2p_state = 3; //final stage of doing the part->jumpin' and unfreeze pChr with hammerhit
+								m_Dummy2pState = 3; //final stage of doing the part->jumpin' and unfreeze pChr with hammerhit
 							}
 
 							//           NICHT NACH FREEZE ABRAGEN damit der bot auch ins freeze springt wenn das team fail ist und dann selfkill macht
 							if(pChr->GetPos().x > 489 * 32 || (pChr->GetPos().x > 486 * 32 && pChr->GetPos().y < 186 * 32)) //Wenn grad gehammert und der tee weit genugn is spring rein
 							{
-								m_Dummy_2p_state = 4;
+								m_Dummy2pState = 4;
 							}
 
 							if(pChr->GetPos().y < 191 * 32 && pChr->GetPos().x < 486 * 32) //resette auf state=0 wenn pChr springt
 							{
 								//TODO:
 								//das auch mal aus machen auch wenn nichts abbricht
-								m_Dummy_2p_hook = false;
+								m_Dummy2pHook = false;
 							}
 
 							//testy set the bot to mode -1 if mate fails
-							if(m_Dummy_mate_failed)
+							if(m_DummyMateFailed)
 							{
-								m_Dummy_2p_state = -1;
+								m_Dummy2pState = -1;
 							}
 						}
 
 						//state=? 5 //extern weil der bot woanders is
 						if(m_pCharacter->m_FreezeTime == 0 && GetPos().x > 485 * 32 && pChr->GetPos().x < 485 * 32) //wenn der bot rechts und unfreeze is und der mate noch links
 						{
-							m_Dummy_2p_state = 5;
+							m_Dummy2pState = 5;
 							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "set state 5");
 						}
 
 						if(m_pCharacter->m_FreezeTime == 0 && GetPos().x > 490 * 32 && pChr->m_FreezeTime > 0)
 						{
-							m_Dummy_2p_state = 6;
+							m_Dummy2pState = 6;
 						}
 
 						//STRUCT[2]: Let the bot do stuff depenging on m_Dummy_2p_state
 
-						if(m_Dummy_2p_state == 0) //prepare doing the part (getting right pos)
+						if(m_Dummy2pState == 0) //prepare doing the part (getting right pos)
 						{
 							Right(); //walking right until state 1 gets triggered
 							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [1]");
 						}
-						else if(m_Dummy_2p_state == 1) //starting to do the part -> walking left and hammerin'
+						else if(m_Dummy2pState == 1) //starting to do the part -> walking left and hammerin'
 						{
 							if(GetPos().x > 480 * 32 - 15) //lauf nach links bis zur hammer pos
 							{
@@ -1153,7 +1153,7 @@ void CDummyChillBlock5Race::OnTick()
 								Hook();
 							}
 						}
-						else if(m_Dummy_2p_state == 2) //keep going doing the part->hookin' and walking to the right
+						else if(m_Dummy2pState == 2) //keep going doing the part->hookin' and walking to the right
 						{
 							if(pChr->GetPos().y > 194 * 32 + 10)
 								Hook();
@@ -1162,7 +1162,7 @@ void CDummyChillBlock5Race::OnTick()
 								Right();
 							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [2]");
 						}
-						else if(m_Dummy_2p_state == 3) //final stage of doing the part->jumpin' and unfreeze pChr with hammerhit
+						else if(m_Dummy2pState == 3) //final stage of doing the part->jumpin' and unfreeze pChr with hammerhit
 						{
 							if(Server()->Tick() % 30 == 0)
 							{
@@ -1199,7 +1199,7 @@ void CDummyChillBlock5Race::OnTick()
 					}
 
 					//Mega externen stuff is der state4 weil der ausm gültigeitsbereich (platform) raus läuft und so der is halt was beonders deswegen steht der an einer besonder verwirrenden stelle -.-
-					if(!m_Dummy_mate_failed && m_Dummy_2p_state == 4) //PART geschafft! spring ins freeze
+					if(!m_DummyMateFailed && m_Dummy2pState == 4) //PART geschafft! spring ins freeze
 					{
 						//Shotgun boost xD
 						SetWeapon(2);
@@ -1239,11 +1239,11 @@ void CDummyChillBlock5Race::OnTick()
 						}
 					}
 
-					if(!m_Dummy_mate_failed && m_Dummy_2p_state == 5) //made the part --> help mate
+					if(!m_DummyMateFailed && m_Dummy2pState == 5) //made the part --> help mate
 					{
 						if(pChr->m_FreezeTime == 0 && pChr->GetPos().x > 485 * 32)
 						{
-							m_Dummy_2p_state = -1;
+							m_Dummy2pState = -1;
 						}
 
 						if(Jumped() > 1) //double jumped
@@ -1282,13 +1282,13 @@ void CDummyChillBlock5Race::OnTick()
 					}
 					//else if (m_Dummy_2p_state == -2) //auch extern weil der dummy vlt mal von der platform springt zum helfen
 					//if (m_Dummy_mate_failed && m_Dummy_2p_state < 1)    <--- added m_Dummy_mate_failed to the state checks
-					if(m_Dummy_mate_failed)
+					if(m_DummyMateFailed)
 					{
 						//The bot could fall of the plattform and hurt but this var helps to activate and accident
 						//sometimes the special stage causes a jump on purpose and the var gets true so no emergency can be called
 						//to make this possible again reset this var every tick here
 						//m_Dummy_help_no_emergency is used to allow the emergency help
-						m_Dummy_help_no_emergency = false;
+						m_DummyHelpNoEmergency = false;
 
 						if(Server()->Tick() % 20 == 0)
 						{
@@ -1325,7 +1325,7 @@ void CDummyChillBlock5Race::OnTick()
 
 						//Get mate with shotgun in right position:
 						//if (pChr->GetPos().x < 479 * 32 + 6) //if the mate is left enough to get shotgunned from the edge
-						if(pChr->GetPos().x < 478 * 32 && (m_Dummy_mate_help_mode != 3)) // if currently in yolo fly save mode -> goto else branch to keep yolo flying
+						if(pChr->GetPos().x < 478 * 32 && (m_DummyMateHelpMode != 3)) // if currently in yolo fly save mode -> goto else branch to keep yolo flying
 						{
 							if(Server()->Tick() % 30 == 0)
 							{
@@ -1339,7 +1339,7 @@ void CDummyChillBlock5Race::OnTick()
 						}
 						else //if right enough to stop sg
 						{
-							if(pChr->GetPos().x < 479 * 32 && (m_Dummy_mate_help_mode != 3))
+							if(pChr->GetPos().x < 479 * 32 && (m_DummyMateHelpMode != 3))
 							{
 								if(pChr->GetPos().y > 194 * 32)
 								{
@@ -1351,8 +1351,8 @@ void CDummyChillBlock5Race::OnTick()
 									if(Server()->Tick() % 90 == 0 && pChr->GetVel().y == 0.000000f) //if the bot should hook but the mate lays on the ground --> reset hook
 									{
 										Hook(0);
-										m_Dummy_nothing_happens_counter++;
-										if(m_Dummy_nothing_happens_counter > 2)
+										m_DummyNothingHappensCounter++;
+										if(m_DummyNothingHappensCounter > 2)
 										{
 											if(GetPos().x > 478 * 32 - 1 && Jumped() == 0)
 											{
@@ -1360,23 +1360,23 @@ void CDummyChillBlock5Race::OnTick()
 											}
 											AimX(GetTargetX() - 5);
 										}
-										if(m_Dummy_nothing_happens_counter > 4) //warning long time nothing happened! do crazy stuff
+										if(m_DummyNothingHappensCounter > 4) //warning long time nothing happened! do crazy stuff
 										{
 											if(m_pCharacter->m_FreezeTime == 0)
 											{
 												Fire();
 											}
 										}
-										if(m_Dummy_nothing_happens_counter > 5) //high warning mate could get bored --> switch through all weapons and move angel back
+										if(m_DummyNothingHappensCounter > 5) //high warning mate could get bored --> switch through all weapons and move angel back
 										{
-											SetWeapon(m_Dummy_panic_weapon);
-											m_Dummy_panic_weapon++;
+											SetWeapon(m_DummyPanicWeapon);
+											m_DummyPanicWeapon++;
 											AimX(GetTargetX() + 1);
 										}
 									}
 									if(pChr->GetVel().y != 0.000000f)
 									{
-										m_Dummy_nothing_happens_counter = 0;
+										m_DummyNothingHappensCounter = 0;
 									}
 								}
 							}
@@ -1388,7 +1388,7 @@ void CDummyChillBlock5Race::OnTick()
 								}
 								if(m_pCharacter->GetActiveWeapon() == WEAPON_SHOTGUN && m_pCharacter->m_FreezeTime == 0)
 								{
-									if(pChr->GetPos().y < 198 * 32 && (m_Dummy_mate_help_mode != 3)) //if mate is high enough and not in yolo hook help mode
+									if(pChr->GetPos().y < 198 * 32 && (m_DummyMateHelpMode != 3)) //if mate is high enough and not in yolo hook help mode
 									{
 										AimX(-200);
 										AimY(30);
@@ -1414,16 +1414,16 @@ void CDummyChillBlock5Race::OnTick()
 											3				2018 new yolo move with jumping in the air
 
 											*/
-											if(m_Dummy_mate_help_mode == 0) // start with good mode and increase chance of using it in the rand 0-3 range
+											if(m_DummyMateHelpMode == 0) // start with good mode and increase chance of using it in the rand 0-3 range
 											{
-												m_Dummy_mate_help_mode = 3;
+												m_DummyMateHelpMode = 3;
 											}
 											else if(Server()->Tick() % 400 == 0)
 											{
-												m_Dummy_mate_help_mode = rand() % 4;
+												m_DummyMateHelpMode = rand() % 4;
 											}
 
-											if(m_Dummy_mate_help_mode == 3) // 2018 new yolo move with jumping in the air
+											if(m_DummyMateHelpMode == 3) // 2018 new yolo move with jumping in the air
 											{
 												if(Jumped() < 2)
 												{
@@ -1471,7 +1471,7 @@ void CDummyChillBlock5Race::OnTick()
 													}
 												}
 											}
-											else if(m_Dummy_mate_help_mode == 2) //new (jump and wallshot the left wall)
+											else if(m_DummyMateHelpMode == 2) //new (jump and wallshot the left wall)
 											{
 												if(GetPos().y > 193 * 32 && GetVel().y == 0.000000f)
 												{
@@ -1502,20 +1502,20 @@ void CDummyChillBlock5Race::OnTick()
 													Right();
 													AimX(300);
 													AimY(-2);
-													m_Dummy_2p_panic_while_helping = true;
+													m_Dummy2pPanicWhileHelping = true;
 												}
 												if((GetPos().x > 480 * 32 && m_pCharacter->m_FreezeTime == 0) || m_pCharacter->m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
 												{
-													m_Dummy_2p_panic_while_helping = false;
+													m_Dummy2pPanicWhileHelping = false;
 												}
-												if(m_Dummy_2p_panic_while_helping)
+												if(m_Dummy2pPanicWhileHelping)
 												{
 													Right();
 													AimX(300);
 													AimY(-2);
 												}
 											}
-											else if(m_Dummy_mate_help_mode == 1) //old (shooting straight down from edge and try to wallshot)
+											else if(m_DummyMateHelpMode == 1) //old (shooting straight down from edge and try to wallshot)
 											{
 												AimX(15);
 												AimY(300);
@@ -1530,13 +1530,13 @@ void CDummyChillBlock5Race::OnTick()
 													StopMoving(); //old 1
 													AimX(300);
 													AimY(-2);
-													m_Dummy_2p_panic_while_helping = true;
+													m_Dummy2pPanicWhileHelping = true;
 												}
 												if((GetPos().x > 480 * 32 && m_pCharacter->m_FreezeTime == 0) || m_pCharacter->m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
 												{
-													m_Dummy_2p_panic_while_helping = false;
+													m_Dummy2pPanicWhileHelping = false;
 												}
-												if(m_Dummy_2p_panic_while_helping)
+												if(m_Dummy2pPanicWhileHelping)
 												{
 													if(GetPos().y < 196 * 32 - 8)
 													{
@@ -1555,7 +1555,7 @@ void CDummyChillBlock5Race::OnTick()
 										{
 											//in this stage of helping the bot jumps of the platform on purpose
 											//m_Dummy_help_no_emergency is used to prevent the an emergency because its planned
-											m_Dummy_help_no_emergency = true;
+											m_DummyHelpNoEmergency = true;
 
 											if(Server()->Tick() % 30 == 0)
 											{
@@ -1587,14 +1587,14 @@ void CDummyChillBlock5Race::OnTick()
 
 													if((pChr->GetPos().x < 486 * 32 && GetPos().y > 195 * 32 + 20) || (pChr->GetPos().x < 486 * 32 && GetPos().x < 477 * 32)) //if mate is in range add a hook
 													{
-														m_Dummy_dd_helphook = true;
+														m_DummyDdHelphook = true;
 													}
 													if(GetPos().x > 479 * 32)
 													{
-														m_Dummy_dd_helphook = false;
+														m_DummyDdHelphook = false;
 													}
 
-													if(m_Dummy_dd_helphook)
+													if(m_DummyDdHelphook)
 													{
 														Hook();
 													}
@@ -1612,7 +1612,7 @@ void CDummyChillBlock5Race::OnTick()
 							if(dist < 11 * 32)
 							{
 								Hook();
-								m_Dummy_mate_help_mode = 3;
+								m_DummyMateHelpMode = 3;
 								if(Server()->Tick() % 100 == 0) // reset hook to not get stuck
 								{
 									Hook(0);
@@ -1634,7 +1634,7 @@ void CDummyChillBlock5Race::OnTick()
 						}
 
 						//do something if nothing happens cuz the bot is stuck somehow
-						if(Server()->Tick() % 100 == 0 && pChr->GetVel().y == 0.000000f && m_Dummy_nothing_happens_counter == 0) //if the mate stands still after 90secs the m_Dummy_nothing_happens_countershoudl get triggered. but if not this if function turns true
+						if(Server()->Tick() % 100 == 0 && pChr->GetVel().y == 0.000000f && m_DummyNothingHappensCounter == 0) //if the mate stands still after 90secs the m_Dummy_nothing_happens_countershoudl get triggered. but if not this if function turns true
 						{
 							//[PLANNED]: this can cause an loop where nothing happens..
 							//maybe add some weapon changes or change m_Input.m_TargetX a bit
@@ -1645,17 +1645,17 @@ void CDummyChillBlock5Race::OnTick()
 
 						//Emergency takes over here if the bot got in a dangerous situation!
 						//if (GetPos().y > 196 * 32 + 30) //+25 is used for the jump help and with 30 it shouldnt get any confusuion i hope
-						if((GetPos().y > 195 * 32 && !m_Dummy_help_no_emergency)) //if the bot left the platform
+						if((GetPos().y > 195 * 32 && !m_DummyHelpNoEmergency)) //if the bot left the platform
 						{
-							m_Dummy_help_emergency = true;
+							m_DummyHelpEmergency = true;
 						}
 
 						if((GetPos().x > 479 * 32 && Jumped() == 0) || IsFrozen())
 						{
-							m_Dummy_help_emergency = false;
+							m_DummyHelpEmergency = false;
 						}
 
-						if(m_Dummy_help_emergency)
+						if(m_DummyHelpEmergency)
 						{
 							//reset all and let emergency control all xD
 							Hook(0);
@@ -1697,11 +1697,11 @@ void CDummyChillBlock5Race::OnTick()
 								Jump();
 							}
 							Right();
-							m_Dummy_help_emergency = true;
+							m_DummyHelpEmergency = true;
 						}
 					} //dummy_mate_failed end
 
-					if(m_Dummy_2p_state == 6) //extern af fuck the system
+					if(m_Dummy2pState == 6) //extern af fuck the system
 					{
 						//m_pPlayer->m_TeeInfos.m_ColorBody = (255 * 255 / 360);
 
@@ -1723,7 +1723,7 @@ void CDummyChillBlock5Race::OnTick()
 				}
 			}
 			//Hammerhit with race mate till finish
-			if(m_Dummy_mode23 == 0 || m_Dummy_mode23 == 2) //normal hammerhit
+			if(m_DummyMode23 == 0 || m_DummyMode23 == 2) //normal hammerhit
 			{
 				if(GetPos().x > 491 * 32)
 				{
@@ -1778,15 +1778,15 @@ void CDummyChillBlock5Race::OnTick()
 								//                                                                                                                                                                                oder wenn der mate unter dem bot ist und unfreeze
 								if((pChrFreeze->m_FreezeTime == 0 && pChrFreeze->GetVel().y > -1.5f && GetPos().y > pChrFreeze->GetPos().y - 15) || pChrFreeze->GetVel().y > 3.4f || (pChrFreeze->m_FreezeTime == 0 && pChrFreeze->GetPos().y + 38 > GetPos().y) || IsFrozen())
 								{
-									m_Dummy_hh_hook = false;
+									m_DummyHhHook = false;
 								}
 								//activate bool for hook if mate stands still
 								if(pChrFreeze->GetVel().y == 0.000000f /*|| pChrFreeze->GetVel().y < -4.5f*/) //wenn er am boden liegt anfangen oder wenn er zu schnell nach obenfliegt bremsen
 								{
-									m_Dummy_hh_hook = true;
+									m_DummyHhHook = true;
 								}
 
-								if(m_Dummy_hh_hook)
+								if(m_DummyHhHook)
 								{
 									Hook();
 								}
@@ -1806,7 +1806,7 @@ void CDummyChillBlock5Race::OnTick()
 							}
 							else
 							{
-								m_Dummy_hh_hook = false; //reset hook if bot is freeze
+								m_DummyHhHook = false; //reset hook if bot is freeze
 							}
 
 							//ReHook if mate flys to high
@@ -1823,7 +1823,7 @@ void CDummyChillBlock5Race::OnTick()
 							{
 								if(!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "ChillerDragon") || !str_comp(Server()->ClientName(pChr->GetPlayer()->GetCid()), "ChillerDragon.*")) //only chatflame debug while racing with ChillerDragon
 								{
-									if(m_Dummy_sent_chat_msg == 0 && !m_Dummy_panic_balance && m_pCharacter->m_FreezeTime == 0)
+									if(m_DummySentChatMsg == 0 && !m_DummyPanicBalance && m_pCharacter->m_FreezeTime == 0)
 									{
 										int r = rand() % 16; // 0-15
 
@@ -1893,18 +1893,18 @@ void CDummyChillBlock5Race::OnTick()
 										}
 
 										//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 4, -1);
-										m_Dummy_sent_chat_msg = 1;
+										m_DummySentChatMsg = 1;
 									}
 								}
 
-								m_Dummy_panic_balance = true;
+								m_DummyPanicBalance = true;
 							}
 							if(pChr->m_FreezeTime == 0 || IsFrozen() || pChr->GetPos().x > 512 * 32 + 5) //if mate gets unfreezed or dummy freezed stop balance
 							{
-								m_Dummy_panic_balance = false;
+								m_DummyPanicBalance = false;
 							}
 
-							if(m_Dummy_panic_balance)
+							if(m_DummyPanicBalance)
 							{
 								if(GetPos().x < pChr->GetPos().x - 2) //Bot is too far left
 								{
@@ -1925,7 +1925,7 @@ void CDummyChillBlock5Race::OnTick()
 							//Go in finish if near enough
 							if((GetVel().y < 4.4f && GetPos().x > 511 * 32) || (GetVel().y < 8.4f && GetPos().x > 512 * 32))
 							{
-								if(GetPos().x < 514 * 32 && !m_Dummy_panic_balance)
+								if(GetPos().x < 514 * 32 && !m_DummyPanicBalance)
 								{
 									Right();
 								}
@@ -1968,7 +1968,7 @@ void CDummyChillBlock5Race::OnTick()
 
 							//Important dont walk of finish plattform check
 							//if (GetVel().y < 6.4f) //Check if not falling to fast
-							if(!m_Dummy_panic_balance)
+							if(!m_DummyPanicBalance)
 							{
 								if((GetVel().y < 6.4f && GetPos().x > 512 * 32 && GetPos().x < 515 * 32) || (GetPos().x > 512 * 32 + 30 && GetPos().x < 515 * 32)) //left side
 								{
@@ -1984,7 +1984,7 @@ void CDummyChillBlock5Race::OnTick()
 					}
 				}
 			}
-			else if(m_Dummy_mode23 == 1) //tricky hammerhit (harder)
+			else if(m_DummyMode23 == 1) //tricky hammerhit (harder)
 			{
 				if(GetPos().x > 491 * 32)
 				{
@@ -2011,13 +2011,13 @@ void CDummyChillBlock5Race::OnTick()
 							//                                                                                              NEW: just rls hook if mate is higher than bot (to prevent both falling added new ||)
 							if(/*GetPos().y - pChr->GetPos().y > 15 ||*/ (pChr->m_FreezeTime == 0 && pChr->GetVel().y < -2.5f && pChr->GetPos().y < GetPos().y) || pChr->GetVel().y > 3.4f)
 							{
-								m_Dummy_hh_hook = false;
+								m_DummyHhHook = false;
 								//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 1, -1);
 							}
 							//activate bool for hook if mate stands still
 							if(pChr->GetVel().y == 0.000000f) //wenn er am boden liegt anfangen oder wenn er zu schnell nach obenfliegt bremsen
 							{
-								m_Dummy_hh_hook = true;
+								m_DummyHhHook = true;
 							}
 
 							//jump if too low && if mate is freeze otherwise it would be annoying af
@@ -2035,13 +2035,13 @@ void CDummyChillBlock5Race::OnTick()
 						}
 						else
 						{
-							m_Dummy_hh_hook = false; //reset hook if bot is freeze
+							m_DummyHhHook = false; //reset hook if bot is freeze
 							//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
 						}
 					}
 				}
 
-				if(m_Dummy_hh_hook)
+				if(m_DummyHhHook)
 				{
 					Hook();
 				}
@@ -2059,12 +2059,12 @@ void CDummyChillBlock5Race::OnTick()
 	//Leave THis LAST !!!
 	//chat stuff
 
-	if(m_Dummy_sent_chat_msg > 0 && m_Dummy_sent_chat_msg < 100)
+	if(m_DummySentChatMsg > 0 && m_DummySentChatMsg < 100)
 	{
-		m_Dummy_sent_chat_msg++;
+		m_DummySentChatMsg++;
 	}
 	else
 	{
-		m_Dummy_sent_chat_msg = 0;
+		m_DummySentChatMsg = 0;
 	}
 }

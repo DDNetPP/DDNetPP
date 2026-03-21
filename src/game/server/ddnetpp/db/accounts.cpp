@@ -246,9 +246,9 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN3);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN4);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN5);
-	pSqlServer->BindString(Index++, pAcc->m_aIp_1);
-	pSqlServer->BindString(Index++, pAcc->m_aIp_2);
-	pSqlServer->BindString(Index++, pAcc->m_aIp_3);
+	pSqlServer->BindString(Index++, pAcc->m_aIp1);
+	pSqlServer->BindString(Index++, pAcc->m_aIp2);
+	pSqlServer->BindString(Index++, pAcc->m_aIp3);
 	pSqlServer->BindString(Index++, pAcc->m_aClan1);
 	pSqlServer->BindString(Index++, pAcc->m_aClan2);
 	pSqlServer->BindString(Index++, pAcc->m_aClan3);
@@ -418,9 +418,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN3, sizeof(pResult->m_Account.m_LastLogoutIGN3));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN4, sizeof(pResult->m_Account.m_LastLogoutIGN4));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN5, sizeof(pResult->m_Account.m_LastLogoutIGN5));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_1, sizeof(pResult->m_Account.m_aIp_1));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_2, sizeof(pResult->m_Account.m_aIp_2));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_3, sizeof(pResult->m_Account.m_aIp_3));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp1, sizeof(pResult->m_Account.m_aIp1));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp2, sizeof(pResult->m_Account.m_aIp2));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp3, sizeof(pResult->m_Account.m_aIp3));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan1, sizeof(pResult->m_Account.m_aClan1));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan2, sizeof(pResult->m_Account.m_aClan2));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan3, sizeof(pResult->m_Account.m_aClan3));

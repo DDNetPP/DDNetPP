@@ -38,7 +38,7 @@ CCharacter::~CCharacter()
 void CCharacter::ConstructDDPP()
 {
 	// variable initializations constructor
-	m_ci_freezetime = 0;
+	m_CiFreezetime = 0;
 	m_DdppFinished = false;
 	//if (g_Config.m_SvInstagibMode)
 	//{
@@ -2057,13 +2057,13 @@ void CCharacter::CITick()
 	//Check for stuck --> restart
 	if(isFreezed)
 	{
-		m_ci_freezetime++;
+		m_CiFreezetime++;
 	}
 	else
 	{
-		m_ci_freezetime = 0;
+		m_CiFreezetime = 0;
 	}
-	if(m_ci_freezetime > g_Config.m_SvCIfreezetime * Server()->TickSpeed())
+	if(m_CiFreezetime > g_Config.m_SvCIfreezetime * Server()->TickSpeed())
 	{
 		Die(m_pPlayer->GetCid(), WEAPON_SELF); //call CIRestart() there
 	}

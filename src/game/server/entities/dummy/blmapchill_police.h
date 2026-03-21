@@ -11,9 +11,9 @@ class CDummyBlmapChillPolice : public CDummyBase
 {
 public:
 	CDummyBlmapChillPolice(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual void OnDeath() override;
-	virtual ~CDummyBlmapChillPolice() {}
+	void OnTick() override;
+	void OnDeath() override;
+	~CDummyBlmapChillPolice() override = default;
 	const char *ModeStr() override { return "BlmapChill Police"; }
 
 private:

@@ -10,11 +10,8 @@
 #include <game/server/save.h>
 #include <game/voting.h>
 
-#include <atomic>
 #include <memory>
-#include <string>
 #include <utility>
-#include <vector>
 
 struct ISqlData;
 class IDbConnection;
@@ -46,9 +43,9 @@ struct CAccountData
 		m_LastLogoutIGN3[0] = '\0';
 		m_LastLogoutIGN4[0] = '\0';
 		m_LastLogoutIGN5[0] = '\0';
-		m_aIp_1[0] = '\0';
-		m_aIp_2[0] = '\0';
-		m_aIp_3[0] = '\0';
+		m_aIp1[0] = '\0';
+		m_aIp2[0] = '\0';
+		m_aIp3[0] = '\0';
 		m_aClan1[0] = '\0';
 		m_aClan2[0] = '\0';
 		m_aClan3[0] = '\0';
@@ -142,9 +139,9 @@ struct CAccountData
 	char m_LastLogoutIGN3[32];
 	char m_LastLogoutIGN4[32];
 	char m_LastLogoutIGN5[32];
-	char m_aIp_1[32];
-	char m_aIp_2[32];
-	char m_aIp_3[32];
+	char m_aIp1[32];
+	char m_aIp2[32];
+	char m_aIp3[32];
 	char m_aClan1[32];
 	char m_aClan2[32];
 	char m_aClan3[32];

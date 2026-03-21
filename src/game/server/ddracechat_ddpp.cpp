@@ -1064,9 +1064,9 @@ void CGameContext::ConAccInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_LastLogoutIGN4);
 		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_LastLogoutIGN5);
 		pSelf->SendChatTarget(ClientId, "======== IP ========");
-		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp_1);
-		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp_2);
-		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp_3);
+		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp1);
+		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp2);
+		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aIp3);
 		pSelf->SendChatTarget(ClientId, "======== Clan ========");
 		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aClan1);
 		pSelf->SendChatTarget(ClientId, pSelf->m_apPlayers[InfoId]->m_Account.m_aClan2);

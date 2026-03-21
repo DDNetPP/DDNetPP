@@ -777,12 +777,12 @@ void CPlayer::Save(int SetLoggedIn)
 	// Process IP ADDR...
 	const char *pIp = Server()->ClientAddrString(GetCid(), false);
 
-	if(str_comp(pIp, m_Account.m_aIp_1) && str_comp(pIp, m_Account.m_aIp_2) && str_comp(pIp, m_Account.m_aIp_3))
+	if(str_comp(pIp, m_Account.m_aIp1) && str_comp(pIp, m_Account.m_aIp2) && str_comp(pIp, m_Account.m_aIp3))
 	{
 		//dbg_msg("save", "updated ip '%s'", aIp);
-		str_format(m_Account.m_aIp_3, sizeof(m_Account.m_aIp_3), "%s", m_Account.m_aIp_2);
-		str_format(m_Account.m_aIp_2, sizeof(m_Account.m_aIp_2), "%s", m_Account.m_aIp_1);
-		str_format(m_Account.m_aIp_1, sizeof(m_Account.m_aIp_1), "%s", pIp);
+		str_copy(m_Account.m_aIp3, m_Account.m_aIp2);
+		str_copy(m_Account.m_aIp2, m_Account.m_aIp1);
+		str_copy(m_Account.m_aIp1, pIp);
 	}
 
 	// Process IngameName Data...

@@ -21,8 +21,6 @@
 
 // ddnet++
 #include "ddpp/dummymode.h"
-#include "eventhandler.h"
-#include "gameworld.h"
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 #include "minigames/blockwave.h"
@@ -32,9 +30,6 @@
 #include "minigames/one_vs_one_block.h"
 #include "minigames/pvp_arena.h"
 #include "minigames/survival.h"
-#include "minigames/tdm_block.h"
-#include "player.h"
-#include "teehistorian.h"
 
 #include <engine/http.h>
 

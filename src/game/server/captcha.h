@@ -12,7 +12,7 @@ private:
 	void GenQuestion(int Type);
 	void ShowQuestion();
 	void SendChat(const char *pMsg);
-	bool Score(int value);
+	bool Score(int Value);
 
 	int RandNum();
 	int RandAlpha();

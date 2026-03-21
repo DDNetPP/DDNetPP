@@ -23,7 +23,7 @@ CDummyBlmapV5UpperBlocker::CDummyBlmapV5UpperBlocker(class CPlayer *pPlayer) :
 
 void CDummyBlmapV5UpperBlocker::OnDeath()
 {
-	m_move_left = false;
+	m_MoveLeft = false;
 }
 
 void CDummyBlmapV5UpperBlocker::OnTick()
@@ -53,14 +53,14 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 			}
 		}
 
-		if(m_move_left)
+		if(m_MoveLeft)
 		{
 			Left();
 
 			//failed?
 			if(BotX < 22 * 32)
 			{
-				m_move_left = false;
+				m_MoveLeft = false;
 			}
 		}
 		else
@@ -91,7 +91,7 @@ void CDummyBlmapV5UpperBlocker::OnTick()
 				if(GetVel().y < -1.1f && m_pCharacter->m_FreezeTime == 0)
 				{
 					Fire();
-					m_move_left = true;
+					m_MoveLeft = true;
 				}
 			}
 		}

@@ -7,13 +7,13 @@ class CDummyBlmapV5UpperBlocker : public CDummyBase
 {
 public:
 	CDummyBlmapV5UpperBlocker(class CPlayer *pPlayer);
-	virtual void OnTick() override;
-	virtual void OnDeath() override;
-	virtual ~CDummyBlmapV5UpperBlocker() {}
+	void OnTick() override;
+	void OnDeath() override;
+	~CDummyBlmapV5UpperBlocker() override = default;
 	const char *ModeStr() override { return "BlmapV5 upper"; }
 
 private:
-	bool m_move_left;
+	bool m_MoveLeft;
 };
 
 #endif
