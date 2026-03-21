@@ -1761,18 +1761,21 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 	else
 	{
 		lua_getfield(L, -1, "flags");
-		CTableUnpacker FlagsUnpacker(L, -1, "projectile.flags", __FILE__, __LINE__);
+		if(!lua_isnil(L, -1))
+		{
+			CTableUnpacker FlagsUnpacker(L, -1, "projectile.flags", __FILE__, __LINE__);
 
-		if(FlagsUnpacker.GetBooleanOptional("bounce_horizontal").value_or(false))
-			Flags |= PROJECTILEFLAG_BOUNCE_HORIZONTAL;
-		if(FlagsUnpacker.GetBooleanOptional("bounce_vertical").value_or(false))
-			Flags |= PROJECTILEFLAG_BOUNCE_VERTICAL;
-		if(FlagsUnpacker.GetBooleanOptional("explosive").value_or(false))
-			Flags |= PROJECTILEFLAG_EXPLOSIVE;
-		if(FlagsUnpacker.GetBooleanOptional("freeze").value_or(false))
-			Flags |= PROJECTILEFLAG_FREEZE;
-		if(FlagsUnpacker.GetBooleanOptional("normalize_vel").value_or(false))
-			Flags |= PROJECTILEFLAG_NORMALIZE_VEL;
+			if(FlagsUnpacker.GetBooleanOptional("bounce_horizontal").value_or(false))
+				Flags |= PROJECTILEFLAG_BOUNCE_HORIZONTAL;
+			if(FlagsUnpacker.GetBooleanOptional("bounce_vertical").value_or(false))
+				Flags |= PROJECTILEFLAG_BOUNCE_VERTICAL;
+			if(FlagsUnpacker.GetBooleanOptional("explosive").value_or(false))
+				Flags |= PROJECTILEFLAG_EXPLOSIVE;
+			if(FlagsUnpacker.GetBooleanOptional("freeze").value_or(false))
+				Flags |= PROJECTILEFLAG_FREEZE;
+			if(FlagsUnpacker.GetBooleanOptional("normalize_vel").value_or(false))
+				Flags |= PROJECTILEFLAG_NORMALIZE_VEL;
+		}
 		lua_pop(L, 1);
 	}
 
