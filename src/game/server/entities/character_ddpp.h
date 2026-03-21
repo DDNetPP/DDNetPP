@@ -56,7 +56,7 @@ private:
 
 		abort ddnet fire when returning true
 
-		WARNING: this method is depreacted use OnFireWeapon instead
+		WARNING: this method is deprecated use OnFireWeapon instead
 	*/
 	bool FireWeaponDDPP(bool &FullAuto);
 	void PostFireWeapon();

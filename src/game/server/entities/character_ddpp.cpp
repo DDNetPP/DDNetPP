@@ -2540,7 +2540,7 @@ void CCharacter::MineTeeBreakBlock()
 	}
 }
 
-// WARNING: depreacted use OnFireWeapon instead
+// WARNING: deprecated use OnFireWeapon instead
 bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 {
 	if(m_ReloadTimer != 0)
