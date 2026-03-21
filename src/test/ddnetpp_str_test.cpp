@@ -5,6 +5,7 @@
 #include <engine/server/server.h>
 
 #include <game/gamecore.h>
+#include <game/server/ddnetpp/lua/console_strings.h>
 #include <game/server/ddnetpp/lua/lua_plugin.h>
 
 #include <gtest/gtest.h>
