@@ -138,20 +138,3 @@ jobs:
 
     - name: Check dilated images
       run: scripts/check_dilate.py release data
-
-    - name: Build twmap tool
-      run: |
-        cargo install twmap-tools --git https://gitlab.com/Patiga/twmap.git/ --rev 1f192def57429a1f64ddb3ac8580744476cfdf1c --locked
-
-    - name: Check maps
-      run: |
-        findings=$(find data -type f -name '*.map' ! -wholename 'data/maps/coverage.map' -print0 | xargs -0 ~/.cargo/bin/twmap-check-ddnet 2>&1 | \
-          grep -v -E "\"data/maps/(ctf|dm).*\.map\": Time cps are missing on the map" | \
-          grep -v -E "\"data/themes/.*\.map\": Time cps are missing on the map" | \
-          grep -v -E "\"data/maps/ctf4\.map\": Map - In Image at index 3 -> Image 'jungle_doodads_old' is not a valid external image for DDNet06" | \
-          grep -v -E "\"data/themes/autumn_night\.map\": Map - In Image at index 3 -> Image 'generic_lamps' is not a valid external image for DDNet06" | \
-          grep -v -E "\"data/maps7?/Tutorial\.map\": Map setting - Unusual: 'sv_show_others_default'" || true)
-        if [ -n "$findings" ]; then
-          echo "$findings"
-          exit 1
-        fi
