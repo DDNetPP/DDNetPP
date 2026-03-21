@@ -2,6 +2,23 @@
 
 THE API IS IN SUPER EARLY STATE!!!!!!! NOT READY TO BE USED YET!
 
+## enable lua plugins
+
+You need to compile DDNet++ with lua support for example like this
+
+```
+mkdir build
+cd build
+cmake .. -DLUA=ON
+make
+```
+
+You need lua 5.4 installed for this to work properly. On debian based systems you can install it like this
+
+```
+apt install liblua5.4-dev lua5.4
+```
+
 ## register hooks
 
 There are a few functions you can define in your lua script
