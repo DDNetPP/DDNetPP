@@ -4,8 +4,8 @@
 
 #include "vmath.h"
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 // M_PI defined in math.h on linux bot not on windows
 #ifndef M_PI
