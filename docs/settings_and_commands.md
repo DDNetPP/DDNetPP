@@ -3,13 +3,13 @@
 + `sv_off_ddpp` Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)
 + `sv_scorelimit` Score limit (0 disables)
 + `sv_timelimit` Time limit in minutes (0 disables)
-+ `sv_vote_delay_all` The time in seconds between any vote (ddpp total afecting all players)
++ `sv_vote_delay_all` The time in seconds between any vote (ddpp total affecting all players)
 + `sv_allow_minigame` allow users to play minigames
 + `sv_max_shop_messages` How many times the shopbot greets per player. (-1=infinite 0=off)
 + `sv_dummy_map_offset_x` move the dummyhardcoded moves x tiles (only for supported modes)
 + `sv_dummy_map_offset_y` move the dummyhardcoded moves y tiles (only for supported modes)
 + `sv_autoconnect_bots` 0=off 1=ChillBlock5
-+ `sv_max_drops` Maximum amount of dropped healt and ammo (used for survival and admin commands)
++ `sv_max_drops` Maximum amount of dropped health and ammo (used for survival and admin commands)
 + `sv_min_admin_ping` remove admin ping from messages that are shorter than x (0=allow all admin pings)
 + `sv_auto_fix_broken_accs` search and fix accounts falsely set to logged in on this port (breaks on 99 999 999+ accs)
 + `sv_ddpp_shutdown` shutdown srv if players<sv_ddpp_shutdown_players and hour=sv_ddpp_shutdown_hour
@@ -39,7 +39,7 @@
 + `sv_nobo_spawn_x` x coord for the nobo spawn
 + `sv_nobo_spawn_y` y coord for the nobo spawn
 + `sv_nobo_spawn_time` how many minutes the nobo spawn lasts 0=off
-+ `sv_poop_msg` 0=off 1=on 2=extreme(coudl fuck server but idk)
++ `sv_poop_msg` 0=off 1=on 2=extreme(could fuck server but idk)
 + `sv_allow_bomb` 0=off 1=on
 + `sv_allow_bomb_selfkill` 0=off 1=on suicide in '/bomb' games
 + `sv_bomb_ticks` after how many ticks the bomb explodes
@@ -57,7 +57,7 @@
 + `sv_insta` 0=ddrace 1=gdm 2=undefined 3=idm 4=undefined") //undefined were LMSgrenade and LMSrifle but got removed because it was unfinished and only confused the real vanilla surviv
 + `sv_insta_score` 0=count from 0 on reconnect in scoreboard 1=load sql scores in scoreboard
 + `sv_kills_to_finish` After how much kills a player gets finish (instagib)
-+ `sv_ddpp_score` rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)
++ `sv_ddpp_score` rank scoreboard by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)
 + `sv_grenade_arena_slots` extra arena slots for grenade
 + `sv_rifle_arena_slots` extra arena slots for rifle
 + `sv_allow_insta` allow the '/insta' command 1=allow 0=off
@@ -117,11 +117,11 @@
 + `sv_mine_tee_editor` custom clients can place any tile anywhere
 + `sv_fnn_start_x` where the dmm25 start because spawn points differ
 + `sv_fnn_timeout` after how many ticks the bot should restart 0=never
-+ `sv_allow_global_chat` 0=off 1=messsages with @all in front get pushed into txt file
++ `sv_allow_global_chat` 0=off 1=messages with @all in front get pushed into txt file
 + `sv_global_chat_servers` how many servers are connected to the global chat (needed for print confirmation)
 + `sv_cfg_tile_1` use chat cmd for help '/admin cfg_tiles'
 + `sv_cfg_tile_2` use chat cmd for help '/admin cfg_tiles'
-+ `sv_freeze_farm` wether tees have to be unfrozen or not to use money/xp tiles
++ `sv_freeze_farm` whether tees have to be unfrozen or not to use money/xp tiles
 + `sv_max_police_farm_players` deactivates all police tiles if too many players are on them (0 = no limit)
 + `sv_teleportation_delay` force players to stand still a few seconds before joining minigames
 + `sv_sup_acc_reset` allow supporters cmds 1='/sql_logout' 2=1 and '/sql_logout_all'
@@ -139,7 +139,7 @@
 + `sv_max_namechanges_per_ip` how many times one ip can change the name (hourly) before the msg gets hidden
 + `sv_hide_rename_msg` show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)
 + `sv_show_connection_msg` 0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)
-+ `sv_auto_anti_reconnect_flood` delay join/leave messages if too many connections happend (see also sv_show_connection_msg)
++ `sv_auto_anti_reconnect_flood` delay join/leave messages if too many connections happened (see also sv_show_connection_msg)
 + `sv_rcon_attempt_report` after how many failed rcon attempts in a row should it be reported
 + `sv_captcha_room` needs captcha spawn and verify tile in the map
 + `sv_client_suggestion_supported` Broadcast to display to players that their client isnt fully supported
@@ -220,7 +220,7 @@
 + `logs` shows ddnet++ logs (types: mastersrv)
 + `reload_spamfilters` reads spamfilters.txt (see also add_spamfilter)
 + `add_spamfilter` writes to spamfilters.txt (see also list_spamfilters)
-+ `list_spamfilters` prints actice spamfilters (see also reload_spamfilters)
++ `list_spamfilters` prints active spamfilters (see also reload_spamfilters)
 + `sql_add` adds an new column to the table
 + `set_shop_item_price` sets the price of a shop item
 + `set_shop_item_description` sets the description of a shop item
@@ -274,7 +274,7 @@
 + `/trade` trade weapons and other items with players on the server
 + `/tr` the unsave short command for trade (warning don't use if you don't know what you are doing)
 + `/chidraqul` chidraqul3 (minigame) more info '/chidraqul info'
-+ `/minigames` show stats and informations about all minigames
++ `/minigames` show stats and information about all minigames
 + `/pvp_arena` teleports you in the pvp-arena (you can die there)
 + `/bomb` join, create and leave bomb games and more. more help at '/bomb help'
 + `/insta` play instagib games like gdm or idm
@@ -282,7 +282,7 @@
 + `/block` join block deathmatch
 + `/balance` battle other players in tee balancing
 + `/survival` play infamous survival mod
-+ `/blockwave` play block agianst bot waves
++ `/blockwave` play block against bot waves
 + `/1vs1` challenge one player to a block duel
 + `/tdm` join block team deathmatch
 + `/leave` leave the current minigame
@@ -312,7 +312,7 @@
 + `/lang` set language
 + `/poop` throw shit at the player r. Warning: you lose that shit.
 + `/room` supermoderator command '/room help' for help
-+ `/spawn` teleport to spawn without dieing (costs money)
++ `/spawn` teleport to spawn without dying (costs money)
 + `/quest` play little quest and earn rewards.
 + `/bounty` blocker hitman command
 + `/fng` configurate some fng settings '/fng help' for more help
