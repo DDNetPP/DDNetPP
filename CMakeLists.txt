@@ -716,7 +716,7 @@ endif()
 ## ddnet++ start
 message(STATUS "DDNet++ Dependencies:")
 if(LUA)
-  find_package(Lua)
+  find_package(Lua 5.4)
 endif()
 if(LUA)
   show_dependency_status("Lua" LUA)
