@@ -31,4 +31,4 @@ public:
 
 #endif // CONF_LUA
 
-#endif // header guard
+#endif // GAME_SERVER_DDNETPP_LUA_CMD_SENDER_H
