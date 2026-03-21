@@ -1926,7 +1926,8 @@ void CGameContext::ChilliClanTick(int i)
 			{
 				if(g_Config.m_SvKickChilliClan == 1)
 				{
-					GetPlayerChar(i)->m_FreezeTime = 1000;
+					if(GetPlayerChar(i))
+						GetPlayerChar(i)->m_FreezeTime = 1000;
 					SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
 					SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change skin or clantag!");
 				}
