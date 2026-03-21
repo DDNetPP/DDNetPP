@@ -96,19 +96,13 @@ jobs:
           exit 1
         fi
 
-    - name: Build mastersrv
-      run: |
-        cd src/mastersrv
-        cargo build
-        cp target/debug/mastersrv ../../clang-sanitizer
-
     - name: Run integration tests with ASan and UBSan
       id: integration_test
       continue-on-error: true
       run: |
         cd clang-sanitizer
         set +e
-        python ../scripts/integration_test.py --show-full-output --test-mastersrv .
+        python ../scripts/integration_test.py --show-full-output .
         integration_test_result=$?
         set -e
         if [ $integration_test_result -ne 0 ]; then
