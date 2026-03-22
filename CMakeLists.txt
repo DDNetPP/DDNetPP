@@ -3126,17 +3126,20 @@ if(SERVER)
   )
 
   set(SERVER_SRC ${SERVER_SRC} ${TWBL_SRC})
-  add_library(twbl_bottick SHARED
+
+  if(TARGET_OS STREQUAL "linux")
+    add_library(twbl_bottick SHARED
     ${GAME_SHARED}
     ${TWBL_SRC}
     ${GAME_GENERATED_SHARED})
 
-  target_compile_options(twbl_bottick PRIVATE -std=gnu++20)
-  target_compile_options(twbl_bottick PRIVATE -Wno-deprecated-enum-float-conversion) # c++20 arithmetic between floating-point type and enumeration type
-  target_compile_definitions(twbl_bottick PRIVATE TWBL_SHARED_OBJECT=1)
+    target_compile_options(twbl_bottick PRIVATE -std=gnu++20)
+    target_compile_options(twbl_bottick PRIVATE -Wno-deprecated-enum-float-conversion) # c++20 arithmetic between floating-point type and enumeration type
+    target_compile_definitions(twbl_bottick PRIVATE TWBL_SHARED_OBJECT=1)
 
-  target_include_directories(twbl_bottick PRIVATE src)
-  target_include_directories(twbl_bottick PRIVATE ${PROJECT_BINARY_DIR}/src)
+    target_include_directories(twbl_bottick PRIVATE src)
+    target_include_directories(twbl_bottick PRIVATE ${PROJECT_BINARY_DIR}/src)
+  endif()
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_LINK -rdynamic)
   # twbl end
 
