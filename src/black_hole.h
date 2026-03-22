@@ -13,17 +13,17 @@ public:
 	virtual void Attract();
 	virtual void CreateHole();
 
-	virtual void Reset() override;
-	virtual void Tick() override;
-	virtual void Snap(int SnappingClient) override;
+	void Reset() override;
+	void Tick() override;
+	void Snap(int SnappingClient) override;
 
 private:
 	int m_Owner;
 	int m_Buffer;
-	bool GoingToKill;
+	bool m_GoingToKill;
 	int m_Timer;
 
-	bool Attracting;
+	bool m_Attracting;
 };
 
 #endif

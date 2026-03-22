@@ -28,10 +28,10 @@ class CPlant : public CEntity
 public:
 	CPlant(CGameWorld *pGameWorld, vec2 Pos = vec2());
 
-	virtual void Tick() override;
-	virtual void Reset() override;
-	virtual void TickDeferred() override;
-	virtual void Snap(int SnappingClient) override;
+	void Tick() override;
+	void Reset() override;
+	void TickDeferred() override;
+	void Snap(int SnappingClient) override;
 };
 
 #endif

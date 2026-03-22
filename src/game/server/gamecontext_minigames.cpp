@@ -47,12 +47,12 @@ bool CGameContext::IsMinigaming(int ClientId)
 	return false;
 }
 
-int CGameContext::IsMinigame(int playerId) //if you update this function please also update the '/minigames' chat command
+int CGameContext::IsMinigame(int PlayerId) //if you update this function please also update the '/minigames' chat command
 {
-	CPlayer *pPlayer = m_apPlayers[playerId];
+	CPlayer *pPlayer = m_apPlayers[PlayerId];
 	if(!pPlayer)
 		return 0;
-	CCharacter *pChr = GetPlayerChar(playerId);
+	CCharacter *pChr = GetPlayerChar(PlayerId);
 
 	if(pPlayer->m_Account.m_JailTime)
 	{

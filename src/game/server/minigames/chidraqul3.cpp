@@ -6,7 +6,6 @@
 
 #include <game/server/teams.h>
 
-#include <cinttypes>
 #include <cstring>
 
 int CGameContext::C3_GetFreeSlots()
@@ -27,9 +26,9 @@ int CGameContext::C3_GetOnlinePlayers()
 	return c;
 }
 
-void CGameContext::C3_MultiPlayer_GameTick(int id)
+void CGameContext::C3_MultiPlayer_GameTick(int Id)
 {
-	if(m_apPlayers[id]->m_C3UpdateFrame || Server()->Tick() % 120 == 0)
+	if(m_apPlayers[Id]->m_C3UpdateFrame || Server()->Tick() % 120 == 0)
 	{
 		C3_RenderFrame();
 		for(auto &Player : m_apPlayers)
@@ -47,7 +46,7 @@ void CGameContext::C3_RenderFrame()
 	char aBuf[128];
 	char aHUD[64];
 	char aWorld[64]; //max world size
-	int players = C3_GetOnlinePlayers();
+	int Players = C3_GetOnlinePlayers();
 
 	//init world
 	for(int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
@@ -72,7 +71,7 @@ void CGameContext::C3_RenderFrame()
 	{
 		if(Player && Player->m_C3GameState == 2)
 		{
-			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", Player->m_HashPos, players, g_Config.m_SvChidraqulSlots);
+			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", Player->m_HashPos, Players, g_Config.m_SvChidraqulSlots);
 			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
 
 			//dbg_msg("debug", "printing: %s", aBuf);

@@ -3,6 +3,7 @@
 #include "save.h"
 
 #include <base/ddpp_logs.h>
+#include <base/io.h>
 #include <base/log.h>
 #include <base/system.h>
 #include <base/system_ddpp.h>
@@ -1202,7 +1203,7 @@ void CGameContext::ShowHideConfigCharToBool(int ClientId)
 #endif
 }
 
-void CGameContext::FNN_LoadRun(const char *path, int BotId)
+void CGameContext::FNN_LoadRun(const char *pPath, int BotId)
 {
 	CPlayer *pPlayer = m_apPlayers[BotId];
 	if(!pPlayer)
@@ -1231,7 +1232,7 @@ void CGameContext::FNN_LoadRun(const char *path, int BotId)
 	//load run
 	std::ifstream ReadFile;
 	char aFilePath[512];
-	str_copy(aFilePath, path, sizeof(aFilePath));
+	str_copy(aFilePath, pPath, sizeof(aFilePath));
 	ReadFile.open(aFilePath);
 	if(ReadFile.is_open())
 	{
@@ -1491,47 +1492,47 @@ int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, c
 	}
 
 	std::string Data[32];
-	int index = 0;
+	int Index = 0;
 
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] password: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] loggedin: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] port: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] frozen: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] vip: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] vip+: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] sup: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] money: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] level: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] xp: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] shit: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] police: '%s'", index, Data[index].c_str());
-	index++;
-	getline(Acc2File, Data[index]);
-	dbg_msg("acc2", "[%d] taser: '%s'", index, Data[index].c_str());
-	index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] password: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] loggedin: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] port: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] frozen: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] vip: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] vip+: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] sup: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] money: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] level: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] xp: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] shit: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] police: '%s'", Index, Data[Index].c_str());
+	Index++;
+	getline(Acc2File, Data[Index]);
+	dbg_msg("acc2", "[%d] taser: '%s'", Index, Data[Index].c_str());
+	Index++;
 
 	if(Data[1] == "1")
 	{
@@ -1563,21 +1564,21 @@ int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, c
 	if(Acc2FileW.is_open())
 	{
 		dbg_msg("acc2", "write acc '%s'", pUsername);
-		index = 0;
+		Index = 0;
 
-		Acc2FileW << Data[index++] << "\n"; //0 password
-		Acc2FileW << Data[index++] << "\n"; //1 loggedin
-		Acc2FileW << Data[index++] << "\n"; //2 port
-		Acc2FileW << Data[index++] << "\n"; //3 frozen
-		Acc2FileW << Data[index++] << "\n"; //4 vip
-		Acc2FileW << Data[index++] << "\n"; //5 vip+
-		Acc2FileW << Data[index++] << "\n"; //6 sup
-		Acc2FileW << Data[index++] << "\n"; //7 money
-		Acc2FileW << Data[index++] << "\n"; //8 level
-		Acc2FileW << Data[index++] << "\n"; //9 xp
-		Acc2FileW << Data[index++] << "\n"; //10 shit
-		Acc2FileW << Data[index++] << "\n"; //11 police
-		Acc2FileW << Data[index++] << "\n"; //12 taser
+		Acc2FileW << Data[Index++] << "\n"; //0 password
+		Acc2FileW << Data[Index++] << "\n"; //1 loggedin
+		Acc2FileW << Data[Index++] << "\n"; //2 port
+		Acc2FileW << Data[Index++] << "\n"; //3 frozen
+		Acc2FileW << Data[Index++] << "\n"; //4 vip
+		Acc2FileW << Data[Index++] << "\n"; //5 vip+
+		Acc2FileW << Data[Index++] << "\n"; //6 sup
+		Acc2FileW << Data[Index++] << "\n"; //7 money
+		Acc2FileW << Data[Index++] << "\n"; //8 level
+		Acc2FileW << Data[Index++] << "\n"; //9 xp
+		Acc2FileW << Data[Index++] << "\n"; //10 shit
+		Acc2FileW << Data[Index++] << "\n"; //11 police
+		Acc2FileW << Data[Index++] << "\n"; //12 taser
 
 		Acc2FileW.close();
 	}
@@ -1677,18 +1678,18 @@ void CGameContext::CheckDDPPshutdown()
 {
 	if(g_Config.m_SvDDPPshutdown)
 	{
-		int players = CountConnectedHumans();
+		int Players = CountConnectedHumans();
 		time_t Now;
 		struct tm *NowTm;
 		int Hour;
-		int min;
+		int Min;
 		Now = time(NULL);
 		NowTm = localtime(&Now);
 		Hour = NowTm->tm_hour;
-		min = NowTm->tm_min;
-		if(Hour == g_Config.m_SvDDPPshutdownHour && (min == 0 || min == 5 || min == 10)) //Try it 3 times (slow tick shouldnt trigger it multiple times a minute)
+		Min = NowTm->tm_min;
+		if(Hour == g_Config.m_SvDDPPshutdownHour && (Min == 0 || Min == 5 || Min == 10)) //Try it 3 times (slow tick shouldnt trigger it multiple times a minute)
 		{
-			if(players < g_Config.m_SvDDPPshutdownPlayers)
+			if(Players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, TEAM_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
 				CallVetoVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0);
@@ -2105,6 +2106,7 @@ void CGameContext::LoadSinglePlayer()
 	if(!fread(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile))
 	{
 		dbg_msg("ddpp-stats", "failed to read ddpp singleplayer stats");
+		fclose(pFile);
 		return;
 	}
 	dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", StatsBuff.x);
@@ -2209,17 +2211,18 @@ void CGameContext::LoadMapPlayerData()
 		if(!fread(&aTimeoutCode, 64, 1, pFile))
 		{
 			dbg_msg("ddpp-mapload", "failed to read data");
+			fclose(pFile);
 			return;
 		}
-		int id = GetPlayerByTimeoutcode(aTimeoutCode);
-		if(id == -1)
+		int Id = GetPlayerByTimeoutcode(aTimeoutCode);
+		if(Id == -1)
 		{
 			dbg_msg("ddpp-mapload", "player not online code=%s", aTimeoutCode);
 			ValidPlayer = false;
 		}
 		else
 		{
-			CPlayer *pPlayer = m_apPlayers[id];
+			CPlayer *pPlayer = m_apPlayers[Id];
 			if(!pPlayer)
 			{
 				dbg_assert(false, "loadmap invalid player");
@@ -2228,7 +2231,7 @@ void CGameContext::LoadMapPlayerData()
 			CCharacter *pChr = pPlayer->GetCharacter();
 			if(ValidPlayer && !pChr)
 			{
-				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", id, aTimeoutCode);
+				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", Id, aTimeoutCode);
 				ValidPlayer = false;
 			}
 			if(ValidPlayer && str_comp(aTimeoutCode, pPlayer->m_aTimeoutCode))
@@ -2240,7 +2243,7 @@ void CGameContext::LoadMapPlayerData()
 			{
 				// shouldn't happen? couldn't happen? too lazy to think probably possible by abusing /timeout command or share
 				// and can be bypassed by reconnect lol
-				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", id, Server()->ClientName(id), pPlayer->m_aTimeoutCode);
+				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", Id, Server()->ClientName(Id), pPlayer->m_aTimeoutCode);
 				ValidPlayer = false;
 			}
 		}
@@ -2271,14 +2274,14 @@ void CGameContext::LoadMapPlayerData()
 
 		if(ValidPlayer)
 		{
-			CPlayer *pPlayer = m_apPlayers[id];
+			CPlayer *pPlayer = m_apPlayers[Id];
 			CCharacter *pChr = pPlayer->GetCharacter();
 
 			SaveTee.Load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;
-			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%ld", Server()->ClientName(id), pPlayer->m_aTimeoutCode, get_file_offset(pFile));
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%ld", Server()->ClientName(Id), pPlayer->m_aTimeoutCode, get_file_offset(pFile));
 			Loaded++;
 		}
 	}
@@ -2316,7 +2319,7 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 			dbg_msg("ddpp-mapread", "failed to read data");
 			return;
 		}
-		int id = GetPlayerByTimeoutcode(aTimeoutCode);
+		int Id = GetPlayerByTimeoutcode(aTimeoutCode);
 		char IsLoaded;
 		if(!fread(&IsLoaded, sizeof(IsLoaded), 1, pFile))
 		{
@@ -2333,7 +2336,7 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 			return;
 		}
 
-		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
+		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", Id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
 		Red++;
 	}
 	if(fclose(pFile))
@@ -2644,38 +2647,38 @@ void CGameContext::ShowAdminWelcome(int Id)
 	{
 		SendChatTarget(Id, "[ADMIN:Test] WARNING: not enough survival spawns (less survival spawns than slots)");
 	}
-	int protections = 0;
+	int Protections = 0;
 	if(g_Config.m_SvRegisterHumanLevel)
 	{
 		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_register_human_level = %d", g_Config.m_SvRegisterHumanLevel);
 		SendChatTarget(Id, aBuf);
-		protections++;
+		Protections++;
 	}
 	if(g_Config.m_SvChatHumanLevel)
 	{
 		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_chat_human_level = %d", g_Config.m_SvChatHumanLevel);
 		SendChatTarget(Id, aBuf);
-		protections++;
+		Protections++;
 	}
 	if(g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
 	{
 		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_show_connection_msg = %d", g_Config.m_SvShowConnectionMessages);
 		SendChatTarget(Id, aBuf);
-		protections++;
+		Protections++;
 	}
 	if(g_Config.m_SvHideConnectionMessagesPattern[0])
 	{
 		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_hide_connection_msg_pattern = %s", g_Config.m_SvHideConnectionMessagesPattern);
 		SendChatTarget(Id, aBuf);
-		protections++;
+		Protections++;
 	}
-	if(protections)
+	if(Protections)
 	{
-		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning you have %d protective systems running!", protections);
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning you have %d protective systems running!", Protections);
 		SendChatTarget(Id, aBuf);
 		SendChatTarget(Id, "[ADMIN:Prot] As effective those are under attack and as good protection sounds.");
 		SendChatTarget(Id, "[ADMIN:Prot] Those should not run if there is no attack since they lower UX.");
-		protections++;
+		Protections++;
 	}
 	PrintSpecialCharUsers(Id);
 }
