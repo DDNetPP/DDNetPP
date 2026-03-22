@@ -162,6 +162,14 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterDie);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "give_weapon");
+	lua_pushcfunction(LuaState(), CallbackCharacterGiveWeapon);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "remove_weapon");
+	lua_pushcfunction(LuaState(), CallbackCharacterRemoveWeapon);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -2098,6 +2106,29 @@ int CLuaPlugin::CallbackCharacterDie(lua_State *L)
 		Weapon = luaL_checkinteger(L, 3);
 
 	pChr->Die(KillerId, Weapon);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCharacterGiveWeapon(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	int Weapon = luaL_checkinteger(L, 2);
+
+	int Ammo = -1;
+	if(NumArgs >= 3)
+		Ammo = luaL_checkinteger(L, 3);
+
+	pChr->GiveWeapon(Weapon, false, Ammo);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCharacterRemoveWeapon(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+	int Weapon = luaL_checkinteger(L, 2);
+	pChr->GiveWeapon(Weapon, true);
 	return 0;
 }
 

@@ -192,6 +192,8 @@ private:
 	static int CallbackCharacterId(lua_State *L);
 	static int CallbackCharacterPlayer(lua_State *L);
 	static int CallbackCharacterDie(lua_State *L);
+	static int CallbackCharacterGiveWeapon(lua_State *L);
+	static int CallbackCharacterRemoveWeapon(lua_State *L);
 
 public:
 	// Calling lua from C++
