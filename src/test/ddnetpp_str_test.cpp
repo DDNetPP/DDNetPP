@@ -91,8 +91,8 @@ TEST(DDNetPP, SplitStmts)
 
 	str_copy(aLine, "a;a;a;a;a;a;a;a;a;a;a;a;a;a;a;a;");
 	Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
-	EXPECT_EQ(Ok, true);
-	EXPECT_EQ(NumStmts, 16);
+	EXPECT_EQ(Ok, false);
+	EXPECT_STREQ(aError, "too many statements");
 
 	str_copy(aLine, "a;a;a;a;a;a;a;a;a;a;a;a;a;a;a;");
 	Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));

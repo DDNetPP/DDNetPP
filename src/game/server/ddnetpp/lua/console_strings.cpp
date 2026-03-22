@@ -17,7 +17,7 @@ bool SplitConsoleStatements(const char *apStmts[], size_t MaxStmts, size_t *pNum
 
 	do
 	{
-		if(*pNumStmts > MaxStmts)
+		if(*pNumStmts >= MaxStmts)
 		{
 			if(pError)
 			{
@@ -127,7 +127,7 @@ bool SplitConsoleArgs(const char *apArgs[], size_t MaxArgs, size_t *pNumArgs, ch
 
 		if(pStr[0] != '\0')
 		{
-			if(*pNumArgs > MaxArgs)
+			if(*pNumArgs >= MaxArgs)
 			{
 				if(pError)
 					str_copy(pError, "too many arguments", ErrorLen);
