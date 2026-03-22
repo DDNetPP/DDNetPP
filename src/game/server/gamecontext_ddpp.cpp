@@ -304,6 +304,7 @@ void CGameContext::StartDDPPWorkerThreads()
 {
 	StopDDPPWorkerThreads();
 	dbg_msg("ddnet++", "starting worker thread ...");
+	dbg_assert(Map(), "map is null");
 	m_DDPPWorkerThread = std::thread(ModifyTileWorker, this);
 }
 
@@ -339,6 +340,19 @@ void CGameContext::ModifyTileWorker(CGameContext *pGameServer)
 	char aMapName[1024];
 	str_copy(aSrcDir, g_Config.m_SvSourceRootDir);
 	str_copy(aMapsOutDir, g_Config.m_SvMineTeeOutMapsDir);
+
+	// TODO: this is not nice
+	//       why is this even null? this sometimes is null in the asan
+	//       gameworld tests from ddnet
+	//       the pointer access from a thread does not look safe!
+	//       should pass the mappath to the thread instead of
+	//       fetching it from the thread
+	//       and start a new worker on map change
+	if(pGameServer->Map() == nullptr)
+	{
+		log_error("ddnet++", "aborting worker thread (map is null)");
+		return;
+	}
 
 	// TODO: we need the FULL ABSOLUTE path here
 	//       the storage system abstracts that away we need to know where exactly
