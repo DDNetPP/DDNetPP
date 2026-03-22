@@ -1223,6 +1223,8 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		pCharacter->m_Health = Health;
 		pCharacter->m_Armor = Armor;
 		pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+
+		GameServer()->m_pController->SnapCharacter6(SnappingClient, this, pCharacter);
 	}
 	else
 	{

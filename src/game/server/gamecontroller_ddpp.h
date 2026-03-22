@@ -172,6 +172,7 @@ public:
 
 	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo) {}
 	virtual void SnapDDNetCharacter(int SnappingClient, CCharacter *pChr, CNetObj_DDNetCharacter *pDDNetCharacter) {}
+	virtual void SnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj) {}
 
 	/*
 		Function: ServerInfoClientScoreValue

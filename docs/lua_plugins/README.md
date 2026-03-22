@@ -63,6 +63,19 @@ function ddnetpp.on_snap()
 end
 ```
 
+## change snap of existing characters
+
+```lua
+-- snapping_client is the client id of the snapshot receiver
+-- character is the character instance of the tee that is being snapped
+-- snap_item is whatever ddnet++ would include in the snap normally
+function ddnetpp.on_snap_character(snapping_client, character, snap_item)
+	-- render all tees without weapon
+	snap_item.weapon = -1
+	return snap_item
+end
+```
+
 ## trigger actions
 
 There is the global `ddnetpp` instance that lets you trigger some actions on the server side.

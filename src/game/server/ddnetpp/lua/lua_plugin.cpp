@@ -2344,6 +2344,154 @@ int CLuaPlugin::OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
 	return CallLuaIntWithTwoInts("on_snap_gameinfo_flags2", SnappingClient, DDRaceFlags).value_or(DDRaceFlags);
 }
 
+static void LuaCharacterObjToTable(lua_State *L, const CNetObj_Character *pObj)
+{
+	lua_newtable(L);
+
+	lua_pushstring(L, "tick");
+	lua_pushinteger(L, pObj->m_Tick);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, pObj->m_X / 32.0f);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, pObj->m_Y / 32.0f);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "vel_x");
+	lua_pushinteger(L, pObj->m_VelX);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "vel_y");
+	lua_pushinteger(L, pObj->m_VelY);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "angle");
+	lua_pushinteger(L, pObj->m_Angle);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "direction");
+	lua_pushinteger(L, pObj->m_Direction);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "jumped");
+	lua_pushinteger(L, pObj->m_Jumped);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hooked_player");
+	lua_pushinteger(L, pObj->m_HookedPlayer);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_state");
+	lua_pushinteger(L, pObj->m_HookState);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_tick");
+	lua_pushinteger(L, pObj->m_HookTick);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_x");
+	lua_pushinteger(L, pObj->m_HookX);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_y");
+	lua_pushinteger(L, pObj->m_HookY);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_dx");
+	lua_pushinteger(L, pObj->m_HookDx);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook_dy");
+	lua_pushinteger(L, pObj->m_HookDy);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "player_flags");
+	lua_pushinteger(L, pObj->m_PlayerFlags);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "health");
+	lua_pushinteger(L, pObj->m_Health);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "armor");
+	lua_pushinteger(L, pObj->m_Armor);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "ammo_count");
+	lua_pushinteger(L, pObj->m_AmmoCount);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "weapon");
+	lua_pushinteger(L, pObj->m_Weapon);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "emote");
+	lua_pushinteger(L, pObj->m_Emote);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "attack_tick");
+	lua_pushinteger(L, pObj->m_AttackTick);
+	lua_settable(L, -3);
+}
+
+// TODO: also implement a 0.7 version and call the same lua callback
+//       so lua always implements ddnetpp.on_snap_character() and gets passed either 0.6 or 0.7 data
+//       if lua then wants to return 0.7 or 0.6 specific values it can just check is_sixup()
+void CLuaPlugin::OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	if(!pChr->IsAlive())
+		return;
+
+	const char *pFunction = "on_snap_character";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return;
+	}
+
+	lua_pushinteger(LuaState(), SnappingClient);
+
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pChr->GetPlayer()->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Character");
+
+	LuaCharacterObjToTable(LuaState(), pObj);
+
+	if(lua_pcall(LuaState(), 3, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 2);
+		return;
+	}
+
+	if(!LuaSnapCharacterReturnValueOrError(pFunction, -1, pObj))
+	{
+		// pop return val and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+	}
+
+	// pop return val and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+}
+
 bool CLuaPlugin::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
@@ -2579,6 +2727,70 @@ bool CLuaPlugin::LuaGetPositionReturnValueOrError(const char *pFunction, int Ind
 				pOutPos->y = Coord.value();
 		}
 	}
+	return true;
+}
+
+std::optional<int> CLuaPlugin::LuaGetReturnValueIntFieldOrError(const char *pFunction, CTableUnpacker *pUnpacker, const char *pKey)
+{
+	auto Value = pUnpacker->GetIntOptional(pKey);
+	if(!Value.has_value())
+	{
+		char aError[512] = "";
+		str_format(
+			aError,
+			sizeof(aError),
+			"returned table '%s' from '%s()' is missing the key '%s'",
+			pUnpacker->TableName(),
+			pFunction,
+			pKey);
+		log_error("lua", "plugin '%s' error: %s", Name(), aError);
+		SetError(aError);
+		return std::nullopt;
+	}
+	return Value;
+}
+
+bool CLuaPlugin::LuaSnapCharacterReturnValueOrError(const char *pFunction, int Index, CNetObj_Character *pObj)
+{
+	// table unpacker below also throws an error
+	// but this error message is nicer because it mentions
+	// the function name
+	if(!LuaReturnValueIsTableOrError(pFunction, -1, "snap_item"))
+		return false;
+	CTableUnpacker Unpacker(LuaState(), -1, "snap_item");
+
+	// // this is how a required field could look like but I decided to make all optional lol
+	// if(!(Value = LuaGetReturnValueIntFieldOrError(pFunction, &Unpacker, "tick")).has_value())
+	// 	return false;
+	// pObj->m_Tick = Value.value();
+
+	// intentionally do not allow to change the snap item id from lua
+	// its tricky to do on the C++ side and it should never be a use case
+	// would be super messy
+
+	pObj->m_Tick = Unpacker.GetIntOrDefault("tick", pObj->m_Tick);
+	pObj->m_X = Unpacker.GetCoordinateOptional("x").value_or(pObj->m_X);
+	pObj->m_Y = Unpacker.GetCoordinateOptional("y").value_or(pObj->m_Y);
+	pObj->m_VelX = Unpacker.GetIntOrDefault("vel_x", pObj->m_VelX);
+	pObj->m_VelY = Unpacker.GetIntOrDefault("vel_y", pObj->m_VelY);
+	pObj->m_Angle = Unpacker.GetIntOrDefault("angle", pObj->m_Angle);
+	pObj->m_Direction = Unpacker.GetIntOrDefault("direction", pObj->m_Direction);
+	pObj->m_Jumped = Unpacker.GetIntOrDefault("jumped", pObj->m_Jumped);
+	pObj->m_HookedPlayer = Unpacker.GetIntOrDefault("hooked_player", pObj->m_HookedPlayer);
+	pObj->m_HookState = Unpacker.GetIntOrDefault("hook_state", pObj->m_HookState);
+	pObj->m_HookTick = Unpacker.GetIntOrDefault("hook_tick", pObj->m_HookTick);
+	pObj->m_HookX = Unpacker.GetIntOrDefault("hook_x", pObj->m_HookX);
+	pObj->m_HookY = Unpacker.GetIntOrDefault("hook_y", pObj->m_HookY);
+	pObj->m_HookDx = Unpacker.GetIntOrDefault("hook_dx", pObj->m_HookDx);
+	pObj->m_HookDy = Unpacker.GetIntOrDefault("hook_dy", pObj->m_HookDy);
+	pObj->m_PlayerFlags = Unpacker.GetIntOrDefault("player_flags", pObj->m_PlayerFlags);
+	pObj->m_Health = Unpacker.GetIntOrDefault("health", pObj->m_Health);
+	pObj->m_Armor = Unpacker.GetIntOrDefault("armor", pObj->m_Armor);
+	pObj->m_AmmoCount = Unpacker.GetIntOrDefault("ammo_count", pObj->m_AmmoCount);
+	pObj->m_Weapon = Unpacker.GetIntOrDefault("weapon", pObj->m_Weapon);
+	pObj->m_Emote = Unpacker.GetIntOrDefault("emote", pObj->m_Emote);
+	pObj->m_AttackTick = Unpacker.GetIntOrDefault("attack_tick", pObj->m_AttackTick);
+
 	return true;
 }
 

@@ -12,6 +12,7 @@
 
 #include <game/server/ddnetpp/lua/lua_game.h>
 #include <game/server/ddnetpp/lua/lua_rcon_command.h>
+#include <game/server/ddnetpp/lua/table_unpacker.h>
 #include <game/server/minigames/minigame_base.h>
 
 #include <optional>
@@ -124,10 +125,17 @@ private:
 	// otherwise returns true and writes position to pOutPos
 	[[nodiscard]] bool LuaGetPositionReturnValueOrError(const char *pFunction, int Index, vec2 *pOutPos);
 
+	// Returns false if there was snap item character table found at the index
+	// and sets the plugin into error state
+	// otherwise returns true and writes the data to the net object pObj
+	[[nodiscard]] bool LuaSnapCharacterReturnValueOrError(const char *pFunction, int Index, CNetObj_Character *pObj);
+
 	// set plugin to error state (but do NOT throw lua error) if the return value from an event was not a table
 	// it does not throw a C++ exception so you need to look at the return value
 	// if it is false there is an error
 	[[nodiscard]] bool LuaReturnValueIsTableOrError(const char *pFunction, int Index, const char *pExpectedTableName);
+
+	std::optional<int> LuaGetReturnValueIntFieldOrError(const char *pFunction, CTableUnpacker *pUnpacker, const char *pKey);
 
 	// Calling C++ from lua
 	static int CallbackLogInfo(lua_State *L);
@@ -206,6 +214,7 @@ public:
 	void OnSnap(int SnappingClient);
 	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
 	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);
+	void OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);

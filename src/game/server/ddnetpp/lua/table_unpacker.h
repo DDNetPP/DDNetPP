@@ -33,6 +33,7 @@ class CTableUnpacker
 
 public:
 	bool IsError() const { return m_IsError; }
+	const char *TableName() const { return m_aTableName; }
 
 	CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename = "", int SourceLineNumber = -1);
 	void Error(const char *pReason);

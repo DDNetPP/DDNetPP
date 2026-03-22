@@ -792,6 +792,19 @@ int CLuaController::OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
 #endif
 }
 
+void CLuaController::OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnSnapCharacter6(SnappingClient, pChr, pObj);
+	}
+#endif
+}
+
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA
