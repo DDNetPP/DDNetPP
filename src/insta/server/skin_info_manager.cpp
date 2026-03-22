@@ -9,7 +9,7 @@
 
 #include <optional>
 
-bool CSkinOverrideRequest::HasAnyValue()
+bool CSkinOverrideRequest::HasAnyValue() const
 {
 	return m_SkinName.has_value() ||
 	       m_ColorBody.has_value() ||

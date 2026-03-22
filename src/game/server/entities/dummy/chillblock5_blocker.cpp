@@ -1654,7 +1654,7 @@ void CDummyChillBlock5Blocker::OnTick()
 
 				//new testy moved tricks into Wayblocker area (y < 213 && x > 215) (was external)
 				//TRICKS
-				if(1 == 1)
+				// if(true)
 				{
 					// CCharacter *pChrRuler = GameServer()->m_World.ClosestCharTypeRuler(GetPos(), true, m_pCharacter);
 					if(pChrRuler && pChrRuler->IsAlive())

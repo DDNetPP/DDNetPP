@@ -604,12 +604,10 @@ void CCharacter::OnTileMoneyDouble()
 	m_OnMoneytile = MONEYTILE_DOUBLE;
 	if(Server()->Tick() % 50)
 		return;
-	if(!m_pPlayer) // seems useless but pleases clang
-		return;
 	if(IsInDDRaceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
-		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+		if(m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
 			return;
 	if(g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
@@ -623,8 +621,6 @@ void CCharacter::OnTileMoneyDouble()
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 		return;
 	}
-	if(!m_pPlayer) // seems useless but pleases clang x2
-		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);

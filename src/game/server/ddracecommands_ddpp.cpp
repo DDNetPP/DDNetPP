@@ -200,7 +200,7 @@ void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && pPlayer->m_IsDummy)
 	{
-		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
+		pPlayer->m_TeeInfos.m_UseCustomColor = true;
 		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
 		pPlayer->m_TeeInfos.m_ColorFeet = pResult->GetInteger(0);
 	}
@@ -230,7 +230,7 @@ void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && !pPlayer->m_IsDummy)
 	{
-		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
+		pPlayer->m_TeeInfos.m_UseCustomColor = true;
 		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
 		pPlayer->m_TeeInfos.m_ColorFeet = pResult->GetInteger(0);
 	}

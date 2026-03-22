@@ -20,8 +20,8 @@ private:
 	int m_aWeaponsBackup[NUM_WEAPONS][2];
 	bool m_WeaponsBackupped;
 	int64_t m_AliveSince;
-	int m_survivexpvalue;
-	bool m_DDPP_Finished;
+	int m_Survivexpvalue;
+	bool m_DdppFinished;
 	bool m_Rainbow;
 	bool m_Bloody;
 	bool m_StrongBloody;
@@ -30,8 +30,8 @@ private:
 	int m_WaveBloodyStrength;
 	bool m_Atom;
 	bool m_Trail;
-	bool m_autospreadgun;
-	bool m_ninjasteam;
+	bool m_Autospreadgun;
+	bool m_Ninjasteam;
 	bool m_RandomCosmetics;
 	bool m_HomingMissile;
 };

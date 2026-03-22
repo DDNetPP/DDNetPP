@@ -2417,7 +2417,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		CNetObj_Projectile p;
 		pProj->FillInfo(&p);
 
-		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
+		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid())); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else if(m_pPlayer->m_SpookyGhostActive)
 	{
@@ -2436,7 +2436,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			1.0f, // accel
 			10.0f // speed
 		);
-		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid())); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else if(m_Heartgun || m_pPlayer->m_HeartGunActive)
 	{
@@ -2451,7 +2451,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			m_pPlayer->m_InfBloody, //bloody
 			m_pPlayer->m_SpookyGhostActive //spooky
 		);
-		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask());
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else if(m_pPlayer->m_LaserGun)
 	{
@@ -2469,7 +2469,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			GameWorld(),
 			GetPlayer()->GetCid(),
 			ProjStartPos,
-			g_Config.m_SvMeteorLifetime);
+			g_Config.m_SvMeteorLifetime); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else
 		return false;
@@ -2740,7 +2740,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 		if(m_HomingMissile)
 		{
-			/* CHomingMissile *pMissile = */ new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCid(), 0, Direction);
+			new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCid(), 0, Direction); // NOLINT(clang-analyzer-unix.Malloc)
 			IsDDNetPPHit = true;
 		}
 		QuestGrenade();

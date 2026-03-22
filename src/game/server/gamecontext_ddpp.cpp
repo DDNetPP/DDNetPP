@@ -1006,23 +1006,23 @@ void CGameContext::LoadFNNvalues()
 	}
 }
 
-bool CGameContext::IsPosition(int playerId, int pos)
+bool CGameContext::IsPosition(int PlayerId, int Pos)
 {
 #if defined(CONF_DEBUG)
 	//dbg_msg("debug", "IsPosition(playerId = %d, pos = %d)", playerId, pos);
 #endif
-	if(!m_apPlayers[playerId])
+	if(!m_apPlayers[PlayerId])
 	{
 		return false;
 	}
-	if(!GetPlayerChar(playerId))
+	if(!GetPlayerChar(PlayerId))
 	{
 		return false;
 	}
 
-	if(pos == 0) //cb5 jail release spot
+	if(Pos == 0) //cb5 jail release spot
 	{
-		if(GetPlayerChar(playerId)->m_Pos.x > 480 * 32 && GetPlayerChar(playerId)->m_Pos.x < 500 * 32 && GetPlayerChar(playerId)->m_Pos.y > 229 * 32 && GetPlayerChar(playerId)->m_Pos.y < 237 * 32)
+		if(GetPlayerChar(PlayerId)->m_Pos.x > 480 * 32 && GetPlayerChar(PlayerId)->m_Pos.x < 500 * 32 && GetPlayerChar(PlayerId)->m_Pos.y > 229 * 32 && GetPlayerChar(PlayerId)->m_Pos.y < 237 * 32)
 		{
 			return true;
 		}
@@ -1037,16 +1037,16 @@ bool CGameContext::IsPosition(int playerId, int pos)
 	//		return true;
 	//	}
 	//}
-	else if(pos == 2) //cb5 far in map (block area and race)
+	else if(Pos == 2) //cb5 far in map (block area and race)
 	{
-		if(GetPlayerChar(playerId)->m_Pos.x > 415 * 32)
+		if(GetPlayerChar(PlayerId)->m_Pos.x > 415 * 32)
 		{
 			return true;
 		}
 	}
-	else if(pos == 3) //configured spawn area
+	else if(Pos == 3) //configured spawn area
 	{
-		if(GetPlayerChar(playerId)->m_Pos.x > g_Config.m_SvSpawnareaLowX * 32 && GetPlayerChar(playerId)->m_Pos.x < g_Config.m_SvSpawnareaHighX * 32 && GetPlayerChar(playerId)->m_Pos.y > g_Config.m_SvSpawnareaLowY * 32 && GetPlayerChar(playerId)->m_Pos.y < g_Config.m_SvSpawnareaHighY * 32)
+		if(GetPlayerChar(PlayerId)->m_Pos.x > g_Config.m_SvSpawnareaLowX * 32 && GetPlayerChar(PlayerId)->m_Pos.x < g_Config.m_SvSpawnareaHighX * 32 && GetPlayerChar(PlayerId)->m_Pos.y > g_Config.m_SvSpawnareaLowY * 32 && GetPlayerChar(PlayerId)->m_Pos.y < g_Config.m_SvSpawnareaHighY * 32)
 		{
 			return true;
 		}
@@ -1055,17 +1055,17 @@ bool CGameContext::IsPosition(int playerId, int pos)
 	return false;
 }
 
-void CGameContext::StartAsciiAnimation(int viewerId, int CreatorId, int Medium)
+void CGameContext::StartAsciiAnimation(int ViewerId, int CreatorId, int Medium)
 {
-	if(!m_apPlayers[viewerId])
+	if(!m_apPlayers[ViewerId])
 		return;
 	if(!m_apPlayers[CreatorId])
 	{
-		SendChatTarget(viewerId, "player not found.");
+		SendChatTarget(ViewerId, "player not found.");
 		return;
 	}
 	//dont start new animation while old is running
-	if(m_apPlayers[viewerId]->m_AsciiWatchingId != -1)
+	if(m_apPlayers[ViewerId]->m_AsciiWatchingId != -1)
 	{
 		return;
 	}
@@ -1074,7 +1074,7 @@ void CGameContext::StartAsciiAnimation(int viewerId, int CreatorId, int Medium)
 	{
 		if(m_apPlayers[CreatorId]->m_Account.m_aAsciiPublishState[0] == '0')
 		{
-			SendChatTarget(viewerId, "ascii art not public.");
+			SendChatTarget(ViewerId, "ascii art not public.");
 			return;
 		}
 
@@ -1095,15 +1095,15 @@ void CGameContext::StartAsciiAnimation(int viewerId, int CreatorId, int Medium)
 	{
 		if(m_apPlayers[CreatorId]->m_Account.m_aAsciiPublishState[2] == '0')
 		{
-			SendChatTarget(viewerId, "ascii art not published on medium 2");
+			SendChatTarget(ViewerId, "ascii art not published on medium 2");
 			return;
 		}
 	}
 
-	m_apPlayers[viewerId]->m_AsciiWatchingId = CreatorId;
+	m_apPlayers[ViewerId]->m_AsciiWatchingId = CreatorId;
 }
 
-bool CGameContext::IsHooked(int HookedId, int power)
+bool CGameContext::IsHooked(int HookedId, int Power)
 {
 	for(auto &Player : m_apPlayers)
 	{
@@ -1114,7 +1114,7 @@ bool CGameContext::IsHooked(int HookedId, int power)
 
 		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCid() == HookedId)
 			continue;
-		if(pChar->Core()->HookedPlayer() == HookedId && pChar->GetPlayer()->m_HookPower == power)
+		if(pChar->Core()->HookedPlayer() == HookedId && pChar->GetPlayer()->m_HookPower == Power)
 		{
 			return true;
 		}

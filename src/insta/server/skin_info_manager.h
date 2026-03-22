@@ -52,7 +52,7 @@ public:
 	// //          tick. Something like a bomb animation or rainbow.
 	// bool m_NetworkClipped = false;
 
-	bool HasAnyValue();
+	bool HasAnyValue() const;
 
 	// we need a std::string instead of C styled array
 	// to avoid having messy std::optional code

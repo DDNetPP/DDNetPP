@@ -376,13 +376,13 @@ void CGameContext::InstaGrenadeRoundEndTick(int Id)
 				if(aaScorePlayers[k][1] < aaScorePlayers[k + 1][1])
 				{
 					//move ids
-					int tmp = aaScorePlayers[k][0];
+					int Tmp = aaScorePlayers[k][0];
 					aaScorePlayers[k][0] = aaScorePlayers[k + 1][0];
-					aaScorePlayers[k + 1][0] = tmp;
+					aaScorePlayers[k + 1][0] = Tmp;
 					//move score
-					tmp = aaScorePlayers[k][1];
+					Tmp = aaScorePlayers[k][1];
 					aaScorePlayers[k][1] = aaScorePlayers[k + 1][1];
-					aaScorePlayers[k + 1][1] = tmp;
+					aaScorePlayers[k + 1][1] = Tmp;
 				}
 			}
 		}
@@ -474,13 +474,13 @@ void CGameContext::InstaRifleRoundEndTick(int Id)
 				if(aaScorePlayers[k][1] < aaScorePlayers[k + 1][1])
 				{
 					//move ids
-					int tmp = aaScorePlayers[k][0];
+					int Tmp = aaScorePlayers[k][0];
 					aaScorePlayers[k][0] = aaScorePlayers[k + 1][0];
-					aaScorePlayers[k + 1][0] = tmp;
+					aaScorePlayers[k + 1][0] = Tmp;
 					//move score
-					tmp = aaScorePlayers[k][1];
+					Tmp = aaScorePlayers[k][1];
 					aaScorePlayers[k][1] = aaScorePlayers[k + 1][1];
-					aaScorePlayers[k + 1][1] = tmp;
+					aaScorePlayers[k + 1][1] = Tmp;
 				}
 			}
 		}

@@ -185,7 +185,7 @@ void CGameContext::LoginBanCheck(int ClientId)
 	const NETADDR *pAddr = Server()->ClientAddr(ClientId);
 	char aBuf[128];
 	int Found = 0;
-	int atts = 0;
+	int Atts = 0;
 	int64_t BanTime = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumLoginBans; i++)
@@ -194,7 +194,7 @@ void CGameContext::LoginBanCheck(int ClientId)
 		{
 			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
-			atts = ++m_aLoginBans[i].m_NumAttempts;
+			Atts = ++m_aLoginBans[i].m_NumAttempts;
 			Found = 1;
 			// dbg_msg("login", "found ClientId=%d with %d failed attempts.", ClientId, atts);
 			break;
@@ -208,21 +208,21 @@ void CGameContext::LoginBanCheck(int ClientId)
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
 			m_aLoginBans[m_NumLoginBans].m_Expire = 0;
 			m_aLoginBans[m_NumLoginBans].m_Addr = *pAddr;
-			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
+			Atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
 			m_NumLoginBans++;
 			Found = 1;
 			// dbg_msg("login", "adding ClientId=%d with %d failed attempts.", ClientId, atts);
 		}
 	}
 
-	if(atts >= g_Config.m_SvMaxLoginPerIp)
+	if(Atts >= g_Config.m_SvMaxLoginPerIp)
 		LoginBan(pAddr, 60 * 60 * 12, Server()->ClientName(ClientId));
-	else if(atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
+	else if(Atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
 		LoginBan(pAddr, 60, Server()->ClientName(ClientId));
 
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientId=%d has %d/%d failed account login attempts.", ClientId, atts, g_Config.m_SvMaxLoginPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has %d/%d failed account login attempts.", ClientId, Atts, g_Config.m_SvMaxLoginPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 	else // no free slot found

@@ -84,14 +84,14 @@ bool CGameContext::DDPPPoints(IConsole::IResult *pResult, void *pUserData)
 
 		if(pResult->NumArguments() > 0) //show others
 		{
-			int pointsId = pSelf->GetCidByName(pResult->GetString(0));
-			if(pointsId == -1)
+			int PointsId = pSelf->GetCidByName(pResult->GetString(0));
+			if(PointsId == -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' is not online", pResult->GetString(0));
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 				return true;
 			}
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPoints, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPointsKills, pSelf->m_apPlayers[pointsId]->m_Account.m_BlockPointsDeaths);
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[PointsId]->m_Account.m_BlockPoints, pSelf->m_apPlayers[PointsId]->m_Account.m_BlockPointsKills, pSelf->m_apPlayers[PointsId]->m_Account.m_BlockPointsDeaths);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 		else //show own
@@ -3086,10 +3086,10 @@ void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int amount = 1;
+	int Amount = 1;
 	if(pResult->NumArguments() > 0)
-		amount = pResult->GetInteger(0);
-	pChr->DropHealth(amount);
+		Amount = pResult->GetInteger(0);
+	pChr->DropHealth(Amount);
 }
 
 void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
@@ -3127,10 +3127,10 @@ void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int amount = 1;
+	int Amount = 1;
 	if(pResult->NumArguments() > 0)
-		amount = pResult->GetInteger(0);
-	pChr->DropArmor(amount);
+		Amount = pResult->GetInteger(0);
+	pChr->DropArmor(Amount);
 }
 
 void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
@@ -3213,16 +3213,16 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
-	if(!page)
+	int Page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
+	if(!Page)
 	{
-		page = 1;
+		Page = 1;
 	}
-	int pages = 4;
+	int Pages = 4;
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "-- page %d/%d --", page, pages);
+	str_format(aBuf, sizeof(aBuf), "-- page %d/%d --", Page, Pages);
 
-	if(page == 1)
+	if(Page == 1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
@@ -3243,7 +3243,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 2)
+	else if(Page == 2)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
@@ -3262,7 +3262,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 3)
+	else if(Page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
@@ -3283,7 +3283,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
-	else if(page == 4)
+	else if(Page == 4)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
@@ -6473,18 +6473,18 @@ void CGameContext::ConRegex(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 #if defined(CONF_FAMILY_UNIX)
-	int ret = regex_compile(pResult->GetString(0), pResult->GetString(1));
-	if(ret == -1)
+	int Ret = regex_compile(pResult->GetString(0), pResult->GetString(1));
+	if(Ret == -1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[REGEX] Error: pattern compile failed.");
 		return;
 	}
-	if(ret == 1)
+	if(Ret == 1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[REGEX] (-) pattern does not match.");
 		return;
 	}
-	if(ret == 0)
+	if(Ret == 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientId, "[REGEX] (+) pattern matches.");
 		return;
@@ -7818,7 +7818,7 @@ void CGameContext::ConLaserText(IConsole::IResult *pResult, void *pUserData)
 		&pSelf->m_World,
 		vec2(pChr->GetPos().x, pChr->GetPos().y - (5 * 32)),
 		pSelf->Server()->TickSpeed() * 3,
-		pResult->GetString(0));
+		pResult->GetString(0)); // NOLINT(clang-analyzer-unix.Malloc)
 }
 
 void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)
@@ -8081,14 +8081,14 @@ void CGameContext::ConViewers(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[32];
 	char aMsg[128];
-	int viewers = 0;
+	int Viewers = 0;
 
 	for(auto &Player : pSelf->m_apPlayers)
 	{
 		if(Player && Player->SpectatorId() == pResult->m_ClientId)
 		{
-			viewers++;
-			if(viewers == 1)
+			Viewers++;
+			if(Viewers == 1)
 			{
 				str_format(aMsg, sizeof(aMsg), "'%s'", pSelf->Server()->ClientName(Player->GetCid()));
 			}
@@ -8100,9 +8100,9 @@ void CGameContext::ConViewers(IConsole::IResult *pResult, void *pUserData)
 		}
 	}
 
-	if(viewers)
+	if(Viewers)
 	{
-		str_format(aBuf, sizeof(aBuf), "You have [%d] fangrills:", viewers);
+		str_format(aBuf, sizeof(aBuf), "You have [%d] fangrills:", Viewers);
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		pSelf->SendChatTarget(pResult->m_ClientId, aMsg);
 	}
@@ -8495,10 +8495,10 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: acc2 <command> <name> <value>");
 			return;
 		}
-		int value;
+		int Value;
 		char aValueStr[16];
-		value = pResult->GetInteger(2);
-		str_format(aValueStr, sizeof(aValueStr), "%d", value);
+		Value = pResult->GetInteger(2);
+		str_format(aValueStr, sizeof(aValueStr), "%d", Value);
 
 		for(auto &Player : pSelf->m_apPlayers)
 		{
@@ -8506,8 +8506,8 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(Player->IsLoggedIn() && !str_comp(Player->m_Account.m_aUsername, aName))
 				{
-					Player->m_Account.m_IsSupporter = value;
-					if(value == 1)
+					Player->m_Account.m_IsSupporter = Value;
+					if(Value == 1)
 					{
 						pSelf->SendChatTarget(Player->GetCid(), "[ACCOUNT] You are now Supporter.");
 					}
@@ -8515,7 +8515,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 					{
 						pSelf->SendChatTarget(Player->GetCid(), "[ACCOUNT] You are no longer Supporter.");
 					}
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", value);
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", Value);
 					pSelf->SendChatTarget(ClientId, aBuf);
 					return;
 				}
@@ -8526,7 +8526,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 		if(!pSelf->ChillUpdateFileAcc(aName, 6, aValueStr, pResult->m_ClientId))
 		{
-			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSupporter = %d (account is not logged in)", value);
+			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSupporter = %d (account is not logged in)", Value);
 			pSelf->SendChatTarget(ClientId, aBuf);
 		}
 		else

@@ -181,14 +181,14 @@ int CGameContext::GetBlockSkillGroupInt(int ClientId)
 	}
 }
 
-void CGameContext::UpdateBlockSkill(int value, int ClientId)
+void CGameContext::UpdateBlockSkill(int Value, int ClientId)
 {
 	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 
 	int OldRank = GetBlockSkillGroupInt(ClientId);
-	pPlayer->m_Account.m_BlockSkill += value; //update skill
+	pPlayer->m_Account.m_BlockSkill += Value; //update skill
 	if(pPlayer->m_Account.m_BlockSkill < 0)
 	{
 		pPlayer->m_Account.m_BlockSkill = 0; //never go less than zero

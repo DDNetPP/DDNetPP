@@ -18,8 +18,8 @@ inline int _random(int min, int max) { return min + rand() % (max + 1 - min); }
 template<typename T>
 inline vector2_base<T> rotate_around_point(vector2_base<T> point, vector2_base<T> pivot, float angle)
 {
-	T s = sin(angle);
-	T c = cos(angle);
+	T s = std::sin(angle);
+	T c = std::cos(angle);
 	// translate point to origin
 	point -= pivot;
 	// rotate point

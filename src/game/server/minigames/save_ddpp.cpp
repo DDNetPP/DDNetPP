@@ -12,8 +12,8 @@ void CSaveTeeDDPP::Save(CCharacter *pChr)
 			m_aWeaponsBackup[i][k] = pChr->m_aWeaponsBackup[i][k];
 	m_WeaponsBackupped = pChr->m_WeaponsBackupped;
 	m_AliveSince = pChr->m_AliveSince;
-	m_survivexpvalue = pChr->m_Survivexpvalue;
-	m_DDPP_Finished = pChr->m_DdppFinished;
+	m_Survivexpvalue = pChr->m_Survivexpvalue;
+	m_DdppFinished = pChr->m_DdppFinished;
 	m_Rainbow = pChr->m_Rainbow;
 	m_Bloody = pChr->m_Bloody;
 	m_StrongBloody = pChr->m_StrongBloody;
@@ -22,8 +22,8 @@ void CSaveTeeDDPP::Save(CCharacter *pChr)
 	m_WaveBloodyStrength = pChr->m_WaveBloodyStrength;
 	m_Atom = pChr->m_Atom;
 	m_Trail = pChr->m_Trail;
-	m_autospreadgun = pChr->m_Autospreadgun;
-	m_ninjasteam = pChr->m_Ninjasteam;
+	m_Autospreadgun = pChr->m_Autospreadgun;
+	m_Ninjasteam = pChr->m_Ninjasteam;
 	m_RandomCosmetics = pChr->m_RandomCosmetics;
 	m_HomingMissile = pChr->m_HomingMissile;
 }
@@ -35,8 +35,8 @@ void CSaveTeeDDPP::Load(CCharacter *pChr)
 			pChr->m_aWeaponsBackup[i][k] = m_aWeaponsBackup[i][k];
 	pChr->m_WeaponsBackupped = m_WeaponsBackupped;
 	pChr->m_AliveSince = m_AliveSince;
-	pChr->m_Survivexpvalue = m_survivexpvalue;
-	pChr->m_DdppFinished = m_DDPP_Finished;
+	pChr->m_Survivexpvalue = m_Survivexpvalue;
+	pChr->m_DdppFinished = m_DdppFinished;
 	pChr->m_Rainbow = m_Rainbow;
 	pChr->m_Bloody = m_Bloody;
 	pChr->m_StrongBloody = m_StrongBloody;
@@ -45,8 +45,8 @@ void CSaveTeeDDPP::Load(CCharacter *pChr)
 	pChr->m_WaveBloodyStrength = m_WaveBloodyStrength;
 	pChr->m_Atom = m_Atom;
 	pChr->m_Trail = m_Trail;
-	pChr->m_Autospreadgun = m_autospreadgun;
-	pChr->m_Ninjasteam = m_ninjasteam;
+	pChr->m_Autospreadgun = m_Autospreadgun;
+	pChr->m_Ninjasteam = m_Ninjasteam;
 	pChr->m_RandomCosmetics = m_RandomCosmetics;
 	pChr->m_HomingMissile = m_HomingMissile;
 }

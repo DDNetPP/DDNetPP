@@ -1608,8 +1608,8 @@ void CDummyChillBlock5Race::OnTick()
 
 						if(pChr->GetPos().x < 475 * 32) // mate failed in left tunnel
 						{
-							int dist = distance(pChr->GetPos(), GetPos());
-							if(dist < 11 * 32)
+							int Dist = distance(pChr->GetPos(), GetPos());
+							if(Dist < 11 * 32)
 							{
 								Hook();
 								m_DummyMateHelpMode = 3;
