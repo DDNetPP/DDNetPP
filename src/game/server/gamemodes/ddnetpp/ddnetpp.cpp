@@ -38,7 +38,13 @@ int CGameControllerDDNetPP::SnapGameInfoExFlags(int SnappingClient, int DDRaceFl
 
 int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
 {
-	return Lua()->OnSnapGameInfoExFlags2(SnappingClient, DDRaceFlags);
+	int Flags = DDRaceFlags;
+	// I needed that for a plugin but the plugin could also set the flag lel
+	// in general this seems like a nice idea for snapping odd things
+	// but there should be a config to block users from requesting this skin
+	// only the server should be able to send it
+	Flags |= GAMEINFOFLAG2_ALLOW_X_SKINS;
+	return Lua()->OnSnapGameInfoExFlags2(SnappingClient, Flags);
 }
 
 bool CGameControllerDDNetPP::OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos)

@@ -498,6 +498,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushinteger(LuaState(), WEAPON_WORLD);
 		lua_settable(LuaState(), -3);
 
+		lua_pushstring(LuaState(), "NONE");
+		lua_pushinteger(LuaState(), -1);
+		lua_settable(LuaState(), -3);
+
 		lua_pushstring(LuaState(), "HAMMER");
 		lua_pushinteger(LuaState(), WEAPON_HAMMER);
 		lua_settable(LuaState(), -3);
