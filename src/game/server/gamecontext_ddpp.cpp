@@ -40,6 +40,7 @@
 #include <chrono>
 #include <cinttypes>
 #include <cstdarg>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream> //acc2 sys
@@ -2105,7 +2106,7 @@ void CGameContext::LoadSinglePlayer()
 
 	if(!fread(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile))
 	{
-		dbg_msg("ddpp-stats", "failed to read ddpp singleplayer stats");
+		log_error("ddpp-stats", "failed to read ddpp singleplayer stats");
 		fclose(pFile);
 		return;
 	}
@@ -2113,7 +2114,8 @@ void CGameContext::LoadSinglePlayer()
 	m_MissionUnlockedLevel = StatsBuff.x;
 	if(!fread(&StatsBuff, sizeof(struct CBinaryStorage), 1, pFile))
 	{
-		dbg_msg("ddpp-stats", "failed to read ddpp singleplayer stats");
+		log_error("ddpp-stats", "failed to read ddpp singleplayer stats");
+		fclose(pFile);
 		return;
 	}
 	dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", StatsBuff.x);
@@ -2199,7 +2201,8 @@ void CGameContext::LoadMapPlayerData()
 	int Players = 0;
 	if(!fread(&Players, sizeof(Players), 1, pFile))
 	{
-		dbg_msg("ddpp-mapload", "failed to read data");
+		log_error("ddpp-mapload", "failed to read data");
+		fclose(pFile);
 		return;
 	}
 	for(int i = 0; i < Players; i++)
@@ -2225,6 +2228,7 @@ void CGameContext::LoadMapPlayerData()
 			CPlayer *pPlayer = m_apPlayers[Id];
 			if(!pPlayer)
 			{
+				fclose(pFile);
 				dbg_assert(false, "loadmap invalid player");
 				return;
 			}
@@ -2251,7 +2255,8 @@ void CGameContext::LoadMapPlayerData()
 		dbg_msg("ddpp-mapload", "reading isloaded at pos %ld", get_file_offset(pFile));
 		if(!fread(&IsLoaded, sizeof(IsLoaded), 1, pFile))
 		{
-			dbg_msg("ddpp-mapload", "failed to read data");
+			log_error("ddpp-mapload", "failed to read data");
+			fclose(pFile);
 			return;
 		}
 		// reset file pos after read to overwrite isloaded or keep clean offset on continue
@@ -2268,7 +2273,8 @@ void CGameContext::LoadMapPlayerData()
 		CSaveTee SaveTee;
 		if(!fread(&SaveTee, sizeof(SaveTee), 1, pFile))
 		{
-			dbg_msg("ddpp-mapload", "failed to read data");
+			log_error("ddpp-mapload", "failed to read data");
+			fclose(pFile);
 			return;
 		}
 
@@ -2299,7 +2305,7 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 	pFile = fopen(aSaveFile, "rb");
 	if(!pFile)
 	{
-		dbg_msg("ddpp-mapread", "failed to read ddpp player data file '%s'.", aSaveFile);
+		log_error("ddpp-mapread", "failed to read ddpp player data file '%s'.", aSaveFile);
 		return;
 	}
 	int Loaded = 0;
@@ -2307,7 +2313,8 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 	int Players = 0;
 	if(!fread(&Players, sizeof(Players), 1, pFile))
 	{
-		dbg_msg("ddpp-mapread", "failed to read data");
+		log_error("ddpp-mapread", "failed to read data");
+		fclose(pFile);
 		return;
 	}
 	for(int i = 0; i < Players; i++)
@@ -2316,14 +2323,16 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 		dbg_msg("ddpp-mapread", "read timeout code at %ld", get_file_offset(pFile));
 		if(!fread(&aTimeoutCode, 64, 1, pFile))
 		{
-			dbg_msg("ddpp-mapread", "failed to read data");
+			log_error("ddpp-mapread", "failed to read data");
+			fclose(pFile);
 			return;
 		}
 		int Id = GetPlayerByTimeoutcode(aTimeoutCode);
 		char IsLoaded;
 		if(!fread(&IsLoaded, sizeof(IsLoaded), 1, pFile))
 		{
-			dbg_msg("ddpp-mapread", "failed to read data");
+			log_error("ddpp-mapread", "failed to read data");
+			fclose(pFile);
 			return;
 		}
 		if(IsLoaded)
@@ -2332,15 +2341,16 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 		CSaveTee SaveTee;
 		if(!fread(&SaveTee, sizeof(SaveTee), 1, pFile))
 		{
-			dbg_msg("ddpp-mapread", "failed to read data");
+			log_error("ddpp-mapread", "failed to read data");
+			fclose(pFile);
 			return;
 		}
 
-		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", Id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
+		log_info("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", Id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
 		Red++;
 	}
 	if(fclose(pFile))
-		dbg_msg("ddpp-mapread", "failed to close file '%s' errno=%d", aSaveFile, errno);
+		log_error("ddpp-mapread", "failed to close file '%s' errno=%d", aSaveFile, errno);
 	if(ClientId != -1)
 	{
 		char aBuf[128];
@@ -2352,7 +2362,7 @@ void CGameContext::ReadMapPlayerData(int ClientId)
 			SendChatTarget(ClientId, aBuf);
 		}
 	}
-	dbg_msg("ddpp-mapread", "red %d/%d players (%d loaded)", Red, Players, Loaded);
+	log_info("ddpp-mapread", "red %d/%d players (%d loaded)", Red, Players, Loaded);
 }
 
 void CGameContext::GlobalChatPrintMessage()
