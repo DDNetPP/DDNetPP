@@ -12,6 +12,7 @@
 #include <game/server/entities/laser_text.h>
 #include <game/server/player.h>
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 
@@ -244,12 +245,9 @@ bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char 
 
 bool CGameContext::IsMessageSpamfiltered(const char *pMessage)
 {
-	for(const std::string &Filter : m_vSpamfilters)
-	{
-		if(str_utf8_find_nocase(pMessage, Filter.c_str()))
-			return true;
-	}
-	return false;
+	return std::ranges::any_of(m_vSpamfilters, [pMessage](const std::string &Filter) {
+		return str_utf8_find_nocase(pMessage, Filter.c_str());
+	});
 }
 
 bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage)
