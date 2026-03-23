@@ -6,6 +6,8 @@
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
 
+#include <optional>
+
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
@@ -208,14 +210,55 @@ vec2 CTableUnpacker::GetVec2(const char *pKey)
 
 	// RAII scope
 	{
-		CTableUnpacker Unpacker(LuaState(), m_Index, aNestedName, m_aSourceFilename, m_SourceLineNumber);
+		CTableUnpacker Unpacker(LuaState(), -1, aNestedName, m_aSourceFilename, m_SourceLineNumber);
+		if(Unpacker.IsError())
+		{
+			m_IsError = true;
+			return vec2(0.0f, 0.0f);
+		}
 		Pos.x = Unpacker.GetFloat("x");
 		Pos.y = Unpacker.GetFloat("y");
 		if(Unpacker.IsError())
 		{
-			Error("nested error");
+			m_IsError = true;
 			return vec2(0.0f, 0.0f);
 		}
+	}
+
+	// pop nested table
+	lua_pop(LuaState(), 1);
+	return Pos;
+}
+
+std::optional<vec2> CTableUnpacker::GetVec2Optional(const char *pKey)
+{
+	if(m_IsError)
+		return std::nullopt;
+	lua_getfield(LuaState(), m_Index, pKey);
+	char aNestedName[512];
+	str_format(aNestedName, sizeof(aNestedName), "%s.%s", m_aTableName, pKey);
+	vec2 Pos = vec2(0.0f, 0.0f);
+
+	// RAII scope
+	{
+		if(!lua_istable(LuaState(), -1))
+			return std::nullopt;
+
+		CTableUnpacker Unpacker(LuaState(), -1, aNestedName, m_aSourceFilename, m_SourceLineNumber);
+		std::optional<float> Value;
+
+		Value = Unpacker.GetFloatOptional("x");
+		if(!Value)
+			return std::nullopt;
+		Pos.x = Value.value();
+
+		Value = Unpacker.GetFloatOptional("y");
+		if(!Value)
+			return std::nullopt;
+		Pos.y = Value.value();
+
+		if(Unpacker.IsError())
+			return std::nullopt;
 	}
 
 	// pop nested table
@@ -270,6 +313,16 @@ std::optional<float> CTableUnpacker::GetCoordinateOptional(const char *pKey)
 	float Val = LuaCheckCoordinate(LuaState(), -1);
 	lua_pop(LuaState(), 1);
 	return Val;
+}
+
+bool CTableUnpacker::IsNestedTable(const char *pKey)
+{
+	if(m_IsError)
+		return false;
+	lua_getfield(LuaState(), m_Index, pKey);
+	bool GotTable = lua_istable(LuaState(), -1);
+	lua_pop(LuaState(), 1);
+	return GotTable;
 }
 
 #endif

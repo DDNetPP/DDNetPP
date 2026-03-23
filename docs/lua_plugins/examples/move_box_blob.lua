@@ -28,8 +28,7 @@ end
 function snap_blob(blob)
 	ddnetpp.snap.new_laser({
 		id = blob.snap_id,
-		x = blob.pos.x,
-		y = blob.pos.y,
+		pos = blob.pos
 	})
 end
 

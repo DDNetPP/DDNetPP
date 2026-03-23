@@ -1576,10 +1576,13 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 
 	CTableUnpacker Unpacker(L, -1, "laser", __FILE__, __LINE__);
 	int SnapId = Unpacker.GetInt("id");
-	int PosX = Unpacker.GetCoordinate("x");
-	int PosY = Unpacker.GetCoordinate("y");
-	int FromX = Unpacker.GetCoordinateOptional("from_x").value_or(PosX);
-	int FromY = Unpacker.GetCoordinateOptional("from_y").value_or(PosY);
+	vec2 Pos = Unpacker.GetPosition("pos");
+
+	vec2 FromPos = Pos;
+	// error the plugin if the key exist and is in wrong shape
+	// but use defaults if it does not exist
+	if(Unpacker.IsNestedTable("from_pos"))
+		FromPos = Unpacker.GetPosition("from_pos");
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", 0);
 
 	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
@@ -1588,10 +1591,10 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 
 	// log_info("lua", "snapping laser with id=%d ...", SnapId);
 
-	pObj->m_X = PosX;
-	pObj->m_Y = PosY;
-	pObj->m_FromX = FromX;
-	pObj->m_FromY = FromY;
+	pObj->m_X = (int)Pos.x;
+	pObj->m_Y = (int)Pos.y;
+	pObj->m_FromX = (int)FromPos.x;
+	pObj->m_FromY = (int)FromPos.y;
 	pObj->m_StartTick = StartTick;
 	return 0;
 }
@@ -1648,8 +1651,9 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 
 	// TODO: add more sensible defaults so lua plugins can get something to work with less code
 	pCharacter->m_Tick = Unpacker.GetIntOrDefault("tick", 0);
-	pCharacter->m_X = Unpacker.GetCoordinate("x");
-	pCharacter->m_Y = Unpacker.GetCoordinate("y");
+	vec2 Pos = Unpacker.GetPosition("pos");
+	pCharacter->m_X = Pos.x;
+	pCharacter->m_Y = Pos.y;
 	// TODO: do we need to scale velocity similar to how we do it with coordinates and positions?
 	pCharacter->m_VelX = Unpacker.GetInt("vel_x");
 	pCharacter->m_VelY = Unpacker.GetInt("vel_y");
@@ -1749,10 +1753,9 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 
 	CTableUnpacker Unpacker(L, -1, "projectile", __FILE__, __LINE__);
 	int SnapId = Unpacker.GetInt("id");
-	float PosX = Unpacker.GetCoordinate("x");
-	float PosY = Unpacker.GetCoordinate("y");
+	vec2 Pos = Unpacker.GetPosition("pos");
 	int VelX = Unpacker.GetFloatOptional("vel_x").value_or(0.0f);
-	int VelY = Unpacker.GetCoordinateOptional("vel_y").value_or(PosY);
+	int VelY = Unpacker.GetCoordinateOptional("vel_y").value_or(0.0f);
 	int Type = Unpacker.GetIntOrDefault("type", WEAPON_GRENADE);
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", pGame->Server()->Tick() - 3);
 
@@ -1798,8 +1801,8 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 		if(!pObj)
 			return 0;
 
-		pObj->m_X = round_to_int(PosX * 100.0f);
-		pObj->m_Y = round_to_int(PosY * 100.0f);
+		pObj->m_X = round_to_int(Pos.x * 100.0f);
+		pObj->m_Y = round_to_int(Pos.y * 100.0f);
 		pObj->m_VelX = VelX;
 		pObj->m_VelY = VelY;
 		pObj->m_Type = Type;
@@ -1817,8 +1820,8 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 		if(!pObj)
 			return 0;
 
-		pObj->m_X = (int)PosX;
-		pObj->m_Y = (int)PosY;
+		pObj->m_X = (int)Pos.x;
+		pObj->m_Y = (int)Pos.y;
 		pObj->m_VelX = VelX;
 		pObj->m_VelY = VelY;
 		pObj->m_Type = Type;

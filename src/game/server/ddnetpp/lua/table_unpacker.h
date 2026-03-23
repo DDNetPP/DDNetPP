@@ -47,9 +47,11 @@ public:
 	float GetFloat(const char *pKey);
 	std::optional<float> GetFloatOptional(const char *pKey);
 	vec2 GetVec2(const char *pKey);
+	std::optional<vec2> GetVec2Optional(const char *pKey);
 	vec2 GetPosition(const char *pKey);
 	float GetCoordinate(const char *pKey);
 	std::optional<float> GetCoordinateOptional(const char *pKey);
+	bool IsNestedTable(const char *pKey);
 };
 
 #endif
