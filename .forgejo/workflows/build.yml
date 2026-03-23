@@ -1,0 +1,190 @@
+name: Build
+
+on:
+  push:
+    branches-ignore:
+      - gh-readonly-queue/**
+  pull_request:
+  merge_group:
+
+jobs:
+  build-cmake:
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_HTTP_MULTIPLEXING: false
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        include:
+        - name: ubuntu-latest
+          os: ubuntu-latest
+          cmake-args: -G Ninja
+          cmake-init-env: CXXFLAGS=-Werror
+          package-file: "*-linux_x86_64.tar.xz"
+        - name: macOS-latest
+          os: macOS-latest
+          workaround-issue10203-run-after-configure:
+        - name: windows-latest
+          os: windows-latest
+          cmake-args: -A x64 -DEXCEPTION_HANDLING=ON
+          cmake-init-env: CXXFLAGS=/WX LDFLAGS=/WX
+          package-file: "*-win64.zip"
+          executable-suffix: .exe
+        - name: windows-latest-mingw
+          os: windows-latest
+          cmake-args: -G Ninja -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DEXCEPTION_HANDLING=ON -DCMAKE_RC_COMPILER=windres -DCMAKE_AR=ar
+          cmake-init-env: CXXFLAGS=-Werror LDFLAGS=-Werror
+          package-file: "*-win64.zip"
+          executable-suffix: .exe
+          # Delete outdated libwinpthread-1.dll after configuring to workaround https://github.com/ddnet/ddnet/issues/10203 when using MinGW.
+          # Adding this condition into the individual steps is not possible without using bash shell consistently, which does not work for windows-latest.
+          workaround-issue10203-run-after-configure: rm libwinpthread-1.dll
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Prepare Linux
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update -y
+        # mount: /var/lib/grub/esp: special device /dev/disk/by-id/scsi-... does not exist.
+        # sudo apt-get upgrade -y
+        sudo apt-get install pkg-config ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libpng-dev valgrind gcovr libglew-dev -y
+
+    - name: Prepare Linux (non-fancy)
+      if: contains(matrix.os, 'ubuntu') && !matrix.fancy
+      run: |
+        # Our minimum supported Rust version (MSRV)
+        rustup default 1.63.0
+        sudo rm -rf /var/lib/mysql/ /var/run/mysqld
+        sudo mkdir /var/lib/mysql/ /var/run/mysqld/
+        sudo chown mysql:mysql /var/lib/mysql/ /var/run/mysqld/
+        sudo mysqld --initialize-insecure --user=mysql --basedir=/usr --datadir=/var/lib/mysql/
+        sudo /usr/bin/mysqld_safe --basedir=/usr --datadir='/var/lib/mysql/' &
+        sleep 10
+        sudo mysql <<EOF
+        CREATE DATABASE ddnet;
+        CREATE USER 'ddnet'@'localhost' IDENTIFIED BY 'thebestpassword';
+        GRANT ALL PRIVILEGES ON ddnet.* TO 'ddnet'@'localhost';
+        FLUSH PRIVILEGES;
+        EOF
+
+    - name: Prepare Linux (fancy)
+      if: contains(matrix.os, 'ubuntu') && matrix.fancy
+      run: |
+        sudo apt-get install libmariadb-dev libwebsockets-dev mariadb-server -y
+        sudo systemctl stop mysql
+        sudo rm -rf /var/lib/mysql/
+        sudo mysql_install_db --user=mysql --datadir=/var/lib/mysql/
+        cd /usr; sudo mysqld_safe --datadir='/var/lib/mysql/' --no-watch
+        sleep 10
+        sudo mysql <<EOF
+        CREATE DATABASE ddnet;
+        CREATE USER 'ddnet'@'localhost' IDENTIFIED BY 'thebestpassword';
+        GRANT ALL PRIVILEGES ON ddnet.* TO 'ddnet'@'localhost';
+        FLUSH PRIVILEGES;
+        EOF
+
+    - name: Prepare macOS
+      if: contains(matrix.os, 'macOS')
+      run: |
+        brew update
+        brew install ffmpeg molten-vk ninja pkg-config sdl2
+        brew upgrade freetype
+        pip3 install --break-system-packages dmgbuild
+        echo /Library/Frameworks/Python.framework/Versions/3.12/bin >> $GITHUB_PATH
+        sudo rm -rf /Library/Developer/CommandLineTools
+
+    - name: Prepare Windows MinGW
+      if: contains(matrix.os, 'windows') && contains(matrix.name, 'mingw')
+      run: |
+        rustup toolchain install stable-x86_64-pc-windows-gnu
+        rustup target add x86_64-pc-windows-gnu
+        rustup default stable-x86_64-pc-windows-gnu
+        rustup set default-host x86_64-pc-windows-gnu
+
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.2
+      with:
+        version: 1.3.296.0
+        cache: true
+
+    - name: Build in debug mode
+      run: |
+        mkdir debug
+        cd debug
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
+        ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything
+
+    - name: Test debug
+      run: |
+        cd debug
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
+
+    - name: Run debug server
+      run: |
+        cd debug
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
+
+    - name: Build in release mode
+      run: |
+        mkdir release
+        cd release
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCLIENT=ON -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
+        ${{ matrix.cmake-path }}cmake --build . --config Release --target everything
+
+    - name: Test release
+      run: |
+        cd release
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.gtest-env }} ${{ matrix.cmake-path }}cmake --build . --config Release --target run_tests
+
+    - name: Run release server
+      run: |
+        cd release
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
+
+    - name: Build headless client
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: |
+        mkdir headless
+        cd headless
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DHEADLESS_CLIENT=ON -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
+        ${{ matrix.cmake-path }}cmake --build . --config Debug
+
+    - name: Build headless client with code coverage
+      if: contains(matrix.os, 'ubuntu-latest')
+      run: |
+        mkdir headless
+        cd headless
+        ${{ matrix.cmake-path }}cmake --version
+        ${{ matrix.cmake-path }}cmake -E env CXXFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake -E env LDFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake \
+          ${{ matrix.cmake-args }} \
+          -DCLIENT=ON \
+          -DHEADLESS_CLIENT=ON \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -Werror=dev \
+          -DDOWNLOAD_GTEST=ON \
+          -DDEV=ON \
+          -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.workaround-issue10203-run-after-configure }}
+        ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug  ${{ matrix.build-args }}
+        cp DDNetPP.exe DDNet-Server.exe || true
+        cp data/maps/ddnetpp-test.map data/maps/'Sunny Side Up'.map
+    - name: Rename binarys on linux
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        cd headless
+        cp DDNetPP DDNet-Server || true
+
+    - name: Test headless client (unit tests)
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: |
+        cd headless
+        ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
+
