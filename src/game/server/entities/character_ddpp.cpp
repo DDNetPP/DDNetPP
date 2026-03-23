@@ -442,13 +442,13 @@ void CCharacter::DropHealth(int Amount)
 	}
 }
 
-void CCharacter::DropArmor(int amount)
+void CCharacter::DropArmor(int Amount)
 {
-	if(amount > 64)
+	if(Amount > 64)
 	{
-		amount = 64;
+		Amount = 64;
 	}
-	for(int i = 0; i < amount; i++)
+	for(int i = 0; i < Amount; i++)
 	{
 		while(GameServer()->m_vDropLimit[POWERUP_ARMOR].size() > (long unsigned int)g_Config.m_SvMaxDrops)
 		{
@@ -461,7 +461,7 @@ void CCharacter::DropArmor(int amount)
 			300, // lifetime
 			m_pPlayer->GetCid(),
 			(rand() % 3) - 1, // direction
-			(float)(amount / 5), // force
+			(float)(Amount / 5), // force
 			Team());
 		GameServer()->m_vDropLimit[POWERUP_ARMOR].push_back(p);
 	}
@@ -2467,7 +2467,8 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		}
 
 		// summon meteor
-		new CMeteor(
+		// NOLINT(clang-analyzer-unix.Malloc)
+		new CMeteor( // NOLINT(clang-analyzer-unix.Malloc)
 			GameWorld(),
 			GetPlayer()->GetCid(),
 			ProjStartPos,

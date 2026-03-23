@@ -37,6 +37,7 @@
 #include <game/server/player.h>
 #include <game/server/teams.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cinttypes>
 #include <cstdarg>
@@ -761,15 +762,9 @@ bool CGameContext::InitTileDDPP(int Index, int x, int y)
 
 bool CGameContext::CheckAccounts(int AccountId)
 {
-	for(auto &Player : m_apPlayers)
-	{
-		if(!Player)
-			continue;
-
-		if(Player->GetAccId() == AccountId)
-			return true;
-	}
-	return false;
+	return std::ranges::any_of(m_apPlayers, [&](const CPlayer *pPlayer) {
+		return pPlayer && pPlayer->GetAccId() == AccountId;
+	});
 }
 
 int CGameContext::GetNextClientId()
@@ -2156,8 +2151,8 @@ void CGameContext::SaveMapPlayerData()
 		return;
 	}
 	int Saved = 0;
-	int players = CountTimeoutCodePlayers();
-	fwrite(&players, sizeof(players), 1, pFile);
+	int Players = CountTimeoutCodePlayers();
+	fwrite(&Players, sizeof(Players), 1, pFile);
 	for(auto &Player : m_apPlayers)
 	{
 		if(!Player)
@@ -2182,7 +2177,7 @@ void CGameContext::SaveMapPlayerData()
 		Saved++;
 	}
 	fclose(pFile);
-	dbg_msg("ddpp-mapsave", "saved %d/%d players", Saved, players);
+	dbg_msg("ddpp-mapsave", "saved %d/%d players", Saved, Players);
 }
 
 void CGameContext::LoadMapPlayerData()

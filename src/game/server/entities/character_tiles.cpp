@@ -346,7 +346,7 @@ void CCharacter::OnTileMoney()
 	if(IsInDDRaceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
-		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+		if(m_FreezeTime)
 			return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
@@ -607,7 +607,7 @@ void CCharacter::OnTileMoneyDouble()
 	if(IsInDDRaceTeam())
 		return;
 	if(!g_Config.m_SvFreezeFarm)
-		if(m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+		if(m_FreezeTime)
 			return;
 	if(g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
