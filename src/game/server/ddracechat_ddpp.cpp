@@ -25,12 +25,8 @@
 #include <game/version.h>
 
 #include <cinttypes>
-#include <cstdio> //acc2 to_str()
 #include <cstdlib> //acc2 to_str()
-#include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
-
-bool CheckClientId(int ClientId); //TODO: whats this ? xd
 
 bool CGameContext::DDPPCredits()
 {
@@ -5288,12 +5284,12 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		int policedudesfound = 0;
+		int Policedudesfound = 0;
 		for(auto &Player : pSelf->m_apPlayers)
 			if(Player && Player->m_Account.m_PoliceRank && Player != pPlayer)
-				policedudesfound++;
+				Policedudesfound++;
 
-		if(!policedudesfound)
+		if(!Policedudesfound)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientId, "You can't rob the bank if there is no police on the server!");
 			return;
@@ -5302,8 +5298,8 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_Account.m_EscapeTime += pSelf->Server()->TickSpeed() * 600; //+10 min
 		//str_format(aBuf, sizeof(aBuf), "+%d bank robbery", 5 * policedudesfound);
 		//pPlayer->MoneyTransaction(+5 * policedudesfound, aBuf);
-		pPlayer->m_GangsterBagMoney += 5 * policedudesfound;
-		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * policedudesfound);
+		pPlayer->m_GangsterBagMoney += 5 * Policedudesfound;
+		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * Policedudesfound);
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %" PRId64 " minutes.", (pPlayer->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -6429,13 +6425,13 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 			pLive->GetCharacter()->m_RifleBullets);
 		pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 
-		int viewers = 0;
+		int Viewers = 0;
 		for(auto &Player : pSelf->m_apPlayers)
 			if(Player && Player->SpectatorId() == LiveId)
-				viewers++;
-		if(viewers)
+				Viewers++;
+		if(Viewers)
 		{
-			str_format(aBuf, sizeof(aBuf), "Viewers: %d", viewers);
+			str_format(aBuf, sizeof(aBuf), "Viewers: %d", Viewers);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 		}
 		str_format(aBuf, sizeof(aBuf), "Position: (%.2f/%.2f)", pLive->GetCharacter()->GetPosition().x / 32, pLive->GetCharacter()->GetPosition().y / 32);
@@ -7819,7 +7815,8 @@ void CGameContext::ConLaserText(IConsole::IResult *pResult, void *pUserData)
 		vec2(pChr->GetPos().x, pChr->GetPos().y - (5 * 32)),
 		pSelf->Server()->TickSpeed() * 3,
 		pResult->GetString(0)); // NOLINT(clang-analyzer-unix.Malloc)
-}
+	// NOLINT(clang-analyzer-unix.Malloc)
+} // NOLINT(clang-analyzer-unix.Malloc)
 
 void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)
 {
@@ -8541,10 +8538,10 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientId, "Error: acc2 <command> <name> <value>");
 			return;
 		}
-		int value;
+		int Value;
 		char aValueStr[16];
-		value = pResult->GetInteger(2);
-		str_format(aValueStr, sizeof(aValueStr), "%d", value);
+		Value = pResult->GetInteger(2);
+		str_format(aValueStr, sizeof(aValueStr), "%d", Value);
 
 		for(auto &Player : pSelf->m_apPlayers)
 		{
@@ -8553,8 +8550,8 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 			if(Player->IsLoggedIn() && !str_comp(Player->m_Account.m_aUsername, aName))
 			{
-				Player->m_Account.m_IsSuperModerator = value;
-				if(value == 1)
+				Player->m_Account.m_IsSuperModerator = Value;
+				if(Value == 1)
 				{
 					pSelf->SendChatTarget(Player->GetCid(), "[ACCOUNT] You are now VIP+");
 				}
@@ -8562,7 +8559,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 				{
 					pSelf->SendChatTarget(Player->GetCid(), "[ACCOUNT] You are no longer VIP+");
 				}
-				str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
+				str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", Value);
 				pSelf->SendChatTarget(ClientId, aBuf);
 				return;
 			}
@@ -8572,7 +8569,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 		if(!pSelf->ChillUpdateFileAcc(aName, 5, aValueStr, pResult->m_ClientId))
 		{
-			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSuperModerator = %d (account is not logged in)", value);
+			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSuperModerator = %d (account is not logged in)", Value);
 			pSelf->SendChatTarget(ClientId, aBuf);
 		}
 		else

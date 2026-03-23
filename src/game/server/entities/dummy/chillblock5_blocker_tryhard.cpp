@@ -645,7 +645,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			//Checken Ob ein potentieller Gegner auf der edge unter dem WBbereich ist
 			//Falls diesem so sei --> mach den da weg
 			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug");
-			if(1 == 1)
+			// if(true)
 			{
 				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug");
 				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWBBottom(GetPos(), true, m_pCharacter);

@@ -331,7 +331,7 @@ void CCharacter::SetSpookyGhost()
 	}
 
 	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_aSkinName));
-	m_pPlayer->m_TeeInfos.m_UseCustomColor = 0;
+	m_pPlayer->m_TeeInfos.m_UseCustomColor = false;
 
 	m_pPlayer->m_SpookyGhostActive = 1;
 }
@@ -417,13 +417,13 @@ void CCharacter::DropLoot()
 	}
 }
 
-void CCharacter::DropHealth(int amount)
+void CCharacter::DropHealth(int Amount)
 {
-	if(amount > 64)
+	if(Amount > 64)
 	{
-		amount = 64;
+		Amount = 64;
 	}
-	for(int i = 0; i < amount; i++)
+	for(int i = 0; i < Amount; i++)
 	{
 		while(GameServer()->m_vDropLimit[POWERUP_HEALTH].size() > (long unsigned int)g_Config.m_SvMaxDrops)
 		{
@@ -436,7 +436,7 @@ void CCharacter::DropHealth(int amount)
 			300, // lifetime
 			m_pPlayer->GetCid(),
 			(rand() % 3) - 1, // direction
-			(float)(amount / 5), // force
+			(float)(Amount / 5), // force
 			Team());
 		GameServer()->m_vDropLimit[POWERUP_HEALTH].push_back(p);
 	}
@@ -2461,7 +2461,9 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		{
 			float a = angle(Direction);
 			a += Spreading[i + 1];
-			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->GlobalTuning()->m_LaserReach, m_pPlayer->GetCid(), 0);
+			// NOLINT(clang-analyzer-unix.Malloc)
+			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->GlobalTuning()->m_LaserReach, m_pPlayer->GetCid(), 0); // NOLINT(clang-analyzer-unix.Malloc)
+			// NOLINT(clang-analyzer-unix.Malloc)
 		}
 
 		// summon meteor
@@ -2470,6 +2472,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			GetPlayer()->GetCid(),
 			ProjStartPos,
 			g_Config.m_SvMeteorLifetime); // NOLINT(clang-analyzer-unix.Malloc)
+		// NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else
 		return false;

@@ -70,9 +70,9 @@ void CCaptcha::Generate()
 		GenQuestion(MATH);
 }
 
-bool CCaptcha::Score(int value)
+bool CCaptcha::Score(int Value)
 {
-	m_Score += value;
+	m_Score += Value;
 	if(m_Score < g_Config.m_SvCaptchaScore)
 		return false;
 

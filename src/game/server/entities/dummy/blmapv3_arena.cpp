@@ -48,8 +48,8 @@ void CDummyBlmapV3Arena::OnTick()
 		if(GetPos().y < pChr->GetPos().y - 20 && !IsGrounded() && !pChr->m_FreezeTime)
 		{
 			Hook();
-			float dist = distance(pChr->GetPos(), GetPos());
-			if(dist < 250.f)
+			float Dist = distance(pChr->GetPos(), GetPos());
+			if(Dist < 250.f)
 			{
 				if(GetPos().x < pChr->GetPos().x)
 				{
@@ -59,7 +59,7 @@ void CDummyBlmapV3Arena::OnTick()
 				{
 					Right();
 				}
-				if(dist < 80.f) // hammer dist
+				if(Dist < 80.f) // hammer dist
 				{
 					if(absolute(pChr->GetVel().x) > 2.6f)
 					{

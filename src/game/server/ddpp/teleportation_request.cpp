@@ -158,11 +158,13 @@ void CTeleportationRequest::Tick()
 		char aSeconds[16];
 		str_format(aSeconds, sizeof(aSeconds), "%d", Seconds);
 
+		// NOLINT(clang-analyzer-unix.Malloc)
 		new CLaserText(
 			m_pCharacter->GameWorld(),
 			vec2(m_pCharacter->GetPos().x - 20, m_pCharacter->GetPos().y - (5 * 32)),
 			m_pCharacter->Server()->TickSpeed(),
-			aSeconds);
+			aSeconds); // NOLINT(clang-analyzer-unix.Malloc)
+				   // NOLINT(clang-analyzer-unix.Malloc)
 	}
 }
 
