@@ -1649,31 +1649,30 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 	if(!pCharacter)
 		return 0;
 
-	// TODO: add more sensible defaults so lua plugins can get something to work with less code
 	pCharacter->m_Tick = Unpacker.GetIntOrDefault("tick", 0);
 	vec2 Pos = Unpacker.GetPosition("pos");
 	pCharacter->m_X = Pos.x;
 	pCharacter->m_Y = Pos.y;
 	// TODO: do we need to scale velocity similar to how we do it with coordinates and positions?
-	pCharacter->m_VelX = Unpacker.GetInt("vel_x");
-	pCharacter->m_VelY = Unpacker.GetInt("vel_y");
-	pCharacter->m_Angle = Unpacker.GetInt("angle");
-	pCharacter->m_Direction = Unpacker.GetInt("direction");
-	pCharacter->m_Jumped = Unpacker.GetInt("jumped");
-	pCharacter->m_HookedPlayer = Unpacker.GetInt("hooked_player");
-	pCharacter->m_HookState = Unpacker.GetInt("hook_state");
-	pCharacter->m_HookTick = Unpacker.GetInt("hook_tick");
-	pCharacter->m_HookX = Unpacker.GetCoordinate("hook_x");
-	pCharacter->m_HookY = Unpacker.GetCoordinate("hook_y");
-	pCharacter->m_HookDx = Unpacker.GetInt("hook_dx");
-	pCharacter->m_HookDy = Unpacker.GetInt("hook_dy");
-	pCharacter->m_PlayerFlags = Unpacker.GetInt("player_flags");
-	pCharacter->m_Health = Unpacker.GetInt("health");
-	pCharacter->m_Armor = Unpacker.GetInt("armor");
-	pCharacter->m_AmmoCount = Unpacker.GetInt("ammo_count");
-	pCharacter->m_Weapon = Unpacker.GetInt("weapon");
-	pCharacter->m_Emote = Unpacker.GetInt("eye_emote");
-	pCharacter->m_AttackTick = Unpacker.GetInt("attack_tick");
+	pCharacter->m_VelX = Unpacker.GetIntOrDefault("vel_x", 0);
+	pCharacter->m_VelY = Unpacker.GetIntOrDefault("vel_y", 0);
+	pCharacter->m_Angle = Unpacker.GetIntOrDefault("angle", 0);
+	pCharacter->m_Direction = Unpacker.GetIntOrDefault("direction", 0);
+	pCharacter->m_Jumped = Unpacker.GetIntOrDefault("jumped", 0);
+	pCharacter->m_HookedPlayer = Unpacker.GetIntOrDefault("hooked_player", -1);
+	pCharacter->m_HookState = Unpacker.GetIntOrDefault("hook_state", HOOK_IDLE);
+	pCharacter->m_HookTick = Unpacker.GetIntOrDefault("hook_tick", 0);
+	pCharacter->m_HookX = Unpacker.GetCoordinateOptional("hook_x").value_or(Pos.x / 32.0f);
+	pCharacter->m_HookY = Unpacker.GetCoordinateOptional("hook_y").value_or(Pos.y / 32.0f);
+	pCharacter->m_HookDx = Unpacker.GetIntOrDefault("hook_dx", 0);
+	pCharacter->m_HookDy = Unpacker.GetIntOrDefault("hook_dy", 0);
+	pCharacter->m_PlayerFlags = Unpacker.GetIntOrDefault("player_flags", 0);
+	pCharacter->m_Health = Unpacker.GetIntOrDefault("health", 10);
+	pCharacter->m_Armor = Unpacker.GetIntOrDefault("armor", 0);
+	pCharacter->m_AmmoCount = Unpacker.GetIntOrDefault("ammo_count", -1);
+	pCharacter->m_Weapon = Unpacker.GetIntOrDefault("weapon", WEAPON_GUN);
+	pCharacter->m_Emote = Unpacker.GetIntOrDefault("eye_emote", EMOTE_NORMAL);
+	pCharacter->m_AttackTick = Unpacker.GetIntOrDefault("attack_tick", 0);
 	return 0;
 }
 
