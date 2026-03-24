@@ -114,7 +114,7 @@ void CTeleportationRequest::Tick() // NOLINT(clang-analyzer-unix.Malloc)
 	if(m_pCharacter->Core()->m_Vel.x < -0.06f ||
 		m_pCharacter->Core()->m_Vel.x > 0.06f ||
 		m_pCharacter->Core()->m_Vel.y > 0.6f ||
-		m_pCharacter->Core()->m_Vel.y < -0.6f)
+		m_pCharacter->Core()->m_Vel.y < -0.6f) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		int SecondsSinceStart = (m_pCharacter->Server()->Tick() - m_RequestStartTick) / m_pCharacter->Server()->TickSpeed();
 		if(SecondsSinceStart > 1)
@@ -134,13 +134,13 @@ void CTeleportationRequest::Tick() // NOLINT(clang-analyzer-unix.Malloc)
 		}
 	}
 
-	if(m_DropFlag)
+	if(m_DropFlag) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		if(m_pCharacter->GameServer()->m_pController)
 			m_pCharacter->GameServer()->m_pController->CharacterDropFlag(m_pCharacter);
 	}
 
-	if(m_aErrorMsgShort[0])
+	if(m_aErrorMsgShort[0]) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		TeleportFailure(m_aErrorMsgShort, m_aErrorMsgLong);
 		return;

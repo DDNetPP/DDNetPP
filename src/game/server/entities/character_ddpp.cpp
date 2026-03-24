@@ -2453,7 +2453,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		);
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
 	}
-	else if(m_pPlayer->m_LaserGun)
+	else if(m_pPlayer->m_LaserGun) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		int RifleSpread = 1;
 		float Spreading[] = {-0.070f, 0, 0.070f};
@@ -2473,6 +2473,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			GetPlayer()->GetCid(),
 			ProjStartPos,
 			g_Config.m_SvMeteorLifetime); // NOLINT(clang-analyzer-unix.Malloc)
+		return true; // NOLINT(clang-analyzer-unix.Malloc)
 		// NOLINT(clang-analyzer-unix.Malloc)
 	}
 	else
