@@ -152,7 +152,8 @@ void CTeleportationRequest::Tick()
 		return;
 	}
 
-	if(m_TicksUntilTeleportation % m_pCharacter->Server()->TickSpeed() == 0)
+	// NOLINT(clang-analyzer-unix.Malloc)
+	if(m_TicksUntilTeleportation % m_pCharacter->Server()->TickSpeed() == 0) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		int Seconds = m_TicksUntilTeleportation / m_pCharacter->Server()->TickSpeed();
 		char aSeconds[16];
@@ -167,7 +168,7 @@ void CTeleportationRequest::Tick()
 				   // NOLINT(clang-analyzer-unix.Malloc)
 
 		// NOLINT(clang-analyzer-unix.Malloc)
-	}
+	} // NOLINT(clang-analyzer-unix.Malloc)
 }
 
 void CTeleportationRequest::TeleportSuccess()

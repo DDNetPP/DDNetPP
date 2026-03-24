@@ -2742,12 +2742,12 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 			m_pPlayer->m_Account.m_GrenadeShotsNoRJ++;
 		}
 
-		if(m_HomingMissile)
+		if(m_HomingMissile) // NOLINT(clang-analyzer-unix.Malloc)
 		{
 			new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCid(), 0, Direction); // NOLINT(clang-analyzer-unix.Malloc)
-			IsDDNetPPHit = true;
+			IsDDNetPPHit = true; // NOLINT(clang-analyzer-unix.Malloc)
 		}
-		QuestGrenade();
+		QuestGrenade(); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	break;
 	case WEAPON_LASER:
