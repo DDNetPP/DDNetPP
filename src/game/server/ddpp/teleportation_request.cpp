@@ -105,7 +105,8 @@ void CTeleportationRequest::OnDeath()
 	TeleportFailure("died", "Teleportation was aborted because you died.");
 }
 
-void CTeleportationRequest::Tick()
+// NOLINT(clang-analyzer-unix.Malloc)
+void CTeleportationRequest::Tick() // NOLINT(clang-analyzer-unix.Malloc)
 {
 	if(!IsActive())
 		return;
@@ -146,7 +147,7 @@ void CTeleportationRequest::Tick()
 	}
 
 	m_TicksUntilTeleportation--;
-	if(m_TicksUntilTeleportation <= 0)
+	if(m_TicksUntilTeleportation <= 0) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		TeleportSuccess();
 		return;

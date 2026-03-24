@@ -2457,7 +2457,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 	{
 		int RifleSpread = 1;
 		float Spreading[] = {-0.070f, 0, 0.070f};
-		for(int i = -RifleSpread; i <= RifleSpread; ++i)
+		for(int i = -RifleSpread; i <= RifleSpread; ++i) // NOLINT(clang-analyzer-unix.Malloc)
 		{
 			float a = angle(Direction);
 			a += Spreading[i + 1];
