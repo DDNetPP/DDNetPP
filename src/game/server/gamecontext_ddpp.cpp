@@ -1474,7 +1474,7 @@ bool CGameContext::ChillWriteToLine(char const *pFilename, unsigned LineNo, char
 	return false;
 }
 
-int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *value, int RequestingId) const
+int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, const char *pValue, int RequestingId) const
 {
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, pUsername);
@@ -1552,7 +1552,7 @@ int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, c
 	//===============
 
 	//set new data
-	Data[Line] = value;
+	Data[Line] = pValue;
 
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, pUsername);
 	std::ofstream Acc2FileW(aBuf);
@@ -1585,7 +1585,7 @@ int CGameContext::ChillUpdateFileAcc(const char *pUsername, unsigned int Line, c
 		return -4;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' updated line [%d] to value [%s]", pUsername, Line, value);
+	str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' updated line [%d] to value [%s]", pUsername, Line, pValue);
 	SendChatTarget(RequestingId, aBuf);
 
 	Acc2File.close();
