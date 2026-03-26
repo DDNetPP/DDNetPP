@@ -118,7 +118,7 @@ jobs:
         cd debug
         ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
         ${{ matrix.workaround-issue10203-run-after-configure }}
-        ${{ matrix.cmake-path }}cmake --build . --config Debug --target everything
+        ${{ matrix.cmake-path }}cmake --build . --config Debug --parallel 1 --target game-server
 
     - name: Test debug
       run: |
