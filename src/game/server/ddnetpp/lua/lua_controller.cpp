@@ -968,6 +968,23 @@ std::optional<vec2> CLuaController::OnPickSpawnPos(CPlayer *pPlayer)
 #endif
 }
 
+bool CLuaController::OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(pPlugin->OnCharacterTakeDamage(Force, Dmg, From, Weapon, Character))
+			return true;
+	}
+	return false;
+#else
+	return false;
+#endif
+}
+
 bool CLuaController::OnRconCommand(int ClientId, const char *pCommand, const char *pArguments)
 {
 #ifdef CONF_LUA

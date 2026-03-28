@@ -47,6 +47,20 @@ int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceF
 	return Lua()->OnSnapGameInfoExFlags2(SnappingClient, Flags);
 }
 
+bool CGameControllerDDNetPP::OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character)
+{
+	int ClientId = Character.GetPlayer()->GetCid();
+	if(Lua()->OnCharacterTakeDamage(Force, Dmg, From, Weapon, Character))
+		return true;
+	// if the lua plugin kicked or killed the target we need to skip running
+	// any code otherwise we segfault
+	if(!GameServer()->m_apPlayers[ClientId])
+		return true;
+	if(!GameServer()->m_apPlayers[ClientId]->GetCharacter())
+		return true;
+	return false;
+}
+
 bool CGameControllerDDNetPP::OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos)
 {
 	if(Lua()->OnFireWeapon(Character.GetPlayer()->GetCid(), Weapon, Direction, MouseTarget, ProjStartPos))

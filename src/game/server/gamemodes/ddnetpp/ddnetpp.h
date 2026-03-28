@@ -21,6 +21,7 @@ public:
 	int SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags) override;
 	void SetArmorProgress(CCharacter *pCharacter, int Progress) override;
 
+	bool OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character) override;
 	bool OnFireWeapon(CCharacter &Character, int &Weapon, vec2 &Direction, vec2 &MouseTarget, vec2 &ProjStartPos) override;
 	bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) override;
 	void Tick() override;

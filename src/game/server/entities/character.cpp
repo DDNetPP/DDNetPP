@@ -1073,6 +1073,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool FngScore)
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
+	// ddnet-insta
+	if(GameServer()->m_pController->OnCharacterTakeDamage(Force, Dmg, From, Weapon, *this))
+		return false;
+
 	if(!DDPPTakeDamage(Force, Dmg, From, Weapon) && Dmg)
 	{
 		SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);

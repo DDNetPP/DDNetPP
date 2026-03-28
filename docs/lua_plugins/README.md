@@ -61,6 +61,19 @@ function ddnetpp.on_snap()
 		})
 	end
 end
+
+function ddnetpp.on_character_take_damage(chr, weapon, from, dmg)
+	if chr:id() == 0 then
+		-- weapons of client id 0 will not cause any knockback
+		return false
+	end
+	-- all other hammers are explosion boosted
+	if weapon == ddnetpp.weapon.HAMMER then
+		local pos = chr:pos()
+		pos.y = pos.y + 0.1
+		ddnetpp.create_explosion(pos)
+	end
+end
 ```
 
 ## change snap of existing characters

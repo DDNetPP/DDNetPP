@@ -34,6 +34,25 @@ public:
 	//
 
 	/*
+		Function: OnCharacterTakeDamage
+			this function was added in ddnet-insta and is a non standard controller method.
+			neither ddnet nor teeworlds have this
+
+		Arguments:
+			Force - Reference to force. Set this vector and it will be applied to the target characters velocity
+			Dmg - Input and outoput damage that was applied. You can read and write it.
+			From - Client Id of the player who dealt the damage
+			Weapon - Weapon id that was causing the damage see the WEAPON_* enums
+			Character - Character that was damaged
+
+		Returns:
+			return true to skip ddnet CCharacter::TakeDamage() behavior
+			which is applying the force and moving the damaged tee
+			it also sets the happy eyes if the Dmg is not zero
+	*/
+	virtual bool OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character) { return false; }
+
+	/*
 		Function: OnCharacterDeathImpl
 			Called when a CCharacter in the world dies.
 			This contains the full death implementation that in regular ddnet lives

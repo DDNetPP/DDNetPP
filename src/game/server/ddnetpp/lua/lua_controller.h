@@ -124,6 +124,7 @@ public:
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
 	std::optional<vec2> OnPickSpawnPos(CPlayer *pPlayer);
+	bool OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	// return true to drop fire

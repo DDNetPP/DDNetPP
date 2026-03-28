@@ -2861,6 +2861,60 @@ std::optional<vec2> CLuaPlugin::OnPickSpawnPos(CPlayer *pPlayer)
 	return Pos;
 }
 
+bool CLuaPlugin::OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	const char *pFunction = "on_character_take_damage";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(Character.GetPlayer()->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Character");
+	lua_pushinteger(LuaState(), Weapon);
+	lua_pushinteger(LuaState(), From);
+	lua_pushinteger(LuaState(), Dmg);
+	if(lua_pcall(LuaState(), 4, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		// global "ddnetpp" and error string
+		lua_pop(LuaState(), 2);
+		return false;
+	}
+
+	// optional return of false to drop/block the event
+	if(lua_isnoneornil(LuaState(), -1) == false && lua_isboolean(LuaState(), -1))
+	{
+		bool DoDamage = lua_toboolean(LuaState(), -1);
+		if(DoDamage == false)
+		{
+			// global "ddnetpp" and return value
+			lua_pop(LuaState(), 2);
+			return true;
+		}
+	}
+
+	// global "ddnetpp" and return value
+	lua_pop(LuaState(), 2);
+	return false;
+}
+
 bool CLuaPlugin::LuaGetPositionReturnValueOrError(const char *pFunction, int Index, vec2 *pOutPos)
 {
 	// table unpacker below also throws an error
@@ -3289,7 +3343,7 @@ bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 Mou
 		lua_pop(LuaState(), 1);
 	}
 
-	// optional return of false to drop block the fire
+	// optional return of false to drop/block the fire
 	if(lua_isboolean(LuaState(), -1))
 	{
 		bool DoFire = lua_toboolean(LuaState(), -1);
