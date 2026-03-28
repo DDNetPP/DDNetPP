@@ -108,12 +108,13 @@ void CTeleportationRequest::OnDeath()
 // NOLINT(clang-analyzer-unix.Malloc)
 void CTeleportationRequest::Tick() // NOLINT(clang-analyzer-unix.Malloc)
 {
-	if(!IsActive())
+	if(!IsActive()) // NOLINT(clang-analyzer-unix.Malloc)
 		return;
 
-	if(m_pCharacter->Core()->m_Vel.x < -0.06f ||
-		m_pCharacter->Core()->m_Vel.x > 0.06f ||
-		m_pCharacter->Core()->m_Vel.y > 0.6f ||
+	// NOLINT(clang-analyzer-unix.Malloc)
+	if(m_pCharacter->Core()->m_Vel.x < -0.06f || // NOLINT(clang-analyzer-unix.Malloc)
+		m_pCharacter->Core()->m_Vel.x > 0.06f || // NOLINT(clang-analyzer-unix.Malloc)
+		m_pCharacter->Core()->m_Vel.y > 0.6f || // NOLINT(clang-analyzer-unix.Malloc)
 		m_pCharacter->Core()->m_Vel.y < -0.6f) // NOLINT(clang-analyzer-unix.Malloc)
 	{
 		int SecondsSinceStart = (m_pCharacter->Server()->Tick() - m_RequestStartTick) / m_pCharacter->Server()->TickSpeed();
@@ -170,7 +171,7 @@ void CTeleportationRequest::Tick() // NOLINT(clang-analyzer-unix.Malloc)
 
 		// NOLINT(clang-analyzer-unix.Malloc)
 	} // NOLINT(clang-analyzer-unix.Malloc)
-}
+} // NOLINT(clang-analyzer-unix.Malloc)
 
 void CTeleportationRequest::TeleportSuccess()
 {
