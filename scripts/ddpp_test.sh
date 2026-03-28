@@ -174,12 +174,13 @@ log "connecting clients to server at port $port"
 	sv_map ddnetpp-test;
 	sv_sqlite_file ddnet-server.sqlite;
 	sv_register ipv4;
+	sv_port $port;
+	sv_hostname localhost;
 	sv_accounts 1;
 	sv_database_path accounts.db;
 	sv_allow_block_tourna 1;
 	sv_block_tourna_players 2;
-	sv_block_tourna_delay 5;
-	sv_port $port" &> server.log || fail "$$" server "$?" &
+	sv_block_tourna_delay 5;" &> server.log || fail "$$" server "$?" &
 
 ./DDNet \
 	"cl_input_fifo client1.fifo;
