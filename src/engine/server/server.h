@@ -82,6 +82,7 @@ public:
 	class CDbConnectionPool *m_pDDPPConnectionPool;
 	class CDbConnectionPool *DDPPDbPool() const { return m_pDDPPConnectionPool; }
 	class ILuaController *Lua() { return m_pLua; }
+	void *SnapBuilderGetItemData(int Key) override;
 
 private:
 	// DDNet++ END

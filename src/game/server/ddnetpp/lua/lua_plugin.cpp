@@ -1589,6 +1589,13 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 		FromPos = Unpacker.GetPosition("from_pos");
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", 0);
 
+	int ItemKey = (CNetObj_Laser::ms_MsgId << 16) | SnapId;
+	if(pSelf->Game()->Server()->SnapBuilderGetItemData(ItemKey))
+	{
+		luaL_error(L, "snap item with type_id=%d and id=%d already exists", CNetObj_Laser::ms_MsgId, SnapId);
+		return 0;
+	}
+
 	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
 	if(!pObj)
 		return false;

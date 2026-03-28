@@ -513,6 +513,11 @@ int CServer::LoadMapLive(const char *pMapName)
 	return 1;
 }
 
+void *CServer::SnapBuilderGetItemData(int Key)
+{
+	return m_SnapshotBuilder.GetItemData(Key);
+}
+
 //void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
 //{
 //#if defined(CONF_DEBUG)
