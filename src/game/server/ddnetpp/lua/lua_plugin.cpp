@@ -86,6 +86,46 @@ CLuaPlugin::~CLuaPlugin()
 	}
 }
 
+void CLuaPlugin::ApplyDestructiveActions()
+{
+	if(m_vDestructiveActions.empty())
+		return;
+
+	for(const auto &Action : m_vDestructiveActions)
+	{
+		CPlayer *pPlayer = Game()->GameServer()->GetPlayerByUniqueId(Action.m_UniqueTargetClientId);
+		if(!pPlayer)
+			continue;
+
+		bool InterpretSemicolons = false;
+		char aCmd[512] = "";
+
+		switch(Action.m_Type)
+		{
+		case CDestructiveAction::EType::KILL:
+			// could pass weapons and stuff here too or call Die() or something like that
+			// but its unused for now so i cba xd
+			pPlayer->KillCharacter();
+			break;
+		case CDestructiveAction::EType::KICK:
+			// TODO: this is horrible
+			//       sadly the server does not really expose the ban and kick code
+			//       so we abuse rcon commands like kick votes do it
+			//       but this is so messy and unsafe because a lua plugin might
+			//       decide to pass user input as a reason
+			str_format(aCmd, sizeof(aCmd), "kick %d \"%s\"", pPlayer->GetCid(), Action.m_aReason);
+			Game()->GameServer()->Console()->ExecuteLine(aCmd, IConsole::CLIENT_ID_UNSPECIFIED, InterpretSemicolons);
+			break;
+		case CDestructiveAction::EType::BAN:
+			str_format(aCmd, sizeof(aCmd), "ban %d %d \"%s\"", pPlayer->GetCid(), Action.m_Minutes, Action.m_aReason);
+			Game()->GameServer()->Console()->ExecuteLine(aCmd, IConsole::CLIENT_ID_UNSPECIFIED, InterpretSemicolons);
+			break;
+		}
+	}
+
+	m_vDestructiveActions.clear();
+}
+
 void CLuaPlugin::FreeSnapIds()
 {
 	for(int SnapId : m_vSnapIds)
@@ -287,6 +327,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRcon, 1);
 	lua_setfield(LuaState(), -2, "rcon");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackKick, 1);
+	lua_setfield(LuaState(), -2, "kick");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendVoteClearOptions, 1);
@@ -1373,6 +1417,49 @@ int CLuaPlugin::CallbackRcon(lua_State *L)
 	return 0;
 }
 
+int CLuaPlugin::CallbackKick(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+
+	int ClientId = LuaCheckClientId(L, 1);
+
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+	{
+		char aError[512];
+		str_format(aError, sizeof(aError), "client id %d out of bounds", ClientId);
+		luaL_argerror(L, 1, aError);
+		return 0;
+	}
+	CPlayer *pPlayer = pSelf->Game()->GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+	{
+		// do not throw an error here just silently do nothing
+		// so plugins do not need to add a check for the client being online here
+		return 0;
+	}
+
+	const char *pReason = "";
+	if(NumArgs >= 2)
+		pReason = luaL_checkstring(L, 2);
+
+	// horrible protection for horrible unsafe code xd
+	// that is because we use rcon commands to execute the kick
+	if(str_find(pReason, "\"") || str_find(pReason, "\\") || str_find(pReason, ";"))
+	{
+		luaL_argerror(L, 2, "the kick reason can not contain \", \\ or ; for security reasons");
+		return 0;
+	}
+
+	// TODO: add some nice constructor or init methods
+	CDestructiveAction Action;
+	Action.m_Type = CDestructiveAction::EType::KICK;
+	str_copy(Action.m_aReason, pReason);
+	Action.m_UniqueTargetClientId = pPlayer->GetUniqueCid();
+	pSelf->m_vDestructiveActions.emplace_back(Action);
+	return 0;
+}
+
 int CLuaPlugin::CallbackSendVoteClearOptions(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
@@ -2306,6 +2393,8 @@ void CLuaPlugin::OnTick()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidNoArgs("on_tick");
+
+	ApplyDestructiveActions();
 }
 
 void CLuaPlugin::OnPlayerTick(const CPlayer *pPlayer)

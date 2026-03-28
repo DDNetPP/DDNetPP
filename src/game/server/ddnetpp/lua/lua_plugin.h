@@ -30,6 +30,28 @@ class CGameContext;
 class CPlayer;
 class CCharacter;
 
+// It is not always safe to delete the
+// character or player pointer
+// but killing, kicking and banning does that
+// and plugins should be able to trigger such actions
+// even from events where the server would normally crash
+// to allow this we schedule these destructive actions for later
+// possibly even next tick when it is safe to do so
+class CDestructiveAction
+{
+public:
+	enum class EType
+	{
+		KILL,
+		KICK,
+		BAN,
+	};
+	EType m_Type = EType::KICK;
+	char m_aReason[512] = "";
+	int m_Minutes = 1;
+	uint32_t m_UniqueTargetClientId = 0;
+};
+
 class CLuaPlugin
 {
 	char m_aErrorMsg[512] = "";
@@ -72,6 +94,8 @@ class CLuaPlugin
 	//       instead of hitting the server assert
 	int m_SnappingClient = -1;
 
+	std::vector<CDestructiveAction> m_vDestructiveActions;
+
 public:
 	// The key is the rcon command name
 	std::unordered_map<std::string, CLuaRconCommand> m_RconCommands;
@@ -91,6 +115,7 @@ public:
 	const CLuaGame *Game() const { return m_pGame; }
 
 private:
+	void ApplyDestructiveActions();
 	void FreeSnapIds();
 
 	// This is a wrapper around Game()->Server()->SnapNewItem() which
@@ -170,6 +195,7 @@ private:
 	static int CallbackCreateSound(lua_State *L);
 	static int CallbackCreateSoundGlobal(lua_State *L);
 	static int CallbackRcon(lua_State *L);
+	static int CallbackKick(lua_State *L);
 	static int CallbackSendVoteClearOptions(lua_State *L);
 	static int CallbackSendVoteOptionAdd(lua_State *L);
 	static int CallbackGetPlayer(lua_State *L);
