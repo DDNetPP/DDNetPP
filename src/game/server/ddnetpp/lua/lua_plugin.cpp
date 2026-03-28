@@ -3,6 +3,7 @@
 
 #include <base/dbg.h>
 #include <base/log.h>
+#include <base/secure.h>
 #include <base/str.h>
 #include <base/types.h>
 #include <base/vmath.h>
@@ -306,6 +307,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackRegisterChat, 1);
 	lua_setfield(LuaState(), -2, "register_chat");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSecureRandBelow, 1);
+	lua_setfield(LuaState(), -2, "secure_rand_below");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
@@ -1566,6 +1571,13 @@ int CLuaPlugin::CallbackRegisterChat(lua_State *L)
 	lua_pop(L, 1);
 
 	lua_pushboolean(L, true);
+	return 1;
+}
+
+int CLuaPlugin::CallbackSecureRandBelow(lua_State *L)
+{
+	int Below = luaL_checkinteger(L, 1);
+	lua_pushinteger(L, secure_rand_below(Below));
 	return 1;
 }
 
