@@ -1758,6 +1758,10 @@ void CGameContext::OnClientEnter(int ClientId)
 		m_TeeHistorian.RecordPlayerReady(ClientId);
 	}
 	m_pController->OnPlayerConnect(m_apPlayers[ClientId]);
+	// avoids segfault when using bad pPlayer pointer
+	// in case a lua plugin kicked the player
+	if(m_apPlayers[ClientId] == nullptr)
+		return;
 	OnClientEnterDDPP(ClientId);
 
 	{

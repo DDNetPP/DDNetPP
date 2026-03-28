@@ -255,12 +255,16 @@ void CGameControllerDDNetPP::OnPlayerConnect(class CPlayer *pPlayer)
 	// this code has to be manually kept in sync with CGameControllerInstaCore::OnPlayerConnect()
 	IGameController::OnPlayerConnect(pPlayer);
 
-	Lua()->OnPlayerConnect(pPlayer->GetCid());
+	int ClientId = pPlayer->GetCid();
+	Lua()->OnPlayerConnect(ClientId);
+
+	// avoids segfault when using bad pPlayer pointer
+	// in case a lua plugin kicked the player
+	if(GameServer()->m_apPlayers[ClientId] == nullptr)
+		return;
 
 	for(CMinigame *pMinigame : GameServer()->m_vMinigames)
 		pMinigame->OnPlayerConnect(pPlayer);
-
-	int ClientId = pPlayer->GetCid();
 
 	// init the player
 	Score()->PlayerData(ClientId)->Reset();
