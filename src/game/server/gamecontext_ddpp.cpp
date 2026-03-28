@@ -2812,55 +2812,61 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyT
 	}
 
 	m_apPlayers[DummyId] = new(DummyId) CPlayer(this, m_NextUniqueClientId, DummyId, TEAM_RED, true);
+	CPlayer *pPlayer = m_apPlayers[DummyId];
+
 	m_NextUniqueClientId += 1;
 
-	m_apPlayers[DummyId]->m_NoboSpawnStop = 0;
-	m_apPlayers[DummyId]->SetDummyMode(Mode);
+	pPlayer->m_NoboSpawnStop = 0;
+	pPlayer->SetDummyMode(Mode);
 	Server()->BotJoin(DummyId);
 
-	str_copy(m_apPlayers[DummyId]->m_TeeInfos.m_aSkinName, "greensward", MAX_NAME_LENGTH);
-	m_apPlayers[DummyId]->m_TeeInfos.m_UseCustomColor = true;
-	m_apPlayers[DummyId]->m_TeeInfos.m_ColorFeet = 0;
-	m_apPlayers[DummyId]->m_TeeInfos.m_ColorBody = 0;
-	m_apPlayers[DummyId]->m_DummySpawnTile = Tile;
-	m_apPlayers[DummyId]->m_DummyTest = TestMode;
+	str_copy(pPlayer->m_TeeInfos.m_aSkinName, "greensward", MAX_NAME_LENGTH);
+	pPlayer->m_TeeInfos.m_UseCustomColor = true;
+	pPlayer->m_TeeInfos.m_ColorFeet = 0;
+	pPlayer->m_TeeInfos.m_ColorBody = 0;
+	pPlayer->m_TeeInfos.ToSixup();
+	pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos);
+	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo();
+
+	pPlayer->m_DummySpawnTile = Tile;
+	pPlayer->m_DummyTest = TestMode;
 
 	dbg_msg("dummy", "Dummy connected: %d", DummyId);
 
 	if(Mode == DUMMYMODE_MINIGAME_BALANCE1)
 	{
-		m_apPlayers[DummyId]->m_IsBalanceBattlePlayer1 = true;
-		m_apPlayers[DummyId]->m_IsBalanceBattleDummy = true;
+		pPlayer->m_IsBalanceBattlePlayer1 = true;
+		pPlayer->m_IsBalanceBattleDummy = true;
 	}
 	else if(Mode == DUMMYMODE_MINIGAME_BALANCE2)
 	{
-		m_apPlayers[DummyId]->m_IsBalanceBattlePlayer1 = false;
-		m_apPlayers[DummyId]->m_IsBalanceBattleDummy = true;
+		pPlayer->m_IsBalanceBattlePlayer1 = false;
+		pPlayer->m_IsBalanceBattleDummy = true;
 	}
 	else if(Mode == DUMMYMODE_BLOCKWAVE)
 	{
-		m_apPlayers[DummyId]->m_IsBlockWaving = true;
+		pPlayer->m_IsBlockWaving = true;
 	}
 	else if(Mode == DUMMYMODE_RIFLE_FNG)
 	{
-		m_pInstagib->Join(m_apPlayers[DummyId], WEAPON_GRENADE, true);
+		m_pInstagib->Join(pPlayer, WEAPON_GRENADE, true);
 	}
 	else if(Mode == DUMMYMODE_GRENADE_FNG)
 	{
-		m_pInstagib->Join(m_apPlayers[DummyId], WEAPON_LASER, true);
+		m_pInstagib->Join(pPlayer, WEAPON_LASER, true);
 	}
 	else if(Mode == DUMMYMODE_BLMAPV3_ARENA)
 	{
-		m_apPlayers[DummyId]->m_IsBlockDeathmatch = true;
+		pPlayer->m_IsBlockDeathmatch = true;
 	}
 	else if(Mode == DUMMYMODE_ADVENTURE)
 	{
-		m_apPlayers[DummyId]->m_IsVanillaDmg = true;
-		m_apPlayers[DummyId]->m_IsVanillaWeapons = true;
-		m_apPlayers[DummyId]->m_IsVanillaCompetitive = true;
+		pPlayer->m_IsVanillaDmg = true;
+		pPlayer->m_IsVanillaWeapons = true;
+		pPlayer->m_IsVanillaCompetitive = true;
 	}
 
-	m_apPlayers[DummyId]->m_SilentJoinMessage = Silent;
+	pPlayer->m_SilentJoinMessage = Silent;
 	OnClientEnter(DummyId);
 
 	return DummyId;
