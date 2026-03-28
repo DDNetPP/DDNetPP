@@ -92,6 +92,31 @@ void CLuaPlugin::FreeSnapIds()
 	m_vSnapIds.clear();
 }
 
+template<typename T>
+T *CLuaPlugin::SnapNewItem(int Id)
+{
+	int ItemKey = (T::ms_MsgId << 16) | Id;
+	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
+	{
+		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", T::ms_MsgId, Id);
+		return nullptr;
+	}
+
+	return Game()->Server()->SnapNewItem<T>(Id);
+}
+
+void *CLuaPlugin::SnapNewItem(int Type, int Id, int Size)
+{
+	int ItemKey = (Type << 16) | Id;
+	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
+	{
+		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", Type, Id);
+		return nullptr;
+	}
+
+	return Game()->Server()->SnapNewItem(Type, Id, Size);
+}
+
 void CLuaPlugin::RegisterPlayerMetaTable()
 {
 	LUA_CHECK_STACK(LuaState());
@@ -1589,14 +1614,7 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 		FromPos = Unpacker.GetPosition("from_pos");
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", 0);
 
-	int ItemKey = (CNetObj_Laser::ms_MsgId << 16) | SnapId;
-	if(pSelf->Game()->Server()->SnapBuilderGetItemData(ItemKey))
-	{
-		luaL_error(L, "snap item with type_id=%d and id=%d already exists", CNetObj_Laser::ms_MsgId, SnapId);
-		return 0;
-	}
-
-	CNetObj_Laser *pObj = pSelf->Game()->Server()->SnapNewItem<CNetObj_Laser>(SnapId);
+	CNetObj_Laser *pObj = pSelf->SnapNewItem<CNetObj_Laser>(SnapId);
 	if(!pObj)
 		return false;
 
@@ -1656,7 +1674,7 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "character");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_Character *pCharacter = pGame->Server()->SnapNewItem<CNetObj_Character>(SnapId);
+	CNetObj_Character *pCharacter = pSelf->SnapNewItem<CNetObj_Character>(SnapId);
 	if(!pCharacter)
 		return 0;
 
@@ -1702,7 +1720,7 @@ int CLuaPlugin::CallbackSnapNewPlayerInfo(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "player_info");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_PlayerInfo *pItem = pGame->Server()->SnapNewItem<CNetObj_PlayerInfo>(SnapId);
+	CNetObj_PlayerInfo *pItem = pSelf->SnapNewItem<CNetObj_PlayerInfo>(SnapId);
 	if(!pItem)
 		return 0;
 
@@ -1729,7 +1747,7 @@ int CLuaPlugin::CallbackSnapNewClientInfo(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "client_info");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_ClientInfo *pItem = pGame->Server()->SnapNewItem<CNetObj_ClientInfo>(SnapId);
+	CNetObj_ClientInfo *pItem = pSelf->SnapNewItem<CNetObj_ClientInfo>(SnapId);
 	if(!pItem)
 		return 0;
 
@@ -1805,7 +1823,7 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 	if(SnappingClientVersion >= VERSION_DDNET_ENTITY_NETOBJS)
 	{
 		CNetObj_DDNetProjectile *pObj = static_cast<CNetObj_DDNetProjectile *>(
-			pGame->Server()->SnapNewItem(NETOBJTYPE_DDNETPROJECTILE,
+			pSelf->SnapNewItem(NETOBJTYPE_DDNETPROJECTILE,
 				SnapId,
 				sizeof(CNetObj_DDNetProjectile)));
 		if(!pObj)
@@ -1826,7 +1844,7 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 	}
 	else
 	{
-		CNetObj_Projectile *pObj = pGame->Server()->SnapNewItem<CNetObj_Projectile>(SnapId);
+		CNetObj_Projectile *pObj = pSelf->SnapNewItem<CNetObj_Projectile>(SnapId);
 		if(!pObj)
 			return 0;
 

@@ -93,6 +93,18 @@ public:
 private:
 	void FreeSnapIds();
 
+	// This is a wrapper around Game()->Server()->SnapNewItem() which
+	// crashes the plugin instead of creating invalid snapshots that would break
+	// the entire gameplay. It comes with a performance penalty
+	// but for lua plugin input this method should be used instead of the raw
+	// snap item creation to keep the server safe and make it easier to debug
+	// plugin snap issues.
+	// https://github.com/ddnet/ddnet/issues/11999
+	template<typename T>
+	T *SnapNewItem(int Id);
+
+	void *SnapNewItem(int Type, int Id, int Size);
+
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();
 
