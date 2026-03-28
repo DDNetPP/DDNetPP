@@ -200,6 +200,10 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterSetInput);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "is_frozen");
+	lua_pushcfunction(LuaState(), CallbackCharacterIsFrozen);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -2282,6 +2286,14 @@ int CLuaPlugin::CallbackCharacterSetInput(lua_State *L)
 	}
 
 	return 0;
+}
+
+int CLuaPlugin::CallbackCharacterIsFrozen(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+	bool IsFrozen = pChr->m_FreezeTime != 0;
+	lua_pushboolean(L, IsFrozen);
+	return 1;
 }
 
 void CLuaPlugin::OnInit()
