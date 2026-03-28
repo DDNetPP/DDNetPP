@@ -712,6 +712,7 @@ void CCharacter::DDPP_Tick()
 	char aBuf[256];
 	DummyTick();
 	CosmeticTick();
+	GameServer()->Lua()->OnCharacterPreTick(this);
 
 	m_pPlayer->m_InputTracker.OnTick(&m_Input, m_pPlayer->m_PlayerFlags);
 

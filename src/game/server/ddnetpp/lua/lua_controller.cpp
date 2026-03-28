@@ -703,6 +703,19 @@ void CLuaController::OnTick()
 #endif
 }
 
+void CLuaController::OnCharacterPreTick(CCharacter *pChr)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnCharacterPreTick(pChr);
+	}
+#endif
+}
+
 bool CLuaController::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex)
 {
 #ifdef CONF_LUA

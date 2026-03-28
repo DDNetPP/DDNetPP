@@ -113,6 +113,7 @@ public:
 
 	void OnInit() override;
 	void OnTick();
+	void OnCharacterPreTick(CCharacter *pChr);
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
 	void OnSnap(int SnappingClient);

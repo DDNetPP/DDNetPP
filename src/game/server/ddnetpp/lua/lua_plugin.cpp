@@ -196,6 +196,10 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterRemoveWeapon);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "set_input");
+	lua_pushcfunction(LuaState(), CallbackCharacterSetInput);
+	lua_settable(LuaState(), -3);
+
 	// Set __index = method_table
 	lua_settable(LuaState(), -3);
 
@@ -1033,6 +1037,40 @@ bool CLuaPlugin::CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPl
 	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
 	pPlayerHandle->Init(pPlayer->GetUniqueCid(), this);
 	luaL_setmetatable(LuaState(), "Player");
+	if(lua_pcall(LuaState(), 1, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
+	return true;
+}
+
+bool CLuaPlugin::CallLuaVoidWithCharacter(const char *pFunction, const CCharacter *pChr)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pChr->GetPlayer()->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Character");
 	if(lua_pcall(LuaState(), 1, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
@@ -2175,6 +2213,77 @@ int CLuaPlugin::CallbackCharacterRemoveWeapon(lua_State *L)
 	return 0;
 }
 
+int CLuaPlugin::CallbackCharacterSetInput(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	CTableUnpacker Unpacker(L, 2, "input");
+	std::optional<int> Value;
+
+	if((Value = Unpacker.GetIntOptional("direction")).has_value())
+	{
+		pChr->Input()->m_Direction = Value.value();
+		pChr->SavedInput()->m_Direction = Value.value();
+		pChr->LatestInput()->m_Direction = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("target_x")).has_value())
+	{
+		pChr->Input()->m_TargetX = Value.value();
+		pChr->SavedInput()->m_TargetX = Value.value();
+		pChr->LatestInput()->m_TargetX = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("target_y")).has_value())
+	{
+		pChr->Input()->m_TargetY = Value.value();
+		pChr->SavedInput()->m_TargetY = Value.value();
+		pChr->LatestInput()->m_TargetY = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("jump")).has_value())
+	{
+		pChr->Input()->m_Jump = Value.value();
+		pChr->SavedInput()->m_Jump = Value.value();
+		pChr->LatestInput()->m_Jump = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("fire")).has_value())
+	{
+		pChr->Input()->m_Fire = Value.value();
+		pChr->SavedInput()->m_Fire = Value.value();
+		pChr->LatestInput()->m_Fire = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("hook")).has_value())
+	{
+		pChr->Input()->m_Hook = Value.value();
+		pChr->SavedInput()->m_Hook = Value.value();
+		pChr->LatestInput()->m_Hook = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("player_flags")).has_value())
+	{
+		pChr->Input()->m_PlayerFlags = Value.value();
+		pChr->SavedInput()->m_PlayerFlags = Value.value();
+		pChr->LatestInput()->m_PlayerFlags = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("wanted_weapon")).has_value())
+	{
+		pChr->Input()->m_WantedWeapon = Value.value();
+		pChr->SavedInput()->m_WantedWeapon = Value.value();
+		pChr->LatestInput()->m_WantedWeapon = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("next_weapon")).has_value())
+	{
+		pChr->Input()->m_NextWeapon = Value.value();
+		pChr->SavedInput()->m_NextWeapon = Value.value();
+		pChr->LatestInput()->m_NextWeapon = Value.value();
+	}
+	if((Value = Unpacker.GetIntOptional("prev_weapon")).has_value())
+	{
+		pChr->Input()->m_PrevWeapon = Value.value();
+		pChr->SavedInput()->m_PrevWeapon = Value.value();
+		pChr->LatestInput()->m_PrevWeapon = Value.value();
+	}
+
+	return 0;
+}
+
 void CLuaPlugin::OnInit()
 {
 	dbg_assert(IsActive(), "called inactive plugin");
@@ -2191,6 +2300,12 @@ void CLuaPlugin::OnPlayerTick(const CPlayer *pPlayer)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 	CallLuaVoidWithPlayer("on_player_tick", pPlayer);
+}
+
+void CLuaPlugin::OnCharacterPreTick(const CCharacter *pChr)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	CallLuaVoidWithCharacter("on_character_pre_tick", pChr);
 }
 
 bool CLuaPlugin::OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex)

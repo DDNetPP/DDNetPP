@@ -131,6 +131,8 @@ private:
 	std::optional<int> CallLuaIntWithTwoInts(const char *pFunction, int Num1, int Num2);
 	// returns true if the function was found
 	bool CallLuaVoidWithPlayer(const char *pFunction, const CPlayer *pPlayer);
+	// returns true if the function was found
+	bool CallLuaVoidWithCharacter(const char *pFunction, const CCharacter *pChr);
 
 	// Returns false if there was no position table found at the index
 	// and sets the plugin into error state
@@ -215,12 +217,14 @@ private:
 	static int CallbackCharacterDie(lua_State *L);
 	static int CallbackCharacterGiveWeapon(lua_State *L);
 	static int CallbackCharacterRemoveWeapon(lua_State *L);
+	static int CallbackCharacterSetInput(lua_State *L);
 
 public:
 	// Calling lua from C++
 	void OnInit();
 	void OnTick();
 	void OnPlayerTick(const CPlayer *pPlayer);
+	void OnCharacterPreTick(const CCharacter *pChr);
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	bool OnCharacterGameTileChange(CCharacter *pChr, int GameIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
