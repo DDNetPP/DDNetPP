@@ -325,6 +325,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "create_death");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateConfetti, 1);
+	lua_setfield(LuaState(), -2, "create_confetti");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackCreateSound, 1);
 	lua_setfield(LuaState(), -2, "create_sound");
 
@@ -1374,6 +1378,22 @@ int CLuaPlugin::CallbackCreateDeath(lua_State *L)
 		Mask = LuaCheckArgClientMask(L, 3);
 
 	pGame->GameServer()->CreateDeath(Pos, ClientId, Mask);
+
+	return 0;
+}
+
+int CLuaPlugin::CallbackCreateConfetti(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	vec2 Pos = LuaCheckArgPosition(L, 1);
+	CClientMask Mask;
+	Mask.set();
+	if(NumArgs >= 2)
+		Mask = LuaCheckArgClientMask(L, 2);
+
+	pGame->GameServer()->CreateFinishEffect(Pos, Mask);
 
 	return 0;
 }
