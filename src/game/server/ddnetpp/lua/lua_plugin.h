@@ -250,6 +250,7 @@ private:
 	static int CallbackCharacterRemoveWeapon(lua_State *L);
 	static int CallbackCharacterSetInput(lua_State *L);
 	static int CallbackCharacterIsFrozen(lua_State *L);
+	static int CallbackCharacterFreeze(lua_State *L);
 
 public:
 	// Calling lua from C++
