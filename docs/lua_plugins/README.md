@@ -204,6 +204,51 @@ function ddnetpp.on_tick()
 end
 ```
 
+## read and write player inputs
+
+You can call `:input()` on a character instance to get their current inputs.
+The aimed at position target_x and target_y is relative to the tee and 32 as precise
+as the coordinates used for positions in the world. So for example if you place the
+cursor on your own tee the target_x and target_y will be 0, 0 and if you aim
+to the top right it will be something like target_x = 200 and target_y = -200
+So if you want to get the position in the world you need to add it to your own tees position
+and divide it by 32. Here is an example where every player sees a heart under their own cursor.
+
+```lua
+function ddnetpp.on_snap(snapping_client_id)
+	local chr = ddnetpp.get_character(snapping_client_id)
+	if chr then
+		local inp = chr:input()
+		local pos = chr:pos()
+		pos.x = pos.x + inp.target_x / 32
+		pos.y = pos.y + inp.target_y / 32
+		-- WARNING: the id 128 might already be used it is on you to avoid snap item id collisions
+		--          this is just a naive example
+		ddnetpp.snap.new_pickup({
+			id = 128,
+			pos = pos,
+			type = ddnetpp.protocol.POWERUP_HEALTH,
+			sub_type = 0,
+		})
+	end
+end
+```
+
+To set inputs you can use `:set_input()` on any character instance.
+And pass the inputs as keys in your table. All inputs are optional it will only
+update the inputs you explicitly set. **But setting inputs only works if you are in the
+`on_character_pre_tick()` event!** If you try to set inputs on tick or on snap or another place
+things will break. Here is a small example where we invert the players direction.
+So when they try to walk left we force them to walk right.
+
+```lua
+function ddnetpp.on_character_pre_tick(character)
+	character:set_input({
+		direction = character:input().direction * -1
+	})
+end
+```
+
 ## plugin to plugin api
 
 All plugins have their own lua state and are isolated.

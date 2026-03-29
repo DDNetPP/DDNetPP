@@ -244,6 +244,10 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterRemoveWeapon);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "input");
+	lua_pushcfunction(LuaState(), CallbackCharacterInput);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "set_input");
 	lua_pushcfunction(LuaState(), CallbackCharacterSetInput);
 	lua_settable(LuaState(), -3);
@@ -2370,6 +2374,58 @@ int CLuaPlugin::CallbackCharacterRemoveWeapon(lua_State *L)
 	int Weapon = luaL_checkinteger(L, 2);
 	pChr->GiveWeapon(Weapon, true);
 	return 0;
+}
+
+static void LuaInputToTable(lua_State *L, const CNetObj_PlayerInput *pInput)
+{
+	lua_newtable(L);
+
+	lua_pushstring(L, "direction");
+	lua_pushinteger(L, pInput->m_Direction);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "target_x");
+	lua_pushinteger(L, pInput->m_TargetX);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "target_y");
+	lua_pushinteger(L, pInput->m_TargetY);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "jump");
+	lua_pushinteger(L, pInput->m_Jump);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "fire");
+	lua_pushinteger(L, pInput->m_Fire);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hook");
+	lua_pushinteger(L, pInput->m_Hook);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "player_flags");
+	lua_pushinteger(L, pInput->m_PlayerFlags);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "wanted_weapon");
+	lua_pushinteger(L, pInput->m_WantedWeapon);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "prev_weapon");
+	lua_pushinteger(L, pInput->m_PrevWeapon);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "next_weapon");
+	lua_pushinteger(L, pInput->m_NextWeapon);
+	lua_settable(L, -3);
+}
+
+int CLuaPlugin::CallbackCharacterInput(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+	LuaInputToTable(L, pChr->LatestInput());
+	return 1;
 }
 
 int CLuaPlugin::CallbackCharacterSetInput(lua_State *L)
