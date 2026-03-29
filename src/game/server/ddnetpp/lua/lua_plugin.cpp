@@ -2667,6 +2667,73 @@ int CLuaPlugin::OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
 	return CallLuaIntWithTwoInts("on_snap_gameinfo_flags2", SnappingClient, DDRaceFlags).value_or(DDRaceFlags);
 }
 
+static void LuaPlayerObjsToTable(lua_State *L, const CNetObj_ClientInfo *pClientInfo, const CNetObj_PlayerInfo *pPlayerInfo)
+{
+	char aName[MAX_NAME_LENGTH];
+	char aClan[MAX_CLAN_LENGTH];
+	char aSkin[MAX_SKIN_LENGTH];
+
+	// having to convert this back and forth for every plugin is not ideal
+	// but we can't use something like Server()->ClientName() if we want to get the
+	// value that would actually be put into the snap for example when ddnet++
+	// or another plugin already sent a fake snap.
+	// This way we can have multiple plugins add their own prefix and suffix for example.
+
+	IntsToStr(pClientInfo->m_aName, std::size(pClientInfo->m_aName), aName, sizeof(aName));
+	IntsToStr(pClientInfo->m_aClan, std::size(pClientInfo->m_aClan), aClan, sizeof(aClan));
+	IntsToStr(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), aSkin, sizeof(aSkin));
+
+	lua_newtable(L);
+
+	lua_pushstring(L, "name");
+	lua_pushstring(L, aName);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "clan");
+	lua_pushstring(L, aClan);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "country");
+	lua_pushinteger(L, pClientInfo->m_Country);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "skin");
+	lua_pushstring(L, aSkin);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "use_custom_color");
+	lua_pushboolean(L, pClientInfo->m_UseCustomColor);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "color_body");
+	lua_pushinteger(L, pClientInfo->m_ColorBody);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "color_feet");
+	lua_pushinteger(L, pClientInfo->m_ColorFeet);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "local");
+	lua_pushinteger(L, pPlayerInfo->m_Local);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "client_id");
+	lua_pushinteger(L, pPlayerInfo->m_ClientId);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "team");
+	lua_pushinteger(L, pPlayerInfo->m_Team);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "score");
+	lua_pushinteger(L, pPlayerInfo->m_Score);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "latency");
+	lua_pushinteger(L, pPlayerInfo->m_Latency);
+	lua_settable(L, -3);
+}
+
 static void LuaCharacterObjToTable(lua_State *L, const CNetObj_Character *pObj)
 {
 	lua_newtable(L);
@@ -2806,6 +2873,56 @@ void CLuaPlugin::OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_
 	}
 
 	if(!LuaSnapCharacterReturnValueOrError(pFunction, -1, pObj))
+	{
+		// pop return val and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+	}
+
+	// pop return val and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+}
+
+void CLuaPlugin::OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+
+	const char *pFunction = "on_snap_player";
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return;
+	}
+
+	lua_pushinteger(LuaState(), SnappingClient);
+
+	auto *pPlayerHandle = static_cast<CLuaPlayerHandle *>(lua_newuserdatauv(LuaState(), sizeof(CLuaPlayerHandle), 0));
+	pPlayerHandle->Init(pPlayer->GetUniqueCid(), this);
+	luaL_setmetatable(LuaState(), "Player");
+
+	LuaPlayerObjsToTable(LuaState(), pClientInfo, pPlayerInfo);
+
+	if(lua_pcall(LuaState(), 3, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 2);
+		return;
+	}
+
+	if(!LuaSnapPlayerReturnValueOrError(pFunction, -1, pClientInfo, pPlayerInfo))
 	{
 		// pop return val and global "ddnetpp"
 		lua_pop(LuaState(), 2);
@@ -3167,6 +3284,48 @@ bool CLuaPlugin::LuaSnapCharacterReturnValueOrError(const char *pFunction, int I
 	pObj->m_Weapon = Unpacker.GetIntOrDefault("weapon", pObj->m_Weapon);
 	pObj->m_Emote = Unpacker.GetIntOrDefault("emote", pObj->m_Emote);
 	pObj->m_AttackTick = Unpacker.GetIntOrDefault("attack_tick", pObj->m_AttackTick);
+
+	return true;
+}
+
+bool CLuaPlugin::LuaSnapPlayerReturnValueOrError(const char *pFunction, int Index, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+{
+	// table unpacker below also throws an error
+	// but this error message is nicer because it mentions
+	// the function name
+	if(!LuaReturnValueIsTableOrError(pFunction, -1, "snap_item"))
+		return false;
+	CTableUnpacker Unpacker(LuaState(), -1, "snap_item");
+
+	// // this is how a required field could look like but I decided to make all optional lol
+	// if(!(Value = LuaGetReturnValueIntFieldOrError(pFunction, &Unpacker, "tick")).has_value())
+	// 	return false;
+	// pObj->m_Tick = Value.value();
+
+	// intentionally do not allow to change the snap item id from lua
+	// its tricky to do on the C++ side and it should never be a use case
+	// would be super messy
+
+	char aName[MAX_NAME_LENGTH];
+	char aClan[MAX_CLAN_LENGTH];
+	char aSkin[MAX_SKIN_LENGTH];
+
+	if(Unpacker.GetStringOrFalse("name", aName, sizeof(aName)))
+		StrToInts(pClientInfo->m_aName, std::size(pClientInfo->m_aName), aName);
+	if(Unpacker.GetStringOrFalse("clan", aClan, sizeof(aClan)))
+		StrToInts(pClientInfo->m_aClan, std::size(pClientInfo->m_aClan), aClan);
+	pClientInfo->m_Country = Unpacker.GetIntOrDefault("country", pClientInfo->m_Country);
+	if(Unpacker.GetStringOrFalse("skin", aSkin, sizeof(aSkin)))
+		StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), aSkin);
+	pClientInfo->m_UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color").value_or(pClientInfo->m_UseCustomColor);
+	pClientInfo->m_ColorBody = Unpacker.GetIntOrDefault("color_body", pClientInfo->m_ColorBody);
+	pClientInfo->m_ColorFeet = Unpacker.GetIntOrDefault("color_feet", pClientInfo->m_ColorFeet);
+
+	pPlayerInfo->m_Local = Unpacker.GetBooleanOptional("local").value_or(pPlayerInfo->m_Local);
+	pPlayerInfo->m_ClientId = Unpacker.GetIntOrDefault("client_id", pPlayerInfo->m_ClientId);
+	pPlayerInfo->m_Team = Unpacker.GetIntOrDefault("team", pPlayerInfo->m_Team);
+	pPlayerInfo->m_Score = Unpacker.GetIntOrDefault("score", pPlayerInfo->m_Score);
+	pPlayerInfo->m_Latency = Unpacker.GetIntOrDefault("latency", pPlayerInfo->m_Latency);
 
 	return true;
 }

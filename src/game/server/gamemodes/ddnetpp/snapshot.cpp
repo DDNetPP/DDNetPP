@@ -184,6 +184,8 @@ void CGameControllerDDNetPP::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, C
 	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
 	if(pMinigame)
 		pMinigame->SnapPlayer6(pPlayer, pClientInfo, pPlayerInfo);
+
+	Lua()->OnSnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot

@@ -169,6 +169,8 @@ private:
 	// otherwise returns true and writes the data to the net object pObj
 	[[nodiscard]] bool LuaSnapCharacterReturnValueOrError(const char *pFunction, int Index, CNetObj_Character *pObj);
 
+	[[nodiscard]] bool LuaSnapPlayerReturnValueOrError(const char *pFunction, int Index, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
+
 	// set plugin to error state (but do NOT throw lua error) if the return value from an event was not a table
 	// it does not throw a C++ exception so you need to look at the return value
 	// if it is false there is an error
@@ -262,6 +264,7 @@ public:
 	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
 	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);
 	void OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj);
+	void OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);

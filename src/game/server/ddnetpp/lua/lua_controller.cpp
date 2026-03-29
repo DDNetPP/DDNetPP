@@ -818,6 +818,19 @@ void CLuaController::OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNet
 #endif
 }
 
+void CLuaController::OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnSnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
+	}
+#endif
+}
+
 bool CLuaController::OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team)
 {
 #ifdef CONF_LUA

@@ -120,6 +120,7 @@ public:
 	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
 	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);
 	void OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj);
+	void OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
 	bool OnChatMessage(int ClientId, CNetMsg_Cl_Say *pMsg, int &Team);
 	void OnPlayerConnect(int ClientId);
 	void OnPlayerDisconnect(int ClientId);
