@@ -212,8 +212,16 @@ void CLuaPlugin::RegisterCharacterMetaTable()
 	lua_pushcfunction(LuaState(), CallbackCharacterPos);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "vel");
+	lua_pushcfunction(LuaState(), CallbackCharacterVel);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "set_position");
 	lua_pushcfunction(LuaState(), CallbackCharacterSetPosition);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "set_velocity");
+	lua_pushcfunction(LuaState(), CallbackCharacterSetVelocity);
 	lua_settable(LuaState(), -3);
 
 	lua_pushstring(LuaState(), "id");
@@ -2231,6 +2239,20 @@ int CLuaPlugin::CallbackCharacterPos(lua_State *L)
 	return 1;
 }
 
+int CLuaPlugin::CallbackCharacterVel(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	lua_newtable(L);
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, pChr->GetVel().x);
+	lua_settable(L, -3);
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, pChr->GetPos().y);
+	lua_settable(L, -3);
+	return 1;
+}
+
 int CLuaPlugin::CallbackCharacterSetPosition(lua_State *L)
 {
 	CCharacter *pChr = LuaCheckCharacter(L, 1);
@@ -2240,6 +2262,28 @@ int CLuaPlugin::CallbackCharacterSetPosition(lua_State *L)
 	FloatPos.x = Pos.x;
 	FloatPos.y = Pos.y;
 	pChr->SetPosition(FloatPos);
+	return 0;
+}
+
+int CLuaPlugin::CallbackCharacterSetVelocity(lua_State *L)
+{
+	CCharacter *pChr = LuaCheckCharacter(L, 1);
+
+	vec2 Vel = pChr->GetVel();
+
+	if(lua_isnumber(L, 2))
+	{
+		Vel.x = luaL_checknumber(L, 2);
+		Vel.y = luaL_checknumber(L, 3);
+	}
+	else
+	{
+		CTableUnpacker Unpacker(L, 2, "vel");
+		Vel.x = Unpacker.GetFloatOptional("x").value_or(Vel.x);
+		Vel.y = Unpacker.GetFloatOptional("y").value_or(Vel.y);
+	}
+
+	pChr->SetVelocity(Vel);
 	return 0;
 }
 

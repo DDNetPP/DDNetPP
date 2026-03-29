@@ -237,7 +237,9 @@ private:
 
 	// TODO: new scope?
 	static int CallbackCharacterPos(lua_State *L);
+	static int CallbackCharacterVel(lua_State *L);
 	static int CallbackCharacterSetPosition(lua_State *L);
+	static int CallbackCharacterSetVelocity(lua_State *L);
 	static int CallbackCharacterId(lua_State *L);
 	static int CallbackCharacterPlayer(lua_State *L);
 	static int CallbackCharacterDie(lua_State *L);

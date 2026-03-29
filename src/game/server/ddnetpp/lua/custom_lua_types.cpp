@@ -136,13 +136,28 @@ int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos)
 	{
 		OutPos.x = LuaCheckCoordinate(L, Index);
 		OutPos.y = LuaCheckCoordinate(L, Index + 1);
-		return 1;
+		return 2;
 	}
 
 	CTableUnpacker Unpacker(L, Index, "pos");
 	OutPos.x = Unpacker.GetCoordinate("x");
 	OutPos.y = Unpacker.GetCoordinate("y");
-	return 2;
+	return 1;
+}
+
+int LuaCheckVec2OrXandY(lua_State *L, int Index, vec2 &OutVec, const char *pTableName)
+{
+	if(lua_isnumber(L, Index))
+	{
+		OutVec.x = luaL_checknumber(L, Index);
+		OutVec.y = luaL_checknumber(L, Index + 1);
+		return 2;
+	}
+
+	CTableUnpacker Unpacker(L, Index, pTableName);
+	OutVec.x = Unpacker.GetFloat("x");
+	OutVec.y = Unpacker.GetFloat("y");
+	return 1;
 }
 
 CClientMask LuaCheckArgClientMask(lua_State *L, int Index)

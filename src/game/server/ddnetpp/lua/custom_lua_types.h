@@ -37,11 +37,23 @@ int LuaCheckClientId(lua_State *L, int Index);
 // Read a lua given position consisting of two coordinates
 // from the stack at given index.
 // The position can be one table or two integers.
-// Writes the result to Pos as already translated coordinate.
+// Writes the result to OutPos as already translated coordinate.
 //
 // returns the amount of elements consumed
 // either 1 for a {x, y} table or 2 for two positional arguments x and y
 int LuaCheckPosOrXandY(lua_State *L, int Index, ivec2 &OutPos);
+
+// Read a lua given vector consisting of two coordinates
+// from the stack at given index.
+// The position can be one table or two integers.
+// Writes the result to OutVec as already translated coordinate.
+//
+// returns the amount of elements consumed
+// either 1 for a {x, y} table or 2 for two positional arguments x and y
+//
+// The pTableName is only used for the error message. That should be the name
+// of your expected argument.
+int LuaCheckVec2OrXandY(lua_State *L, int Index, vec2 &OutVec, const char *pTableName);
 
 CClientMask LuaCheckArgClientMask(lua_State *L, int Index);
 
