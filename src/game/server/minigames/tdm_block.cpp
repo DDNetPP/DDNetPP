@@ -43,7 +43,7 @@ void CTdmBlock::OnDeath(CCharacter *pChr, int Killer, int Weapon)
 	if(Weapon != WEAPON_GAME && Weapon != WEAPON_MINIGAME)
 	{
 		CPlayer *pKiller = GameServer()->GetPlayerOrNullptr(Killer);
-		if(pKiller && pChr->GetId() != Killer)
+		if(pKiller && pPlayer->GetCid() != Killer)
 		{
 			pKiller->m_Minigame.m_Score++;
 			pPlayer->m_pBlockTdmState->m_aTeamscore[pKiller->m_Minigame.m_Team]++;
