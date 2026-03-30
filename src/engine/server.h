@@ -40,6 +40,10 @@ class IServer : public IInterface
 public:
 	virtual void BotJoin(int BotId) = 0;
 	virtual void BotLeave(int BotId, bool Silent = false) = 0;
+
+	virtual bool OccupyClientId(int ClientId) = 0;
+	virtual bool FreeOccupiedClientId(int ClientId) = 0;
+
 	virtual int LoadMapLive(const char *pMapName) = 0;
 	virtual void *SnapBuilderGetItemData(int Key) = 0;
 

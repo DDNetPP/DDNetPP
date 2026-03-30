@@ -511,7 +511,7 @@ void CServer::Kick(int ClientId, const char *pReason)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "you can't kick yourself");
 		return;
 	}
-	else if(GetAuthedState(ClientId) > m_RconAuthLevel || m_aClients[ClientId].m_State == CClient::STATE_BOT)
+	else if(GetAuthedState(ClientId) > m_RconAuthLevel || m_aClients[ClientId].m_State == CClient::STATE_BOT || m_aClients[ClientId].m_State == CClient::STATE_OCCUPIED)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "kick command denied");
 		return;
@@ -3573,7 +3573,11 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 	{
 		if(pThis->m_aClients[i].m_State == CClient::STATE_EMPTY)
 			continue;
+
+		// ddnet++
 		if(pThis->m_aClients[i].m_State == CClient::STATE_BOT)
+			continue;
+		if(pThis->m_aClients[i].m_State == CClient::STATE_OCCUPIED)
 			continue;
 
 		if(!str_utf8_find_nocase(pThis->m_aClients[i].m_aName, pName))

@@ -356,6 +356,53 @@ void CServer::BotLeave(int BotId, bool Silent)
 	m_NetServer.BotDelete(BotId);
 }
 
+bool CServer::OccupyClientId(int ClientId)
+{
+	if(m_aClients[ClientId].m_State != CClient::STATE_EMPTY)
+		return false;
+	// dbg_assert(m_aClients[ClientId].m_State == CClient::STATE_EMPTY, "Failed to occupy cid=%d because its in state %d", ClientId, m_aClients[ClientId].m_State);
+
+	m_aClients[ClientId].m_State = CClient::STATE_PREAUTH;
+	m_aClients[ClientId].m_DnsblState = EDnsblState::NONE;
+	str_copy(m_aClients[ClientId].m_aName, "(occupied)");
+	m_aClients[ClientId].m_aClan[0] = 0;
+	m_aClients[ClientId].m_Country = -1;
+	m_aClients[ClientId].m_AuthKey = -1;
+	m_aClients[ClientId].m_AuthTries = 0;
+	m_aClients[ClientId].m_pRconCmdToSend = 0;
+	m_aClients[ClientId].m_Traffic = 0;
+	m_aClients[ClientId].m_TrafficSince = 0;
+	m_aClients[ClientId].m_ShowIps = false;
+	m_aClients[ClientId].m_DDNetVersion = VERSION_NONE;
+	m_aClients[ClientId].m_GotDDNetVersionPacket = false;
+	m_aClients[ClientId].m_DDNetVersionSettled = false;
+	m_aClients[ClientId].Reset();
+	m_aClients[ClientId].m_Sixup = false;
+
+	m_NetServer.BotInit(ClientId);
+	m_aClients[ClientId].m_State = CClient::STATE_OCCUPIED;
+	return true;
+}
+
+bool CServer::FreeOccupiedClientId(int ClientId)
+{
+	if(m_aClients[ClientId].m_State != CClient::STATE_OCCUPIED)
+		return false;
+
+	GameServer()->OnClientDrop(ClientId, "", true);
+
+	m_aClients[ClientId].m_State = CClient::STATE_EMPTY;
+	m_aClients[ClientId].m_aName[0] = 0;
+	m_aClients[ClientId].m_aClan[0] = 0;
+	m_aClients[ClientId].m_Country = -1;
+	m_aClients[ClientId].m_AuthTries = 0;
+	m_aClients[ClientId].m_pRconCmdToSend = 0;
+	m_aClients[ClientId].m_Snapshots.PurgeAll();
+
+	m_NetServer.BotDelete(ClientId);
+	return true;
+}
+
 void CServer::ConRedirect(IConsole::IResult *pResult, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;

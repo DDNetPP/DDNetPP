@@ -71,6 +71,17 @@ class CServer : public IServer
 public:
 	void BotJoin(int BotId) override;
 	void BotLeave(int BotId, bool Silent = false) override;
+
+	// this is similar to BotJoin
+	// it also in the end sets STATE_BOT for now
+	// this is a way for lua plugins to occupy a client id
+	// so the server will not use it and the lua plugin
+	// can snap their own info for that id
+	bool OccupyClientId(int ClientId) override;
+
+	// returns false if it was not occupied
+	bool FreeOccupiedClientId(int ClientId) override;
+
 	void DDPPRegisterDatabases();
 	int LoadMapLive(const char *pMapName) override;
 
@@ -150,6 +161,7 @@ public:
 			STATE_READY,
 			STATE_INGAME,
 			STATE_BOT, // ddnet++
+			STATE_OCCUPIED, // ddnet++
 		};
 
 		enum

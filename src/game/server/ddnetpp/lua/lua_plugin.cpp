@@ -441,6 +441,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackServerClientName, 1);
 		lua_setfield(LuaState(), -2, "client_name");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerOccupyClientId, 1);
+		lua_setfield(LuaState(), -2, "occupy_client_id");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerFreeOccupiedClientId, 1);
+		lua_setfield(LuaState(), -2, "free_occupied_client_id");
 	}
 	lua_setfield(LuaState(), -2, "server");
 
@@ -2059,6 +2067,41 @@ int CLuaPlugin::CallbackServerClientName(lua_State *L)
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	int ClientId = LuaCheckClientId(L, 1);
 	lua_pushstring(L, pGame->Server()->ClientName(ClientId));
+	return 1;
+}
+
+int CLuaPlugin::CallbackServerOccupyClientId(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	// intentionally not using LuaCheckClientId() because existing clients should not be occupied
+	int ClientId = luaL_checkinteger(L, 1);
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+	{
+		luaL_error(L, "Invalid client_id: %d", ClientId);
+		return 0;
+	}
+	if(!pGame->Server()->ClientSlotEmpty(ClientId))
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	bool Success = pGame->Server()->OccupyClientId(ClientId);
+	lua_pushboolean(L, Success);
+	return 1;
+}
+
+int CLuaPlugin::CallbackServerFreeOccupiedClientId(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	// intentionally not using LuaCheckClientId() because existing clients should not be occupied
+	int ClientId = luaL_checkinteger(L, 1);
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+	{
+		luaL_error(L, "Invalid client_id: %d", ClientId);
+		return 0;
+	}
+	bool Success = pGame->Server()->FreeOccupiedClientId(ClientId);
+	lua_pushboolean(L, Success);
 	return 1;
 }
 

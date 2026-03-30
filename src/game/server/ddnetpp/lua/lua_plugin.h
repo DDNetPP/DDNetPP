@@ -223,6 +223,8 @@ private:
 	static int CallbackServerTick(lua_State *L);
 	static int CallbackServerTickSpeed(lua_State *L);
 	static int CallbackServerClientName(lua_State *L);
+	static int CallbackServerOccupyClientId(lua_State *L);
+	static int CallbackServerFreeOccupiedClientId(lua_State *L);
 
 	// collision
 	static int CallbackCollisionWidth(lua_State *L);
