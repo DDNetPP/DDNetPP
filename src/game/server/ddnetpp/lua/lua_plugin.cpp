@@ -437,6 +437,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackServerTickSpeed, 1);
 		lua_setfield(LuaState(), -2, "tick_speed");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerClientName, 1);
+		lua_setfield(LuaState(), -2, "client_name");
 	}
 	lua_setfield(LuaState(), -2, "server");
 
@@ -2047,6 +2051,14 @@ int CLuaPlugin::CallbackServerTickSpeed(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	lua_pushinteger(L, pGame->Server()->TickSpeed());
+	return 1;
+}
+
+int CLuaPlugin::CallbackServerClientName(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	lua_pushstring(L, pGame->Server()->ClientName(ClientId));
 	return 1;
 }
 
