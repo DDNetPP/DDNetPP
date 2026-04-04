@@ -3524,7 +3524,7 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 			str_format(
 				pError,
 				ErrorLen,
-				"rcon command '%s' too many arguments %" PRIzu " out of %" PRIzu " (expected: %s)",
+				"command '%s' too many arguments %" PRIzu " out of %" PRIzu " (expected: %s)",
 				pCmd->m_aName,
 				NumArgs,
 				pCmd->m_vParsedParams.size(),
@@ -3542,7 +3542,7 @@ static bool PushRconArgs(lua_State *L, const CLuaRconCommand *pCmd, const char *
 				str_format(
 					pError,
 					ErrorLen,
-					"rcon command '%s' missing argument"
+					"command '%s' missing argument"
 					"%s%s%s"
 					"at position %" PRIzu " (expected: %s)",
 					pCmd->m_aName,
