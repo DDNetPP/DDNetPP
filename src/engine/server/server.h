@@ -262,6 +262,7 @@ public:
 	int m_aIdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
 
 	CSnapshotDelta m_SnapshotDelta;
+	CSnapshotDelta m_SnapshotDeltaSixup;
 	CSnapshotBuilder m_SnapshotBuilder;
 	CSnapIdPool m_IdPool;
 	CNetServer m_NetServer;
@@ -419,6 +420,7 @@ public:
 	bool CheckReservedSlotAuth(int ClientId, const char *pPassword);
 	void ProcessClientPacket(CNetChunk *pPacket);
 	void OnNetMsgClientVer(int ClientId, CUuid *pConnectionId, int DDNetVersion, const char *pDDNetVersionStr);
+	void OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr);
 	void OnNetMsgReady(int ClientId);
 	void OnNetMsgEnterGame(int ClientId);
 	void OnNetMsgRconCmd(int ClientId, const char *pCmd);
@@ -531,6 +533,7 @@ public:
 	void SnapFreeId(int Id) override;
 	void *SnapNewItem(int Type, int Id, int Size) override;
 	void SnapSetStaticsize(int ItemType, int Size) override;
+	void SnapSetStaticsize7(int ItemType, int Size) override;
 
 	// DDRace
 

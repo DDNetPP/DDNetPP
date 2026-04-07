@@ -1102,7 +1102,7 @@ void CCharacter::SendDeathMessageIfNotInLockedTeam(int Killer, int Weapon, int M
 		m_pPlayer->m_MsgModeSpecial = ModeSpecial;
 		m_pPlayer->FixForNoName(2);
 	}
-	else if((Team() == TEAM_FLOCK || Teams()->TeamFlock(Team()) || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == ETeamState::OPEN || !Teams()->TeamLocked(Team())))
+	else if((Team() == TEAM_FLOCK || Teams()->TeamFlock(Team()) || Teams()->TeamSize(Team()) == 1 || Teams()->GetTeamState(Team()) == ETeamState::OPEN || !Teams()->TeamLocked(Team())))
 	{
 		CNetMsg_Sv_KillMsg Msg;
 		Msg.m_Killer = Killer;

@@ -723,7 +723,7 @@ void CGameContext::ConUnPractice(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(Teams.Count(Team) > g_Config.m_SvMaxTeamSize && pSelf->m_pController->Teams().TeamLocked(Team))
+	if(Teams.TeamSize(Team) > g_Config.m_SvMaxTeamSize && pSelf->m_pController->Teams().TeamLocked(Team))
 	{
 		log_info("chatresp", "Can't disable practice. This team exceeds the maximum allowed size of %d players for regular team", g_Config.m_SvMaxTeamSize);
 		return;
@@ -752,6 +752,7 @@ void CGameContext::ConUnPractice(IConsole::IResult *pResult, void *pUserData)
 
 	Teams.KillCharacterOrTeam(pResult->m_ClientId, Team);
 	Teams.SetPractice(Team, false);
+	pPlayer->Respawn(); // set spawn as strong hook
 }
 
 void CGameContext::ConPracticeCmdList(IConsole::IResult *pResult, void *pUserData)
@@ -813,14 +814,7 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	int TargetClientId = -1;
 	if(pResult->NumArguments() == 1)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i] && !str_comp(pName, pSelf->Server()->ClientName(i)))
-			{
-				TargetClientId = i;
-				break;
-			}
-		}
+		TargetClientId = pSelf->FindClientIdByName(pName).value_or(-1);
 	}
 	else
 	{
@@ -1156,7 +1150,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 					     "This team is locked using /lock. Only members of the team can unlock it using /lock." :
 					     "This team is locked using /lock. Only members of the team can invite you or unlock it using /lock.");
 	}
-	else if(Team != TEAM_FLOCK && m_pController->Teams().Count(Team) >= g_Config.m_SvMaxTeamSize && !m_pController->Teams().TeamFlock(Team) && !m_pController->Teams().IsPractice(Team))
+	else if(Team != TEAM_FLOCK && m_pController->Teams().TeamSize(Team) >= g_Config.m_SvMaxTeamSize && !m_pController->Teams().TeamFlock(Team) && !m_pController->Teams().IsPractice(Team))
 	{
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvMaxTeamSize);
@@ -1171,7 +1165,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 		if(PracticeByDefault())
 		{
 			// joined an empty team
-			if(m_pController->Teams().Count(Team) == 1)
+			if(m_pController->Teams().TeamSize(Team) == 1)
 				m_pController->Teams().SetPractice(Team, true);
 		}
 
@@ -1211,17 +1205,8 @@ void CGameContext::ConInvite(IConsole::IResult *pResult, void *pUserData)
 	int Team = pController->Teams().m_Core.Team(pResult->m_ClientId);
 	if(Team != TEAM_FLOCK && pController->Teams().IsValidTeamNumber(Team))
 	{
-		int Target = -1;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(!str_comp(pName, pSelf->Server()->ClientName(i)))
-			{
-				Target = i;
-				break;
-			}
-		}
-
-		if(Target < 0)
+		int Target = pSelf->FindClientIdByName(pName).value_or(-1);
+		if(Target == -1)
 		{
 			log_info("chatresp", "Player not found");
 			return;
@@ -1297,7 +1282,7 @@ void CGameContext::ConTeam0Mode(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[512];
 	if(Mode)
 	{
-		if(pController->Teams().Count(Team) > g_Config.m_SvMaxTeamSize)
+		if(pController->Teams().TeamSize(Team) > g_Config.m_SvMaxTeamSize)
 		{
 			str_format(aBuf, sizeof(aBuf), "Can't disable team 0 mode. This team exceeds the maximum allowed size of %d players for regular team", g_Config.m_SvMaxTeamSize);
 			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
@@ -1599,11 +1584,8 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() > 0)
 	{
-		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
-				break;
-
-		if(ClientId == MAX_CLIENTS)
+		ClientId = pSelf->FindClientIdByName(pResult->GetString(0)).value_or(-1);
+		if(ClientId == -1)
 			return;
 
 		str_format(aBufName, sizeof(aBufName), "%s's", pSelf->Server()->ClientName(ClientId));
@@ -1868,23 +1850,13 @@ void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		// Search for player with this name
-		int ClientId;
-		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
-		{
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
-				break;
-		}
-		if(ClientId == MAX_CLIENTS)
+		const CPlayer *pDestPlayer = pSelf->FindPlayerByName(pResult->GetString(0));
+		if(!pDestPlayer)
 		{
 			pSelf->SendChatTarget(pCallingPlayer->GetCid(), "No player with this name found.");
 			return;
 		}
-
-		CPlayer *pDestPlayer = pSelf->m_apPlayers[ClientId];
-		if(!pDestPlayer)
-			return;
-		CCharacter *pDestCharacter = pDestPlayer->GetCharacter();
+		const CCharacter *pDestCharacter = pDestPlayer->GetCharacter();
 		if(!pDestCharacter)
 			return;
 
@@ -2007,21 +1979,13 @@ void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(pResult->NumArguments() > 0)
 	{
-		int ClientId;
-		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
-		{
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
-				break;
-		}
-		if(ClientId == MAX_CLIENTS)
+		const CPlayer *pPlayerTo = pSelf->FindPlayerByName(pResult->GetString(0));
+		if(!pPlayerTo)
 		{
 			pSelf->SendChatTarget(pPlayer->GetCid(), "No player with this name found.");
 			return;
 		}
-		CPlayer *pPlayerTo = pSelf->m_apPlayers[ClientId];
-		if(!pPlayerTo)
-			return;
-		CCharacter *pChrTo = pPlayerTo->GetCharacter();
+		const CCharacter *pChrTo = pPlayerTo->GetCharacter();
 		if(!pChrTo)
 			return;
 		Pos = pChrTo->m_Pos;
