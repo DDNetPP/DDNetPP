@@ -3045,6 +3045,13 @@ void CLuaPlugin::OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_Cli
 		return;
 	}
 
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop return val and global "ddnetpp"
+		lua_pop(LuaState(), 2);
+		return;
+	}
+
 	if(!LuaSnapPlayerReturnValueOrError(pFunction, -1, pClientInfo, pPlayerInfo))
 	{
 		// pop return val and global "ddnetpp"
