@@ -156,11 +156,13 @@ IGameController::CFinishTime CGameControllerDDNetPP::SnapPlayerTime(int Snapping
 	switch(DisplayScore)
 	{
 	case EDisplayScore::TIME:
+	case EDisplayScore::PLUGIN_TIME:
 		return CGameControllerDDNet::SnapPlayerTime(SnappingClient, pPlayer);
 	case EDisplayScore::LEVEL:
 	case EDisplayScore::BLOCK:
 	case EDisplayScore::CURRENT_SPREE:
 	case EDisplayScore::KING_OF_THE_HILL:
+	case EDisplayScore::PLUGIN_POINTS:
 	case EDisplayScore::NUM_SCORES:
 		return CFinishTime::Unset();
 	}

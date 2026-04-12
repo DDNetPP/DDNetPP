@@ -20,6 +20,7 @@
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
+#include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/laser_text.h>
 #include <game/server/gamecontext.h>
@@ -283,6 +284,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackLogError, 1);
 	lua_setfield(LuaState(), -2, "log_error");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSetClientScoreType, 1);
+	lua_setfield(LuaState(), -2, "set_client_score_type");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSendChat, 1);
@@ -1226,6 +1231,37 @@ int CLuaPlugin::CallbackLogError(lua_State *L)
 	{
 		luaL_error(L, "too many arguments for logger");
 	}
+	return 0;
+}
+
+int CLuaPlugin::CallbackSetClientScoreType(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+
+	int ClientId = LuaCheckClientId(L, 1);
+	const char *pType = luaL_checkstring(L, 2);
+
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+	{
+		char aError[512];
+		str_format(aError, sizeof(aError), "client id %d out of bounds", ClientId);
+		luaL_argerror(L, 1, aError);
+		return 0;
+	}
+
+	CPlayer *pPlayer = pGame->GameServer()->m_apPlayers[ClientId];
+	if(!pPlayer)
+	{
+		luaL_error(L, "failed to set score type: client id %d not found", ClientId);
+		return 0;
+	}
+
+	if(!str_comp_nocase(pType, "time"))
+		pPlayer->m_DisplayScore = EDisplayScore::PLUGIN_TIME;
+	else if(!str_comp_nocase(pType, "points"))
+		pPlayer->m_DisplayScore = EDisplayScore::PLUGIN_POINTS;
+	else
+		luaL_error(L, "tried to set invalid score type '%s' only 'time' and 'points' are valid", pType);
 	return 0;
 }
 

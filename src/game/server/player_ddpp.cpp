@@ -747,6 +747,8 @@ int CPlayer::GetScoreValue(int ReceivingClientId)
 	case EDisplayScore::BLOCK: return IsLoggedIn() ? m_Account.m_BlockPoints : 0;
 	case EDisplayScore::CURRENT_SPREE: return m_KillStreak;
 	case EDisplayScore::KING_OF_THE_HILL: return m_KingOfTheHillScore;
+	case EDisplayScore::PLUGIN_POINTS: return 0; // plugins handle score somewhere else
+	case EDisplayScore::PLUGIN_TIME: return 0; // plugins handle score somewhere else
 	case EDisplayScore::NUM_SCORES: return 0;
 	}
 	return 0;

@@ -52,6 +52,8 @@ enum class EDisplayScore
 	BLOCK,
 	CURRENT_SPREE,
 	KING_OF_THE_HILL,
+	PLUGIN_POINTS,
+	PLUGIN_TIME,
 
 	NUM_SCORES,
 };

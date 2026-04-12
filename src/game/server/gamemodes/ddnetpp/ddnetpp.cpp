@@ -500,6 +500,8 @@ const char *CGameControllerDDNetPP::ServerInfoClientScoreKind()
 	case EDisplayScore::BLOCK: return "points";
 	case EDisplayScore::CURRENT_SPREE: return "points";
 	case EDisplayScore::KING_OF_THE_HILL: return "points";
+	case EDisplayScore::PLUGIN_POINTS: return "points";
+	case EDisplayScore::PLUGIN_TIME: return "time";
 	case EDisplayScore::NUM_SCORES: return "points";
 	}
 	return "time";
