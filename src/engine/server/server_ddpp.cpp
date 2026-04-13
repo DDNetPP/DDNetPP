@@ -389,8 +389,6 @@ bool CServer::FreeOccupiedClientId(int ClientId)
 	if(m_aClients[ClientId].m_State != CClient::STATE_OCCUPIED)
 		return false;
 
-	GameServer()->OnClientDrop(ClientId, "", true);
-
 	m_aClients[ClientId].m_State = CClient::STATE_EMPTY;
 	m_aClients[ClientId].m_aName[0] = 0;
 	m_aClients[ClientId].m_aClan[0] = 0;
