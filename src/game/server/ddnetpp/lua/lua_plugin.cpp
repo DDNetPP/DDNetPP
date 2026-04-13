@@ -179,6 +179,14 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pushcfunction(LuaState(), CallbackPlayerName);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "money_transaction");
+	lua_pushcfunction(LuaState(), CallbackPlayerMoneyTransaction);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "money");
+	lua_pushcfunction(LuaState(), CallbackPlayerMoney);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "set_skin");
 	lua_pushcfunction(LuaState(), CallbackPlayerSetSkin);
 	lua_settable(LuaState(), -3);
@@ -2266,6 +2274,22 @@ int CLuaPlugin::CallbackPlayerName(lua_State *L)
 {
 	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 	lua_pushstring(L, pPlayer->Name());
+	return 1;
+}
+
+int CLuaPlugin::CallbackPlayerMoneyTransaction(lua_State *L)
+{
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+	int Amount = luaL_checkinteger(L, 2);
+	const char *pDesc = luaL_checkstring(L, 3);
+	pPlayer->MoneyTransaction(Amount, pDesc);
+	return 0;
+}
+
+int CLuaPlugin::CallbackPlayerMoney(lua_State *L)
+{
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+	lua_pushinteger(L, pPlayer->GetMoney());
 	return 1;
 }
 

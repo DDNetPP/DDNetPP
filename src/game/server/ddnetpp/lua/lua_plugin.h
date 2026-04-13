@@ -238,6 +238,8 @@ private:
 	//       for the game instance and some for the player
 	static int CallbackPlayerId(lua_State *L);
 	static int CallbackPlayerName(lua_State *L);
+	static int CallbackPlayerMoneyTransaction(lua_State *L);
+	static int CallbackPlayerMoney(lua_State *L);
 	static int CallbackPlayerSetSkin(lua_State *L);
 	static int CallbackPlayerUnsetSkin(lua_State *L);
 	static int CallbackPlayerUnsetSkinColorBody(lua_State *L);
