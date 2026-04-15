@@ -2,6 +2,13 @@
 
 THE API IS IN SUPER EARLY STATE!!!!!!! NOT READY TO BE USED YET!
 
+## examples
+
+There are tiny examples in the [./examples/](./examples/) directory.
+
+
+And there are bigger project examples such as the card game poker here https://github.com/orgs/ddnetxx-plugins/repositories
+
 ## enable lua plugins
 
 You need to compile DDNet++ with lua support for example like this
