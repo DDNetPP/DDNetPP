@@ -3,7 +3,6 @@
 #include "gamecontext.h"
 
 #include <base/log.h>
-#include <base/system.h>
 
 #include <engine/shared/config.h>
 

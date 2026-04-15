@@ -3,7 +3,6 @@
 #include <base/color.h>
 #include <base/ddpp_logs.h>
 #include <base/math.h>
-#include <base/system.h>
 #include <base/vmath.h>
 
 #include <engine/shared/protocol.h>

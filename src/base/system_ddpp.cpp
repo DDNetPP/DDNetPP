@@ -3,7 +3,10 @@
 #include "system_ddpp.h"
 
 #include "ddpp_logs.h"
-#include "system.h"
+
+#include <base/dbg.h>
+#include <base/io.h>
+#include <base/str.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>

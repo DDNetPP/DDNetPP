@@ -2,7 +2,6 @@
 #include "network.h"
 
 #include <base/hash_ctxt.h>
-#include <base/system.h>
 
 #include <engine/console.h>
 #include <engine/message.h>

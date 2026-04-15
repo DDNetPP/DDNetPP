@@ -2,7 +2,6 @@
 #include "gamecontext.h"
 
 #include <base/log.h>
-#include <base/system.h>
 #include <base/system_ddpp.h>
 #include <base/types.h>
 

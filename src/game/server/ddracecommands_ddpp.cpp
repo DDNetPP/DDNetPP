@@ -6,7 +6,6 @@
 #include <base/ddpp_logs.h>
 #include <base/log.h>
 #include <base/str.h>
-#include <base/system.h>
 #include <base/vmath.h>
 
 #include <engine/server/server.h>

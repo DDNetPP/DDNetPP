@@ -1,7 +1,5 @@
 #include "ddnetpp.h"
 
-#include <base/system.h>
-
 #include <engine/shared/config.h>
 
 #include <game/mapitems_ddpp.h>

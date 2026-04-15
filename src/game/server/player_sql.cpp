@@ -3,8 +3,6 @@
 #include "gamecontext.h"
 #include "player.h"
 
-#include <base/system.h>
-
 #include <engine/shared/config.h>
 
 #include <generated/protocol.h>

@@ -16,7 +16,6 @@ ModeStructure:
 #include "../character.h"
 
 #include <base/math_ddpp.h>
-#include <base/system.h>
 
 #include <engine/shared/config.h>
 

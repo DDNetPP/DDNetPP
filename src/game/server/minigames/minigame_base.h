@@ -3,8 +3,6 @@
 #ifndef GAME_SERVER_MINIGAMES_MINIGAME_BASE_H
 #define GAME_SERVER_MINIGAMES_MINIGAME_BASE_H
 
-#include <base/system.h>
-
 #include <engine/shared/network.h>
 
 #include <generated/protocol7.h>

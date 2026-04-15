@@ -3,8 +3,9 @@
 
 #include <antibot/antibot_data.h>
 
+#include <base/dbg.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/mem.h>
 #include <base/vmath.h>
 
 #include <engine/map.h>

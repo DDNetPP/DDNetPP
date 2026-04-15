@@ -4,7 +4,7 @@
 #include "gamecontext.h"
 
 #include <base/ddpp_logs.h>
-#include <base/system.h>
+#include <base/str.h>
 
 #include <engine/server/server.h> // ddpp imported for dummys
 #include <engine/shared/config.h>

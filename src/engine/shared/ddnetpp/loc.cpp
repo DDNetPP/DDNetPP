@@ -1,7 +1,6 @@
 #include "loc.h"
 
 #include <base/str.h>
-#include <base/system.h>
 
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>

@@ -2061,7 +2061,6 @@ set_src(BASE GLOB_RECURSE src/base
   sphore.h
   str.cpp
   str.h
-  system.h
   system_ddpp.cpp
   system_ddpp.h
   thread.cpp

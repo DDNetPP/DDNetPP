@@ -2,7 +2,6 @@
 
 #include "minigame_base.h"
 
-#include <base/system.h>
 #include <base/vmath.h>
 
 #include <engine/shared/protocol.h>

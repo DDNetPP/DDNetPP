@@ -7,10 +7,13 @@
 #include "linereader.h"
 
 #include <base/color.h>
+#include <base/dbg.h>
 #include <base/ddpp_logs.h>
+#include <base/io.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/mem.h>
+#include <base/str.h>
 
 #include <engine/client/checksum.h>
 #include <engine/console.h>

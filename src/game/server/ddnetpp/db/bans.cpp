@@ -1,6 +1,5 @@
 // ddnet++ bans stored in database
 #include <base/log.h>
-#include <base/system.h>
 
 #include <engine/server/databases/connection.h>
 #include <engine/server/databases/connection_pool.h>

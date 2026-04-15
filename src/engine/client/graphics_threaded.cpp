@@ -1,10 +1,14 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
+#include <base/dbg.h>
 #include <base/detect.h>
+#include <base/io.h>
 #include <base/log.h>
 #include <base/math.h>
-#include <base/system.h>
+#include <base/mem.h>
+#include <base/str.h>
+#include <base/time.h>
 
 #include <engine/engine.h>
 #include <engine/gfx/image_loader.h>
@@ -342,7 +346,7 @@ IGraphics::CTextureHandle CGraphics_Threaded::LoadSpriteTexture(const CImageInfo
 	SpriteInfo.m_Width = w;
 	SpriteInfo.m_Height = h;
 	SpriteInfo.m_Format = FromImageInfo.m_Format;
-	SpriteInfo.m_pData = static_cast<uint8_t *>(malloc(SpriteInfo.DataSize()));
+	SpriteInfo.Allocate();
 	SpriteInfo.CopyRectFrom(FromImageInfo, x, y, w, h, 0, 0);
 	return LoadTextureRawMove(SpriteInfo, 0, pSprite->m_pName);
 }

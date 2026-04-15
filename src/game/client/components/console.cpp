@@ -3,11 +3,13 @@
 
 #include "console.h"
 
+#include <base/dbg.h>
+#include <base/io.h>
 #include <base/lock.h>
 #include <base/logger.h>
 #include <base/math.h>
 #include <base/str.h>
-#include <base/system.h>
+#include <base/time.h>
 
 #include <engine/console.h>
 #include <engine/engine.h>
@@ -166,6 +168,11 @@ static int PossibleKeys(const char *pStr, IInput *pInput, IConsole::FPossibleCal
 	int Index = 0;
 	for(int Key = KEY_A; Key < KEY_JOY_AXIS_11_RIGHT; Key++)
 	{
+		if(Key == KEY_ESCAPE)
+		{
+			// Binding to Escape key is not supported
+			continue;
+		}
 		// Ignore unnamed keys starting with '&'
 		const char *pKeyName = pInput->KeyName(Key);
 		if(pKeyName[0] != '&' && str_find_nocase(pKeyName, pStr))

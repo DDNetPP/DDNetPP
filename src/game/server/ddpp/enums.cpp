@@ -1,6 +1,6 @@
 #include "enums.h"
 
-#include <base/system.h>
+#include <base/str.h>
 
 bool str_to_display_score(const char *pInputText, EDisplayScore *pDisplayScore)
 {
