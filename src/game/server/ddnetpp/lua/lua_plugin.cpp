@@ -187,6 +187,14 @@ void CLuaPlugin::RegisterPlayerMetaTable()
 	lua_pushcfunction(LuaState(), CallbackPlayerMoney);
 	lua_settable(LuaState(), -3);
 
+	lua_pushstring(LuaState(), "set_afk");
+	lua_pushcfunction(LuaState(), CallbackPlayerSetAfk);
+	lua_settable(LuaState(), -3);
+
+	lua_pushstring(LuaState(), "is_afk");
+	lua_pushcfunction(LuaState(), CallbackPlayerIsAfk);
+	lua_settable(LuaState(), -3);
+
 	lua_pushstring(LuaState(), "set_skin");
 	lua_pushcfunction(LuaState(), CallbackPlayerSetSkin);
 	lua_settable(LuaState(), -3);
@@ -2290,6 +2298,20 @@ int CLuaPlugin::CallbackPlayerMoney(lua_State *L)
 {
 	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
 	lua_pushinteger(L, pPlayer->GetMoney());
+	return 1;
+}
+
+int CLuaPlugin::CallbackPlayerSetAfk(lua_State *L)
+{
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+	pPlayer->SetAfk(lua_toboolean(L, 2)); // TODO: lua_checkboolean
+	return 0;
+}
+
+int CLuaPlugin::CallbackPlayerIsAfk(lua_State *L)
+{
+	CPlayer *pPlayer = LuaCheckPlayer(L, 1);
+	lua_pushboolean(L, pPlayer->IsAfk());
 	return 1;
 }
 

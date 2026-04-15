@@ -240,6 +240,8 @@ private:
 	static int CallbackPlayerName(lua_State *L);
 	static int CallbackPlayerMoneyTransaction(lua_State *L);
 	static int CallbackPlayerMoney(lua_State *L);
+	static int CallbackPlayerSetAfk(lua_State *L);
+	static int CallbackPlayerIsAfk(lua_State *L);
 	static int CallbackPlayerSetSkin(lua_State *L);
 	static int CallbackPlayerUnsetSkin(lua_State *L);
 	static int CallbackPlayerUnsetSkinColorBody(lua_State *L);
