@@ -282,7 +282,11 @@ void CNetConnection::Disconnect(const char *pReason)
 	if(State() == EState::OFFLINE)
 		return;
 	if(State() == EState::BOT) // ddnet++ (this is used for occupied client ids on shutdown)
+	{
+		Reset();
+		m_aErrorString[0] = 0;
 		return;
+	}
 
 	if(m_RemoteClosed == 0)
 	{
