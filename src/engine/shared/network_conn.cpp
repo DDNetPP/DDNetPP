@@ -281,6 +281,8 @@ void CNetConnection::Disconnect(const char *pReason)
 {
 	if(State() == EState::OFFLINE)
 		return;
+	if(State() == EState::BOT) // ddnet++ (this is used for occupied client ids on shutdown)
+		return;
 
 	if(m_RemoteClosed == 0)
 	{
