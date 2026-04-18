@@ -191,6 +191,7 @@ private:
 	static int CallbackLogError(lua_State *L);
 	static int CallbackSetClientScoreType(lua_State *L);
 	static int CallbackSendChat(lua_State *L);
+	static int CallbackSendChatAs(lua_State *L);
 	static int CallbackSendChatTarget(lua_State *L);
 	static int CallbackSendBroadcast(lua_State *L);
 	static int CallbackSendBroadcastTarget(lua_State *L);
