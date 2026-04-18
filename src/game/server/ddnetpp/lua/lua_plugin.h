@@ -215,6 +215,8 @@ private:
 	static int CallbackRegisterRcon(lua_State *L);
 	static int CallbackRegisterChat(lua_State *L);
 	static int CallbackSecureRandBelow(lua_State *L);
+	static int CallbackCreateTee(lua_State *L);
+	static int CallbackDropTee(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
 
 	// snap

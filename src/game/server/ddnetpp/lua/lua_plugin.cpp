@@ -20,6 +20,7 @@
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/stack_checker.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
+#include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/laser_text.h>
@@ -412,6 +413,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackSecureRandBelow, 1);
 	lua_setfield(LuaState(), -2, "secure_rand_below");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackCreateTee, 1);
+	lua_setfield(LuaState(), -2, "create_tee");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackDropTee, 1);
+	lua_setfield(LuaState(), -2, "drop_tee");
 
 	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
@@ -1816,6 +1825,35 @@ int CLuaPlugin::CallbackSecureRandBelow(lua_State *L)
 	int Below = luaL_checkinteger(L, 1);
 	lua_pushinteger(L, secure_rand_below(Below));
 	return 1;
+}
+
+int CLuaPlugin::CallbackCreateTee(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	bool Silent = false;
+	if(NumArgs >= 1)
+		Silent = lua_toboolean(L, 1);
+	int ClientId = pGame->GameServer()->CreateNewDummy(DUMMYMODE_DEFAULT, Silent);
+	if(ClientId == -1)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, ClientId);
+	return 1;
+}
+
+int CLuaPlugin::CallbackDropTee(lua_State *L)
+{
+	int NumArgs = lua_gettop(L);
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	int ClientId = luaL_checkinteger(L, 1);
+	bool Silent = false;
+	if(NumArgs >= 2)
+		Silent = lua_toboolean(L, 2);
+	pGame->Server()->BotLeave(ClientId, Silent);
+	return 0;
 }
 
 int CLuaPlugin::CallbackPluginName(lua_State *L)
