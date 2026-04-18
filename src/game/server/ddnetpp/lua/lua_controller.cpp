@@ -535,6 +535,7 @@ CLuaController::~CLuaController()
 		// so we just preclean the vector
 		// https://github.com/DDNetPP/DDNetPP/issues/541
 		pPlugin->m_vSnapIds.clear();
+		pPlugin->m_vOccupiedClientIds.clear();
 		delete pPlugin;
 		pPlugin = nullptr;
 	}

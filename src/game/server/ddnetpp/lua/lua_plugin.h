@@ -107,6 +107,12 @@ public:
 	// using Server()->SnapNewId() we auto free them when the plugin is being reloaded
 	std::vector<int> m_vSnapIds;
 
+	// The client ids that were occupied by the plugin
+	// using Server()->OccupyClientId() we auto free them when the plugin is being reloaded
+	// because these block player slots this allows plugins to occupy them on init
+	// without having to worry about free on reload
+	std::vector<int> m_vOccupiedClientIds;
+
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
 
@@ -117,6 +123,7 @@ public:
 private:
 	void ApplyDestructiveActions();
 	void FreeSnapIds();
+	void FreeOccupiedClientIds();
 
 	// This is a wrapper around Game()->Server()->SnapNewItem() which
 	// crashes the plugin instead of creating invalid snapshots that would break

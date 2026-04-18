@@ -83,6 +83,7 @@ CLuaPlugin::~CLuaPlugin()
 		//          https://github.com/DDNetPP/DDNetPP/issues/524#issuecomment-4066439351
 		// log_info("lua", "cleaning up plugin '%s' ...", Name());
 		FreeSnapIds();
+		FreeOccupiedClientIds();
 		lua_close(LuaState());
 	}
 }
@@ -132,6 +133,13 @@ void CLuaPlugin::FreeSnapIds()
 	for(int SnapId : m_vSnapIds)
 		Game()->Server()->SnapFreeId(SnapId);
 	m_vSnapIds.clear();
+}
+
+void CLuaPlugin::FreeOccupiedClientIds()
+{
+	for(int ClientId : m_vOccupiedClientIds)
+		Game()->Server()->FreeOccupiedClientId(ClientId);
+	m_vOccupiedClientIds.clear();
 }
 
 template<typename T>
@@ -2124,7 +2132,8 @@ int CLuaPlugin::CallbackServerClientName(lua_State *L)
 
 int CLuaPlugin::CallbackServerOccupyClientId(lua_State *L)
 {
-	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
 	// intentionally not using LuaCheckClientId() because existing clients should not be occupied
 	int ClientId = luaL_checkinteger(L, 1);
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
@@ -2138,13 +2147,18 @@ int CLuaPlugin::CallbackServerOccupyClientId(lua_State *L)
 		return 1;
 	}
 	bool Success = pGame->Server()->OccupyClientId(ClientId);
+	if(Success)
+	{
+		pSelf->m_vOccupiedClientIds.emplace_back(ClientId);
+	}
 	lua_pushboolean(L, Success);
 	return 1;
 }
 
 int CLuaPlugin::CallbackServerFreeOccupiedClientId(lua_State *L)
 {
-	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
 	// intentionally not using LuaCheckClientId() because existing clients should not be occupied
 	int ClientId = luaL_checkinteger(L, 1);
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
@@ -2153,6 +2167,9 @@ int CLuaPlugin::CallbackServerFreeOccupiedClientId(lua_State *L)
 		return 0;
 	}
 	bool Success = pGame->Server()->FreeOccupiedClientId(ClientId);
+	pSelf->m_vOccupiedClientIds.erase(
+		std::remove(pSelf->m_vOccupiedClientIds.begin(), pSelf->m_vOccupiedClientIds.end(), ClientId),
+		pSelf->m_vOccupiedClientIds.end());
 	lua_pushboolean(L, Success);
 	return 1;
 }
