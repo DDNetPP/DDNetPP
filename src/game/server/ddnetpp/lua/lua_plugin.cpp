@@ -423,6 +423,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "drop_tee");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackIsServerTee, 1);
+	lua_setfield(LuaState(), -2, "is_server_tee");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
 	lua_setfield(LuaState(), -2, "plugin_name");
 
@@ -1854,6 +1858,22 @@ int CLuaPlugin::CallbackDropTee(lua_State *L)
 		Silent = lua_toboolean(L, 2);
 	pGame->Server()->BotLeave(ClientId, Silent);
 	return 0;
+}
+
+int CLuaPlugin::CallbackIsServerTee(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	CPlayer *pPlayer = pGame->GameServer()->m_apPlayers[ClientId];
+	bool IsDummy = pPlayer && pPlayer->m_IsDummy;
+	lua_pushboolean(L, IsDummy);
+	return 1;
 }
 
 int CLuaPlugin::CallbackPluginName(lua_State *L)
