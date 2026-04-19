@@ -85,6 +85,7 @@ CLuaPlugin::~CLuaPlugin()
 		// log_info("lua", "cleaning up plugin '%s' ...", Name());
 		FreeSnapIds();
 		FreeOccupiedClientIds();
+		FreeBotIds();
 		lua_close(LuaState());
 	}
 }
@@ -141,6 +142,13 @@ void CLuaPlugin::FreeOccupiedClientIds()
 	for(int ClientId : m_vOccupiedClientIds)
 		Game()->Server()->FreeOccupiedClientId(ClientId);
 	m_vOccupiedClientIds.clear();
+}
+
+void CLuaPlugin::FreeBotIds()
+{
+	for(int ClientId : m_vBotIds)
+		Game()->Server()->BotLeave(ClientId, true);
+	m_vBotIds.clear();
 }
 
 template<typename T>
@@ -1854,9 +1862,13 @@ int CLuaPlugin::CallbackCreateTee(lua_State *L)
 		Silent = lua_toboolean(L, 1);
 	int ClientId = pGame->GameServer()->CreateNewDummy(DUMMYMODE_DEFAULT, Silent);
 	if(ClientId == -1)
+	{
 		lua_pushnil(L);
-	else
-		lua_pushinteger(L, ClientId);
+		return 1;
+	}
+
+	pSelf->m_vBotIds.emplace_back(ClientId);
+	lua_pushinteger(L, ClientId);
 	return 1;
 }
 
@@ -1870,6 +1882,9 @@ int CLuaPlugin::CallbackDropTee(lua_State *L)
 	if(NumArgs >= 2)
 		Silent = lua_toboolean(L, 2);
 	pGame->Server()->BotLeave(ClientId, Silent);
+	pSelf->m_vBotIds.erase(
+		std::remove(pSelf->m_vBotIds.begin(), pSelf->m_vBotIds.end(), ClientId),
+		pSelf->m_vBotIds.end());
 	return 0;
 }
 

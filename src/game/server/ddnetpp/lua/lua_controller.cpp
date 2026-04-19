@@ -536,6 +536,7 @@ CLuaController::~CLuaController()
 		// https://github.com/DDNetPP/DDNetPP/issues/541
 		pPlugin->m_vSnapIds.clear();
 		pPlugin->m_vOccupiedClientIds.clear();
+		pPlugin->m_vBotIds.clear();
 		delete pPlugin;
 		pPlugin = nullptr;
 	}

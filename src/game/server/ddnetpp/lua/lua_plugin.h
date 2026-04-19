@@ -113,6 +113,12 @@ public:
 	// without having to worry about free on reload
 	std::vector<int> m_vOccupiedClientIds;
 
+	// The client ids of server side tees the lua plugin connected
+	// also called "dummy" in ddnet++ code or ddnetpp.create_tee() in lua code
+	// these will be automatically disconnected if the plugin gets shutdown
+	// to avoid filling the server when the plugin crashes or gets reloaded
+	std::vector<int> m_vBotIds;
+
 	CLuaPlugin(const char *pName, const char *pFullPath, CLuaGame *pGame);
 	~CLuaPlugin();
 
@@ -124,6 +130,7 @@ private:
 	void ApplyDestructiveActions();
 	void FreeSnapIds();
 	void FreeOccupiedClientIds();
+	void FreeBotIds();
 
 	// This is a wrapper around Game()->Server()->SnapNewItem() which
 	// crashes the plugin instead of creating invalid snapshots that would break
