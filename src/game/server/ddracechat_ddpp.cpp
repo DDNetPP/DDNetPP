@@ -654,7 +654,7 @@ void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Server()->ClientName(pResult->m_ClientId),
 		pResult->GetString(0));
 	if(pPlayer->m_Account.m_PoliceRank > 0)
-		pSelf->SendChat(-2, TEAM_ALL, aBuf, pResult->m_ClientId);
+		pSelf->SendChat(-1, TEAM_ALL, aBuf, pResult->m_ClientId);
 	else
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
