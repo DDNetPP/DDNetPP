@@ -73,13 +73,13 @@ bool CGameContext::SendExtraVoteMenuEntry(int ClientId)
 		// VIP Status
 		if(pPlayer->IsLoggedIn())
 		{
-			if(pPlayer->IsVip())
+			if(pPlayer->m_Account.m_IsSuperModerator)
 			{
-				str_format(aBuf, sizeof(aBuf), "⭐ VIP Status: Active");
+				str_copy(aBuf, "⭐ VIP Status: Active", sizeof(aBuf));
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "⭐ VIP Status: None");
+				str_copy(aBuf, "⭐ VIP Status: None", sizeof(aBuf));
 			}
 			AddMsg.m_pDescription = aBuf;
 		}
@@ -93,7 +93,7 @@ bool CGameContext::SendExtraVoteMenuEntry(int ClientId)
 		// Level/XP
 		if(pPlayer->IsLoggedIn())
 		{
-			str_format(aBuf, sizeof(aBuf), "📊 Level: %d | XP: %d", pPlayer->m_Account.m_Level, pPlayer->m_Account.m_Xp);
+			str_format(aBuf, sizeof(aBuf), "📊 Level: %d | XP: %d", pPlayer->m_Account.m_Level, pPlayer->m_Account.m_XP);
 			AddMsg.m_pDescription = aBuf;
 		}
 		else
@@ -109,8 +109,14 @@ bool CGameContext::SendExtraVoteMenuEntry(int ClientId)
 
 	case 4:
 		// Server info
-		str_format(aBuf, sizeof(aBuf), "🌐 Players online: %d/%d", Server()->NumPlayers(), Server()->MaxClients());
-		AddMsg.m_pDescription = aBuf;
+		{
+			int NumPlayers = 0;
+			for(int i = 0; i < MAX_CLIENTS; i++)
+				if(m_apPlayers[i])
+					NumPlayers++;
+			str_format(aBuf, sizeof(aBuf), "🌐 Players online: %d/%d", NumPlayers, Server()->MaxClients());
+			AddMsg.m_pDescription = aBuf;
+		}
 		break;
 
 	default:
