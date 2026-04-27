@@ -45,23 +45,78 @@ bool CGameContext::SendExtraVoteMenuEntry(int ClientId)
 	if(pPlayer->m_SendVoteIndex == -1)
 		return false; // we didn't start sending options yet
 
-	// bool InsertBeforeRegularVotes = true;
-	// if(pPlayer->m_SendVoteIndex < m_NumVoteOptions) // not all regular votes have been sent yet
-	// {
-	// 	if(InsertBeforeRegularVotes)
-	// 		return false;
-	// }
-
-	if(pPlayer->m_SendExtraVoteMenuIndex > -1)
+	if(pPlayer->m_SendExtraVoteMenuIndex >= 5) // Limit to 5 menu entries
 		return false;
+
 	pPlayer->m_SendExtraVoteMenuIndex++;
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "%s: %" PRId64, Loc("Money", ClientId), pPlayer->GetMoney());
-
 	CNetMsg_Sv_VoteOptionAdd AddMsg;
-	AddMsg.m_pDescription = pPlayer->IsLoggedIn() ? aBuf : "Write '/login' in chat to see stats here";
-	Server()->SendPackMsg(&AddMsg, MSGFLAG_VITAL, ClientId);
 
+	// Menu entries based on index
+	switch(pPlayer->m_SendExtraVoteMenuIndex)
+	{
+	case 0:
+		// Money display
+		if(pPlayer->IsLoggedIn())
+		{
+			str_format(aBuf, sizeof(aBuf), "💰 %s: %" PRId64, Loc("Money", ClientId), pPlayer->GetMoney());
+			AddMsg.m_pDescription = aBuf;
+		}
+		else
+		{
+			AddMsg.m_pDescription = "📝 Write '/login' in chat to see your stats";
+		}
+		break;
+
+	case 1:
+		// VIP Status
+		if(pPlayer->IsLoggedIn())
+		{
+			if(pPlayer->IsVip())
+			{
+				str_format(aBuf, sizeof(aBuf), "⭐ VIP Status: Active");
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "⭐ VIP Status: None");
+			}
+			AddMsg.m_pDescription = aBuf;
+		}
+		else
+		{
+			AddMsg.m_pDescription = "⭐ VIP: Login to see status";
+		}
+		break;
+
+	case 2:
+		// Level/XP
+		if(pPlayer->IsLoggedIn())
+		{
+			str_format(aBuf, sizeof(aBuf), "📊 Level: %d | XP: %d", pPlayer->m_Account.m_Level, pPlayer->m_Account.m_Xp);
+			AddMsg.m_pDescription = aBuf;
+		}
+		else
+		{
+			AddMsg.m_pDescription = "📊 Level: Login to see stats";
+		}
+		break;
+
+	case 3:
+		// Quick commands hint
+		AddMsg.m_pDescription = "💡 Commands: /shop /profile /help";
+		break;
+
+	case 4:
+		// Server info
+		str_format(aBuf, sizeof(aBuf), "🌐 Players online: %d/%d", Server()->NumPlayers(), Server()->MaxClients());
+		AddMsg.m_pDescription = aBuf;
+		break;
+
+	default:
+		return false;
+	}
+
+	Server()->SendPackMsg(&AddMsg, MSGFLAG_VITAL, ClientId);
 	return true;
 }
