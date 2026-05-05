@@ -140,9 +140,9 @@ private:
 	// plugin snap issues.
 	// https://github.com/ddnet/ddnet/issues/11999
 	template<typename T>
-	T *SnapNewItem(int Id);
+	bool SnapNewItem(int Id, const T &Data);
 
-	void *SnapNewItem(int Type, int Id, int Size);
+	bool SnapNewItem(int Type, int Id, const void *pData, int Size);
 
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();

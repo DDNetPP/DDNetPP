@@ -103,19 +103,17 @@ void CHomingMissile::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Projectile *pMissile = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, GetId(), sizeof(CNetObj_Projectile)));
-	if(!pMissile)
-		return;
-
+	CNetObj_Projectile Missile = {};
 	if(!m_CalculatedVel)
 		CalculateVel();
 
-	pMissile->m_X = (int)m_LastResetPos.x;
-	pMissile->m_Y = (int)m_LastResetPos.y;
-	pMissile->m_VelX = m_VelX;
-	pMissile->m_VelY = m_VelY;
-	pMissile->m_StartTick = m_LastResetTick;
-	pMissile->m_Type = WEAPON_GRENADE;
+	Missile.m_X = (int)m_LastResetPos.x;
+	Missile.m_Y = (int)m_LastResetPos.y;
+	Missile.m_VelX = m_VelX;
+	Missile.m_VelY = m_VelY;
+	Missile.m_StartTick = m_LastResetTick;
+	Missile.m_Type = WEAPON_GRENADE;
+	Server()->SnapNewItem(GetId(), Missile);
 }
 
 CCharacter *CHomingMissile::CharacterNear()

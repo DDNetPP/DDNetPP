@@ -723,7 +723,22 @@ void IGameController::Snap(int SnappingClient)
 
 	CNetObj_GameInfoEx GameInfoEx = {};
 	GameInfoEx.m_Flags =
-		GAMEINFOFLAG_TIMESCORE;
+		GAMEINFOFLAG_GAMETYPE_RACE |
+		GAMEINFOFLAG_GAMETYPE_DDRACE |
+		GAMEINFOFLAG_GAMETYPE_DDNET |
+		GAMEINFOFLAG_UNLIMITED_AMMO |
+		GAMEINFOFLAG_RACE_RECORD_MESSAGE |
+		GAMEINFOFLAG_ALLOW_EYE_WHEEL |
+		GAMEINFOFLAG_ALLOW_HOOK_COLL |
+		GAMEINFOFLAG_ALLOW_ZOOM |
+		GAMEINFOFLAG_BUG_DDRACE_GHOST |
+		GAMEINFOFLAG_BUG_DDRACE_INPUT |
+		GAMEINFOFLAG_PREDICT_DDRACE |
+		GAMEINFOFLAG_PREDICT_DDRACE_TILES |
+		GAMEINFOFLAG_ENTITIES_DDNET |
+		GAMEINFOFLAG_ENTITIES_DDRACE |
+		GAMEINFOFLAG_ENTITIES_RACE |
+		GAMEINFOFLAG_RACE;
 
 	// ddnet++
 	// TODO: move this to the ddnet-insta hook SnapGameInfoExFlags()
@@ -742,10 +757,9 @@ void IGameController::Snap(int SnappingClient)
 	if(g_Config.m_SvNoWeakHook)
 		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;
 	GameInfoEx.m_Version = GAMEINFO_CURVERSION;
-	Server()->SnapNewItem(0, GameInfoEx);
-
 	GameInfoEx.m_Flags = SnapGameInfoExFlags(SnappingClient, GameInfoEx.m_Flags); // ddnet-insta
 	GameInfoEx.m_Flags2 = SnapGameInfoExFlags2(SnappingClient, GameInfoEx.m_Flags2); // ddnet-insta
+	Server()->SnapNewItem(0, GameInfoEx);
 
 	if(Server()->IsSixup(SnappingClient))
 	{

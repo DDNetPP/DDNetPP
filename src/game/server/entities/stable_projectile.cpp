@@ -105,17 +105,15 @@ void CStableProjectile::Snap(int SnappingClient)
 	if(SnappingClient != SERVER_DEMO_CLIENT && !TeamMask.test(SnappingClient))
 		return;
 
-	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, GetId(), sizeof(CNetObj_Projectile)));
-	if(!pProj)
-		return;
-
 	if(!m_CalculatedVel)
 		CalculateVel();
 
-	pProj->m_X = (int)m_LastResetPos.x;
-	pProj->m_Y = (int)m_LastResetPos.y;
-	pProj->m_VelX = m_VelX;
-	pProj->m_VelY = m_VelY;
-	pProj->m_StartTick = m_LastResetTick;
-	pProj->m_Type = m_Type;
+	CNetObj_Projectile Proj = {};
+	Proj.m_X = (int)m_LastResetPos.x;
+	Proj.m_Y = (int)m_LastResetPos.y;
+	Proj.m_VelX = m_VelX;
+	Proj.m_VelY = m_VelY;
+	Proj.m_StartTick = m_LastResetTick;
+	Proj.m_Type = m_Type;
+	Server()->SnapNewItem(GetId(), Proj);
 }

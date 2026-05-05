@@ -122,14 +122,12 @@ void CLaserText::Snap(int SnappingClient)
 
 	for(int i = 0; i < m_MaxPlasmas; ++i)
 	{
-		CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_LolPlasmas[i]->GetIdWrap(), sizeof(CNetObj_Laser)));
-		if(!pObj)
-			return;
-
-		pObj->m_X = m_LolPlasmas[i]->GetPos().x;
-		pObj->m_Y = m_LolPlasmas[i]->GetPos().y;
-		pObj->m_FromX = m_LolPlasmas[i]->GetPos().x;
-		pObj->m_FromY = m_LolPlasmas[i]->GetPos().y;
-		pObj->m_StartTick = Server()->Tick();
+		CNetObj_Laser Obj = {};
+		Obj.m_X = m_LolPlasmas[i]->GetPos().x;
+		Obj.m_Y = m_LolPlasmas[i]->GetPos().y;
+		Obj.m_FromX = m_LolPlasmas[i]->GetPos().x;
+		Obj.m_FromY = m_LolPlasmas[i]->GetPos().y;
+		Obj.m_StartTick = Server()->Tick();
+		Server()->SnapNewItem(m_LolPlasmas[i]->GetIdWrap(), Obj);
 	}
 }

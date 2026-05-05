@@ -59,27 +59,21 @@ void CGameControllerDDNetPP::SnapFlags(int SnappingClient)
 
 	if(Server()->IsSixup(SnappingClient))
 	{
-		protocol7::CNetObj_GameDataFlag *pGameDataObj = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
-		if(!pGameDataObj)
-			return;
-
-		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
-		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
-
+		protocol7::CNetObj_GameDataFlag GameData = {};
+		GameData.m_FlagCarrierRed = FlagCarrierRed;
+		GameData.m_FlagCarrierBlue = FlagCarrierBlue;
 		if(pMinigame)
-			pMinigame->SnapGameDataFlag7(pPlayer, pGameDataObj);
+			pMinigame->SnapGameDataFlag7(pPlayer, &GameData);
+		Server()->SnapNewItem(0, GameData);
 	}
 	else
 	{
-		CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
-		if(!pGameDataObj)
-			return;
-
-		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
-		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
-
+		CNetObj_GameData GameData = {};
+		GameData.m_FlagCarrierRed = FlagCarrierRed;
+		GameData.m_FlagCarrierBlue = FlagCarrierBlue;
 		if(pMinigame)
-			pMinigame->SnapGameData(pPlayer, pGameDataObj);
+			pMinigame->SnapGameData(pPlayer, &GameData);
+		Server()->SnapNewItem(0, GameData);
 	}
 }
 
@@ -117,18 +111,15 @@ void CGameControllerDDNetPP::FakeSnap(int SnappingClient)
 	// log_info("ddnet++", "sending fake player to cid=%d", SnappingClient);
 
 	// Send character at the position of the flag we are currently hooking
-	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, FakeId, sizeof(CNetObj_Character)));
-	if(!pCharacter)
-		return;
-
-	pCharacter->m_X = pFlag->GetPos().x;
-	pCharacter->m_Y = pFlag->GetPos().y;
+	CNetObj_Character Character = {};
+	Character.m_X = pFlag->GetPos().x;
+	Character.m_Y = pFlag->GetPos().y;
+	Server()->SnapNewItem(FakeId, Character);
 
 	// If the flag is getting hooked while close to us, the client predicts the invisible fake tee as if it would be colliding with us
-	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, FakeId, sizeof(CNetObj_DDNetCharacter)));
-	if(!pDDNetCharacter)
-		return;
-	pDDNetCharacter->m_Flags = CHARACTERFLAG_COLLISION_DISABLED;
+	CNetObj_DDNetCharacter DDNetCharacter = {};
+	DDNetCharacter.m_Flags = CHARACTERFLAG_COLLISION_DISABLED;
+	Server()->SnapNewItem(FakeId, DDNetCharacter);
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot
