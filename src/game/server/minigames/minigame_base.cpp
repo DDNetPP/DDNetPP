@@ -66,12 +66,10 @@ void CMinigame::SnapSavedPositions(int SnappingClient)
 		if(!pPos)
 			continue;
 
-		CNetObj_SpecChar *pSpecChar = Server()->SnapNewItem<CNetObj_SpecChar>(i);
-		if(!pSpecChar)
-			return;
-
-		pSpecChar->m_X = pPos->GetPos().x;
-		pSpecChar->m_Y = pPos->GetPos().y;
+		CNetObj_SpecChar SpecChar = {};
+		SpecChar.m_X = pPos->GetPos().x;
+		SpecChar.m_Y = pPos->GetPos().y;
+		Server()->SnapNewItem(i, SpecChar);
 	}
 }
 

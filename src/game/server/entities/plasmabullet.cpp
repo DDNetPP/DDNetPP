@@ -151,15 +151,11 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->SpectatorId() == -1 && SnapChar && SnapChar->Team() != m_ResponsibleTeam && SnapPlayer->m_SpecTeam)
 		return;
 
-	CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(
-		NETOBJTYPE_LASER, GetId(), sizeof(CNetObj_Laser)));
-
-	if(!pObj)
-		return;
-
-	pObj->m_X = (int)m_Pos.x;
-	pObj->m_Y = (int)m_Pos.y;
-	pObj->m_FromX = (int)m_Pos.x;
-	pObj->m_FromY = (int)m_Pos.y;
-	pObj->m_StartTick = m_EvalTick;
+	CNetObj_Laser Obj = {};
+	Obj.m_X = (int)m_Pos.x;
+	Obj.m_Y = (int)m_Pos.y;
+	Obj.m_FromX = (int)m_Pos.x;
+	Obj.m_FromY = (int)m_Pos.y;
+	Obj.m_StartTick = m_EvalTick;
+	Server()->SnapNewItem(GetId(), Obj);
 }

@@ -2400,7 +2400,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			Direction // InitDir
 		);
 
-		CProjectile *pProj = new CProjectile(
+		new CProjectile(
 			GameWorld(),
 			WEAPON_GUN, // Type
 			m_pPlayer->GetCid(), // Owner
@@ -2412,10 +2412,6 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			-1, // SoundImpact
 			Direction // InitDir
 		);
-
-		// pack the Projectile and send it to the client Directly
-		CNetObj_Projectile p;
-		pProj->FillInfo(&p);
 
 		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid())); // NOLINT(clang-analyzer-unix.Malloc)
 	}
@@ -2494,7 +2490,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			a += Spreading[i + 2];
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->GlobalTuning()->m_ShotgunSpeeddiff, 1.0f, v);
-			CProjectile *pProj = new CProjectile(
+			new CProjectile(
 				GameWorld(),
 				WEAPON_SHOTGUN, // Type
 				m_pPlayer->GetCid(), // Owner
@@ -2506,10 +2502,6 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 				-1, // SoundImpact,
 				ProjStartPos, // InitDir
 				WEAPON_SHOTGUN);
-
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
 		}
 
 		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);

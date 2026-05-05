@@ -311,14 +311,12 @@ void CWeapon::Snap(int SnappingClient)
 	if(pSnappingChar && pSnappingChar->Team() != m_DDRaceTeam)
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetId(), sizeof(CNetObj_Pickup)));
-	if(!pP)
-		return;
-
-	pP->m_X = (int)m_Pos.x;
-	pP->m_Y = (int)m_Pos.y;
-	pP->m_Type = POWERUP_WEAPON;
-	pP->m_Subtype = m_Type;
+	CNetObj_Pickup Pickup = {};
+	Pickup.m_X = (int)m_Pos.x;
+	Pickup.m_Y = (int)m_Pos.y;
+	Pickup.m_Type = POWERUP_WEAPON;
+	Pickup.m_Subtype = m_Type;
+	Server()->SnapNewItem(GetId(), Pickup);
 
 	int JetpackIndicatorHeight;
 
@@ -333,43 +331,35 @@ void CWeapon::Snap(int SnappingClient)
 
 	if(m_Jetpack)
 	{
-		CNetObj_Projectile *pJetpackIndicator = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id2, sizeof(CNetObj_Projectile)));
-		if(pJetpackIndicator)
-		{
-			pJetpackIndicator->m_X = pP->m_X;
-			pJetpackIndicator->m_Y = pP->m_Y - JetpackIndicatorHeight;
-			pJetpackIndicator->m_Type = WEAPON_SHOTGUN;
-			pJetpackIndicator->m_StartTick = Server()->Tick();
-		}
+		CNetObj_Projectile JetpackInd = {};
+		JetpackInd.m_X = Pickup.m_X;
+		JetpackInd.m_Y = Pickup.m_Y - JetpackIndicatorHeight;
+		JetpackInd.m_Type = WEAPON_SHOTGUN;
+		JetpackInd.m_StartTick = Server()->Tick();
+		Server()->SnapNewItem(m_Id2, JetpackInd);
 	}
 
 	if(m_SpreadGun)
 	{
-		CNetObj_Projectile *pSpreadGunIndicator1 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id3, sizeof(CNetObj_Projectile)));
-		if(pSpreadGunIndicator1)
-		{
-			pSpreadGunIndicator1->m_X = pP->m_X;
-			pSpreadGunIndicator1->m_Y = pP->m_Y - 25;
-			pSpreadGunIndicator1->m_Type = WEAPON_SHOTGUN;
-			pSpreadGunIndicator1->m_StartTick = Server()->Tick();
-		}
+		CNetObj_Projectile SpreadGunInd1 = {};
+		SpreadGunInd1.m_X = Pickup.m_X;
+		SpreadGunInd1.m_Y = Pickup.m_Y - 25;
+		SpreadGunInd1.m_Type = WEAPON_SHOTGUN;
+		SpreadGunInd1.m_StartTick = Server()->Tick();
+		Server()->SnapNewItem(m_Id3, SpreadGunInd1);
 
-		CNetObj_Projectile *pSpreadGunIndicator2 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id4, sizeof(CNetObj_Projectile)));
-		if(pSpreadGunIndicator2)
-		{
-			pSpreadGunIndicator2->m_X = pP->m_X - 20;
-			pSpreadGunIndicator2->m_Y = pP->m_Y - 25;
-			pSpreadGunIndicator2->m_Type = WEAPON_SHOTGUN;
-			pSpreadGunIndicator2->m_StartTick = Server()->Tick();
-		}
+		CNetObj_Projectile SpreadGunInd2 = {};
+		SpreadGunInd2.m_X = Pickup.m_X - 20;
+		SpreadGunInd2.m_Y = Pickup.m_Y - 25;
+		SpreadGunInd2.m_Type = WEAPON_SHOTGUN;
+		SpreadGunInd2.m_StartTick = Server()->Tick();
+		Server()->SnapNewItem(m_Id4, SpreadGunInd2);
 
-		CNetObj_Projectile *pSpreadGunIndicator3 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id5, sizeof(CNetObj_Projectile)));
-		if(pSpreadGunIndicator3)
-		{
-			pSpreadGunIndicator3->m_X = pP->m_X + 20;
-			pSpreadGunIndicator3->m_Y = pP->m_Y - 25;
-			pSpreadGunIndicator3->m_Type = WEAPON_SHOTGUN;
-			pSpreadGunIndicator3->m_StartTick = Server()->Tick();
-		}
+		CNetObj_Projectile SpreadGunInd3 = {};
+		SpreadGunInd3.m_X = Pickup.m_X + 20;
+		SpreadGunInd3.m_Y = Pickup.m_Y - 25;
+		SpreadGunInd3.m_Type = WEAPON_SHOTGUN;
+		SpreadGunInd3.m_StartTick = Server()->Tick();
+		Server()->SnapNewItem(m_Id5, SpreadGunInd3);
 	}
 }

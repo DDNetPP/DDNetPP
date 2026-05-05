@@ -101,12 +101,10 @@ void CTdmBlock::Snap(int SnappingClient)
 	CGameState *pGameState = pPlayer->m_pBlockTdmState;
 	if(Server()->IsSixup(SnappingClient))
 	{
-		protocol7::CNetObj_GameDataTeam *pGameDataTeam = static_cast<protocol7::CNetObj_GameDataTeam *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATATEAM, 0, sizeof(protocol7::CNetObj_GameDataTeam)));
-		if(!pGameDataTeam)
-			return;
-
-		pGameDataTeam->m_TeamscoreRed = pGameState->m_aTeamscore[TEAM_RED];
-		pGameDataTeam->m_TeamscoreBlue = pGameState->m_aTeamscore[TEAM_BLUE];
+		protocol7::CNetObj_GameDataTeam GameDataTeam = {};
+		GameDataTeam.m_TeamscoreRed = pGameState->m_aTeamscore[TEAM_RED];
+		GameDataTeam.m_TeamscoreBlue = pGameState->m_aTeamscore[TEAM_BLUE];
+		Server()->SnapNewItem(0, GameDataTeam);
 	}
 }
 

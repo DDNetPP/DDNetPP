@@ -152,28 +152,28 @@ void CLuaPlugin::FreeBotIds()
 }
 
 template<typename T>
-T *CLuaPlugin::SnapNewItem(int Id)
+bool CLuaPlugin::SnapNewItem(int Id, const T &Data)
 {
 	int ItemKey = (T::ms_MsgId << 16) | Id;
 	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
 	{
 		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", T::ms_MsgId, Id);
-		return nullptr;
+		return false;
 	}
 
-	return Game()->Server()->SnapNewItem<T>(Id);
+	return Game()->Server()->SnapNewItem(Id, Data);
 }
 
-void *CLuaPlugin::SnapNewItem(int Type, int Id, int Size)
+bool CLuaPlugin::SnapNewItem(int Type, int Id, const void *pData, int Size)
 {
 	int ItemKey = (Type << 16) | Id;
 	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
 	{
 		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", Type, Id);
-		return nullptr;
+		return false;
 	}
 
-	return Game()->Server()->SnapNewItem(Type, Id, Size);
+	return Game()->Server()->SnapNewItem(Type, Id, pData, Size);
 }
 
 void CLuaPlugin::RegisterPlayerMetaTable()
@@ -1949,17 +1949,15 @@ int CLuaPlugin::CallbackSnapNewLaser(lua_State *L)
 		FromPos = Unpacker.GetPosition("from_pos");
 	int StartTick = Unpacker.GetIntOrDefault("start_tick", 0);
 
-	CNetObj_Laser *pObj = pSelf->SnapNewItem<CNetObj_Laser>(SnapId);
-	if(!pObj)
-		return false;
-
 	// log_info("lua", "snapping laser with id=%d ...", SnapId);
 
-	pObj->m_X = (int)Pos.x;
-	pObj->m_Y = (int)Pos.y;
-	pObj->m_FromX = (int)FromPos.x;
-	pObj->m_FromY = (int)FromPos.y;
-	pObj->m_StartTick = StartTick;
+	CNetObj_Laser Obj = {};
+	Obj.m_X = (int)Pos.x;
+	Obj.m_Y = (int)Pos.y;
+	Obj.m_FromX = (int)FromPos.x;
+	Obj.m_FromY = (int)FromPos.y;
+	Obj.m_StartTick = StartTick;
+	pSelf->SnapNewItem(SnapId, Obj);
 	return 0;
 }
 
@@ -2009,34 +2007,32 @@ int CLuaPlugin::CallbackSnapNewCharacter(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "character");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_Character *pCharacter = pSelf->SnapNewItem<CNetObj_Character>(SnapId);
-	if(!pCharacter)
-		return 0;
-
-	pCharacter->m_Tick = Unpacker.GetIntOrDefault("tick", 0);
+	CNetObj_Character Character = {};
+	Character.m_Tick = Unpacker.GetIntOrDefault("tick", 0);
 	vec2 Pos = Unpacker.GetPosition("pos");
-	pCharacter->m_X = Pos.x;
-	pCharacter->m_Y = Pos.y;
+	Character.m_X = Pos.x;
+	Character.m_Y = Pos.y;
 	// TODO: do we need to scale velocity similar to how we do it with coordinates and positions?
-	pCharacter->m_VelX = Unpacker.GetIntOrDefault("vel_x", 0);
-	pCharacter->m_VelY = Unpacker.GetIntOrDefault("vel_y", 0);
-	pCharacter->m_Angle = Unpacker.GetIntOrDefault("angle", 0);
-	pCharacter->m_Direction = Unpacker.GetIntOrDefault("direction", 0);
-	pCharacter->m_Jumped = Unpacker.GetIntOrDefault("jumped", 0);
-	pCharacter->m_HookedPlayer = Unpacker.GetIntOrDefault("hooked_player", -1);
-	pCharacter->m_HookState = Unpacker.GetIntOrDefault("hook_state", HOOK_IDLE);
-	pCharacter->m_HookTick = Unpacker.GetIntOrDefault("hook_tick", 0);
-	pCharacter->m_HookX = Unpacker.GetCoordinateOptional("hook_x").value_or(Pos.x / 32.0f);
-	pCharacter->m_HookY = Unpacker.GetCoordinateOptional("hook_y").value_or(Pos.y / 32.0f);
-	pCharacter->m_HookDx = Unpacker.GetIntOrDefault("hook_dx", 0);
-	pCharacter->m_HookDy = Unpacker.GetIntOrDefault("hook_dy", 0);
-	pCharacter->m_PlayerFlags = Unpacker.GetIntOrDefault("player_flags", 0);
-	pCharacter->m_Health = Unpacker.GetIntOrDefault("health", 10);
-	pCharacter->m_Armor = Unpacker.GetIntOrDefault("armor", 0);
-	pCharacter->m_AmmoCount = Unpacker.GetIntOrDefault("ammo_count", -1);
-	pCharacter->m_Weapon = Unpacker.GetIntOrDefault("weapon", WEAPON_GUN);
-	pCharacter->m_Emote = Unpacker.GetIntOrDefault("eye_emote", EMOTE_NORMAL);
-	pCharacter->m_AttackTick = Unpacker.GetIntOrDefault("attack_tick", 0);
+	Character.m_VelX = Unpacker.GetIntOrDefault("vel_x", 0);
+	Character.m_VelY = Unpacker.GetIntOrDefault("vel_y", 0);
+	Character.m_Angle = Unpacker.GetIntOrDefault("angle", 0);
+	Character.m_Direction = Unpacker.GetIntOrDefault("direction", 0);
+	Character.m_Jumped = Unpacker.GetIntOrDefault("jumped", 0);
+	Character.m_HookedPlayer = Unpacker.GetIntOrDefault("hooked_player", -1);
+	Character.m_HookState = Unpacker.GetIntOrDefault("hook_state", HOOK_IDLE);
+	Character.m_HookTick = Unpacker.GetIntOrDefault("hook_tick", 0);
+	Character.m_HookX = Unpacker.GetCoordinateOptional("hook_x").value_or(Pos.x / 32.0f);
+	Character.m_HookY = Unpacker.GetCoordinateOptional("hook_y").value_or(Pos.y / 32.0f);
+	Character.m_HookDx = Unpacker.GetIntOrDefault("hook_dx", 0);
+	Character.m_HookDy = Unpacker.GetIntOrDefault("hook_dy", 0);
+	Character.m_PlayerFlags = Unpacker.GetIntOrDefault("player_flags", 0);
+	Character.m_Health = Unpacker.GetIntOrDefault("health", 10);
+	Character.m_Armor = Unpacker.GetIntOrDefault("armor", 0);
+	Character.m_AmmoCount = Unpacker.GetIntOrDefault("ammo_count", -1);
+	Character.m_Weapon = Unpacker.GetIntOrDefault("weapon", WEAPON_GUN);
+	Character.m_Emote = Unpacker.GetIntOrDefault("eye_emote", EMOTE_NORMAL);
+	Character.m_AttackTick = Unpacker.GetIntOrDefault("attack_tick", 0);
+	pSelf->SnapNewItem(SnapId, Character);
 	return 0;
 }
 
@@ -2055,15 +2051,13 @@ int CLuaPlugin::CallbackSnapNewPlayerInfo(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "player_info");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_PlayerInfo *pItem = pSelf->SnapNewItem<CNetObj_PlayerInfo>(SnapId);
-	if(!pItem)
-		return 0;
-
-	pItem->m_Local = Unpacker.GetBooleanOptional("is_local").value_or(false);
-	pItem->m_ClientId = Unpacker.GetInt("client_id");
-	pItem->m_Team = Unpacker.GetIntOrDefault("team", TEAM_GAME);
-	pItem->m_Score = Unpacker.GetIntOrDefault("score", 0);
-	pItem->m_Latency = Unpacker.GetIntOrDefault("latency", 0);
+	CNetObj_PlayerInfo Item = {};
+	Item.m_Local = Unpacker.GetBooleanOptional("is_local").value_or(false);
+	Item.m_ClientId = Unpacker.GetInt("client_id");
+	Item.m_Team = Unpacker.GetIntOrDefault("team", TEAM_GAME);
+	Item.m_Score = Unpacker.GetIntOrDefault("score", 0);
+	Item.m_Latency = Unpacker.GetIntOrDefault("latency", 0);
+	pSelf->SnapNewItem(SnapId, Item);
 	return 0;
 }
 
@@ -2082,28 +2076,26 @@ int CLuaPlugin::CallbackSnapNewClientInfo(lua_State *L)
 	CTableUnpacker Unpacker(L, 1, "client_info");
 	int SnapId = Unpacker.GetInt("id");
 
-	CNetObj_ClientInfo *pItem = pSelf->SnapNewItem<CNetObj_ClientInfo>(SnapId);
-	if(!pItem)
-		return 0;
-
+	CNetObj_ClientInfo Item = {};
 	char aName[MAX_NAME_LENGTH] = "";
 	bool GotName = Unpacker.GetStringOrFalse("name", aName, sizeof(aName));
 
 	char aClan[MAX_CLAN_LENGTH] = "";
 	bool GotClan = Unpacker.GetStringOrFalse("clan", aClan, sizeof(aClan));
 
-	StrToInts(pItem->m_aName, std::size(pItem->m_aName), GotName ? aName : "lua");
-	StrToInts(pItem->m_aClan, std::size(pItem->m_aClan), GotClan ? aClan : "");
+	StrToInts(Item.m_aName, std::size(Item.m_aName), GotName ? aName : "lua");
+	StrToInts(Item.m_aClan, std::size(Item.m_aClan), GotClan ? aClan : "");
 
-	pItem->m_Country = Unpacker.GetIntOrDefault("country", -1);
+	Item.m_Country = Unpacker.GetIntOrDefault("country", -1);
 
 	char aSkin[MAX_SKIN_LENGTH] = "";
 	bool GotSkin = Unpacker.GetStringOrFalse("skin", aSkin, sizeof(aSkin));
-	StrToInts(pItem->m_aSkin, std::size(pItem->m_aSkin), GotSkin ? aSkin : "default");
+	StrToInts(Item.m_aSkin, std::size(Item.m_aSkin), GotSkin ? aSkin : "default");
 
-	pItem->m_UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color").value_or(false);
-	pItem->m_ColorBody = Unpacker.GetIntOrDefault("color_body", 2);
-	pItem->m_ColorFeet = Unpacker.GetIntOrDefault("color_feet", 2);
+	Item.m_UseCustomColor = Unpacker.GetBooleanOptional("use_custom_color").value_or(false);
+	Item.m_ColorBody = Unpacker.GetIntOrDefault("color_body", 2);
+	Item.m_ColorFeet = Unpacker.GetIntOrDefault("color_feet", 2);
+	pSelf->SnapNewItem(SnapId, Item);
 	return 0;
 }
 
@@ -2157,38 +2149,36 @@ int CLuaPlugin::CallbackSnapNewProjectile(lua_State *L)
 
 	if(SnappingClientVersion >= VERSION_DDNET_ENTITY_NETOBJS)
 	{
-		CNetObj_DDNetProjectile *pObj = static_cast<CNetObj_DDNetProjectile *>(
-			pSelf->SnapNewItem(NETOBJTYPE_DDNETPROJECTILE,
-				SnapId,
-				sizeof(CNetObj_DDNetProjectile)));
-		if(!pObj)
-			return 0;
-
-		pObj->m_X = round_to_int(Pos.x * 100.0f);
-		pObj->m_Y = round_to_int(Pos.y * 100.0f);
-		pObj->m_VelX = VelX;
-		pObj->m_VelY = VelY;
-		pObj->m_Type = Type;
-		pObj->m_StartTick = StartTick;
+		CNetObj_DDNetProjectile Obj = {};
+		// TODO: I am pretty sure pos and vel are wrong here
+		//       checkout projectile.cpp NetInfo() ddnet does some
+		//       prediction shenanigans we should match here
+		//       and ideally abstract away for lua as smoothly as possible
+		//       or give proper access to lua so it can fully control it
+		Obj.m_X = round_to_int(Pos.x * 100.0f);
+		Obj.m_Y = round_to_int(Pos.y * 100.0f);
+		Obj.m_VelX = VelX;
+		Obj.m_VelY = VelY;
+		Obj.m_Type = Type;
+		Obj.m_StartTick = StartTick;
 
 		// ddnet extensions
-		pObj->m_Owner = Owner;
-		pObj->m_SwitchNumber = SwitchNumber;
-		pObj->m_TuneZone = TuneZone;
-		pObj->m_Flags = Flags;
+		Obj.m_Owner = Owner;
+		Obj.m_SwitchNumber = SwitchNumber;
+		Obj.m_TuneZone = TuneZone;
+		Obj.m_Flags = Flags;
+		pSelf->SnapNewItem(SnapId, Obj);
 	}
 	else
 	{
-		CNetObj_Projectile *pObj = pSelf->SnapNewItem<CNetObj_Projectile>(SnapId);
-		if(!pObj)
-			return 0;
-
-		pObj->m_X = (int)Pos.x;
-		pObj->m_Y = (int)Pos.y;
-		pObj->m_VelX = VelX;
-		pObj->m_VelY = VelY;
-		pObj->m_Type = Type;
-		pObj->m_StartTick = StartTick;
+		CNetObj_Projectile Obj = {};
+		Obj.m_X = (int)Pos.x;
+		Obj.m_Y = (int)Pos.y;
+		Obj.m_VelX = VelX;
+		Obj.m_VelY = VelY;
+		Obj.m_Type = Type;
+		Obj.m_StartTick = StartTick;
+		pSelf->SnapNewItem(SnapId, Obj);
 	}
 
 	return 0;

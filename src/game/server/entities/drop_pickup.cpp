@@ -242,11 +242,9 @@ void CDropPickup::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetId(), sizeof(CNetObj_Pickup)));
-	if(!pP)
-		return;
-
-	pP->m_X = (int)m_Pos.x;
-	pP->m_Y = (int)m_Pos.y;
-	pP->m_Type = m_Type;
+	CNetObj_Pickup Pickup = {};
+	Pickup.m_X = (int)m_Pos.x;
+	Pickup.m_Y = (int)m_Pos.y;
+	Pickup.m_Type = m_Type;
+	Server()->SnapNewItem(GetId(), Pickup);
 }
