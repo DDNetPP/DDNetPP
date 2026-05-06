@@ -15,7 +15,7 @@
 static constexpr int PICKUP_PHYSICS_RADIUS = 14;
 
 CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int Number, int Flags) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP, vec2(0, 0), PICKUP_PHYSICS_RADIUS)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP, true, vec2(0, 0), PICKUP_PHYSICS_RADIUS)
 {
 	m_Core = vec2(0.0f, 0.0f);
 	m_Type = Type;
@@ -216,7 +216,9 @@ void CPickup::TickPaused()
 void CPickup::Snap(int SnappingClient)
 {
 	//--start4 uncommented for m_IsVanillaWeapons --
-	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
+	if(m_SpawnTick != -1)
+		return;
+	if(NetworkClipped(SnappingClient) || !GetId().has_value())
 		return;
 	//--end4 uncommented for m_IsVanillaWeapons --
 
@@ -235,7 +237,7 @@ void CPickup::Snap(int SnappingClient)
 			return;
 	}
 
-	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId(), m_Pos, m_Type, m_Subtype, m_Number, m_Flags);
+	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId().value(), m_Pos, m_Type, m_Subtype, m_Number, m_Flags);
 }
 
 void CPickup::Move()

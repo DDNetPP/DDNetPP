@@ -142,7 +142,7 @@ private:
 	template<typename T>
 	bool SnapNewItem(int Id, const T &Data);
 
-	bool SnapNewItem(int Type, int Id, const void *pData, int Size);
+	// bool SnapNewItem(int Type, int Id, const void *pData, int Size);
 
 	// defines the player type for lua as a metatable
 	void RegisterPlayerMetaTable();

@@ -164,17 +164,17 @@ bool CLuaPlugin::SnapNewItem(int Id, const T &Data)
 	return Game()->Server()->SnapNewItem(Id, Data);
 }
 
-bool CLuaPlugin::SnapNewItem(int Type, int Id, const void *pData, int Size)
-{
-	int ItemKey = (Type << 16) | Id;
-	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
-	{
-		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", Type, Id);
-		return false;
-	}
-
-	return Game()->Server()->SnapNewItem(Type, Id, pData, Size);
-}
+// bool CLuaPlugin::SnapNewItem(int Type, int Id, const void *pData, int Size)
+// {
+// 	int ItemKey = (Type << 16) | Id;
+// 	if(Game()->Server()->SnapBuilderGetItemData(ItemKey))
+// 	{
+// 		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", Type, Id);
+// 		return false;
+// 	}
+// 
+// 	return Game()->Server()->SnapNewItem(Type, Id, pData, Size);
+// }
 
 void CLuaPlugin::RegisterPlayerMetaTable()
 {
@@ -1915,9 +1915,14 @@ int CLuaPlugin::CallbackSnapNewId(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	CLuaGame *pGame = pSelf->Game();
-	int SnapId = pGame->Server()->SnapNewId();
-	lua_pushinteger(L, SnapId);
-	pSelf->m_vSnapIds.emplace_back(SnapId);
+	std::optional<int> SnapId = pGame->Server()->SnapNewId();
+	if(!SnapId.has_value())
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_pushinteger(L, SnapId.value());
+	pSelf->m_vSnapIds.emplace_back(SnapId.value());
 	return 1;
 }
 

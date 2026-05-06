@@ -15,10 +15,10 @@ class CLolPlasma : public CEntity
 {
 public:
 	CLolPlasma(CGameWorld *pGameWorld, vec2 Pos) :
-		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos, 0)
+		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, true, Pos, 0)
 	{
 	}
-	int GetIdWrap() { return GetId(); }
+	std::optional<int> GetIdWrap() { return GetId(); }
 };
 
 class CLaserText : public CEntity

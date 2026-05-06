@@ -16,7 +16,7 @@
 #include <cmath>
 
 CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int DDRaceTeam, int Direction, int Bullets, bool Jetpack, bool SpreadGun) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_WEAPON)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_WEAPON, true)
 {
 	m_Type = Weapon;
 	m_Lifetime = Server()->TickSpeed() * Lifetime;
@@ -31,10 +31,16 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 	m_PickupDelay = Server()->TickSpeed() * 2;
 
-	m_Id2 = Server()->SnapNewId();
-	m_Id3 = Server()->SnapNewId();
-	m_Id4 = Server()->SnapNewId();
-	m_Id5 = Server()->SnapNewId();
+	if(m_SpreadGun || m_Jetpack)
+	{
+		m_Id2 = Server()->SnapNewId();
+		if(m_SpreadGun)
+		{
+			m_Id3 = Server()->SnapNewId();
+			m_Id4 = Server()->SnapNewId();
+			m_Id5 = Server()->SnapNewId();
+		}
+	}
 
 	m_TuneZone = GameServer()->Collision()->IsTune(GameServer()->Collision()->GetMapIndex(m_Pos));
 
@@ -43,10 +49,14 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 CWeapon::~CWeapon()
 {
-	Server()->SnapFreeId(m_Id2);
-	Server()->SnapFreeId(m_Id3);
-	Server()->SnapFreeId(m_Id4);
-	Server()->SnapFreeId(m_Id5);
+	if(m_Id2.has_value())
+		Server()->SnapFreeId(m_Id2.value());
+	if(m_Id3.has_value())
+		Server()->SnapFreeId(m_Id3.value());
+	if(m_Id4.has_value())
+		Server()->SnapFreeId(m_Id4.value());
+	if(m_Id5.has_value())
+		Server()->SnapFreeId(m_Id5.value());
 }
 
 void CWeapon::Reset()
@@ -306,6 +316,8 @@ void CWeapon::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	CCharacter *pSnappingChar = GameServer()->GetPlayerChar(SnappingClient);
 	if(pSnappingChar && pSnappingChar->Team() != m_DDRaceTeam)
@@ -316,7 +328,7 @@ void CWeapon::Snap(int SnappingClient)
 	Pickup.m_Y = (int)m_Pos.y;
 	Pickup.m_Type = POWERUP_WEAPON;
 	Pickup.m_Subtype = m_Type;
-	Server()->SnapNewItem(GetId(), Pickup);
+	Server()->SnapNewItem(GetId().value(), Pickup);
 
 	int JetpackIndicatorHeight;
 
@@ -329,37 +341,46 @@ void CWeapon::Snap(int SnappingClient)
 		JetpackIndicatorHeight = 45;
 	}
 
-	if(m_Jetpack)
+	if(m_Jetpack && m_Id2.has_value())
 	{
 		CNetObj_Projectile JetpackInd = {};
 		JetpackInd.m_X = Pickup.m_X;
 		JetpackInd.m_Y = Pickup.m_Y - JetpackIndicatorHeight;
 		JetpackInd.m_Type = WEAPON_SHOTGUN;
 		JetpackInd.m_StartTick = Server()->Tick();
-		Server()->SnapNewItem(m_Id2, JetpackInd);
+		Server()->SnapNewItem(m_Id2.value(), JetpackInd);
 	}
 
 	if(m_SpreadGun)
 	{
-		CNetObj_Projectile SpreadGunInd1 = {};
-		SpreadGunInd1.m_X = Pickup.m_X;
-		SpreadGunInd1.m_Y = Pickup.m_Y - 25;
-		SpreadGunInd1.m_Type = WEAPON_SHOTGUN;
-		SpreadGunInd1.m_StartTick = Server()->Tick();
-		Server()->SnapNewItem(m_Id3, SpreadGunInd1);
+		if(m_Id3.has_value())
+		{
+			CNetObj_Projectile SpreadGunInd1 = {};
+			SpreadGunInd1.m_X = Pickup.m_X;
+			SpreadGunInd1.m_Y = Pickup.m_Y - 25;
+			SpreadGunInd1.m_Type = WEAPON_SHOTGUN;
+			SpreadGunInd1.m_StartTick = Server()->Tick();
+			Server()->SnapNewItem(m_Id3.value(), SpreadGunInd1);
+		}
 
-		CNetObj_Projectile SpreadGunInd2 = {};
-		SpreadGunInd2.m_X = Pickup.m_X - 20;
-		SpreadGunInd2.m_Y = Pickup.m_Y - 25;
-		SpreadGunInd2.m_Type = WEAPON_SHOTGUN;
-		SpreadGunInd2.m_StartTick = Server()->Tick();
-		Server()->SnapNewItem(m_Id4, SpreadGunInd2);
+		if(m_Id4.has_value())
+		{
+			CNetObj_Projectile SpreadGunInd2 = {};
+			SpreadGunInd2.m_X = Pickup.m_X - 20;
+			SpreadGunInd2.m_Y = Pickup.m_Y - 25;
+			SpreadGunInd2.m_Type = WEAPON_SHOTGUN;
+			SpreadGunInd2.m_StartTick = Server()->Tick();
+			Server()->SnapNewItem(m_Id4.value(), SpreadGunInd2);
+		}
 
-		CNetObj_Projectile SpreadGunInd3 = {};
-		SpreadGunInd3.m_X = Pickup.m_X + 20;
-		SpreadGunInd3.m_Y = Pickup.m_Y - 25;
-		SpreadGunInd3.m_Type = WEAPON_SHOTGUN;
-		SpreadGunInd3.m_StartTick = Server()->Tick();
-		Server()->SnapNewItem(m_Id5, SpreadGunInd3);
+		if(m_Id5.has_value())
+		{
+			CNetObj_Projectile SpreadGunInd3 = {};
+			SpreadGunInd3.m_X = Pickup.m_X + 20;
+			SpreadGunInd3.m_Y = Pickup.m_Y - 25;
+			SpreadGunInd3.m_Type = WEAPON_SHOTGUN;
+			SpreadGunInd3.m_StartTick = Server()->Tick();
+			Server()->SnapNewItem(m_Id5.value(), SpreadGunInd3);
+		}
 	}
 }

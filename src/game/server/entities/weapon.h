@@ -39,10 +39,10 @@ private:
 	static int const ms_PhysSize = 14;
 
 	// have to define a new ID variable for the bullet
-	int m_Id2;
-	int m_Id3;
-	int m_Id4;
-	int m_Id5;
+	std::optional<int> m_Id2 = std::nullopt;
+	std::optional<int> m_Id3 = std::nullopt;
+	std::optional<int> m_Id4 = std::nullopt;
+	std::optional<int> m_Id5 = std::nullopt;
 
 	int m_TuneZone;
 };

@@ -5,7 +5,7 @@
 #include <game/server/gamecontext.h>
 
 CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE, true)
 {
 	m_Pos = Pos;
 	m_Pos.y += 15;
@@ -145,6 +145,8 @@ void CPlant::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	if(!m_CalculatedVel)
 		CalculateVel();
@@ -156,5 +158,5 @@ void CPlant::Snap(int SnappingClient)
 	Proj.m_VelY = m_VelY;
 	Proj.m_StartTick = m_LastResetTick;
 	Proj.m_Type = WEAPON_SHOTGUN;
-	Server()->SnapNewItem(GetId(), Proj);
+	Server()->SnapNewItem(GetId().value(), Proj);
 }

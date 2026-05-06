@@ -30,7 +30,7 @@ private:
 	CGameWorld *m_pGameWorld;
 	CCollision *m_pCCollision;
 
-	int m_Id;
+	std::optional<int> m_Id;
 	int m_ObjType;
 
 	/*
@@ -50,10 +50,10 @@ public:
 	vec2 m_Pos;
 
 	/* Getters */
-	int GetId() const { return m_Id; }
+	std::optional<int> GetId() const { return m_Id; }
 
 	/* Constructor */
-	CEntity(CGameWorld *pGameWorld, int Objtype, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
+	CEntity(CGameWorld *pGameWorld, int Objtype, bool SnapFreeId, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
 
 	/* Destructor */
 	virtual ~CEntity();

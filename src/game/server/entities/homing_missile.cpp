@@ -8,7 +8,7 @@
 #include <game/server/teams.h>
 
 CHomingMissile::CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, float Force, vec2 Dir) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE, true)
 {
 	m_Owner = Owner;
 	m_StartTick = Server()->Tick();
@@ -102,6 +102,8 @@ void CHomingMissile::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	CNetObj_Projectile Missile = {};
 	if(!m_CalculatedVel)
@@ -113,7 +115,7 @@ void CHomingMissile::Snap(int SnappingClient)
 	Missile.m_VelY = m_VelY;
 	Missile.m_StartTick = m_LastResetTick;
 	Missile.m_Type = WEAPON_GRENADE;
-	Server()->SnapNewItem(GetId(), Missile);
+	Server()->SnapNewItem(GetId().value(), Missile);
 }
 
 CCharacter *CHomingMissile::CharacterNear()

@@ -8,7 +8,7 @@
 #include <game/server/gamecontext.h>
 
 CFlag::CFlag(CGameWorld *pGameWorld, int Team) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG, false)
 {
 	m_Team = Team;
 	m_pCarryingCharacter = NULL;

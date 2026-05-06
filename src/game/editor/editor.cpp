@@ -234,7 +234,7 @@ bool CEditor::CallbackCustomEntities(const char *pFilename, int StorageType, voi
 	CEditor *pEditor = (CEditor *)pUser;
 
 	char aBuf[IO_MAX_PATH_LENGTH];
-	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
+	fs_split_file_extension(fs_filename(pFilename), aBuf, sizeof(aBuf));
 
 	if(std::find(pEditor->m_vSelectEntitiesFiles.begin(), pEditor->m_vSelectEntitiesFiles.end(), std::string(aBuf)) != pEditor->m_vSelectEntitiesFiles.end())
 	{
@@ -254,7 +254,7 @@ bool CEditor::CallbackCustomEntities(const char *pFilename, int StorageType, voi
 	pEditor->m_PreventUnusedTilesWasWarned = false;
 
 	pEditor->Graphics()->UnloadTexture(&pEditor->m_EntitiesTexture);
-	pEditor->m_EntitiesTexture = pEditor->Graphics()->LoadTextureRawMove(ImgInfo, pEditor->GetTextureUsageFlag());
+	pEditor->m_EntitiesTexture = pEditor->Graphics()->LoadTextureRawMove(ImgInfo, pEditor->Graphics()->TextureLoadFlags());
 
 	pEditor->OnDialogClose();
 	return true;
@@ -3746,8 +3746,8 @@ void CEditor::RenderLayers(CUIRect LayersBox)
 bool CEditor::ReplaceImage(const char *pFilename, int StorageType, bool CheckDuplicate)
 {
 	// check if we have that image already
-	char aBuf[128];
-	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
+	char aBuf[IO_MAX_PATH_LENGTH];
+	fs_split_file_extension(fs_filename(pFilename), aBuf, sizeof(aBuf));
 	if(CheckDuplicate)
 	{
 		for(const auto &pImage : Map()->m_vpImages)
@@ -3777,7 +3777,7 @@ bool CEditor::ReplaceImage(const char *pFilename, int StorageType, bool CheckDup
 	DilateImage(*pImg);
 
 	pImg->m_AutoMapper.Load(pImg->m_aName);
-	int TextureLoadFlag = Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
+	int TextureLoadFlag = Graphics()->TextureLoadFlags();
 	if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
 		TextureLoadFlag = 0;
 	pImg->m_Texture = Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFilename);
@@ -3798,8 +3798,8 @@ bool CEditor::AddImage(const char *pFilename, int StorageType, void *pUser)
 	CEditor *pEditor = (CEditor *)pUser;
 
 	// check if we have that image already
-	char aBuf[128];
-	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
+	char aBuf[IO_MAX_PATH_LENGTH];
+	fs_split_file_extension(fs_filename(pFilename), aBuf, sizeof(aBuf));
 	for(const auto &pImage : pEditor->Map()->m_vpImages)
 	{
 		if(!str_comp(pImage->m_aName, aBuf))
@@ -3831,7 +3831,7 @@ bool CEditor::AddImage(const char *pFilename, int StorageType, void *pUser)
 	ConvertToRgba(*pImg);
 	DilateImage(*pImg);
 
-	int TextureLoadFlag = pEditor->Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
+	int TextureLoadFlag = pEditor->Graphics()->TextureLoadFlags();
 	if(pImg->m_Width % 16 != 0 || pImg->m_Height % 16 != 0)
 		TextureLoadFlag = 0;
 	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(*pImg, TextureLoadFlag, pFilename);
@@ -3849,8 +3849,8 @@ bool CEditor::AddSound(const char *pFilename, int StorageType, void *pUser)
 	CEditor *pEditor = (CEditor *)pUser;
 
 	// check if we have that sound already
-	char aBuf[128];
-	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
+	char aBuf[IO_MAX_PATH_LENGTH];
+	fs_split_file_extension(fs_filename(pFilename), aBuf, sizeof(aBuf));
 	for(const auto &pSound : pEditor->Map()->m_vpSounds)
 	{
 		if(!str_comp(pSound->m_aName, aBuf))
@@ -3901,8 +3901,8 @@ bool CEditor::AddSound(const char *pFilename, int StorageType, void *pUser)
 bool CEditor::ReplaceSound(const char *pFilename, int StorageType, bool CheckDuplicate)
 {
 	// check if we have that sound already
-	char aBuf[128];
-	IStorage::StripPathAndExtension(pFilename, aBuf, sizeof(aBuf));
+	char aBuf[IO_MAX_PATH_LENGTH];
+	fs_split_file_extension(fs_filename(pFilename), aBuf, sizeof(aBuf));
 	if(CheckDuplicate)
 	{
 		for(const auto &pSound : Map()->m_vpSounds)
@@ -7013,50 +7013,45 @@ void CEditor::Reset(bool CreateDefault)
 	m_RenderLayersState.Reset();
 }
 
-int CEditor::GetTextureUsageFlag() const
-{
-	return Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
-}
-
 IGraphics::CTextureHandle CEditor::GetFrontTexture()
 {
 	if(!m_FrontTexture.IsValid())
-		m_FrontTexture = Graphics()->LoadTexture("editor/front.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_FrontTexture = Graphics()->LoadTexture("editor/front.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_FrontTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetTeleTexture()
 {
 	if(!m_TeleTexture.IsValid())
-		m_TeleTexture = Graphics()->LoadTexture("editor/tele.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_TeleTexture = Graphics()->LoadTexture("editor/tele.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_TeleTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetSpeedupTexture()
 {
 	if(!m_SpeedupTexture.IsValid())
-		m_SpeedupTexture = Graphics()->LoadTexture("editor/speedup.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_SpeedupTexture = Graphics()->LoadTexture("editor/speedup.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_SpeedupTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetSwitchTexture()
 {
 	if(!m_SwitchTexture.IsValid())
-		m_SwitchTexture = Graphics()->LoadTexture("editor/switch.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_SwitchTexture = Graphics()->LoadTexture("editor/switch.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_SwitchTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetTuneTexture()
 {
 	if(!m_TuneTexture.IsValid())
-		m_TuneTexture = Graphics()->LoadTexture("editor/tune.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_TuneTexture = Graphics()->LoadTexture("editor/tune.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_TuneTexture;
 }
 
 IGraphics::CTextureHandle CEditor::GetEntitiesTexture()
 {
 	if(!m_EntitiesTexture.IsValid())
-		m_EntitiesTexture = Graphics()->LoadTexture("editor/entities/DDNet.png", IStorage::TYPE_ALL, GetTextureUsageFlag());
+		m_EntitiesTexture = Graphics()->LoadTexture("editor/entities/DDNet.png", IStorage::TYPE_ALL, Graphics()->TextureLoadFlags());
 	return m_EntitiesTexture;
 }
 
@@ -7303,7 +7298,7 @@ void CEditor::HandleWriterFinishJobs()
 		if(net_addr_is_local(&Client()->ServerAddress()))
 		{
 			char aMapName[MAX_MAP_LENGTH];
-			IStorage::StripPathAndExtension(pJob->RealFilename(), aMapName, sizeof(aMapName));
+			fs_split_file_extension(fs_filename(pJob->RealFilename()), aMapName, sizeof(aMapName));
 			if(!str_comp(aMapName, CurrentServerInfo.m_aMap))
 				Client()->Rcon("hot_reload");
 		}
@@ -7528,8 +7523,21 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 	// If `Adjust` is 0 and `UseNextFree` is false, then update numbers of brush tiles to global values
 	// If true, then use the next free number instead
 
-	auto &&AdjustNumber = [Adjust](auto &Number, short Limit = 255) {
-		Number = ((Number + Adjust) - 1 + Limit) % Limit + 1;
+	dbg_assert(Adjust == -1 || Adjust == 0 || Adjust == 1, "Invalid Adjust: %d", Adjust);
+	auto &&AdjustNumber = [Adjust](auto &Number, int Min, int Max) {
+		const int NumberInt = Number + Adjust; // Cast to int so this does not overflow unsigned char for some tiles
+		if(NumberInt < Min)
+		{
+			Number = Max;
+		}
+		else if(NumberInt > Max)
+		{
+			Number = Min;
+		}
+		else
+		{
+			Number = NumberInt;
+		}
 	};
 
 	for(auto &pLayer : m_pBrush->m_vpLayers)
@@ -7561,7 +7569,7 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 							pTeleLayer->m_pTeleTile[i].m_Number = NextFreeTeleNumber;
 					}
 					else
-						AdjustNumber(pTeleLayer->m_pTeleTile[i].m_Number);
+						AdjustNumber(pTeleLayer->m_pTeleTile[i].m_Number, 1, 255);
 
 					if(!UseNextFree && Adjust == 0 && IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index))
 					{
@@ -7586,7 +7594,7 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 						if(!IsValidTuneTile(pTuneLayer->m_pTiles[i].m_Index) || !pTuneLayer->m_pTuneTile[i].m_Number)
 							continue;
 
-						AdjustNumber(pTuneLayer->m_pTuneTile[i].m_Number);
+						AdjustNumber(pTuneLayer->m_pTuneTile[i].m_Number, 1, 255);
 					}
 				}
 			}
@@ -7607,7 +7615,7 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 					if(UseNextFree)
 						pSwitchLayer->m_pSwitchTile[i].m_Number = NextFreeNumber;
 					else
-						AdjustNumber(pSwitchLayer->m_pSwitchTile[i].m_Number);
+						AdjustNumber(pSwitchLayer->m_pSwitchTile[i].m_Number, 1, 255);
 				}
 			}
 		}
@@ -7626,7 +7634,7 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 
 						if(Adjust != 0)
 						{
-							AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_Angle, 359);
+							AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_Angle, 0, 359);
 						}
 						else
 						{

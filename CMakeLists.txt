@@ -116,7 +116,7 @@ option(STEAM "Build the Steam release version" OFF)
 option(DISCORD "Enable Discord rich presence support" OFF)
 option(DISCORD_DYNAMIC "Enable discovering Discord rich presence libraries at runtime (Linux only)" OFF)
 option(PREFER_BUNDLED_LIBS "Prefer bundled libraries over system libraries" ${AUTO_DEPENDENCIES_DEFAULT})
-option(DEV "Don't generate stuff necessary for packaging" OFF)
+option(DEV "Don't generate stuff necessary for packaging, don't strip absolute paths from debug info, enable additional assertions" OFF)
 option(VULKAN "Enable the vulkan backend" ${AUTO_VULKAN_BACKEND})
 
 option(EXCEPTION_HANDLING "Enable crashdumps (only works with Windows)" OFF)
@@ -305,11 +305,15 @@ if(NOT MSVC AND NOT HAIKU)
   # special characters will be displayed incorrectly on servers.
   add_cxx_compiler_flag_if_supported(OUR_FLAGS -fsigned-char)
 
+  # Support more sections in object files, because the limit is exceeded for some files in debug mode.
+  add_cxx_compiler_flag_if_supported(OUR_FLAGS -Wa,-mbig-obj)
+
   # Don't insert timestamps into PEs to keep the build reproducible.
   if(TARGET_OS STREQUAL "windows")
     add_cxx_compiler_flag_if_supported(OUR_FLAGS_LINK -Wl,--no-insert-timestamp)
   endif()
 
+  # Strip absolute build paths from debug info. Prevent adding compiler name and version metadata.
   if(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND NOT DEV)
     add_cxx_compiler_flag_if_supported(OUR_FLAGS -ffile-prefix-map=${CMAKE_SOURCE_DIR}=/${CMAKE_PROJECT_NAME})
     add_cxx_compiler_flag_if_supported(OUR_FLAGS -ffile-prefix-map=${PROJECT_BINARY_DIR}=/${CMAKE_PROJECT_NAME})
@@ -820,15 +824,27 @@ if(NOT(GTEST_FOUND) AND DOWNLOAD_GTEST)
         EXCLUDE_FROM_ALL
       )
 
-      if(MSVC)
-        foreach(target gtest gmock)
+      foreach(target gtest gmock)
+        # Enable additional assertions. See:
+        # - https://gcc.gnu.org/wiki/LibstdcxxDebugMode
+        # - https://releases.llvm.org/12.0.0/projects/libcxx/docs/DesignDocs/DebugMode.html
+        if(CMAKE_BUILD_TYPE STREQUAL Debug)
+          # Enable heavier checks that catch more errors.
+          target_compile_definitions(${target} PRIVATE _GLIBCXX_DEBUG) # This also enables _GLIBCXX_ASSERTIONS.
+          target_compile_definitions(${target} PRIVATE _LIBCPP_DEBUG=1)
+        else()
+          # Enable lighter checks that do not change the complexity of operations.
+          target_compile_definitions(${target} PRIVATE _GLIBCXX_ASSERTIONS)
+          target_compile_definitions(${target} PRIVATE _LIBCPP_DEBUG=0)
+        endif()
+        if(MSVC)
           set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<${DBG}:Debug>)
           # `/w` disables all warnings. This is needed because `gtest` enables
           # `/WX` (equivalent of `-Werror`) for some reason, breaking builds
           # when MSVS adds new warnings.
           target_compile_options(${target} PRIVATE /w)
-        endforeach()
-      endif()
+        endif()
+      endforeach()
 
       set(GTEST_LIBRARIES gtest gmock)
       set(GTEST_INCLUDE_DIRS)
@@ -876,13 +892,26 @@ set_glob(RUST_ENGINE_SHARED GLOB_RECURSE "rs;toml" src/engine/shared
   config.rs
   lib.rs
   rust_version.rs
+  snapshot/builder.rs
+  snapshot/delta.rs
+  snapshot/mod.rs
+  uuid_manager.rs
 )
 
 set_src(RUST_BRIDGE_SHARED GLOB_RECURSE src/rust-bridge
+  base/cxx.h
   cpp/console.cpp
   cpp/console.h
+  cpp/snapshot.cpp
+  cpp/snapshot.h
+  cpp/uuid_manager.cpp
+  cpp/uuid_manager.h
   engine/shared/rust_version.cpp
   engine/shared/rust_version.h
+  engine/shared/snapshot/builder.cpp
+  engine/shared/snapshot/builder.h
+  engine/shared/snapshot/delta.cpp
+  engine/shared/snapshot/delta.h
 )
 
 set_glob(RUST_MASTERSRV GLOB "rs;toml" src/mastersrv/src
@@ -894,6 +923,7 @@ set_glob(RUST_MASTERSRV GLOB "rs;toml" src/mastersrv/src
 )
 
 add_library(rust-bridge-shared EXCLUDE_FROM_ALL OBJECT ${RUST_BRIDGE_SHARED})
+add_dependencies(rust-bridge-shared generate_protocol)
 list(APPEND TARGETS_OWN rust-bridge-shared)
 
 if(TARGET_OS STREQUAL "android")
@@ -2188,7 +2218,6 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   ringbuffer.h
   serverinfo.cpp
   serverinfo.h
-  sixup_translate_snapshot.cpp
   snapshot.cpp
   snapshot.h
   storage.cpp
@@ -2284,6 +2313,8 @@ set(LIBS
   ${SQLite3_LIBRARIES}
   ${WEBSOCKETS_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  # Add Rust part of our code.
+  rust_engine_shared
   ${PLATFORM_LIBS}
   # Add pthreads (on non-Windows) at the end, so that other libraries can depend
   # on it.
@@ -2678,7 +2709,6 @@ if(CLIENT)
     ${VULKAN_LIBRARIES}
 
     ${TARGET_STEAMAPI}
-    rust_engine_shared
 
     ${PLATFORM_CLIENT_LIBS}
     ${LIBS}
@@ -3100,7 +3130,6 @@ if(SERVER)
     ${MINIUPNPC_LIBRARIES}
     ${MYSQL_LIBRARIES}
     ${TARGET_ANTIBOT}
-    rust_engine_shared
 
     ${LIBS}
   )
@@ -3272,6 +3301,7 @@ if(TOOLS)
         ${EXTRA_TOOL_SRC}
         $<TARGET_OBJECTS:engine-shared>
         $<TARGET_OBJECTS:game-shared>
+        $<TARGET_OBJECTS:rust-bridge-shared>
       )
       target_include_directories(${TOOL} SYSTEM PRIVATE ${TOOL_INCLUDE_DIRS})
       target_link_libraries(${TOOL} ${TOOL_LIBS})
@@ -3360,7 +3390,6 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     serverinfo_test.cpp
     snapshot_test.cpp
     str_test.cpp
-    strip_path_and_extension_test.cpp
     swap_endian_test.cpp
     teehistorian_test.cpp
     test.cpp
@@ -3433,6 +3462,7 @@ list(APPEND TARGETS_OWN rust_test)
 list(APPEND TARGETS_LINK rust_test)
 
 set(RUST_TEST_LIBS ${LIBS} $<TARGET_FILE:rust_test>)
+list(REMOVE_ITEM RUST_TEST_LIBS "rust_engine_shared")
 list(REMOVE_ITEM RUST_TEST_LIBS "-pthread")
 add_custom_target(run_rust_tests
   COMMAND ${CMAKE_COMMAND} -E env "DDNET_TEST_LIBRARIES=${RUST_TEST_LIBS}" ${CARGO_TEST}
@@ -3920,6 +3950,7 @@ foreach(target ${TARGETS})
     target_compile_options(${target} PRIVATE /GS) # Protect the stack pointer.
     target_compile_options(${target} PRIVATE /wd4996) # Use of non-_s functions.
     target_compile_options(${target} PRIVATE /utf-8) # Use UTF-8 for source files.
+    target_compile_options(${target} PRIVATE /bigobj) # Support more sections in object files, because the limit is exceeded for some files in debug mode.
     # Enable Edit & Continue (Hot Reload) support
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
       set_property(TARGET ${target} PROPERTY MSVC_DEBUG_INFORMATION_FORMAT $<IF:$<CONFIG:Debug>,EditAndContinue,Embedded>)
@@ -3997,6 +4028,20 @@ foreach(target ${TARGETS_OWN})
   target_include_directories(${target} SYSTEM PRIVATE ${CURL_INCLUDE_DIRS} ${SQLite3_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
   target_compile_definitions(${target} PRIVATE GLEW_STATIC)
   target_compile_definitions(${target} PRIVATE _FILE_OFFSET_BITS=64) # Ensure off_t is 64 bit for ftello and fseeko functions
+
+  # Enable additional assertions. See:
+  # - https://gcc.gnu.org/wiki/LibstdcxxDebugMode
+  # - https://releases.llvm.org/12.0.0/projects/libcxx/docs/DesignDocs/DebugMode.html
+  if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    # Enable heavier checks that catch more errors.
+    target_compile_definitions(${target} PRIVATE _GLIBCXX_DEBUG) # This also enables _GLIBCXX_ASSERTIONS.
+    target_compile_definitions(${target} PRIVATE _LIBCPP_DEBUG=1)
+  else()
+    # Enable lighter checks that do not change the complexity of operations.
+    target_compile_definitions(${target} PRIVATE _GLIBCXX_ASSERTIONS)
+    target_compile_definitions(${target} PRIVATE _LIBCPP_DEBUG=0)
+  endif()
+
   if(CRYPTO_FOUND)
     target_compile_definitions(${target} PRIVATE CONF_OPENSSL)
     target_include_directories(${target} SYSTEM PRIVATE ${CRYPTO_INCLUDE_DIRS})

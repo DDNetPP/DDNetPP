@@ -3,7 +3,7 @@
 #include <game/server/gamecontext.h>
 
 CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int OwnerId, int Type, vec2 Pos) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE, true)
 {
 	m_OwnerId = OwnerId;
 	m_Type = Type;
@@ -93,6 +93,8 @@ void CStableProjectile::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	CCharacter *pOwnerChar = nullptr;
 	if(m_OwnerId >= 0)
@@ -115,5 +117,5 @@ void CStableProjectile::Snap(int SnappingClient)
 	Proj.m_VelY = m_VelY;
 	Proj.m_StartTick = m_LastResetTick;
 	Proj.m_Type = m_Type;
-	Server()->SnapNewItem(GetId(), Proj);
+	Server()->SnapNewItem(GetId().value(), Proj);
 }

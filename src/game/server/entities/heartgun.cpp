@@ -16,7 +16,7 @@
 
 CHeartGun::CHeartGun(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
 	bool Explosive, bool Unfreeze, bool Bloody, bool Spooky, float Lifetime, float Accel, float Speed) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_HEART_GUN, Pos)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_HEART_GUN, true, Pos)
 {
 	m_Owner = Owner;
 	m_Pos = Pos;
@@ -134,6 +134,8 @@ void CHeartGun::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	CCharacter *pOwnerChar = nullptr;
 	if(m_Owner >= 0)
@@ -151,5 +153,5 @@ void CHeartGun::Snap(int SnappingClient)
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	bool Sixup = Server()->IsSixup(SnappingClient);
-	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId(), m_Pos, POWERUP_HEALTH, 0, 0, 0);
+	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Sixup, SnappingClient), GetId().value(), m_Pos, POWERUP_HEALTH, 0, 0, 0);
 }

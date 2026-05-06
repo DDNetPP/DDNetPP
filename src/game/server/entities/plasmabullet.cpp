@@ -14,7 +14,7 @@
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
 	bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime, float Accel, float Speed) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, true)
 {
 	m_Owner = Owner;
 	m_Pos = Pos;
@@ -135,6 +135,8 @@ void CPlasmaBullet::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 	CCharacter *SnapChar = GameServer()->GetPlayerChar(SnappingClient);
 	CPlayer *SnapPlayer = SnappingClient > -1 ? GameServer()->m_apPlayers[SnappingClient] : 0;
 	int Tick = (Server()->Tick() % Server()->TickSpeed()) % 11;
@@ -157,5 +159,5 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	Obj.m_FromX = (int)m_Pos.x;
 	Obj.m_FromY = (int)m_Pos.y;
 	Obj.m_StartTick = m_EvalTick;
-	Server()->SnapNewItem(GetId(), Obj);
+	Server()->SnapNewItem(GetId().value(), Obj);
 }

@@ -11,7 +11,7 @@
 #include <cmath>
 
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_DROP_PICKUP)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_DROP_PICKUP, true)
 {
 	if(GameServer()->GetPlayerChar(Owner))
 	{
@@ -241,10 +241,12 @@ void CDropPickup::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	if(!GetId().has_value())
+		return;
 
 	CNetObj_Pickup Pickup = {};
 	Pickup.m_X = (int)m_Pos.x;
 	Pickup.m_Y = (int)m_Pos.y;
 	Pickup.m_Type = m_Type;
-	Server()->SnapNewItem(GetId(), Pickup);
+	Server()->SnapNewItem(GetId().value(), Pickup);
 }

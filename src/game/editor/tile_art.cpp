@@ -1,6 +1,9 @@
 #include "editor.h"
 #include "editor_actions.h"
 
+#include <base/fs.h>
+#include <base/str.h>
+
 #include <game/editor/mapitems/image.h>
 
 #include <array>
@@ -105,8 +108,7 @@ static std::shared_ptr<CEditorImage> ImageInfoToEditorImage(CEditorMap *pMap, CI
 	std::shared_ptr<CEditorImage> pEditorImage = std::make_shared<CEditorImage>(pMap);
 	*pEditorImage = std::move(Image);
 
-	int TextureLoadFlag = pMap->Editor()->Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
-	pEditorImage->m_Texture = pMap->Editor()->Graphics()->LoadTextureRaw(*pEditorImage, TextureLoadFlag, pName);
+	pEditorImage->m_Texture = pMap->Editor()->Graphics()->LoadTextureRaw(*pEditorImage, pMap->Editor()->Graphics()->TextureLoadFlags(), pName);
 	pEditorImage->m_External = 0;
 	str_copy(pEditorImage->m_aName, pName);
 
@@ -138,7 +140,7 @@ static void SetTilelayerIndices(const std::shared_ptr<CLayerTiles> &pLayer, cons
 void CEditorMap::AddTileArt(CImageInfo &&Image, const char *pFilename, bool IgnoreHistory)
 {
 	char aTileArtFilename[IO_MAX_PATH_LENGTH];
-	IStorage::StripPathAndExtension(pFilename, aTileArtFilename, sizeof(aTileArtFilename));
+	fs_split_file_extension(fs_filename(pFilename), aTileArtFilename, sizeof(aTileArtFilename));
 
 	std::shared_ptr<CLayerGroup> pGroup = NewGroup();
 	str_copy(pGroup->m_aName, aTileArtFilename);

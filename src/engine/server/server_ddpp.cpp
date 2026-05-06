@@ -559,7 +559,9 @@ int CServer::LoadMapLive(const char *pMapName)
 
 void *CServer::SnapBuilderGetItemData(int Key)
 {
-	return m_SnapshotBuilder.GetItemData(Key);
+	// TODO: this broke in rust snap merge
+	return nullptr;
+	// return m_pSnapshotBuilder.GetItemData(Key);
 }
 
 //void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)

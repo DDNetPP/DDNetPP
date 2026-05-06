@@ -12,7 +12,7 @@
 #include <game/server/gamecontext.h>
 
 CLaserText::CLaserText(CGameWorld *pGameWorld, vec2 Pos, int AliveTicks, const char *pText) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, false, Pos)
 {
 	m_Pos = Pos;
 	GameWorld()->InsertEntity(this);
@@ -122,12 +122,15 @@ void CLaserText::Snap(int SnappingClient)
 
 	for(int i = 0; i < m_MaxPlasmas; ++i)
 	{
+		if(!m_LolPlasmas[i]->GetIdWrap().has_value())
+			continue;
+
 		CNetObj_Laser Obj = {};
 		Obj.m_X = m_LolPlasmas[i]->GetPos().x;
 		Obj.m_Y = m_LolPlasmas[i]->GetPos().y;
 		Obj.m_FromX = m_LolPlasmas[i]->GetPos().x;
 		Obj.m_FromY = m_LolPlasmas[i]->GetPos().y;
 		Obj.m_StartTick = Server()->Tick();
-		Server()->SnapNewItem(m_LolPlasmas[i]->GetIdWrap(), Obj);
+		Server()->SnapNewItem(m_LolPlasmas[i]->GetIdWrap().value(), Obj);
 	}
 }

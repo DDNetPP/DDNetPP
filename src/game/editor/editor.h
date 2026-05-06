@@ -136,8 +136,6 @@ class CEditor : public IEditor, public IEnvelopeEval
 	IGraphics::CTextureHandle m_SwitchTexture;
 	IGraphics::CTextureHandle m_TuneTexture;
 
-	int GetTextureUsageFlag() const;
-
 	enum EPreviewState
 	{
 		PREVIEW_UNLOADED,
@@ -799,6 +797,7 @@ public:
 	unsigned char m_SwitchDelay;
 	unsigned char m_ViewSwitch;
 
+	// Adjust must be -1, 0 or 1
 	void AdjustBrushSpecialTiles(bool UseNextFree, int Adjust = 0);
 
 private:
