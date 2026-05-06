@@ -73,6 +73,10 @@
 #include <android/android_main.h>
 #endif
 
+#if defined(CONF_PLATFORM_EMSCRIPTEN)
+#include <emscripten/emscripten.h>
+#endif
+
 #include "SDL.h"
 #ifdef main
 #undef main
@@ -3060,7 +3064,6 @@ void CClient::RegisterInterfaces()
 #endif
 	Kernel()->RegisterInterface(static_cast<IFriends *>(&m_Friends), false);
 	Kernel()->ReregisterInterface(static_cast<IFriends *>(&m_Foes));
-	Kernel()->RegisterInterface(static_cast<IHttp *>(&m_Http), false);
 }
 
 void CClient::InitInterfaces()
@@ -3071,6 +3074,7 @@ void CClient::InitInterfaces()
 	m_pFavorites = Kernel()->RequestInterface<IFavorites>();
 	m_pSound = Kernel()->RequestInterface<IEngineSound>();
 	m_pGameClient = Kernel()->RequestInterface<IGameClient>();
+	m_pHttp = Kernel()->RequestInterface<IEngineHttp>();
 	m_pInput = Kernel()->RequestInterface<IEngineInput>();
 	m_pConfigManager = Kernel()->RequestInterface<IConfigManager>();
 	m_pConfig = m_pConfigManager->Values();
@@ -3087,7 +3091,7 @@ void CClient::InitInterfaces()
 	m_ServerBrowser.SetBaseInfo(&m_aNetClient[CONN_CONTACT], m_pGameClient->NetVersion());
 
 #if defined(CONF_AUTOUPDATE)
-	m_Updater.Init(&m_Http);
+	m_Updater.Init();
 #endif
 
 	m_pConfigManager->RegisterCallback(IFavorites::ConfigSaveCallback, m_pFavorites);
@@ -3126,7 +3130,7 @@ void CClient::Run()
 		return;
 	}
 
-	if(!m_Http.Init(std::chrono::seconds{1}))
+	if(!m_pHttp->Init(std::chrono::seconds{1}))
 	{
 		const char *pErrorMessage = "Failed to initialize the HTTP client.";
 		log_error("client", "%s", pErrorMessage);
@@ -3464,7 +3468,7 @@ void CClient::Run()
 	}
 
 	m_Fifo.Shutdown();
-	m_Http.Shutdown();
+	m_pHttp->Shutdown();
 	Engine()->ShutdownJobs();
 
 	GameClient()->RenderShutdownMessage();
@@ -4670,6 +4674,17 @@ static bool SaveUnknownCommandCallback(const char *pCommand, void *pUser)
 	return true;
 }
 
+#if defined(CONF_PLATFORM_EMSCRIPTEN)
+extern "C" {
+
+// This will be called from Emscripten JS code
+void EmscriptenCallbackQuitForce()
+{
+	emscripten_force_exit(-1);
+}
+}
+#endif
+
 /*
 	Server Time
 	Client Mirror Time
@@ -4772,6 +4787,10 @@ int main(int argc, const char **argv)
 		//       ignores the activity lifecycle entirely, which may cause issues if
 		//       we ever used any global resources like the camera.
 		std::exit(0);
+#elif defined(CONF_PLATFORM_EMSCRIPTEN)
+		// We cannot use atexit with Emscripten so we finish the global logger here.
+		// See comment in the log_set_global_logger function for details.
+		log_global_logger_finish();
 #endif
 	};
 	std::function<void()> PerformAllCleanup = [PerformCleanup, PerformFinalCleanup]() mutable {
@@ -4981,6 +5000,10 @@ int main(int argc, const char **argv)
 	IEngineTextRender *pEngineTextRender = CreateEngineTextRender();
 	pKernel->RegisterInterface(pEngineTextRender); // IEngineTextRender
 	pKernel->RegisterInterface(static_cast<ITextRender *>(pEngineTextRender), false);
+
+	IEngineHttp *pEngineHttp = CreateEngineHttp();
+	pKernel->RegisterInterface(pEngineHttp); // IEngineHttp
+	pKernel->RegisterInterface(static_cast<IHttp *>(pEngineHttp), false);
 
 	IDiscord *pDiscord = CreateDiscord();
 	pKernel->RegisterInterface(pDiscord);

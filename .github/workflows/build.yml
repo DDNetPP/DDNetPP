@@ -187,4 +187,3 @@ jobs:
       run: |
         cd headless
         ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests
-

@@ -260,11 +260,9 @@ impl CSnapshotDelta {
 
 fn obj_size(static_sizes: &[u16], type_: u16) -> Option<u32> {
     let type_: usize = type_.into();
-    if type_ > static_sizes.len() {
+    let size = *static_sizes.get(type_)?;
+    if size == 0 {
         return None;
     }
-    if static_sizes[type_] == 0 {
-        return None;
-    }
-    Some(static_sizes[type_].into())
+    Some(size.into())
 }

@@ -833,3 +833,8 @@ CHttp::~CHttp()
 	Shutdown();
 	thread_wait(m_pThread);
 }
+
+IEngineHttp *CreateEngineHttp()
+{
+	return new CHttp;
+}

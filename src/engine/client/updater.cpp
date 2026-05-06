@@ -130,12 +130,12 @@ CUpdater::CUpdater()
 	IStorage::FormatTmpPath(m_aServerExecTmp, sizeof(m_aServerExecTmp), SERVER_EXEC);
 }
 
-void CUpdater::Init(CHttp *pHttp)
+void CUpdater::Init()
 {
 	m_pClient = Kernel()->RequestInterface<IClient>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
-	m_pHttp = pHttp;
+	m_pHttp = Kernel()->RequestInterface<IHttp>();
 }
 
 void CUpdater::SetCurrentState(EUpdaterState NewState)

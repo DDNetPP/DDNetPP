@@ -1229,18 +1229,25 @@ void CMapSettingsBackend::CContext::UpdateFromString(const char *pStr)
 
 	// Check for comment
 	const char *pEnd = pStr;
-	int InString = 0;
+	bool InString = false;
+	bool IsEscaping = false;
 
 	while(*pEnd)
 	{
-		if(*pEnd == '"')
-			InString ^= 1;
-		else if(*pEnd == '\\') // Escape sequences
+		if(IsEscaping)
 		{
-			if(pEnd[1] == '"')
-				pEnd++;
+			IsEscaping = false;
 		}
-		else if(!InString)
+		else if(*pEnd == '"')
+		{
+			InString = !InString;
+		}
+		else if(InString && *pEnd == '\\') // escape sequences
+		{
+			IsEscaping = true;
+		}
+
+		if(!InString)
 		{
 			if(*pEnd == '#') // Found comment
 			{

@@ -35,7 +35,13 @@ void log_set_global_logger(ILogger *logger)
 	{
 		dbg_assert_failed("global logger has already been set and can only be set once");
 	}
+#if !defined(CONF_PLATFORM_EMSCRIPTEN)
+	// With Emscripten, when atexit calls log_global_logger_finish, which calls GlobalFinish, the
+	// Emscripten runtime has already exited, so we cannot wait for the AIO thread to finish and
+	// calling io_sync in the assertion logger is not possible. We instead finish the global logger
+	// manually in src/engine/client/client.cpp before exit.
 	atexit(log_global_logger_finish);
+#endif
 }
 
 void log_global_logger_finish()
