@@ -172,7 +172,7 @@ bool CLuaPlugin::SnapNewItem(int Id, const T &Data)
 // 		luaL_error(LuaState(), "snap item with type_id=%d and id=%d already exists", Type, Id);
 // 		return false;
 // 	}
-// 
+//
 // 	return Game()->Server()->SnapNewItem(Type, Id, pData, Size);
 // }
 
