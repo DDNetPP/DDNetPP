@@ -1436,6 +1436,17 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if(pPlayer->m_AccountQueryResult != nullptr)
+	{
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] There is already a pending account operation.");
+		return;
+	}
+	if(pPlayer->m_AccountLogoutQueryResult != nullptr)
+	{
+		pSelf->SendChatTarget(ClientId, "[ACCOUNT] Please wait for the pending logout to finish.");
+		return;
+	}
+
 	pSelf->Accounts()->Login(ClientId, aUsername, aPassword);
 }
 
