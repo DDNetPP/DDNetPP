@@ -116,6 +116,7 @@ public:
 	void OnCharacterPreTick(CCharacter *pChr);
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
+	bool OnAccountLogin(int ClientId);
 	void OnSnap(int SnappingClient);
 	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
 	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);

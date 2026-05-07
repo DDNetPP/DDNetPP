@@ -164,6 +164,8 @@ private:
 	bool CallLuaVoidNoArgs(const char *pFunction);
 	// returns true if the function was found
 	bool CallLuaVoidWithOneInt(const char *pFunction, int Num1);
+	// returns value if the function was found
+	std::optional<bool> CallLuaBoolWithOneInt(const char *pFunction, int Num1);
 	// returns true if the function was found
 	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
 	// returns value if the function was found
@@ -288,6 +290,7 @@ public:
 	bool OnCharacterTile(CCharacter *pChr, int GameIndex, int FrontIndex);
 	bool OnCharacterGameTileChange(CCharacter *pChr, int GameIndex);
 	bool OnSkipGameTile(CCharacter *pChr, int GameIndex);
+	bool OnAccountLogin(int ClientId);
 	void OnSnap(int SnappingClient);
 	int OnSnapGameInfoExFlags(int SnappingClient, int DDRaceFlags);
 	int OnSnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags);

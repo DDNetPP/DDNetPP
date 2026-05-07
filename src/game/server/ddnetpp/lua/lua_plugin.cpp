@@ -1058,6 +1058,44 @@ bool CLuaPlugin::CallLuaVoidWithOneInt(const char *pFunction, int Num1)
 	return true;
 }
 
+std::optional<bool> CLuaPlugin::CallLuaBoolWithOneInt(const char *pFunction, int Num1)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return std::nullopt;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return std::nullopt;
+	}
+	lua_pushinteger(LuaState(), Num1);
+	if(lua_pcall(LuaState(), 1, 1, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 2);
+	}
+	std::optional<bool> Value = std::nullopt;
+	if(lua_isboolean(LuaState(), -1))
+	{
+		Value = lua_toboolean(LuaState(), -1);
+	}
+
+	// pop value and global "ddnetpp"
+	lua_pop(LuaState(), 2);
+	return Value;
+}
+
 bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2)
 {
 	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
@@ -2949,6 +2987,12 @@ bool CLuaPlugin::OnSkipGameTile(CCharacter *pChr, int GameIndex)
 	// pop skip and global "ddnetpp"
 	lua_pop(LuaState(), 2);
 	return Skip;
+}
+
+bool CLuaPlugin::OnAccountLogin(int ClientId)
+{
+	dbg_assert(IsActive(), "called inactive plugin");
+	return CallLuaBoolWithOneInt("on_account_login", ClientId).value_or(true);
 }
 
 void CLuaPlugin::OnSnap(int SnappingClient)

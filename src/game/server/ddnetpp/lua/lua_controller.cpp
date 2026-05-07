@@ -762,6 +762,21 @@ bool CLuaController::OnSkipGameTile(CCharacter *pChr, int GameIndex)
 #endif
 }
 
+bool CLuaController::OnAccountLogin(int ClientId)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(!pPlugin->OnAccountLogin(ClientId))
+			return false;
+	}
+#endif
+	return true;
+}
+
 void CLuaController::OnSnap(int SnappingClient)
 {
 #ifdef CONF_LUA

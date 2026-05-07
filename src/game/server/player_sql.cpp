@@ -8,6 +8,7 @@
 #include <generated/protocol.h>
 
 #include <game/mapitems.h>
+#include <game/server/ddnetpp/lua/lua_controller.h>
 
 void CPlayer::OnLogin()
 {
@@ -18,6 +19,11 @@ void CPlayer::OnLogin()
 	if(m_Account.m_IsAccFrozen)
 	{
 		GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login failed: Account is frozen.");
+		Logout();
+		return;
+	}
+	if(!GameServer()->Lua()->OnAccountLogin(m_ClientId))
+	{
 		Logout();
 		return;
 	}
