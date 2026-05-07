@@ -180,9 +180,46 @@ void CAccounts::ExecUserThread(
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
+void CAccounts::ExecLogoutUserThread(
+	bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
+	const char *pThreadName,
+	int ClientId,
+	const char *pUsername,
+	const char *pPassword,
+	const char *pNewPassword,
+	CAccountData *pAccountData)
+{
+	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
+	if(pCurPlayer->m_AccountLogoutQueryResult != nullptr)
+	{
+		// this can happen when a user uses the /logout chat command and then disconnects
+		log_error("accounts", "logout cid=%d failed, too many logout operations queued!", ClientId);
+		return;
+	}
+	pCurPlayer->m_AccountLogoutQueryResult = std::make_shared<CAccountResult>();
+	auto Tmp = std::make_unique<CSqlAccountRequest>(pCurPlayer->m_AccountLogoutQueryResult);
+	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
+	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
+	str_copy(Tmp->m_aNewPassword, pNewPassword, sizeof(Tmp->m_aNewPassword));
+	if(pAccountData)
+		Tmp->m_AccountData = *pAccountData;
+	else
+		Tmp->m_AccountData = CAccountData();
+	Tmp->m_ServerPort = g_Config.m_SvPort;
+	str_copy(Tmp->m_aServerIp, g_Config.m_SvHostname);
+
+	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
+}
+
 void CAccounts::Save(int ClientId, CAccountData *pAccountData)
 {
 	ExecUserThread(SaveThread, "save user", ClientId, "", "", "", pAccountData);
+}
+
+void CAccounts::LogoutAndSave(int ClientId, CAccountData *pAccountData)
+{
+	pAccountData->m_IsLoggedIn = 0;
+	ExecLogoutUserThread(SaveThread, "logout user", ClientId, "", "", "", pAccountData);
 }
 
 bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)

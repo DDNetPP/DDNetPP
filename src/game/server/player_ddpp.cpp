@@ -810,9 +810,22 @@ void CPlayer::Save(int SetLoggedIn)
 	// GameServer()->ShowHideConfigBoolToChar(this->GetCid());
 
 	if(m_IsFileAcc)
+	{
 		SaveFileBased();
+	}
 	else
-		GameServer()->Accounts()->Save(GetCid(), &m_Account);
+	{
+		if(SetLoggedIn == 0)
+		{
+			// logout operation needs own ratelimit to never fail
+			GameServer()->Accounts()->LogoutAndSave(GetCid(), &m_Account);
+		}
+		else
+		{
+			// periodic save
+			GameServer()->Accounts()->Save(GetCid(), &m_Account);
+		}
+	}
 }
 
 void CPlayer::SaveFileBased()

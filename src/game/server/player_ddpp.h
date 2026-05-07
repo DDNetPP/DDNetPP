@@ -42,6 +42,7 @@ public:
 
 	void DDPPProcessScoreResult(CAccountResult &Result);
 	std::shared_ptr<CAccountResult> m_AccountQueryResult;
+	std::shared_ptr<CAccountResult> m_AccountLogoutQueryResult;
 
 	void ResetDDPP();
 	void DDPPTick();

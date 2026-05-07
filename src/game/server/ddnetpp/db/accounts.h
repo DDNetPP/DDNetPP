@@ -455,6 +455,15 @@ class CAccounts
 		const char *pPassword,
 		const char *pNewPassword,
 		CAccountData *pAccountData);
+	// has different ratelimits to make sure it does not fail
+	void ExecLogoutUserThread(
+		bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
+		const char *pThreadName,
+		int ClientId,
+		const char *pUsername,
+		const char *pPassword,
+		const char *pNewPassword,
+		CAccountData *pAccountData);
 	void ExecAdminThread(
 		bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 		const char *pThreadName,
@@ -480,6 +489,7 @@ public:
 			is currently executing a login query or changing his password
 	*/
 	void Save(int ClientId, CAccountData *pAccountData);
+	void LogoutAndSave(int ClientId, CAccountData *pAccountData);
 	void Login(int ClientId, const char *pUsername, const char *pPassword);
 	void Register(int ClientId, const char *pUsername, const char *pPassword);
 	void ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
