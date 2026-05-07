@@ -2483,7 +2483,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 	{
 		int ShotSpread = 2;
 
-		for(int i = -ShotSpread; i <= ShotSpread; ++i)
+		for(int i = -ShotSpread; i <= ShotSpread; ++i) // NOLINT(clang-analyzer-unix.Malloc)
 		{
 			float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
 			float a = angle(Direction);
@@ -2501,10 +2501,10 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 				false, //Explosive
 				-1, // SoundImpact,
 				ProjStartPos, // InitDir
-				WEAPON_SHOTGUN);
+				WEAPON_SHOTGUN); // NOLINT(clang-analyzer-unix.Malloc)
 		}
 
-		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);
+		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE); // NOLINT(clang-analyzer-unix.Malloc)
 		return true;
 	}
 	return false;
