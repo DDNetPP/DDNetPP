@@ -237,12 +237,13 @@ void CWeapon::Tick()
 		m_Vel.x *= 0.98f;
 
 	//Speedups
-	if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos)))
+	int MapIndex = GameServer()->Collision()->GetMapIndex(m_Pos);
+	if(MapIndex > 0 && GameServer()->Collision()->IsSpeedup(MapIndex))
 	{
 		int Force, Type, MaxSpeed = 0;
 		vec2 Direction, TempVel = m_Vel;
 		float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
-		GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos), &Direction, &Force, &MaxSpeed, &Type);
+		GameServer()->Collision()->GetSpeedup(MapIndex, &Direction, &Force, &MaxSpeed, &Type);
 
 		if(Type == TILE_SPEED_BOOST)
 		{

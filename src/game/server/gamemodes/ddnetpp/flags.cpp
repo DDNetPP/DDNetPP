@@ -170,12 +170,13 @@ void CGameControllerDDNetPP::FlagTick()
 				pFlag->m_Vel.y += GameServer()->GlobalTuning()->m_Gravity;
 
 				//Speedups
-				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos)))
+				int MapIndex = GameServer()->Collision()->GetMapIndex(pFlag->m_Pos);
+				if(MapIndex > 0 && GameServer()->Collision()->IsSpeedup(MapIndex))
 				{
 					int Force, Type, MaxSpeed = 0;
 					vec2 Direction, TempVel = pFlag->m_Vel;
 					float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
-					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(pFlag->m_Pos), &Direction, &Force, &MaxSpeed, &Type);
+					GameServer()->Collision()->GetSpeedup(MapIndex, &Direction, &Force, &MaxSpeed, &Type);
 
 					if(Type == TILE_SPEED_BOOST)
 					{
