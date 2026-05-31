@@ -26,15 +26,18 @@ void CGameControllerDDNetPP::FlagTick()
 			continue;
 
 		// flag hits death-tile or left the game layer, reset it
-		if(GameServer()->Collision()->GetCollisionAt(pFlag->m_Pos.x, pFlag->m_Pos.y) == TILE_DEATH || pFlag->GameLayerClipped(pFlag->m_Pos))
+		if(!pFlag->GetCarrier())
 		{
-			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "flag_return");
-			if(g_Config.m_SvFlagSounds)
+			if(GameServer()->Collision()->GetCollisionAt(pFlag->m_Pos.x, pFlag->m_Pos.y) == TILE_DEATH || pFlag->GameLayerClipped(pFlag->m_Pos))
 			{
-				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
+				log_info("game", "flag_return because it fell out of the world or hit a death tile");
+				if(g_Config.m_SvFlagSounds)
+				{
+					GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
+				}
+				pFlag->Reset();
+				continue;
 			}
-			pFlag->Reset();
-			continue;
 		}
 
 		//
@@ -141,6 +144,7 @@ void CGameControllerDDNetPP::FlagTick()
 		{
 			if(pFlag->m_DropTick && Server()->Tick() > pFlag->m_DropTick + Server()->TickSpeed() * 90)
 			{
+				log_info("game", "flag returned to stand because there was no carrier");
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 				pFlag->Reset();
 			}
