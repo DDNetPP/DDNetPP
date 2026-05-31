@@ -15,20 +15,20 @@
 
 class CFlag : public CEntity
 {
-	CCharacter *m_pCarryingCharacter;
-	CCharacter *m_pLastCarryingCharacter;
+	CCharacter *m_pCarryingCharacter = nullptr;
+	CCharacter *m_pLastCarryingCharacter = nullptr;
 
 public:
 	static constexpr float ms_PhysSize = 28.0f;
 
-	vec2 m_Vel;
-	vec2 m_StandPos;
+	vec2 m_Vel = vec2(0, 0);
+	vec2 m_StandPos = vec2(0, 0);
 
-	int m_Team;
+	int m_Team = TEAM_RED;
 	bool m_AtStand = true;
-	int m_DropTick;
-	int m_DropFreezeTick;
-	int m_GrabTick;
+	int m_DropTick = 0;
+	int m_DropFreezeTick = 0;
+	int m_GrabTick = 0;
 
 	CFlag(CGameWorld *pGameWorld, int Team);
 
@@ -45,10 +45,10 @@ public:
 	}
 	void SetLastCarrier(CCharacter *pChr) { m_pLastCarryingCharacter = pChr; }
 
-	int m_TuneZone;
+	int m_TuneZone = 0;
 
 	// ddnet++
-	bool m_IsGrounded;
+	bool m_IsGrounded = false;
 };
 
 #endif
