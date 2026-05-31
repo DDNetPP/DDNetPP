@@ -117,7 +117,10 @@ tags
 !ddnet-cmake-tools-kits.json
 
 # tidy-alphabetical-start
+
+
 *.a
+*.cmd
 *.cmd
 *.csv
 *.dll
@@ -130,9 +133,11 @@ tags
 *.lnk
 *.log
 *.opensdf
+*.opensdf
 *.patch
 *.pdb
 *.prefs
+*.pyc
 *.pyc
 *.res
 *.sdf
@@ -149,23 +154,18 @@ tags
 *.teehistorian
 *.tmp
 *.user
-*.cmd
+*.vcxproj
+*.zip
 .settings
-*.opensdf
-*.pyc
-cscope.out
-cscope.files
-
 CMakeCache.txt
-CMakeSettings*
 CMakeFiles
+CMakeSettings*
 CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages/
 cmake_install.cmake
-
-*.vcxproj
-*.zip
+cscope.files
+cscope.out
 # tidy-alphabetical-end
 
 #############
