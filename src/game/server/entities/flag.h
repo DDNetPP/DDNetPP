@@ -4,7 +4,11 @@
 #ifndef GAME_SERVER_ENTITIES_FLAG_H
 #define GAME_SERVER_ENTITIES_FLAG_H
 
+#include <base/log.h>
+
 #include <engine/shared/protocol.h>
+
+#include <generated/protocol.h>
 
 #include <game/server/entities/character.h>
 #include <game/server/entity.h>
@@ -34,7 +38,11 @@ public:
 
 	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
 	CCharacter *GetLastCarrier() const { return m_pLastCarryingCharacter; }
-	void SetCarrier(CCharacter *pChr) { m_pCarryingCharacter = pChr; }
+	void SetCarrier(CCharacter *pChr)
+	{
+		m_pCarryingCharacter = pChr;
+		log_info("game", "set %s flag carrier to %p", m_Team == TEAM_RED ? "red" : "blue", pChr);
+	}
 	void SetLastCarrier(CCharacter *pChr) { m_pLastCarryingCharacter = pChr; }
 
 	int m_TuneZone;
