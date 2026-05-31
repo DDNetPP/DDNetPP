@@ -3,7 +3,8 @@ from collections import namedtuple
 from queue import Queue
 from threading import Thread
 from time import time
-from urllib.request import urlopen
+from urllib import request
+from urllib.request import Request, urlopen
 from uuid import uuid4, UUID
 import io
 import json
@@ -15,6 +16,19 @@ import subprocess
 import sys
 import tempfile
 import traceback
+
+
+def urlopen_anystatus(url):
+	# Adapted from https://stackoverflow.com/a/74844056:
+	class NonRaisingHttpErrorProcessor(request.HTTPErrorProcessor):
+		def https_response(self, request, response):
+			return response
+
+		def http_response(self, request, response):
+			return response
+
+	return request.build_opener(NonRaisingHttpErrorProcessor).open(url)
+
 
 # TODO: less strict default timeouts?
 
@@ -518,10 +532,13 @@ class Mastersrv(Runnable):
 			communities_json_filename = f"{name}-communities.json"
 			with open(os.path.join(test_env.tmp_dir, communities_json_filename), "w", encoding="utf-8") as f:
 				f.write(communities_json)
-			config = config + f"""\
+			config = (
+				config
+				+ f"""\
 [communities]
 json = {communities_json_filename!r}
 """
+			)
 		if config is not None:
 			config_filename = f"{name}.toml"
 			with open(os.path.join(test_env.tmp_dir, config_filename), "w", encoding="utf-8") as f:
@@ -559,6 +576,9 @@ json = {communities_json_filename!r}
 
 	def wait_for_startup(self, timeout=5):
 		self.wait_for_log_prefix("warp::server: listening on http://[::]:", timeout=timeout)
+
+	def register_url(self):
+		return f"http://[::1]:{self.port}/ddnet/15/register"
 
 	def servers_json(self):
 		return json.loads(urlopen(f"http://[::1]:{self.port}/ddnet/15/test-servers.json").read())
@@ -653,7 +673,7 @@ def client_can_connect_7(test_env):
 	client = test_env.client()
 	server = test_env.server()
 	wait_for_startup([client, server])
-	client.command(f"connect tw-0.7+udp://127.0.0.1:{server.port}") # FIXME(#11693): Work around missing domain support.
+	client.command(f"connect tw-0.7+udp://127.0.0.1:{server.port}")  # FIXME(#11693): Work around missing domain support.
 	join = server.wait_for_log_prefix("server: player has entered the game", timeout=10).line
 	if "sixup=1" not in join:
 		raise AssertionError(f"sixup=0 not found in {join!r}")
@@ -669,9 +689,9 @@ def client_can_connect_websockets(test_env):
 	client = test_env.client(["dbg_websockets 1", "stdout_output_level 1"])
 	server = test_env.server(["dbg_websockets 1", "stdout_output_level 1"])
 	wait_for_startup([client, server])
-	client.command(f"connect ws://127.0.0.1:{server.port}") # FIXME(#11693): Work around missing domain support.
-	server.wait_for_log_prefix("websockets: I: lws_handshake_server", timeout=15) # Connection established
-	client.wait_for_log_prefix("websockets: I: lws_http_client_socket_service", timeout=15) # Connection established
+	client.command(f"connect ws://127.0.0.1:{server.port}")  # FIXME(#11693): Work around missing domain support.
+	server.wait_for_log_prefix("websockets: I: lws_handshake_server", timeout=15)  # Connection established
+	client.wait_for_log_prefix("websockets: I: lws_http_client_socket_service", timeout=15)  # Connection established
 	join = server.wait_for_log_prefix("server: player has entered the game", timeout=5).line
 	if "sixup=0" not in join:
 		raise AssertionError(f"sixup=0 not found in {join!r}")
@@ -922,7 +942,7 @@ ddvc_6DnZq51fypqX9ldrEFCF9aJdpi6wjgh6YA = "ddnet"
 	if len(servers_json["servers"]) != 1 or servers_json["servers"][0]["info"]["map"]["name"] != "Tutorial" or len(servers_json["servers"][0]["addresses"]) != 1:
 		raise AssertionError(f"unexpected servers.json\n{servers_json}")
 	if servers_json["servers"][0]["community"] != "ddnet":
-		raise AssertionError(f"servers.json didn't have \"community\" key\n{servers_json}")
+		raise AssertionError(f'servers.json didn\'t have "community" key\n{servers_json}')
 	server.exit()
 	mastersrv.wait_for_log_prefix("mastersrv: successfully removed", timeout=5)
 	servers_json = mastersrv.servers_json()
@@ -930,6 +950,44 @@ ddvc_6DnZq51fypqX9ldrEFCF9aJdpi6wjgh6YA = "ddnet"
 		raise AssertionError(f"unexpected servers.json\n{servers_json}")
 	mastersrv.exit()
 	mastersrv.wait_for_exit()
+
+
+@test(requires_mastersrv=True)
+def mastersrv_smoke_test(test_env):
+	mastersrv = test_env.mastersrv()
+	wait_for_startup([mastersrv])
+
+	register_url = mastersrv.register_url()
+	register_headers = {
+		"Address": "tw-0.6+udp://connecting-address.invalid:12345",
+		"Secret": "4ab4bc03-5a3c-4a61-9ba0-24da6c4cfa89",
+		"Info-Serial": "0",
+		"Challenge-Secret": "623647f9-dd77-4b98-ac2b-2bff6b283be1",
+		"Content-Type": "application/json",
+	}
+
+	def test_register(http_status, status, message, server_info):
+		with urlopen_anystatus(
+			Request(
+				url=register_url,
+				headers=register_headers,
+				data=server_info,
+				method="POST",
+			)
+		) as response:
+			got_http_status, got_result = response.status, response.read().decode()
+
+		if http_status != got_http_status:
+			raise AssertionError(f"{message}: wanted HTTP status {http_status}, got {got_http_status} ({got_result})")
+
+		if json.loads(got_result)["status"] != status:
+			raise AssertionError(f"{message}: wanted status {status}, got {got_result}")
+
+	test_register(200, "need_challenge", "register should succeed", b"{}")
+	test_register(200, "need_challenge", "register should accept UTF-8", '{"test":"👩"}'.encode())
+	test_register(200, "need_challenge", "register should accept matched surrogates", b'{"test":"\\uD83D\\uDC69"}')
+	test_register(400, "error", "register should reject lone surrogates", b'{"test":"\\uD83D"}')
+	test_register(400, "error", "register should reject invalid UTF-8", b'{"test":"\xff"}')
 
 
 EXE_SUFFIX = ""

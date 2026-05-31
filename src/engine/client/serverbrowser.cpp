@@ -1413,7 +1413,7 @@ void CServerBrowser::LoadDDNetInfoJson()
 	json_value_free(m_pDDNetInfo);
 	json_settings JsonSettings{};
 	char aError[256];
-	m_pDDNetInfo = json_parse_ex(&JsonSettings, static_cast<json_char *>(pBuf), Length, aError);
+	m_pDDNetInfo = JsonParseEx(&JsonSettings, static_cast<json_char *>(pBuf), Length, aError);
 	free(pBuf);
 
 	if(m_pDDNetInfo == nullptr)
@@ -1464,6 +1464,11 @@ bool CServerBrowser::ParseCommunityServers(CCommunity *pCommunity, const json_va
 		if(Types.u.object.length == 0)
 			continue;
 
+		if(str_has_cc(Name.u.string.ptr))
+		{
+			log_error("serverbrowser", "invalid community country name (ServerIndex=%u)", ServerIndex);
+			return false;
+		}
 		pCommunity->m_vCountries.emplace_back(Name.u.string.ptr, FlagId.u.integer);
 		CCommunityCountry *pCountry = &pCommunity->m_vCountries.back();
 
@@ -1851,7 +1856,6 @@ std::vector<const CCommunity *> CServerBrowser::CurrentCommunities() const
 
 unsigned CServerBrowser::CurrentCommunitiesHash() const
 {
-	std::vector<const CCommunity *> vpCommunities = CurrentCommunities();
 	unsigned Hash = 5381;
 	for(const CCommunity *pCommunity : CurrentCommunities())
 	{

@@ -31,7 +31,7 @@ enum
 
 vec2 ClampVel(int MoveRestriction, vec2 Vel);
 
-typedef bool (*CALLBACK_SWITCHACTIVE)(int Number, void *pUser);
+typedef bool (*CALLBACK_SWITCHACTIVE)(unsigned char Number, void *pUser);
 struct CAntibotMapData;
 
 class CCollision
@@ -59,7 +59,7 @@ public:
 
 	// DDRace
 	void SetCollisionAt(float x, float y, int Index);
-	void SetDoorCollisionAt(float x, float y, int Type, int Flags, int Number);
+	void SetDoorCollisionAt(float x, float y, unsigned char Type, unsigned char Flags, unsigned char Number);
 	void GetDoorTile(int Index, CDoorTile *pDoorTile) const;
 	int GetFrontCollisionAt(float x, float y) const { return GetFrontTile(round_to_int(x), round_to_int(y)); }
 	int IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const;

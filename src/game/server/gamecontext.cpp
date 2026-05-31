@@ -2340,18 +2340,20 @@ void CGameContext::CensorMessage(char *pCensoredMessage, const char *pMessage, i
 	for(auto &Item : m_vCensorlist)
 	{
 		char *pCurLoc = pCensoredMessage;
-		do
+		while(true)
 		{
-			pCurLoc = (char *)str_utf8_find_nocase(pCurLoc, Item.c_str());
-			if(pCurLoc)
+			const char *pEndMatch;
+			pCurLoc = (char *)str_utf8_find_nocase(pCurLoc, Item.c_str(), &pEndMatch);
+			if(!pCurLoc)
 			{
-				for(int i = 0; i < (int)Item.length(); i++)
-				{
-					pCurLoc[i] = '*';
-				}
+				break;
+			}
+			while(pCurLoc < pEndMatch)
+			{
+				*pCurLoc = '*';
 				pCurLoc++;
 			}
-		} while(pCurLoc);
+		}
 	}
 }
 
@@ -4371,7 +4373,7 @@ void CGameContext::OnInit(const void *pPersistentData)
 		Server()->SnapSetStaticsize7(i, m_NetObjHandler7.GetObjSize(i));
 	}
 
-	m_Layers.Init(Map(), false);
+	m_Layers.Init(Map(), false, false);
 	m_Collision.Init(&m_Layers);
 	m_World.Init(&m_Collision, m_aTuningList);
 	m_MapBugs = CMapBugs::Create(Map()->BaseName(), Map()->Size(), Map()->Sha256());

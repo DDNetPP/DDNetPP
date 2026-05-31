@@ -585,7 +585,7 @@ void CGameClient::OnConnected()
 	const char *pLoadMapContent = Localize("Initializing map logic");
 	// render loading before skip is calculated
 	m_Menus.RenderLoading(pConnectCaption, pLoadMapContent, 0);
-	m_Layers.Init(Map(), false);
+	m_Layers.Init(Map(), false, true);
 	m_Collision.Init(Layers());
 	m_GameWorld.m_Core.InitSwitchers(m_Collision.m_HighestSwitchNumber);
 	m_GameWorld.m_PredictedEvents.clear();
@@ -1034,7 +1034,7 @@ ColorRGBA CGameClient::GetDDTeamColor(int DDTeam, float Lightness) const
 {
 	// Use golden angle to generate unique colors with distinct adjacent colors.
 	// The first DDTeam (team 1) gets angle 0°, i.e. red hue.
-	const float Hue = std::fmod((DDTeam - 1) * (137.50776f / 360.0f), 1.0f);
+	const float Hue = std::fmod((DDTeam - 1) * normalized_golden_angle, 1.0f);
 	return color_cast<ColorRGBA>(ColorHSLA(Hue, 1.0f, Lightness));
 }
 
@@ -1722,7 +1722,7 @@ void CGameClient::InvalidateSnapshot()
 	SnapCollectEntities();
 }
 
-void CGameClient::OnNewSnapshot()
+void CGameClient::OnNewSnapshot(bool DummySwapped)
 {
 	auto &&Evolve = [this](CNetObj_Character *pCharacter, int Tick) {
 		CWorldCore TempWorld;
@@ -2325,6 +2325,9 @@ void CGameClient::OnNewSnapshot()
 		Client()->SendPackMsg(1, &Msg, MSGFLAG_VITAL);
 		m_aEnableSpectatorCount[1] = g_Config.m_ClShowhudSpectatorCount;
 	}
+
+	if(DummySwapped)
+		m_Camera.UpdateCamera();
 
 	float ShowDistanceZoom = m_Camera.m_Zoom;
 	float Zoom = m_Camera.m_Zoom;
@@ -5008,7 +5011,6 @@ void CGameClient::HandleMultiView()
 		else if(m_MultiView.m_SecondChance < Client()->LocalTime())
 		{
 			ResetMultiView();
-			return;
 		}
 		return;
 	}
@@ -5024,7 +5026,7 @@ void CGameClient::HandleMultiView()
 	// dont hide the position hud if its only one player
 	m_MultiViewShowHud = AmountPlayers == 1;
 	// get the average velocity
-	float AvgVel = std::clamp(SumVel / AmountPlayers ? SumVel / (float)AmountPlayers : 0.0f, 0.0f, 1000.0f);
+	float AvgVel = std::clamp(SumVel / AmountPlayers, 0.0f, 1000.0f);
 
 	if(m_MultiView.m_OldPersonalZoom == m_MultiViewPersonalZoom)
 		m_Camera.SetZoom(CalculateMultiViewZoom(MinPos, MaxPos, AvgVel), g_Config.m_ClMultiViewZoomSmoothness, false);

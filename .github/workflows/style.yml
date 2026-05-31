@@ -51,6 +51,12 @@ jobs:
 
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
+      with:
+          cache-bin: false # WORKAROUND(https://github.com/Swatinem/rust-cache/issues/341)
+          workspaces: |
+              src/mastersrv
+              src/masterping
+              ./
 
     - name: Check code style (ClangFormat)
       run: |
@@ -84,7 +90,7 @@ jobs:
     - name: Check Python code style (ruff format)
       run: |
         ruff --version
-        ruff format
+        ruff format --check
 
     - name: Check Python code style (ruff check)
       run: |
@@ -99,6 +105,9 @@ jobs:
 
     - name: Check standard header includes
       run: scripts/check_standard_headers.py
+
+    - name: Check alphabetical ordering
+      run: scripts/tidy_alphabetical.py --dry-run
 
     - name: Check absolute includes
       run: "! grep --exclude-dir rust-bridge -rE '^#include \"(antibot|base|engine|game|steam|test)/' src/"

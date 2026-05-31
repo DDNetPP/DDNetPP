@@ -9,6 +9,7 @@
 
 #include <base/bytes.h>
 #include <base/crashdump.h>
+#include <base/dbg.h>
 #include <base/fs.h>
 #include <base/hash.h>
 #include <base/hash_ctxt.h>
@@ -16,6 +17,7 @@
 #include <base/log.h>
 #include <base/logger.h>
 #include <base/math.h>
+#include <base/mem.h>
 #include <base/os.h>
 #include <base/process.h>
 #include <base/secure.h>
@@ -106,7 +108,7 @@ CClient::CClient() :
 	m_pSnapshotDelta(CSnapshotDelta_New()),
 	m_pSnapshotDeltaSixup(CSnapshotDelta_New()),
 	m_DemoPlayer(&*m_pSnapshotDelta, &*m_pSnapshotDeltaSixup, true, [&]() { UpdateDemoIntraTimers(); }),
-	m_InputtimeMarginGraph(128, 2, true),
+	m_aInputtimeMarginGraphs{{128, 2, true}, {128, 2, true}},
 	m_aGametimeMarginGraphs{{128, 2, true}, {128, 2, true}},
 	m_FpsGraph(4096, 0, true)
 {
@@ -722,7 +724,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	m_aNetClient[CONN_MAIN].RefreshStun();
 	SetState(IClient::STATE_CONNECTING);
 
-	m_InputtimeMarginGraph.Init(-150.0f, 150.0f);
+	m_aInputtimeMarginGraphs[CONN_MAIN].Init(-150.0f, 150.0f);
 	m_aGametimeMarginGraphs[CONN_MAIN].Init(-150.0f, 150.0f);
 
 	GenerateTimeoutCodes(aConnectAddrs, NumConnectAddrs);
@@ -854,6 +856,7 @@ void CClient::DummyConnect()
 	else
 		m_aNetClient[CONN_DUMMY].Connect(m_aNetClient[CONN_MAIN].ServerAddress(), 1);
 
+	m_aInputtimeMarginGraphs[CONN_DUMMY].Init(-150.0f, 150.0f);
 	m_aGametimeMarginGraphs[CONN_DUMMY].Init(-150.0f, 150.0f);
 }
 
@@ -1088,8 +1091,8 @@ void CClient::RenderGraphs()
 
 	m_FpsGraph.Scale(time_freq());
 	m_FpsGraph.Render(Graphics(), TextRender(), GraphX, GraphSpacing * 5, GraphW, GraphH, "FPS");
-	m_InputtimeMarginGraph.Scale(5 * time_freq());
-	m_InputtimeMarginGraph.Render(Graphics(), TextRender(), GraphX, GraphSpacing * 6 + GraphH, GraphW, GraphH, "Prediction Margin");
+	m_aInputtimeMarginGraphs[g_Config.m_ClDummy].Scale(5 * time_freq());
+	m_aInputtimeMarginGraphs[g_Config.m_ClDummy].Render(Graphics(), TextRender(), GraphX, GraphSpacing * 6 + GraphH, GraphW, GraphH, "Prediction Margin");
 	m_aGametimeMarginGraphs[g_Config.m_ClDummy].Scale(5 * time_freq());
 	m_aGametimeMarginGraphs[g_Config.m_ClDummy].Render(Graphics(), TextRender(), GraphX, GraphSpacing * 7 + GraphH * 2, GraphW, GraphH, "Gametime Margin");
 }
@@ -1189,6 +1192,27 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, const std
 	if((bool)m_LoadingCallback)
 		m_LoadingCallback(IClient::LOADING_CALLBACK_DETAIL_MAP);
 
+	// Stop demo recording before loading a new map.
+	for(int Recorder = 0; Recorder < RECORDER_MAX; Recorder++)
+	{
+		DemoRecorder(Recorder)->Stop(Recorder == RECORDER_REPLAYS ? IDemoRecorder::EStopMode::REMOVE_FILE : IDemoRecorder::EStopMode::KEEP_FILE);
+	}
+
+	// Unload the current map and reset all snapshots before loading a new map,
+	// because the snapshots are only valid for the old map.
+	GameClient()->Map()->Unload();
+	for(int Dummy = 0; Dummy < NUM_DUMMIES; Dummy++)
+	{
+		m_aapSnapshots[Dummy][SNAP_CURRENT] = nullptr;
+		m_aapSnapshots[Dummy][SNAP_PREV] = nullptr;
+		m_aSnapshotStorage[Dummy].PurgeAll();
+		m_aReceivedSnapshots[Dummy] = 0;
+		m_aSnapshotParts[Dummy] = 0;
+		m_aSnapshotIncomingDataSize[Dummy] = 0;
+	}
+	m_SnapCrcErrors = 0;
+	GameClient()->InvalidateSnapshot();
+
 	if(!GameClient()->Map()->Load(pName, Storage(), pFilename, IStorage::TYPE_ALL))
 	{
 		str_format(s_aErrorMsg, sizeof(s_aErrorMsg), "map '%s' not found", pFilename);
@@ -1214,12 +1238,6 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, const std
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", s_aErrorMsg);
 		GameClient()->Map()->Unload();
 		return s_aErrorMsg;
-	}
-
-	// stop demo recording if we loaded a new map
-	for(int Recorder = 0; Recorder < RECORDER_MAX; Recorder++)
-	{
-		DemoRecorder(Recorder)->Stop(Recorder == RECORDER_REPLAYS ? IDemoRecorder::EStopMode::REMOVE_FILE : IDemoRecorder::EStopMode::KEEP_FILE);
 	}
 
 	char aBuf[256];
@@ -1497,7 +1515,8 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 			// Only accept server info that has a type that is
 			// newer or equal to something the server already sent
 			// us.
-			if(SavedType >= m_CurrentServerInfo.m_Type)
+			if(SavedType >= m_CurrentServerInfo.m_Type &&
+				GameClient()->Map()->IsLoaded())
 			{
 				SetCurrentServerInfo(Info);
 				Discord()->UpdateServerInfo(m_CurrentServerInfo);
@@ -1821,6 +1840,10 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 		}
 		else if(Conn == CONN_MAIN && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_CON_READY)
 		{
+			if(!GameClient()->Map()->IsLoaded())
+			{
+				return;
+			}
 			GameClient()->OnConnected();
 			if(m_DummyReconnectOnReload)
 			{
@@ -2020,12 +2043,13 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			}
 
 			if(Target)
-				m_PredictedTime.Update(&m_InputtimeMarginGraph, Target, TimeLeft, CSmoothTime::ADJUSTDIRECTION_UP);
+				m_PredictedTime.Update(&m_aInputtimeMarginGraphs[Conn], Target, TimeLeft, CSmoothTime::ADJUSTDIRECTION_UP);
 		}
 		else if(Msg == NETMSG_SNAP || Msg == NETMSG_SNAPSINGLE || Msg == NETMSG_SNAPEMPTY)
 		{
-			// we are not allowed to process snapshot yet
-			if(State() < IClient::STATE_LOADING)
+			// We are not allowed to process snapshots yet.
+			if(State() < IClient::STATE_LOADING ||
+				!GameClient()->Map()->IsLoaded())
 			{
 				return;
 			}
@@ -2249,7 +2273,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 						}
 						if(!Dummy)
 						{
-							GameClient()->OnNewSnapshot();
+							GameClient()->OnNewSnapshot(false);
 						}
 						SetState(IClient::STATE_ONLINE);
 						if(Conn == CONN_MAIN)
@@ -2714,7 +2738,7 @@ void CClient::OnDemoPlayerSnapshot(void *pData, int Size)
 	mem_copy(m_aapSnapshots[0][SNAP_CURRENT]->m_pSnap, pData, Size);
 	mem_copy(m_aapSnapshots[0][SNAP_CURRENT]->m_pAltSnap, &AltSnapBuffer, AltSnapSize);
 
-	GameClient()->OnNewSnapshot();
+	GameClient()->OnNewSnapshot(false);
 }
 
 void CClient::OnDemoPlayerMessage(void *pData, int Size)
@@ -2829,7 +2853,7 @@ void CClient::Update()
 			if(m_LastDummy != (bool)g_Config.m_ClDummy && m_aapSnapshots[g_Config.m_ClDummy][SNAP_PREV])
 			{
 				// Load snapshot for m_ClDummy
-				GameClient()->OnNewSnapshot();
+				GameClient()->OnNewSnapshot(true);
 				Repredict = true;
 			}
 
@@ -2848,7 +2872,7 @@ void CClient::Update()
 				m_aCurGameTick[g_Config.m_ClDummy] = m_aapSnapshots[g_Config.m_ClDummy][SNAP_CURRENT]->m_Tick;
 				m_aPrevGameTick[g_Config.m_ClDummy] = m_aapSnapshots[g_Config.m_ClDummy][SNAP_PREV]->m_Tick;
 
-				GameClient()->OnNewSnapshot();
+				GameClient()->OnNewSnapshot(false);
 				Repredict = true;
 			}
 
@@ -5084,7 +5108,9 @@ int main(int argc, const char **argv)
 		IOHANDLE Logfile = pStorage->OpenFile(g_Config.m_Logfile, Mode, IStorage::TYPE_SAVE_OR_ABSOLUTE);
 		if(Logfile)
 		{
-			pFutureFileLogger->Set(log_logger_file(Logfile));
+			auto pFileLogger = log_logger_file(Logfile);
+			pFileLogger->SetFilter(CLogFilter{IConsole::ToLogLevelFilter(g_Config.m_Loglevel)});
+			pFutureFileLogger->Set(std::move(pFileLogger));
 		}
 		else
 		{

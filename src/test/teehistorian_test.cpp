@@ -2,9 +2,9 @@
 #include <base/io.h>
 #include <base/time.h>
 
-#include <engine/external/json-parser/json.h>
 #include <engine/server.h>
 #include <engine/shared/config.h>
+#include <engine/shared/json.h>
 
 #include <game/gamecore.h>
 #include <game/server/teehistorian.h>
@@ -110,7 +110,7 @@ protected:
 	void Expect(const unsigned char *pOutput, size_t OutputSize)
 	{
 		static CUuid TEEHISTORIAN_UUID = CalculateUuid("teehistorian@ddnet.tw");
-		static const char PREFIX1[] = "{\"comment\":\"teehistorian@ddnet.tw\",\"version\":\"2\",\"version_minor\":\"20\",\"game_uuid\":\"a1eb7182-796e-3b3e-941d-38ca71b2a4a8\",\"server_version\":\"DDNet test\",\"start_time\":\"";
+		static const char PREFIX1[] = "{\"comment\":\"teehistorian@ddnet.tw\",\"version\":\"2\",\"version_minor\":\"22\",\"game_uuid\":\"a1eb7182-796e-3b3e-941d-38ca71b2a4a8\",\"server_version\":\"DDNet test\",\"start_time\":\"";
 		static const char PREFIX2[] = "\",\"server_name\":\"server name\",\"server_port\":\"8303\",\"game_type\":\"game type\",\"map_name\":\"Kobra 3 Solo\",\"map_size\":\"903514\",\"map_sha256\":\"0123456789012345678901234567890123456789012345678901234567890123\",\"map_crc\":\"eceaf25c\",\"prng_description\":\"test-prng:02468ace\",\"config\":{},\"tuning\":{},\"uuids\":[";
 		static const char PREFIX3[] = "]}";
 
@@ -924,7 +924,7 @@ TEST_F(TeeHistorian, PrevGameUuid)
 	m_GameInfo.m_PrevGameUuid = PrevGameUuid;
 	Reset(&m_GameInfo);
 	Finish();
-	json_value *pJson = json_parse((const char *)m_vBuffer.data() + 16, -1);
+	json_value *pJson = JsonParse((const char *)m_vBuffer.data() + 16, -1);
 	ASSERT_TRUE(pJson);
 	const json_value &JsonPrevGameUuid = (*pJson)["prev_game_uuid"];
 	ASSERT_EQ(JsonPrevGameUuid.type, json_string);
