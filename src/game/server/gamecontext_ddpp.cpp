@@ -281,7 +281,7 @@ void CGameContext::LoadMapLive(const char *pMapName)
 {
 	int LoadMap = Server()->LoadMapLive(pMapName);
 	dbg_msg("live-map", "loadmap=%d", LoadMap);
-	m_Layers.Init(Map(), false);
+	m_Layers.Init(Map(), true, false);
 	m_Collision.Init(&m_Layers);
 }
 
