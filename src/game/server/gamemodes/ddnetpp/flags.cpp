@@ -141,7 +141,7 @@ void CGameControllerDDNetPP::FlagTick()
 			}
 		}
 
-		if(!pFlag->m_AtStand)
+		if(!pFlag->m_AtStand && pFlag->GetCarrier() == nullptr)
 		{
 			if(pFlag->m_DropTick && Server()->Tick() > pFlag->m_DropTick + Server()->TickSpeed() * 90)
 			{
