@@ -476,7 +476,7 @@ int CGameControllerDDNetPP::OnCharacterDeath(class CCharacter *pVictim, class CP
 			HadFlag |= 1;
 		}
 		if(Flag->GetLastCarrier() == pVictim)
-			Flag->SetCarrier(nullptr);
+			Flag->SetLastCarrier(nullptr);
 	}
 
 	return HadFlag;
