@@ -30,7 +30,6 @@ void CGameControllerDDNetPP::FlagTick()
 		{
 			if(GameServer()->Collision()->GetCollisionAt(pFlag->m_Pos.x, pFlag->m_Pos.y) == TILE_DEATH || pFlag->GameLayerClipped(pFlag->m_Pos))
 			{
-				log_info("game", "flag_return because it fell out of the world or hit a death tile");
 				if(g_Config.m_SvFlagSounds)
 				{
 					GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
@@ -109,7 +108,6 @@ void CGameControllerDDNetPP::FlagTick()
 				}
 
 				pFlag->m_AtStand = false;
-				log_info("game", "set %s flag carrier to close character %p", pFlag->m_Team == TEAM_RED ? "red" : "blue", apCloseCCharacters[i]);
 				pFlag->SetCarrier(apCloseCCharacters[i]);
 				pFlag->GetCarrier()->GetPlayer()->m_ChangeTeamOnFlag = true;
 				/*if (!apCloseCCharacters[i]->GetPlayer()->m_Rainbow){
@@ -145,8 +143,6 @@ void CGameControllerDDNetPP::FlagTick()
 		{
 			if(pFlag->m_DropTick && Server()->Tick() > pFlag->m_DropTick + Server()->TickSpeed() * 90)
 			{
-				log_info("game", "flag returned to stand because there was no carrier");
-				log_info("game", "  %s flag carrier is %p", pFlag->m_Team == TEAM_RED ? "red" : "blue", pFlag->GetCarrier());
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 				pFlag->Reset();
 			}
@@ -268,7 +264,6 @@ void CGameControllerDDNetPP::DropFlag(int FlagId, int Dir)
 	}
 	pFlag->m_DropTick = Server()->Tick();
 	pFlag->m_DropFreezeTick = Server()->Tick();
-	log_info("game", "clearing out %s flag carrier because it was dropped", pFlag->m_Team == TEAM_RED ? "red" : "blue");
 	pFlag->SetCarrier(nullptr);
 	pFlag->m_Vel = vec2(5 * Dir, -5);
 }

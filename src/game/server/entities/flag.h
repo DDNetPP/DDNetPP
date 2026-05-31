@@ -41,7 +41,6 @@ public:
 	void SetCarrier(CCharacter *pChr)
 	{
 		m_pCarryingCharacter = pChr;
-		log_info("game", "set %s flag carrier to %p", m_Team == TEAM_RED ? "red" : "blue", pChr);
 	}
 	void SetLastCarrier(CCharacter *pChr) { m_pLastCarryingCharacter = pChr; }
 

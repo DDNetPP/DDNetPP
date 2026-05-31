@@ -12,11 +12,6 @@
 CFlag::CFlag(CGameWorld *pGameWorld, int Team) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG, false)
 {
-	log_info(
-		"game",
-		"%s flag constructed",
-		Team == TEAM_RED ? "red" : "blue");
-
 	m_Team = Team;
 	m_pCarryingCharacter = nullptr;
 	m_pLastCarryingCharacter = nullptr;
@@ -29,14 +24,6 @@ CFlag::CFlag(CGameWorld *pGameWorld, int Team) :
 
 void CFlag::Reset()
 {
-	// to debug https://github.com/DDNetPP/DDNetPP/issues/327
-	log_info(
-		"ddnet++",
-		"%s flag reset carrier=%s prev_carrier=%s",
-		m_Team == TEAM_RED ? "red" : "blue",
-		m_pCarryingCharacter ? Server()->ClientName(m_pCarryingCharacter->GetPlayer()->GetCid()) : "",
-		m_pLastCarryingCharacter ? Server()->ClientName(m_pLastCarryingCharacter->GetPlayer()->GetCid()) : "");
-
 	m_pCarryingCharacter = nullptr;
 	m_pLastCarryingCharacter = nullptr;
 	m_AtStand = true;
