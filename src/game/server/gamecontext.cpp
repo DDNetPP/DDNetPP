@@ -2899,7 +2899,7 @@ void CGameContext::OnSetTeamNetMessage(const CNetMsg_Cl_SetTeam *pMsg, int Clien
 	{
 		if(pPlayer->GetTeam() == TEAM_SPECTATORS || pMsg->m_Team == TEAM_SPECTATORS)
 			m_VoteUpdate = true;
-		m_pController->DoTeamChange(pPlayer, pMsg->m_Team);
+		m_pController->DoTeamChange(pPlayer, pMsg->m_Team, true);
 		pPlayer->m_TeamChangeTick = Server()->Tick();
 	}
 	else
@@ -3637,7 +3637,7 @@ void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->m_apPlayers[ClientId]->Pause(CPlayer::PAUSE_NONE, false); // reset /spec and /pause to allow rejoin
 	pSelf->m_apPlayers[ClientId]->m_TeamChangeTick = pSelf->Server()->Tick() + pSelf->Server()->TickSpeed() * Delay * 60;
-	pSelf->m_pController->DoTeamChange(pSelf->m_apPlayers[ClientId], Team);
+	pSelf->m_pController->DoTeamChange(pSelf->m_apPlayers[ClientId], Team, true);
 	if(Team == TEAM_SPECTATORS)
 		pSelf->m_apPlayers[ClientId]->Pause(CPlayer::PAUSE_NONE, true);
 }
