@@ -281,6 +281,7 @@ public:
 	void ResetIngameMoved() override { m_IngameMoved = false; }
 
 	void HandleCursorMovement();
+	void OnInput(const IInput::CEvent &Event);
 	void MouseAxisLock(vec2 &CursorRel);
 	vec2 m_MouseAxisInitialPos = vec2(0.0f, 0.0f);
 	enum class EAxisLock
@@ -770,8 +771,8 @@ public:
 	unsigned char m_SwitchDelay;
 	unsigned char m_ViewSwitch;
 
-	// Adjust must be -1, 0 or 1
-	void AdjustBrushSpecialTiles(bool UseNextFree, int Adjust = 0);
+	// AdjustValue must be -1, 0 or 1
+	void AdjustBrushSpecialTiles(bool UseNextFree, int AdjustModifiers, int AdjustValue);
 
 private:
 	CEditorMap m_Map;

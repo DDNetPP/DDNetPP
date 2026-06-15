@@ -603,7 +603,7 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	pSelf->Server()->SetTimeoutProtected(pResult->m_ClientId);
-	str_copy(pPlayer->m_aTimeoutCode, pResult->GetString(0), sizeof(pPlayer->m_aTimeoutCode));
+	str_copy(pPlayer->m_aTimeoutCode, pResult->GetString(0));
 }
 
 void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
@@ -1140,7 +1140,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 	}
 
 	char aError[512];
-	if(pPlayer->m_LastDDRaceTeamChange + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
+	if(pPlayer->m_LastDDRaceTeamChange.has_value() && pPlayer->m_LastDDRaceTeamChange.value() + (int64_t)Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick())
 	{
 		log_info("chatresp", "You can't change teams that fast!");
 	}
@@ -1592,7 +1592,7 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		str_copy(aBufName, "Your", sizeof(aBufName));
+		str_copy(aBufName, "Your");
 		ClientId = pResult->m_ClientId;
 	}
 

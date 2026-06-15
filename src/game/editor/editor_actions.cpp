@@ -697,7 +697,7 @@ CEditorActionGroup::CEditorActionGroup(CEditorMap *pMap, int GroupIndex, bool De
 	if(m_Delete)
 		str_format(m_aDisplayText, sizeof(m_aDisplayText), "Delete group %d", m_GroupIndex);
 	else
-		str_copy(m_aDisplayText, "New group", sizeof(m_aDisplayText));
+		str_copy(m_aDisplayText, "New group");
 }
 
 void CEditorActionGroup::Undo()
@@ -1721,7 +1721,7 @@ void CEditorActionDeleteEnvelopePoint::Redo()
 	std::shared_ptr<CEnvelope> pEnvelope = Map()->m_vpEnvelopes[m_EnvelopeIndex];
 	pEnvelope->m_vPoints.erase(pEnvelope->m_vPoints.begin() + m_PointIndex);
 
-	auto pSelectedPointIt = std::find_if(Map()->m_vSelectedEnvelopePoints.begin(), Map()->m_vSelectedEnvelopePoints.end(), [this](const std::pair<int, int> Pair) {
+	auto pSelectedPointIt = std::find_if(Map()->m_vSelectedEnvelopePoints.begin(), Map()->m_vSelectedEnvelopePoints.end(), [this](const std::pair<int, int> &Pair) {
 		return Pair.first == m_PointIndex;
 	});
 

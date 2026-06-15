@@ -105,8 +105,8 @@ CSnapshotDelta *CClient::SnapshotDelta()
 }
 
 CClient::CClient() :
-	m_pSnapshotDelta(CSnapshotDelta_New()),
-	m_pSnapshotDeltaSixup(CSnapshotDelta_New()),
+	m_pSnapshotDelta(CSnapshotDelta::New()),
+	m_pSnapshotDeltaSixup(CSnapshotDelta::New()),
 	m_DemoPlayer(&*m_pSnapshotDelta, &*m_pSnapshotDeltaSixup, true, [&]() { UpdateDemoIntraTimers(); }),
 	m_aInputtimeMarginGraphs{{128, 2, true}, {128, 2, true}},
 	m_aGametimeMarginGraphs{{128, 2, true}, {128, 2, true}},
@@ -1374,7 +1374,7 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 	CUnpacker Up;
 	Up.Reset(pData, DataSize);
 
-#define GET_STRING(array) str_copy(array, Up.GetString(CUnpacker::SANITIZE_CC | CUnpacker::SKIP_START_WHITESPACES), sizeof(array))
+#define GET_STRING(array) str_copy(array, Up.GetString(CUnpacker::SANITIZE_CC | CUnpacker::SKIP_START_WHITESPACES))
 #define GET_INT(integer) (integer) = str_toint(Up.GetString())
 
 	int Token;
@@ -1768,6 +1768,12 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 
 			if(IsSixup())
 			{
+				if(m_TranslationContext.m_MapdownloadTotalsize <= 0 ||
+					m_TranslationContext.m_MapDownloadChunkSize <= 0 ||
+					m_TranslationContext.m_MapDownloadChunksPerRequest <= 0)
+				{
+					return;
+				}
 				MapCRC = m_MapdownloadCrc;
 				Chunk = m_MapdownloadChunk;
 				Size = minimum(m_TranslationContext.m_MapDownloadChunkSize, m_TranslationContext.m_MapdownloadTotalsize - m_MapdownloadAmount);
@@ -2376,7 +2382,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 int CClient::UnpackAndValidateSnapshot(CSnapshot *pFrom, CSnapshotBuffer *pTo)
 {
 	CUnpacker Unpacker;
-	rust::Box<CSnapshotBuilder> pBuilder = CSnapshotBuilder_New();
+	rust::Box<CSnapshotBuilder> pBuilder = CSnapshotBuilder::New();
 	pBuilder->Init(false);
 	CNetObjHandler *pNetObjHandler = GameClient()->GetNetObjHandler();
 
@@ -2464,10 +2470,7 @@ void CClient::FinishMapDownload()
 {
 	m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client/network", "download complete, loading map");
 
-	bool FileSuccess = true;
-	FileSuccess &= Storage()->RemoveFile(m_aMapdownloadFilename, IStorage::TYPE_SAVE);
-	FileSuccess &= Storage()->RenameFile(m_aMapdownloadFilenameTemp, m_aMapdownloadFilename, IStorage::TYPE_SAVE);
-	if(!FileSuccess)
+	if(!Storage()->RenameFile(m_aMapdownloadFilenameTemp, m_aMapdownloadFilename, IStorage::TYPE_SAVE))
 	{
 		char aError[128 + IO_MAX_PATH_LENGTH];
 		str_format(aError, sizeof(aError), Localize("Could not save downloaded map. Try manually deleting this file: %s"), m_aMapdownloadFilename);
@@ -4346,7 +4349,7 @@ int CClient::HandleChecksum(int Conn, CUuid Uuid, CUnpacker *pUnpacker)
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
 	if(CHECKSUM_RECORD(Flags)) \
 	{ \
-		str_copy(m_Checksum.m_Data.m_Config.m_##Name, g_Config.m_##Name, sizeof(m_Checksum.m_Data.m_Config.m_##Name)); \
+		str_copy(m_Checksum.m_Data.m_Config.m_##Name, g_Config.m_##Name); \
 	}
 #include <engine/shared/config_variables.h>
 #undef CHECKSUM_RECORD

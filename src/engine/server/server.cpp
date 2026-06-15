@@ -238,9 +238,9 @@ void CServer::CClient::Reset()
 }
 
 CServer::CServer() :
-	m_pSnapshotDelta(CSnapshotDelta_New()),
-	m_pSnapshotDeltaSixup(CSnapshotDelta_New()),
-	m_pSnapshotBuilder(CSnapshotBuilder_New())
+	m_pSnapshotDelta(CSnapshotDelta::New()),
+	m_pSnapshotDeltaSixup(CSnapshotDelta::New()),
+	m_pSnapshotBuilder(CSnapshotBuilder::New())
 {
 	m_pConfig = &g_Config;
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -4180,11 +4180,11 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	str_copy(Config.m_aDatabase, pResult->GetString(1), sizeof(Config.m_aDatabase));
-	str_copy(Config.m_aPrefix, pResult->GetString(2), sizeof(Config.m_aPrefix));
-	str_copy(Config.m_aUser, pResult->GetString(3), sizeof(Config.m_aUser));
-	str_copy(Config.m_aPass, pResult->GetString(4), sizeof(Config.m_aPass));
-	str_copy(Config.m_aIp, pResult->GetString(5), sizeof(Config.m_aIp));
+	str_copy(Config.m_aDatabase, pResult->GetString(1));
+	str_copy(Config.m_aPrefix, pResult->GetString(2));
+	str_copy(Config.m_aUser, pResult->GetString(3));
+	str_copy(Config.m_aPass, pResult->GetString(4));
+	str_copy(Config.m_aIp, pResult->GetString(5));
 	Config.m_aBindaddr[0] = '\0';
 	Config.m_Port = pResult->GetInteger(6);
 	Config.m_Setup = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;

@@ -42,6 +42,7 @@
 #define TRAIL_DIST 20
 
 class CAntibot;
+class CPlayer;
 class CGameTeams;
 class CGameWorld;
 class IAntibot;
@@ -136,7 +137,8 @@ public:
 	int NeededFaketuning() const { return m_NeededFaketuning; }
 	bool IsAlive() const { return m_Alive; }
 	bool IsPaused() const { return m_Paused; }
-	class CPlayer *GetPlayer() { return m_pPlayer; }
+	CPlayer *GetPlayer() { return m_pPlayer; }
+	const CPlayer *GetPlayer() const { return m_pPlayer; }
 	CClientMask TeamMask();
 
 	CCharacterCore *Core() { return &m_Core; } // ddnet++ added non const override

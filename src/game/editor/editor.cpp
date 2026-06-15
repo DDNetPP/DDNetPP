@@ -3373,7 +3373,7 @@ void CEditor::RenderModebar(CUIRect View)
 	CUIRect Mentions, IngameMoved, ModeButtons, ModeButton;
 	View.HSplitTop(12.0f, &Mentions, &View);
 	View.HSplitTop(12.0f, &IngameMoved, &View);
-	View.HSplitTop(8.0f, nullptr, &ModeButtons);
+	View.HSplitBottom(22.0f, nullptr, &ModeButtons);
 	const float Width = m_ToolBoxWidth - 5.0f;
 	ModeButtons.VSplitLeft(Width, &ModeButtons, nullptr);
 	const float ButtonWidth = Width / 3;
@@ -3648,7 +3648,7 @@ void CEditor::Render()
 	CUIRect MenuBar, ModeBar, ToolBar, StatusBar, ExtraEditor, ToolBox;
 	if(m_GuiActive)
 	{
-		View.HSplitTop(16.0f, &MenuBar, &View);
+		View.HSplitTop(20.0f, &MenuBar, &View);
 		View.HSplitTop(53.0f, &ToolBar, &View);
 		View.VSplitLeft(m_ToolBoxWidth, &ToolBox, &View);
 
@@ -3931,15 +3931,16 @@ void CEditor::Render()
 
 			if(Input()->ShiftIsPressed())
 			{
+				const int AdjustModifiers = Input()->ModifierIsPressed() ? (Input()->AltIsPressed() ? 2 : 1) : 0;
 				if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN))
-					AdjustBrushSpecialTiles(false, -1);
+					AdjustBrushSpecialTiles(false, AdjustModifiers, -1);
 				if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP))
-					AdjustBrushSpecialTiles(false, 1);
+					AdjustBrushSpecialTiles(false, AdjustModifiers, 1);
 			}
 
 			// Use ctrl+f to replace number in brush with next free
 			if(Input()->ModifierIsPressed() && Input()->KeyPress(KEY_F))
-				AdjustBrushSpecialTiles(true);
+				AdjustBrushSpecialTiles(true, 0, 0);
 		}
 	}
 
@@ -3970,6 +3971,7 @@ void CEditor::Render()
 	if(m_GuiActive)
 		RenderTooltip(TooltipRect);
 
+	Ui()->RenderBackButton();
 	RenderMousePointer();
 }
 
@@ -4463,6 +4465,9 @@ void CEditor::Init()
 	m_UI.SetPopupMenuClosedCallback([this]() {
 		m_PopupEventWasActivated = false;
 	});
+	m_UI.SetDispatchInputCallback([this](const IInput::CEvent &Event) {
+		OnInput(Event);
+	});
 	m_RenderMap.Init(m_pGraphics, m_pTextRender);
 	m_ZoomEnvelopeX.OnInit(this);
 	m_ZoomEnvelopeY.OnInit(this);
@@ -4628,26 +4633,7 @@ void CEditor::OnUpdate()
 
 	// handle key presses
 	Input()->ConsumeEvents([&](const IInput::CEvent &Event) {
-		if(m_Dialog == DIALOG_NONE &&
-			CLineInput::GetActiveInput() == nullptr &&
-			Event.m_Key == KEY_F1)
-		{
-			if((Event.m_Flags & IInput::FLAG_PRESS) != 0 &&
-				(Event.m_Flags & IInput::FLAG_REPEAT) == 0)
-			{
-				m_QuickActionShowHelp.Call();
-			}
-			return;
-		}
-
-		for(CEditorComponent &Component : m_vComponents)
-		{
-			// Events with flag `FLAG_RELEASE` must always be forwarded to all components so keys being
-			// released can be handled in all components also after some components have been disabled.
-			if(Component.OnInput(Event) && (Event.m_Flags & ~IInput::FLAG_RELEASE) != 0)
-				return;
-		}
-		Ui()->OnInput(Event);
+		OnInput(Event);
 	});
 
 	MapView()->UpdateMouseWorld();
@@ -4657,6 +4643,27 @@ void CEditor::OnUpdate()
 
 	for(CEditorComponent &Component : m_vComponents)
 		Component.OnUpdate();
+}
+
+void CEditor::OnInput(const IInput::CEvent &Event)
+{
+	if(m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && Event.m_Key == KEY_F1)
+	{
+		if((Event.m_Flags & IInput::FLAG_PRESS) != 0 && (Event.m_Flags & IInput::FLAG_REPEAT) == 0)
+		{
+			m_QuickActionShowHelp.Call();
+		}
+		return;
+	}
+
+	for(CEditorComponent &Component : m_vComponents)
+	{
+		// Events with flag `FLAG_RELEASE` must always be forwarded to all components so keys being
+		// released can be handled in all components also after some components have been disabled.
+		if(Component.OnInput(Event) && (Event.m_Flags & ~IInput::FLAG_RELEASE) != 0)
+			return;
+	}
+	Ui()->OnInput(Event);
 }
 
 void CEditor::OnRender()
@@ -4679,6 +4686,8 @@ void CEditor::OnRender()
 	Ui()->StartCheck();
 
 	Ui()->Update();
+
+	Ui()->DoBackButton();
 
 	Render();
 
@@ -4817,15 +4826,15 @@ CEditorHistory &CEditor::ActiveHistory()
 	}
 }
 
-void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
+void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int AdjustModifiers, int AdjustValue)
 {
 	// Adjust m_Angle of speedup or m_Number field of tune, switch and tele tiles by `Adjust` if `UseNextFree` is false
-	// If `Adjust` is 0 and `UseNextFree` is false, then update numbers of brush tiles to global values
+	// If `AdjustValue` is 0 and `UseNextFree` is false, then update numbers of brush tiles to global values
 	// If true, then use the next free number instead
 
-	dbg_assert(Adjust == -1 || Adjust == 0 || Adjust == 1, "Invalid Adjust: %d", Adjust);
-	auto &&AdjustNumber = [Adjust](auto &Number, int Min, int Max) {
-		const int NumberInt = Number + Adjust; // Cast to int so this does not overflow unsigned char for some tiles
+	dbg_assert(AdjustValue == -1 || AdjustValue == 0 || AdjustValue == 1, "Invalid AdjustValue: %d", AdjustValue);
+	auto &&AdjustNumber = [AdjustValue](auto &Number, int Min, int Max) {
+		const int NumberInt = Number + AdjustValue; // Cast to int so this does not overflow unsigned char for some tiles
 		if(NumberInt < Min)
 		{
 			Number = Max;
@@ -4867,15 +4876,16 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 						else if(IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index))
 							pTeleLayer->m_pTeleTile[i].m_Number = NextFreeTeleNumber;
 					}
-					else
-						AdjustNumber(pTeleLayer->m_pTeleTile[i].m_Number, 1, 255);
-
-					if(!UseNextFree && Adjust == 0 && IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index))
+					else if(AdjustValue == 0)
 					{
 						if(IsTeleTileCheckpoint(pTeleLayer->m_pTiles[i].m_Index))
 							pTeleLayer->m_pTeleTile[i].m_Number = m_TeleCheckpointNumber;
-						else
+						else if(IsTeleTileNumberUsedAny(pTeleLayer->m_pTiles[i].m_Index))
 							pTeleLayer->m_pTeleTile[i].m_Number = m_TeleNumber;
+					}
+					else if(AdjustModifiers == 0)
+					{
+						AdjustNumber(pTeleLayer->m_pTeleTile[i].m_Number, 1, 255);
 					}
 				}
 			}
@@ -4893,9 +4903,13 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 						continue;
 
 					if(UseNextFree)
+					{
 						pTuneLayer->m_pTuneTile[i].m_Number = NextFreeNumber;
-					else
+					}
+					else if(AdjustModifiers == 0)
+					{
 						AdjustNumber(pTuneLayer->m_pTuneTile[i].m_Number, 1, 255);
+					}
 				}
 			}
 		}
@@ -4912,9 +4926,17 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 						continue;
 
 					if(UseNextFree)
+					{
 						pSwitchLayer->m_pSwitchTile[i].m_Number = NextFreeNumber;
-					else
+					}
+					else if(AdjustModifiers == 0)
+					{
 						AdjustNumber(pSwitchLayer->m_pSwitchTile[i].m_Number, 1, 255);
+					}
+					else if(AdjustModifiers == 1)
+					{
+						AdjustNumber(pSwitchLayer->m_pSwitchTile[i].m_Delay, 0, 255);
+					}
 				}
 			}
 		}
@@ -4929,14 +4951,22 @@ void CEditor::AdjustBrushSpecialTiles(bool UseNextFree, int Adjust)
 					if(!IsValidSpeedupTile(pSpeedupLayer->m_pTiles[i].m_Index))
 						continue;
 
-					if(Adjust != 0)
-					{
-						AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_Angle, 0, 359);
-					}
-					else
+					if(AdjustValue == 0)
 					{
 						pSpeedupLayer->m_pSpeedupTile[i].m_Angle = m_SpeedupAngle;
 						pSpeedupLayer->m_SpeedupAngle = m_SpeedupAngle;
+					}
+					else if(AdjustModifiers == 0)
+					{
+						AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_Angle, 0, 359);
+					}
+					else if(AdjustModifiers == 1)
+					{
+						AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_Force, 1, 255);
+					}
+					else if(AdjustModifiers == 2)
+					{
+						AdjustNumber(pSpeedupLayer->m_pSpeedupTile[i].m_MaxSpeed, 0, 255);
 					}
 				}
 			}
