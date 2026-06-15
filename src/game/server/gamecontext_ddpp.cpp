@@ -1678,7 +1678,7 @@ void CGameContext::CheckDDPPshutdown()
 		struct tm *NowTm;
 		int Hour;
 		int Min;
-		Now = time(NULL);
+		Now = time(nullptr);
 		NowTm = localtime(&Now);
 		Hour = NowTm->tm_hour;
 		Min = NowTm->tm_min;
@@ -1687,7 +1687,7 @@ void CGameContext::CheckDDPPshutdown()
 			if(Players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, TEAM_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
-				CallVetoVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0);
+				CallVetoVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", nullptr);
 			}
 			else
 			{

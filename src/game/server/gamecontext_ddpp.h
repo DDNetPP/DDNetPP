@@ -633,7 +633,7 @@ public:
 		Veto votes only pass if nobody voted against it
 		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 	*/
-	void CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
+	void CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = nullptr);
 	bool m_IsDDPPVetoVote = false;
 
 	//Chiller

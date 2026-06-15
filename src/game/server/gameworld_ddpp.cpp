@@ -17,7 +17,7 @@ CCharacter *CGameWorld::ClosestCharacterNoRange(vec2 Pos, CEntity *pNotThis)
 {
 	// Find other players
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -40,7 +40,7 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -72,7 +72,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *p
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -107,7 +107,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -142,7 +142,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCh
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -178,7 +178,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -213,7 +213,7 @@ CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -252,7 +252,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -287,7 +287,7 @@ CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis) // 
 {
 	// Find Dummys
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -319,7 +319,7 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 {
 	// Find Dummys
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -357,7 +357,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CC
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -394,7 +394,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezePitLeft(vec2 Pos, bool Human,
 {
 	// Find Humans
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -430,7 +430,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezePitLeft(vec2 Pos, bool Human,
 CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -464,7 +464,7 @@ CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *
 CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())
@@ -498,7 +498,7 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll) // blmapV5 potential enemys in area5
 {
 	float ClosestRange = 0.f;
-	CCharacter *pClosest = 0;
+	CCharacter *pClosest = nullptr;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for(; p; p = (CCharacter *)p->TypeNext())

@@ -15,7 +15,7 @@
 CAccountRconCmdResult::CAccountRconCmdResult(uint32_t UniqueClientId) :
 	m_UniqueClientId(UniqueClientId)
 {
-	SetVariant(Variant::DIRECT, NULL);
+	SetVariant(Variant::DIRECT, nullptr);
 }
 
 // TODO: remove SetVariant and use constructor instead.
@@ -372,7 +372,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 
 void CAccounts::Login(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(LoginThread, "login user", ClientId, pUsername, pPassword, "", NULL);
+	ExecUserThread(LoginThread, "login user", ClientId, pUsername, pPassword, "", nullptr);
 }
 
 bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -736,7 +736,7 @@ bool CAccounts::UpdateAccountStateByUsernameThread(IDbConnection *pSqlServer, co
 
 void CAccounts::AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(AdminSetPasswordThread, "admin set password", ClientId, pUsername, pPassword, "", NULL);
+	ExecUserThread(AdminSetPasswordThread, "admin set password", ClientId, pUsername, pPassword, "", nullptr);
 }
 
 bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -805,7 +805,7 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 
 void CAccounts::ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
 {
-	ExecUserThread(ChangePasswordThread, "change password", ClientId, pUsername, pOldPassword, pNewPassword, NULL);
+	ExecUserThread(ChangePasswordThread, "change password", ClientId, pUsername, pOldPassword, pNewPassword, nullptr);
 }
 
 bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -1036,7 +1036,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 
 void CAccounts::Register(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(RegisterThread, "register user", ClientId, pUsername, pPassword, "", NULL);
+	ExecUserThread(RegisterThread, "register user", ClientId, pUsername, pPassword, "", nullptr);
 }
 
 bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)

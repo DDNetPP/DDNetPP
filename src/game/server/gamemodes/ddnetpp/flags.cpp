@@ -74,7 +74,7 @@ void CGameControllerDDNetPP::FlagTick()
 			int Num = GameServer()->m_World.FindEntities(pFlag->m_Pos, CFlag::ms_PhysSize, (CEntity **)apCloseCCharacters, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 			for(int i = 0; i < Num; i++)
 			{
-				if(!apCloseCCharacters[i]->IsAlive() || apCloseCCharacters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(pFlag->m_Pos, apCloseCCharacters[i]->m_Pos, NULL, NULL))
+				if(!apCloseCCharacters[i]->IsAlive() || apCloseCCharacters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(pFlag->m_Pos, apCloseCCharacters[i]->m_Pos, nullptr, nullptr))
 					continue;
 				if(m_apFlags[0] && m_apFlags[1])
 				{

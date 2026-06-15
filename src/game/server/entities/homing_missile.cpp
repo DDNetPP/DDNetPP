@@ -121,12 +121,12 @@ void CHomingMissile::Snap(int SnappingClient)
 CCharacter *CHomingMissile::CharacterNear()
 {
 	CCharacter *pOwner = GameServer()->GetPlayerChar(m_Owner);
-	CCharacter *pTarget = GameWorld()->ClosestCharacter(m_Pos, 2000.f, pOwner ? pOwner : 0);
+	CCharacter *pTarget = GameWorld()->ClosestCharacter(m_Pos, 2000.f, pOwner ? pOwner : nullptr);
 
 	if(pTarget)
 		return pTarget;
 
-	return 0x0;
+	return nullptr;
 }
 
 void CHomingMissile::Move(CCharacter *pTarget)

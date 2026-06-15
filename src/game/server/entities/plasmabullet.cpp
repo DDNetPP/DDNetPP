@@ -90,8 +90,8 @@ void CPlasmaBullet::Tick()
 	HitCharacter();
 
 	int Res = 0;
-	Res = GameServer()->Collision()->IntersectNoLaser(m_Pos, m_Pos + m_Core, 0,
-		0);
+	Res = GameServer()->Collision()->IntersectNoLaser(m_Pos, m_Pos + m_Core, nullptr,
+		nullptr);
 	if(Res)
 	{
 		if(m_Explosive)
@@ -138,7 +138,7 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	if(!GetId().has_value())
 		return;
 	CCharacter *SnapChar = GameServer()->GetPlayerChar(SnappingClient);
-	CPlayer *SnapPlayer = SnappingClient > -1 ? GameServer()->m_apPlayers[SnappingClient] : 0;
+	CPlayer *SnapPlayer = SnappingClient > -1 ? GameServer()->m_apPlayers[SnappingClient] : nullptr;
 	int Tick = (Server()->Tick() % Server()->TickSpeed()) % 11;
 
 	if(SnapChar && SnapChar->IsAlive() && (m_Layer == LAYER_SWITCH && !GameServer()->Switchers()[m_Number].m_aStatus[SnapChar->Team()]) && (!Tick))

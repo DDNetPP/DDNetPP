@@ -47,8 +47,8 @@ IGameController::IGameController(class CGameContext *pGameServer) :
 	m_CurrentRecord.reset();
 
 	// ddnet++
-	m_apFlags[0] = 0;
-	m_apFlags[1] = 0;
+	m_apFlags[0] = nullptr;
+	m_apFlags[1] = nullptr;
 }
 
 IGameController::~IGameController() = default;

@@ -79,7 +79,7 @@ int regex_compile(const char *pPattern, const char *pStr)
 	}
 
 	/* Execute regular expression */
-	reti = regexec(&regex, pStr, 0, NULL, 0);
+	reti = regexec(&regex, pStr, 0, nullptr, 0);
 	if(!reti)
 	{
 		dbg_msg("regex", "pattern matches");

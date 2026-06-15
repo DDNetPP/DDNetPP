@@ -426,7 +426,7 @@ const char *CShopItemTaser::PriceStr(int ClientId)
 {
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
-		return 0;
+		return nullptr;
 	switch(pPlayer->m_Account.m_TaserLevel)
 	{
 	case 0:
@@ -781,7 +781,7 @@ const char *CShop::GetItemNameById(int ItemId)
 		if(Item->IsActive())
 			if(Id++ == ItemId)
 				return Item->Name();
-	return NULL;
+	return nullptr;
 }
 
 int CShop::NumShopItems()

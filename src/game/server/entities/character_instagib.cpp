@@ -175,7 +175,7 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 		//=== MULTIS (credit to noby) ===
 		if(Killer != m_pPlayer->GetCid()) // don't count selkills as multi
 		{
-			time_t Ttmp = time(NULL);
+			time_t Ttmp = time(nullptr);
 			if((Ttmp - GameServer()->m_apPlayers[Killer]->m_Lastkilltime) <= 5)
 			{
 				GameServer()->m_apPlayers[Killer]->m_Multi++;

@@ -47,7 +47,7 @@ void CDummyQuest::OnTick()
 			AimPos(EnemyPos);
 
 			// don't shoot walls
-			if(!GameServer()->Collision()->IntersectLine(GetPos(), pChr->GetPos(), 0x0, 0))
+			if(!GameServer()->Collision()->IntersectLine(GetPos(), pChr->GetPos(), nullptr, nullptr))
 				if(Server()->Tick() % 77 == 0 && m_pCharacter->m_FreezeTime < 1)
 					Fire();
 			m_IsAimbot = rand() % 50 > 40;

@@ -323,7 +323,7 @@ void CServer::BotJoin(int BotId)
 	m_aClients[BotId].m_Country = -1;
 	m_aClients[BotId].m_AuthKey = -1;
 	m_aClients[BotId].m_AuthTries = 0;
-	m_aClients[BotId].m_pRconCmdToSend = 0;
+	m_aClients[BotId].m_pRconCmdToSend = nullptr;
 	m_aClients[BotId].m_Traffic = 0;
 	m_aClients[BotId].m_TrafficSince = 0;
 	m_aClients[BotId].m_ShowIps = false;
@@ -349,7 +349,7 @@ void CServer::BotLeave(int BotId, bool Silent)
 	m_aClients[BotId].m_aClan[0] = 0;
 	m_aClients[BotId].m_Country = -1;
 	m_aClients[BotId].m_AuthTries = 0;
-	m_aClients[BotId].m_pRconCmdToSend = 0;
+	m_aClients[BotId].m_pRconCmdToSend = nullptr;
 	m_aClients[BotId].m_Snapshots.PurgeAll();
 
 	m_NetServer.BotDelete(BotId);
@@ -368,7 +368,7 @@ bool CServer::OccupyClientId(int ClientId)
 	m_aClients[ClientId].m_Country = -1;
 	m_aClients[ClientId].m_AuthKey = -1;
 	m_aClients[ClientId].m_AuthTries = 0;
-	m_aClients[ClientId].m_pRconCmdToSend = 0;
+	m_aClients[ClientId].m_pRconCmdToSend = nullptr;
 	m_aClients[ClientId].m_Traffic = 0;
 	m_aClients[ClientId].m_TrafficSince = 0;
 	m_aClients[ClientId].m_ShowIps = false;
@@ -393,7 +393,7 @@ bool CServer::FreeOccupiedClientId(int ClientId)
 	m_aClients[ClientId].m_aClan[0] = 0;
 	m_aClients[ClientId].m_Country = -1;
 	m_aClients[ClientId].m_AuthTries = 0;
-	m_aClients[ClientId].m_pRconCmdToSend = 0;
+	m_aClients[ClientId].m_pRconCmdToSend = nullptr;
 	m_aClients[ClientId].m_Snapshots.PurgeAll();
 
 	m_NetServer.BotDelete(ClientId);
@@ -548,7 +548,7 @@ int CServer::LoadMapLive(const char *pMapName)
 	if(!Config()->m_SvSixup && m_apCurrentMapData[MAP_TYPE_SIXUP])
 	{
 		free(m_apCurrentMapData[MAP_TYPE_SIXUP]);
-		m_apCurrentMapData[MAP_TYPE_SIXUP] = 0;
+		m_apCurrentMapData[MAP_TYPE_SIXUP] = nullptr;
 	}
 
 	for(int i = 0; i < MAX_CLIENTS; i++)

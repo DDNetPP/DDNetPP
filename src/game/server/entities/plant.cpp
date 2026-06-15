@@ -69,7 +69,7 @@ void CPlant::ResetProjectiles()
 		if(PlantProj)
 		{
 			PlantProj->Reset();
-			PlantProj = NULL;
+			PlantProj = nullptr;
 			// delete PlantProj;
 		}
 	}

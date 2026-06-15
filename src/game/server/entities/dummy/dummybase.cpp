@@ -211,7 +211,7 @@ void CDummyBase::AvoidFreezeWeapons()
 	if(GetVel().y < -0.05)
 	{
 		int DistY = GetPos().y + GetVel().y * 4 - 40;
-		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), 0, 0) &&
+		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), nullptr, nullptr) &&
 			IsFreezeTile(GetPos().x, DistY))
 		{
 			Aim(GetVel().x, -200);
@@ -225,7 +225,7 @@ void CDummyBase::AvoidFreezeWeapons()
 	else if(GetVel().y > 0.05)
 	{
 		int DistY = GetPos().y + GetVel().y * 3 + 20;
-		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), 0, 0) &&
+		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), nullptr, nullptr) &&
 			IsFreezeTile(GetPos().x, DistY))
 		{
 			Aim(GetVel().x, 200);

@@ -728,8 +728,8 @@ bool CServer::GetClientInfo(int ClientId, CClientInfo *pInfo) const
 		pInfo->m_Latency = 999;
 		pInfo->m_GotDDNetVersion = false;
 		pInfo->m_DDNetVersion = VERSION_VANILLA;
-		pInfo->m_pConnectionId = 0;
-		pInfo->m_pDDNetVersionStr = 0;
+		pInfo->m_pConnectionId = nullptr;
+		pInfo->m_pDDNetVersionStr = nullptr;
 		return true;
 	}
 	return false;
