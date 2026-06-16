@@ -141,7 +141,7 @@ public:
 	virtual void SnapGameInfo(CPlayer *pPlayer, CNetObj_GameInfo *pGameInfo) {}
 
 	// alter the snap objects if needed, its values are already filled
-	virtual void SnapPlayer6(CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo);
+	virtual void SnapPlayerInfo6(CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo);
 
 	// alter the pGameData object if needed, its values are already filled
 	// it includes the flag carriers from the main game

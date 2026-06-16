@@ -362,6 +362,8 @@ void CPlayer::Snap(int SnappingClient)
 		ClientInfo.m_ColorBody = m_TeeInfos.m_ColorBody;
 		ClientInfo.m_ColorFeet = m_TeeInfos.m_ColorFeet;
 	}
+	// ddnet-insta
+	GameServer()->m_pController->SnapClientInfo(SnappingClient, this, &ClientInfo);
 	Server()->SnapNewItem(TranslatedId, ClientInfo);
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
@@ -382,8 +384,8 @@ void CPlayer::Snap(int SnappingClient)
 			PlayerInfo.m_Team = (m_Paused != PAUSE_PAUSED || m_ClientId != SnappingClient) && m_Paused < PAUSE_SPEC ? m_Team : TEAM_SPECTATORS;
 		}
 
-		// ddnet++
-		GameServer()->m_pController->SnapPlayer6(SnappingClient, this, &ClientInfo, &PlayerInfo);
+		// ddnet-insta
+		GameServer()->m_pController->SnapPlayerInfo6(SnappingClient, this, &PlayerInfo);
 
 		Server()->SnapNewItem(TranslatedId, PlayerInfo);
 	}

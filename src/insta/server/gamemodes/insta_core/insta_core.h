@@ -19,7 +19,7 @@ public:
 
 	void Tick() override;
 	bool OnSkinChange7(protocol7::CNetMsg_Cl_SkinChange *pMsg, int ClientId) override;
-	void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) override;
+	void SnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo) override;
 
 private:
 	// pPlayer is the player whose skin changed

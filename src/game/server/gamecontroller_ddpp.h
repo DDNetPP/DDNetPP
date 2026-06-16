@@ -154,7 +154,18 @@ public:
 	virtual int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) { return PlayerFlags7; }
 
 	/*
-		Function: SnapPlayer6
+		Function: SnapClientInfo
+			Alter snap info on send
+
+		Arguments:
+			SnappingClient - Client Id of the player that will receive the snapshot
+			pPlayer - CPlayer that is being snapped
+			pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
+	*/
+	virtual void SnapClientInfo(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo) {}
+
+	/*
+		Function: SnapPlayerInfo6
 			Alter snap values for 0.6 snapshots.
 			For 0.7 use `SnapPlayerFlags7()` and `SnapPlayerScore()`
 
@@ -164,10 +175,9 @@ public:
 		Arguments:
 			SnappingClient - Client Id of the player that will receive the snapshot
 			pPlayer - CPlayer that is being snapped
-			pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 			pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
 	*/
-	virtual void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) {}
+	virtual void SnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo) {}
 	virtual int SnapScoreLimit(int SnappingClient);
 
 	virtual void SnapGameInfo(int SnappingClient, CNetObj_GameInfo *pGameInfo) {}

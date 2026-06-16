@@ -91,17 +91,8 @@ bool CGameControllerInstaCore::OnSkinChange7(protocol7::CNetMsg_Cl_SkinChange *p
 	return true;
 }
 
-void CGameControllerInstaCore::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+void CGameControllerInstaCore::SnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo)
 {
-	// TODO: can we save clock cycles here?
-	//       maybe only set it if the skin info manager has custom values
-	//       something like if(pPlayer->m_SkinInfoManager.HasValues())
-	//       which is just a cheap bool lookup
-	CTeeInfo Info = pPlayer->m_SkinInfoManager.TeeInfo();
-	StrToInts(pClientInfo->m_aSkin, std::size(pClientInfo->m_aSkin), Info.m_aSkinName);
-	pClientInfo->m_UseCustomColor = Info.m_UseCustomColor;
-	pClientInfo->m_ColorBody = Info.m_ColorBody;
-	pClientInfo->m_ColorFeet = Info.m_ColorFeet;
 }
 
 void CGameControllerInstaCore::SendSkinChangeToAllSixup(protocol7::CNetMsg_Sv_SkinChange *pMsg, CPlayer *pPlayer, bool ApplyNetworkClipping)

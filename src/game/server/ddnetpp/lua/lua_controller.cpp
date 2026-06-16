@@ -835,7 +835,7 @@ void CLuaController::OnSnapCharacter6(int SnappingClient, CCharacter *pChr, CNet
 #endif
 }
 
-void CLuaController::OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+void CLuaController::OnSnapClientInfo(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo)
 {
 #ifdef CONF_LUA
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
@@ -843,7 +843,20 @@ void CLuaController::OnSnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj
 		if(!pPlugin->IsActive())
 			continue;
 
-		pPlugin->OnSnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
+		pPlugin->OnSnapClientInfo(SnappingClient, pPlayer, pClientInfo);
+	}
+#endif
+}
+
+void CLuaController::OnSnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		pPlugin->OnSnapPlayerInfo6(SnappingClient, pPlayer, pPlayerInfo);
 	}
 #endif
 }

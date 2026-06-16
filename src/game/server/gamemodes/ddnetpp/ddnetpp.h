@@ -1,6 +1,8 @@
 #ifndef GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 #define GAME_SERVER_GAMEMODES_DDNETPP_DDNETPP_H
 
+#include <generated/protocol.h>
+
 #include <game/race_state.h>
 
 #include <insta/server/gamemodes/insta_core/insta_core.h>
@@ -99,7 +101,8 @@ public:
 	void FakeSnap(int SnappingClient);
 	int SnapPlayerScore(int SnappingClient, CPlayer *pPlayer) override;
 	IGameController::CFinishTime SnapPlayerTime(int SnappingClient, CPlayer *pPlayer) override;
-	void SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo) override;
+	void SnapClientInfo(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo) override;
+	void SnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo) override;
 	int SnapPlayerFlags7(int SnappingClient, CPlayer *pPlayer, int PlayerFlags7) override;
 	void SnapCharacter6(int SnappingClient, CCharacter *pChr, CNetObj_Character *pObj) override;
 	int SnapScoreLimit(int SnappingClient) override;

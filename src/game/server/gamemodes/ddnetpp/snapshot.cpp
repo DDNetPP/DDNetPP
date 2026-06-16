@@ -164,10 +164,19 @@ IGameController::CFinishTime CGameControllerDDNetPP::SnapPlayerTime(int Snapping
 // SnappingClient - Client Id of the player that will receive the snapshot
 // pPlayer - CPlayer that is being snapped
 // pClientInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
-// pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
-void CGameControllerDDNetPP::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo)
+void CGameControllerDDNetPP::SnapClientInfo(int SnappingClient, CPlayer *pPlayer, CNetObj_ClientInfo *pClientInfo)
 {
-	CGameControllerInstaCore::SnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
+	CGameControllerInstaCore::SnapClientInfo(SnappingClient, pPlayer, pClientInfo);
+
+	Lua()->OnSnapClientInfo(SnappingClient, pPlayer, pClientInfo);
+}
+
+// SnappingClient - Client Id of the player that will receive the snapshot
+// pPlayer - CPlayer that is being snapped
+// pPlayerInfo - (in and output) info that is being snappend which is already pre filled by ddnet and can be altered.
+void CGameControllerDDNetPP::SnapPlayerInfo6(int SnappingClient, CPlayer *pPlayer, CNetObj_PlayerInfo *pPlayerInfo)
+{
+	CGameControllerInstaCore::SnapPlayerInfo6(SnappingClient, pPlayer, pPlayerInfo);
 
 	// hide players in the captcha room from the scoreboard
 	// this is 0.6 only so 0.7 players see all players at all times (too lazy to fix)
@@ -176,9 +185,9 @@ void CGameControllerDDNetPP::SnapPlayer6(int SnappingClient, CPlayer *pPlayer, C
 
 	CMinigame *pMinigame = GameServer()->GetMinigame(SnappingClient);
 	if(pMinigame)
-		pMinigame->SnapPlayer6(pPlayer, pClientInfo, pPlayerInfo);
+		pMinigame->SnapPlayerInfo6(pPlayer, pPlayerInfo);
 
-	Lua()->OnSnapPlayer6(SnappingClient, pPlayer, pClientInfo, pPlayerInfo);
+	Lua()->OnSnapPlayerInfo6(SnappingClient, pPlayer, pPlayerInfo);
 }
 
 // SnappingClient - Client Id of the player that will receive the snapshot
