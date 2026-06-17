@@ -359,6 +359,8 @@ bool CServer::OccupyClientId(int ClientId)
 {
 	if(m_aClients[ClientId].m_State != CClient::STATE_EMPTY)
 		return false;
+	if(ClientId >= NET_MAX_CLIENTS)
+		return false;
 	// dbg_assert(m_aClients[ClientId].m_State == CClient::STATE_EMPTY, "Failed to occupy cid=%d because its in state %d", ClientId, m_aClients[ClientId].m_State);
 
 	m_aClients[ClientId].m_State = CClient::STATE_PREAUTH;
