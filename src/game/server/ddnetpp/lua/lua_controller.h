@@ -134,6 +134,7 @@ public:
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 	bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) override;
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags) override;
+	bool OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr) override;
 
 	// If a lua plugin runs `Game:call_plugin("func")`
 	// it will try to call "func" in all available plugins

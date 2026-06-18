@@ -1134,6 +1134,25 @@ bool CLuaController::OnServerMessage(int ClientId, const void *pData, int Size, 
 #endif
 }
 
+bool CLuaController::OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin)
+			continue;
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(!pPlugin->OnNetMsgInfo(ClientId, pVersion, pPasswordOrNullptr))
+			return false;
+	}
+	return true;
+#else
+	return true;
+#endif
+}
+
 bool CLuaController::CallPlugin(const char *pFunction, lua_State *pCaller)
 {
 #ifdef CONF_LUA

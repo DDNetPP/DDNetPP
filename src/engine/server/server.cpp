@@ -2050,6 +2050,9 @@ void CServer::OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPass
 		return;
 	}
 
+	if(!Lua()->OnNetMsgInfo(ClientId, pVersion, pPasswordOrNullptr))
+		return;
+
 	m_aClients[ClientId].m_State = CClient::STATE_CONNECTING;
 	SendRconType(ClientId, m_AuthManager.NumNonDefaultKeys() > 0);
 	SendCapabilities(ClientId);

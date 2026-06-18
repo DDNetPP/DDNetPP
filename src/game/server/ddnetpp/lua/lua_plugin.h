@@ -311,6 +311,7 @@ public:
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
+	bool OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr);
 	bool CallPlugin(const char *pFunction, lua_State *pCaller);
 
 	// helpers

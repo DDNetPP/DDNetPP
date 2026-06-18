@@ -10,6 +10,7 @@ public:
 	virtual void OnInit() = 0;
 	virtual bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) = 0;
 	virtual bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags) = 0;
+	virtual bool OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr) = 0;
 };
 
 extern ILuaController *CreateLuaController();
