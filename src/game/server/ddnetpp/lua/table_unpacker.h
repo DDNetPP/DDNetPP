@@ -37,6 +37,7 @@ public:
 
 	CTableUnpacker(lua_State *L, int Index, const char *pTableName, const char *pSourceFilename = "", int SourceLineNumber = -1);
 	void Error(const char *pReason);
+	std::optional<int> GetClientIdOptional(const char *pKey);
 	int GetIntOrFloat(const char *pKey);
 	int GetInt(const char *pKey);
 	std::optional<bool> GetBooleanOptional(const char *pKey);

@@ -5,6 +5,7 @@
 #include <game/server/ddnetpp/lua/custom_lua_types.h>
 #include <game/server/ddnetpp/lua/position.h>
 #include <game/server/ddnetpp/lua/table_unpacker.h>
+#include <game/server/player.h>
 
 #include <optional>
 
@@ -33,6 +34,48 @@ void CTableUnpacker::Error(const char *pReason)
 {
 	m_IsError = true;
 	luaL_error(LuaState(), "error in table '%s': %s", m_aTableName, pReason);
+}
+
+std::optional<int> CTableUnpacker::GetClientIdOptional(const char *pKey)
+{
+	if(m_IsError)
+		return std::nullopt;
+	lua_getfield(LuaState(), m_Index, pKey);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		lua_pop(LuaState(), 1);
+		return std::nullopt;
+	}
+	if(!lua_isinteger(LuaState(), -1))
+	{
+		if(lua_isuserdata(LuaState(), -1))
+		{
+			if(luaL_testudata(LuaState(), -1, "Player"))
+			{
+				const CPlayer *pPlayer = LuaCheckPlayer(LuaState(), -1);
+				if(pPlayer)
+				{
+					lua_pop(LuaState(), 1);
+					return pPlayer->GetCid();
+				}
+			}
+			else if(luaL_testudata(LuaState(), -1, "Character"))
+			{
+				CCharacter *pChr = LuaCheckCharacter(LuaState(), -1);
+				if(pChr)
+				{
+					lua_pop(LuaState(), 1);
+					return pChr->GetPlayer()->GetCid();
+				}
+			}
+		}
+
+		lua_pop(LuaState(), 1);
+		return std::nullopt;
+	}
+	int Val = lua_tointeger(LuaState(), -1);
+	lua_pop(LuaState(), 1);
+	return Val;
 }
 
 int CTableUnpacker::GetIntOrFloat(const char *pKey)
@@ -242,23 +285,35 @@ std::optional<vec2> CTableUnpacker::GetVec2Optional(const char *pKey)
 	// RAII scope
 	{
 		if(!lua_istable(LuaState(), -1))
+		{
+			lua_pop(LuaState(), 1);
 			return std::nullopt;
+		}
 
 		CTableUnpacker Unpacker(LuaState(), -1, aNestedName, m_aSourceFilename, m_SourceLineNumber);
 		std::optional<float> Value;
 
 		Value = Unpacker.GetFloatOptional("x");
 		if(!Value)
+		{
+			lua_pop(LuaState(), 1);
 			return std::nullopt;
+		}
 		Pos.x = Value.value();
 
 		Value = Unpacker.GetFloatOptional("y");
 		if(!Value)
+		{
+			lua_pop(LuaState(), 1);
 			return std::nullopt;
+		}
 		Pos.y = Value.value();
 
 		if(Unpacker.IsError())
+		{
+			lua_pop(LuaState(), 1);
 			return std::nullopt;
+		}
 	}
 
 	// pop nested table

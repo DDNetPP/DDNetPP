@@ -231,7 +231,11 @@ private:
 	static int CallbackCreateTee(lua_State *L);
 	static int CallbackDropTee(lua_State *L);
 	static int CallbackIsServerTee(lua_State *L);
+	static int CallbackNewProjectile(lua_State *L);
 	static int CallbackPluginName(lua_State *L);
+
+	// math
+	static int CallbackMathNormalize(lua_State *L);
 
 	// snap
 	static int CallbackSnapNewId(lua_State *L);
