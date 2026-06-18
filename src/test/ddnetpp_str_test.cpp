@@ -108,7 +108,7 @@ TEST(DDNetPP, SplitStmts)
 	Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
 	EXPECT_EQ(Ok, true);
 	EXPECT_EQ(NumStmts, 1);
-	EXPECT_STREQ(apStmts[0], "echo \\\"escaped quote ");
+	EXPECT_STREQ(apStmts[0], "echo \\\"escaped quote # real comment");
 
 	str_copy(aLine, "hello # semi;nuts;comment;;;;");
 	Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
@@ -128,6 +128,23 @@ TEST(DDNetPP, SplitStmts)
 	EXPECT_EQ(NumStmts, 2);
 	EXPECT_STREQ(apStmts[0], "echo \";_;\"");
 	EXPECT_STREQ(apStmts[1], "say a");
+}
+
+TEST(DDNetPP, SplitStmtsEscapeBug)
+{
+	const char *apStmts[16] = {};
+	char aError[512] = "";
+	size_t NumStmts = 0;
+	char aLine[512];
+	bool Ok;
+
+	// // https://github.com/ddnet/ddnet/pull/12124
+	str_copy(aLine, "echo \"1\\\\\";echo \"2\"");
+	Ok = SplitConsoleStatements(apStmts, (sizeof(apStmts) / sizeof(apStmts[0])), &NumStmts, aLine, aError, sizeof(aError));
+	EXPECT_EQ(Ok, true);
+	EXPECT_EQ(NumStmts, 2);
+	EXPECT_STREQ(apStmts[0], "echo \"1\\\\\"");
+	EXPECT_STREQ(apStmts[1], "echo \"2\"");
 }
 
 TEST(DDNetPP, ParseParams)

@@ -14,6 +14,7 @@ bool SplitConsoleStatements(const char *apStmts[], size_t MaxStmts, size_t *pNum
 	char *pStr = pLine;
 	apStmts[(*pNumStmts)++] = pStr;
 	bool InString = false;
+	bool IsEscaping = false;
 
 	do
 	{
@@ -26,14 +27,17 @@ bool SplitConsoleStatements(const char *apStmts[], size_t MaxStmts, size_t *pNum
 			return false;
 		}
 
-		if(*pStr == '"')
+		if(IsEscaping)
 		{
-			InString ^= true;
+			IsEscaping = false;
 		}
-		else if(*pStr == '\\') // escape sequences
+		else if(*pStr == '"')
 		{
-			if(pStr[1] == '"')
-				pStr++;
+			InString = !InString;
+		}
+		else if(InString && *pStr == '\\') // escape sequences
+		{
+			IsEscaping = true;
 		}
 
 		if(InString)
