@@ -249,6 +249,7 @@ private:
 	static int CallbackServerClientName(lua_State *L);
 	static int CallbackServerOccupyClientId(lua_State *L);
 	static int CallbackServerFreeOccupiedClientId(lua_State *L);
+	static int CallbackServerDrop(lua_State *L);
 
 	// collision
 	static int CallbackCollisionWidth(lua_State *L);

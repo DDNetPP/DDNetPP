@@ -8,6 +8,7 @@
 #include <base/types.h>
 #include <base/vmath.h>
 
+#include <engine/server/server.h>
 #include <engine/shared/protocol.h>
 
 #include <generated/protocol.h>
@@ -503,6 +504,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 		lua_pushlightuserdata(LuaState(), this);
 		lua_pushcclosure(LuaState(), CallbackServerFreeOccupiedClientId, 1);
 		lua_setfield(LuaState(), -2, "free_occupied_client_id");
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackServerDrop, 1);
+		lua_setfield(LuaState(), -2, "drop");
 	}
 	lua_setfield(LuaState(), -2, "server");
 
@@ -2291,6 +2296,18 @@ int CLuaPlugin::CallbackServerFreeOccupiedClientId(lua_State *L)
 		pSelf->m_vOccupiedClientIds.end());
 	lua_pushboolean(L, Success);
 	return 1;
+}
+
+int CLuaPlugin::CallbackServerDrop(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	const char *pReason = luaL_checkstring(L, 2);
+
+	CServer *pServer = static_cast<CServer *>(pGame->Server());
+	pServer->m_NetServer.Drop(ClientId, pReason);
+	return 0;
 }
 
 int CLuaPlugin::CallbackCollisionWidth(lua_State *L)
