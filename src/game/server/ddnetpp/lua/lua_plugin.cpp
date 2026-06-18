@@ -25,6 +25,7 @@
 #include <game/server/ddpp/enums.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/laser_text.h>
+#include <game/server/entities/projectile.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <game/server/player.h>
@@ -440,8 +441,22 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "is_server_tee");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackNewProjectile, 1);
+	lua_setfield(LuaState(), -2, "new_projectile");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackPluginName, 1);
 	lua_setfield(LuaState(), -2, "plugin_name");
+
+	// ddnetpp.math sub table
+	{
+		lua_newtable(LuaState());
+
+		lua_pushlightuserdata(LuaState(), this);
+		lua_pushcclosure(LuaState(), CallbackMathNormalize, 1);
+		lua_setfield(LuaState(), -2, "normalize");
+	}
+	lua_setfield(LuaState(), -2, "math");
 
 	// ddnetpp.snap sub table
 	{
@@ -1947,10 +1962,81 @@ int CLuaPlugin::CallbackIsServerTee(lua_State *L)
 	return 1;
 }
 
+int CLuaPlugin::CallbackNewProjectile(lua_State *L)
+{
+	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	CLuaGame *pGame = pSelf->Game();
+
+	CTableUnpacker Unpacker(L, -1, "projectile", __FILE__, __LINE__);
+	int OwnerId = Unpacker.GetClientIdOptional("owner").value_or(-1);
+	int Type = Unpacker.GetIntOrDefault("type", WEAPON_GUN);
+	vec2 Pos = Unpacker.GetPosition("pos");
+	vec2 Dir = Unpacker.GetVec2Optional("dir").value_or(vec2(0, 0));
+	vec2 InitDir = Unpacker.GetVec2Optional("dir").value_or(vec2(0, 0));
+	int Lifetime = Unpacker.GetIntOptional("lifetime").value_or(pGame->Server()->TickSpeed() * 2);
+	bool Freeze = Unpacker.GetBooleanOptional("freeze").value_or(false);
+	auto OptExplosive = Unpacker.GetBooleanOptional("explosive");
+	bool Explosive = Type == WEAPON_GRENADE;
+	if(OptExplosive.has_value())
+		Explosive = OptExplosive.value();
+	int SoundImpact = Unpacker.GetIntOrDefault("sound_impact", -1);
+	int Layer = Unpacker.GetIntOrDefault("layer", 0);
+	int Number = Unpacker.GetIntOrDefault("number", 0);
+
+	// // this is spammy so I don't think it is a good idea
+	// // and crashing the plugin might be a bit harsh
+	// // not sure yet what to do but I want to help plugin authors to understand
+	// // what value they should provide here
+	// if(std::abs(Dir.x) > 1 || std::abs(Dir.y) > 1)
+	// {
+	// 	log_warn("lua", "the direction should be normalized");
+	// }
+
+	new CProjectile(
+		&pGame->GameServer()->m_World,
+		Type,
+		OwnerId,
+		Pos,
+		Dir,
+		Lifetime,
+		Freeze,
+		Explosive,
+		SoundImpact,
+		InitDir,
+		Layer,
+		Number);
+
+	return 0;
+}
+
 int CLuaPlugin::CallbackPluginName(lua_State *L)
 {
 	CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
 	lua_pushstring(L, pSelf->Name());
+	return 1;
+}
+
+int CLuaPlugin::CallbackMathNormalize(lua_State *L)
+{
+	// CLuaPlugin *pSelf = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)));
+	// CLuaGame *pGame = pSelf->Game();
+
+	vec2 Vec;
+	CTableUnpacker Unpacker(L, 1, "vec");
+	Vec.x = Unpacker.GetFloat("x");
+	Vec.y = Unpacker.GetFloat("y");
+
+	vec2 Normalized = normalize(Vec);
+
+	lua_newtable(L);
+
+	lua_pushstring(L, "x");
+	lua_pushnumber(L, Normalized.x);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "y");
+	lua_pushnumber(L, Normalized.y);
+	lua_settable(L, -3);
 	return 1;
 }
 
