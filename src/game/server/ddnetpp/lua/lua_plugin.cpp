@@ -1002,6 +1002,10 @@ void CLuaPlugin::RegisterGlobalState()
 
 bool CLuaPlugin::LoadFile()
 {
+	// kinda working lsp hack it now does support `require("foo")` without plugins/ prefix
+	// but my lsp still gives me no type hints so idk
+	//
+	// luaL_dostring(LuaState(), "package.path = package.path .. ';plugins/?.lua;plugins/?/init.lua'");
 	if(luaL_dofile(LuaState(), FullPath()) != LUA_OK)
 	{
 		const char *pError = lua_tostring(LuaState(), -1);
