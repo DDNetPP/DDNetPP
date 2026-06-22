@@ -348,7 +348,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 		FlagRect.x += (OldWidth - FlagRect.w) / 2.0f;
 		GameClient()->m_CountryFlags.Render(pEntry->m_CountryCode, ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f), FlagRect.x, FlagRect.y, FlagRect.w, FlagRect.h);
 
-		if(pEntry->m_Texture.IsValid())
+		if(pEntry->m_Texture.IsValid() || pEntry->m_CountryCode == -1)
 		{
 			Ui()->DoLabel(&Label, pEntry->m_aCountryCodeString, 10.0f, TEXTALIGN_MC);
 		}
@@ -3042,7 +3042,7 @@ CUi::EPopupMenuFunctionResult CMenus::PopupMapPicker(void *pContext, CUIRect Vie
 		{
 			if(!str_comp(SelectedItem.m_aFilename, ".."))
 			{
-				fs_parent_dir(pPopupContext->m_aCurrentMapFolder);
+				dbg_assert(fs_parent_dir(pPopupContext->m_aCurrentMapFolder) == 0, "Parent folder item selected but there is no parent folder");
 			}
 			else
 			{
