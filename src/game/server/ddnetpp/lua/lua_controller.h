@@ -132,6 +132,8 @@ public:
 	void OnSetAuthed(int ClientId, int Level);
 	// return true to drop fire
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
+	bool OnCallVote(int ClientId, const CNetMsg_Cl_CallVote *pMsg);
+	bool OnVote(int ClientId, const CNetMsg_Cl_Vote *pMsg);
 	bool OnClientMessage(int ClientId, const void *pData, int Size, int Flags) override;
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags) override;
 	bool OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr) override;

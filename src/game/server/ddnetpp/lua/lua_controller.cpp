@@ -1089,7 +1089,6 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 bool CLuaController::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)
 {
 #ifdef CONF_LUA
-
 	for(CLuaPlugin *pPlugin : m_vpPlugins)
 	{
 		if(!pPlugin->IsActive())
@@ -1101,6 +1100,40 @@ bool CLuaController::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2
 	return false;
 #else
 	return false;
+#endif
+}
+
+bool CLuaController::OnCallVote(int ClientId, const CNetMsg_Cl_CallVote *pMsg)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(!pPlugin->OnCallVote(ClientId, pMsg))
+			return false;
+	}
+	return true;
+#else
+	return true;
+#endif
+}
+
+bool CLuaController::OnVote(int ClientId, const CNetMsg_Cl_Vote *pMsg)
+{
+#ifdef CONF_LUA
+	for(CLuaPlugin *pPlugin : m_vpPlugins)
+	{
+		if(!pPlugin->IsActive())
+			continue;
+
+		if(!pPlugin->OnVote(ClientId, pMsg))
+			return false;
+	}
+	return true;
+#else
+	return true;
 #endif
 }
 

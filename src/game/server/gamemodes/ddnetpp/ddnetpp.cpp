@@ -579,6 +579,9 @@ bool CGameControllerDDNetPP::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMs
 	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "Invalid client id");
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 
+	if(!Lua()->OnCallVote(ClientId, pMsg))
+		return true;
+
 	if(g_Config.m_SvRequireLoginToVote && !pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendChatTarget(ClientId, "You need to be logged in to vote. Use the /login chat command.");
@@ -616,6 +619,9 @@ bool CGameControllerDDNetPP::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int C
 {
 	dbg_assert(ClientId >= 0 && ClientId < MAX_CLIENTS, "Invalid client id");
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
+
+	if(!Lua()->OnVote(ClientId, pMsg))
+		return true;
 
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(pMsg->m_Vote == 1) //vote yes (f3)

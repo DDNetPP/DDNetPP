@@ -314,6 +314,8 @@ public:
 	bool OnChatCommand(int ClientId, const char *pCommand, const char *pArguments);
 	void OnSetAuthed(int ClientId, int Level);
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
+	bool OnCallVote(int ClientId, const CNetMsg_Cl_CallVote *pMsg);
+	bool OnVote(int ClientId, const CNetMsg_Cl_Vote *pMsg);
 
 	bool OnServerMessage(int ClientId, const void *pData, int Size, int Flags);
 	bool OnNetMsgInfo(int ClientId, const char *pVersion, const char *pPasswordOrNullptr);
