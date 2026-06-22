@@ -1665,7 +1665,7 @@ int CLuaPlugin::CallbackKick(lua_State *L)
 int CLuaPlugin::CallbackSendVoteClearOptions(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
-	int ClientId = luaL_checkinteger(L, 1);
+	int ClientId = LuaCheckClientId(L, 1);
 	pGame->SendVoteClearOptions(ClientId);
 	return 0;
 }
@@ -1673,7 +1673,7 @@ int CLuaPlugin::CallbackSendVoteClearOptions(lua_State *L)
 int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 {
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
-	int ClientId = luaL_checkinteger(L, 1);
+	int ClientId = LuaCheckClientId(L, 1);
 	const char *pDescription = LuaCheckArgStringStrict(L, 2);
 	pGame->SendVoteOptionAdd(ClientId, pDescription);
 	return 0;
