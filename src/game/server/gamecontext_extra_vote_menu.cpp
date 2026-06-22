@@ -2,8 +2,12 @@
 
 #include "gamecontext.h"
 
+#include <base/dbg.h>
+
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
+
+#include <generated/protocol7.h>
 
 // TODO: this should be a highly configurable system like the shop
 //       where admins can remove and add entries they want to display

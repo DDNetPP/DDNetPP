@@ -625,6 +625,8 @@ public:
 	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMessage);
 	void VotedYes(CCharacter *pChr, CPlayer *pPlayer);
 	void VotedNo(CCharacter *pChr);
+	void SendVoteStart(int ClientId, int VoteCreatorId, int Timeout, int Type, const char *pDescription, const char *pReason);
+	void SendVoteEnd(int ClientId, int VoteCreatorId, int Enforce);
 	bool AbortTeamChange(int ClientId, CPlayer *pPlayer);
 	bool AbortKill(int ClientId, CPlayer *pPlayer, CCharacter *pChr);
 	/*

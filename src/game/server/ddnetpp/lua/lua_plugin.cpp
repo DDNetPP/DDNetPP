@@ -409,6 +409,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_vote_status");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendVoteStart, 1);
+	lua_setfield(LuaState(), -2, "send_vote_start");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendVoteEnd, 1);
+	lua_setfield(LuaState(), -2, "send_vote_end");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackGetPlayer, 1);
 	lua_setfield(LuaState(), -2, "get_player");
 
@@ -1691,6 +1699,58 @@ int CLuaPlugin::CallbackSendVoteStatus(lua_State *L)
 	int Yes = luaL_checkinteger(L, 3);
 	int No = luaL_checkinteger(L, 4);
 	pGame->GameServer()->SendVoteStatus(ClientId, Total, Yes, No);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendVoteStart(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+
+	CTableUnpacker Unpacker(L, 2, "vote");
+	int CreatorId = Unpacker.GetIntOrDefault("creator_id", -1);
+	int Type = CGameContext::VOTE_TYPE_OPTION;
+	char aType[512];
+	if(Unpacker.GetStringOrFalse("type", aType, sizeof(aType)))
+	{
+		if(!str_comp_nocase(aType, "kick"))
+			Type = CGameContext::VOTE_TYPE_KICK;
+		else if(!str_comp_nocase(aType, "spectate"))
+			Type = CGameContext::VOTE_TYPE_SPECTATE;
+		else if(!str_comp_nocase(aType, "option"))
+			Type = CGameContext::VOTE_TYPE_OPTION;
+	}
+	int Timeout = Unpacker.GetIntOrDefault("timeout", 10);
+	char aDescription[512] = "hi from lua";
+	Unpacker.GetStringOrFalse("description", aDescription, sizeof(aDescription));
+	char aReason[512] = "no reason";
+	Unpacker.GetStringOrFalse("reason", aReason, sizeof(aReason));
+	pGame->GameServer()->SendVoteStart(
+		ClientId,
+		CreatorId,
+		Timeout,
+		Type,
+		aDescription,
+		aReason);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendVoteEnd(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	int VoteCreatorId = luaL_checkinteger(L, 2);
+	const char *pEnforceStr = luaL_checkstring(L, 3);
+
+	int Enforce = CGameContext::VOTE_ENFORCE_YES;
+	if(!str_comp_nocase(pEnforceStr, "yes"))
+		Enforce = CGameContext::VOTE_ENFORCE_YES;
+	else if(!str_comp_nocase(pEnforceStr, "no"))
+		Enforce = CGameContext::VOTE_ENFORCE_NO;
+	if(!str_comp_nocase(pEnforceStr, "abort"))
+		Enforce = CGameContext::VOTE_ENFORCE_ABORT;
+
+	pGame->GameServer()->SendVoteEnd(ClientId, VoteCreatorId, Enforce);
 	return 0;
 }
 
