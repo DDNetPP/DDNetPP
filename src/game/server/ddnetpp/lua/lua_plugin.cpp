@@ -405,6 +405,10 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_vote_option_add");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendVoteStatus, 1);
+	lua_setfield(LuaState(), -2, "send_vote_status");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackGetPlayer, 1);
 	lua_setfield(LuaState(), -2, "get_player");
 
@@ -1676,6 +1680,17 @@ int CLuaPlugin::CallbackSendVoteOptionAdd(lua_State *L)
 	int ClientId = LuaCheckClientId(L, 1);
 	const char *pDescription = LuaCheckArgStringStrict(L, 2);
 	pGame->SendVoteOptionAdd(ClientId, pDescription);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendVoteStatus(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	int Total = luaL_checkinteger(L, 2);
+	int Yes = luaL_checkinteger(L, 3);
+	int No = luaL_checkinteger(L, 4);
+	pGame->GameServer()->SendVoteStatus(ClientId, Total, Yes, No);
 	return 0;
 }
 
