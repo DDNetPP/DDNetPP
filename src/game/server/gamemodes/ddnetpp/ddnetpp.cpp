@@ -46,6 +46,11 @@ int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceF
 	return Lua()->OnSnapGameInfoExFlags2(SnappingClient, Flags);
 }
 
+void CGameControllerDDNetPP::PostCharacterHandleWeapons(class CCharacter *pChr)
+{
+	pChr->PostHandleWeapons();
+}
+
 bool CGameControllerDDNetPP::OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character)
 {
 	int ClientId = Character.GetPlayer()->GetCid();

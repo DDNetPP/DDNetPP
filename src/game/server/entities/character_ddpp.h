@@ -39,6 +39,10 @@ private:
 	bool FireWeaponDDPP(bool &FullAuto);
 	void PostFireWeapon();
 
+public:
+	void PostHandleWeapons();
+
+private:
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
 

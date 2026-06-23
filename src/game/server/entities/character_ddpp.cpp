@@ -15,6 +15,7 @@
 #include <engine/shared/config.h>
 
 #include <generated/protocol.h>
+#include <generated/server_data.h>
 
 #include <game/gamecore.h>
 #include <game/mapitems.h>
@@ -2842,6 +2843,36 @@ void CCharacter::PostFireWeapon()
 				m_pPlayer->m_SpawnRifleActive = 0;
 				SetWeaponGot(WEAPON_LASER, false);
 				SetWeaponThatChrHas();
+			}
+		}
+	}
+}
+
+void CCharacter::PostHandleWeapons()
+{
+	if(m_pPlayer->m_IsVanillaWeapons && !m_FreezeTime)
+	{
+		// ammo regen
+		int AmmoRegenTime = g_pData->m_Weapons.m_aId[m_Core.m_ActiveWeapon].m_Ammoregentime;
+		if(AmmoRegenTime)
+		{
+			// If equipped and not active, regen ammo?
+			if(m_ReloadTimer <= 0)
+			{
+				if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart < 0)
+					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = Server()->Tick();
+
+				if((Server()->Tick() - m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart) >= AmmoRegenTime * Server()->TickSpeed() / 1000)
+				{
+					// Add some ammo
+					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
+					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
+				}
+			}
+			else
+			{
+				// Add some ammo
+				m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
 			}
 		}
 	}

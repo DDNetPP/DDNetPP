@@ -84,6 +84,17 @@ public:
 	virtual bool OnClientPacket(int ClientId, bool Sys, int MsgId, struct CNetChunk *pPacket, class CUnpacker *pUnpacker) { return false; }
 
 	/*
+		Function: PostCharacterHandleWeapons
+			Called at the end of CCharacter::HandleWeapons()
+			which just did call FireWeapon()
+			so it handled reloading and things like that.
+
+		Arguments:
+			pChr - the character we handle weapons for
+	*/
+	virtual void PostCharacterHandleWeapons(class CCharacter *pChr) {}
+
+	/*
 		Function: LogoutAllAccounts
 			Logs out all players on this server.
 	*/
