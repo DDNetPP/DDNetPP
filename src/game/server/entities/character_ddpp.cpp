@@ -1451,7 +1451,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCid())
-		Dmg = maximum(1, Dmg / 2);
+		Dmg = std::max(1, Dmg / 2);
 	// Block points check for touchers (weapons)
 	if(From >= 0)
 	{
@@ -1488,7 +1488,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 		if(From == m_pPlayer->GetCid())
 		{
-			Dmg = maximum(1, Dmg / 2);
+			Dmg = std::max(1, Dmg / 2);
 
 			if(m_pPlayer->m_IsVanillaCompetitive && Weapon == WEAPON_LASER)
 			{
@@ -2865,14 +2865,14 @@ void CCharacter::PostHandleWeapons()
 				if((Server()->Tick() - m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart) >= AmmoRegenTime * Server()->TickSpeed() / 1000)
 				{
 					// Add some ammo
-					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
+					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = std::min(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
 					m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
 				}
 			}
 			else
 			{
 				// Add some ammo
-				m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
+				m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = std::min(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
 			}
 		}
 	}

@@ -151,7 +151,7 @@ bool CHomingMissile::Hit(CCharacter *pHitTarget)
 
 	if(distance(m_Pos, TargetPos) < 20.f)
 	{
-		pHitTarget->TakeDamage(m_Direction * maximum(0.001f, m_Force), 1, m_Owner, WEAPON_GRENADE);
+		pHitTarget->TakeDamage(m_Direction * std::max(0.001f, m_Force), 1, m_Owner, WEAPON_GRENADE);
 
 		CCharacter *pOwner = GameServer()->GetPlayerChar(m_Owner);
 
