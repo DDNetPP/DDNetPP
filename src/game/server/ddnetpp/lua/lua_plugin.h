@@ -209,6 +209,8 @@ private:
 	static int CallbackSendBroadcastTarget(lua_State *L);
 	static int CallbackSendMotd(lua_State *L);
 	static int CallbackSendMotdTarget(lua_State *L);
+	static int CallbackSendServerAlert(lua_State *L);
+	static int CallbackSendModeratorAlert(lua_State *L);
 	static int CallbackLaserText(lua_State *L);
 	static int CallbackCreateDamageIndicator(lua_State *L);
 	static int CallbackCreateHammerHit(lua_State *L);

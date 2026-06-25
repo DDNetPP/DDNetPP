@@ -353,6 +353,14 @@ void CLuaPlugin::RegisterGlobalDDNetPPInstance()
 	lua_setfield(LuaState(), -2, "send_motd_target");
 
 	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendServerAlert, 1);
+	lua_setfield(LuaState(), -2, "send_server_alert");
+
+	lua_pushlightuserdata(LuaState(), this);
+	lua_pushcclosure(LuaState(), CallbackSendModeratorAlert, 1);
+	lua_setfield(LuaState(), -2, "send_moderator_alert");
+
+	lua_pushlightuserdata(LuaState(), this);
 	lua_pushcclosure(LuaState(), CallbackLaserText, 1);
 	lua_setfield(LuaState(), -2, "laser_text");
 
@@ -1443,6 +1451,23 @@ int CLuaPlugin::CallbackSendMotdTarget(lua_State *L)
 	int ClientId = LuaCheckClientId(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
 	pGame->GameServer()->AbuseMotd(pMessage, ClientId);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendServerAlert(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	const char *pMessage = luaL_checkstring(L, 1);
+	pGame->GameServer()->SendServerAlert(pMessage);
+	return 0;
+}
+
+int CLuaPlugin::CallbackSendModeratorAlert(lua_State *L)
+{
+	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
+	int ClientId = LuaCheckClientId(L, 1);
+	const char *pMessage = luaL_checkstring(L, 2);
+	pGame->GameServer()->SendModeratorAlert(pMessage, ClientId);
 	return 0;
 }
 
