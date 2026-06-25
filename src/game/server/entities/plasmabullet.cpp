@@ -4,6 +4,7 @@
 
 #include <engine/config.h>
 #include <engine/server.h>
+#include <engine/shared/protocol.h>
 
 #include <generated/protocol.h>
 
@@ -95,13 +96,23 @@ void CPlasmaBullet::Tick()
 	if(Res)
 	{
 		if(m_Explosive)
+		{
 			GameServer()->CreateExplosion(
 				m_Pos,
 				-1,
 				WEAPON_GRENADE,
 				true,
 				m_ResponsibleTeam,
-				((CGameControllerDDNet *)GameServer()->m_pController)->Teams().TeamMask(m_ResponsibleTeam));
+				CClientMask().set());
+
+			// TODO: instead of CClientMask().set() use a team mask like this
+			//       GameServer()->m_pController->Teams().TeamMask(m_ResponsibleTeam));
+			//       problem is that if we pass Asker -1 implicitly it will segfault
+			//       so for now the explosion is in all teams
+			//       CC
+			//       https://github.com/ddnet/ddnet/issues/12321
+			//       https://github.com/DDNetPP/DDNetPP/issues/562
+		}
 
 		if(m_Bloody)
 		{

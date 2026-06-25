@@ -2015,7 +2015,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	if(m_pPlayer->m_KillStreak >= 5)
 	{
 		GameServer()->SendEndSpreeMessage(m_pPlayer->GetCid(), m_pPlayer->m_KillStreak, aKillerName);
-		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->TeamMask());
 	}
 
 	if(pKiller)

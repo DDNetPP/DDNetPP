@@ -155,8 +155,17 @@ bool CHomingMissile::Hit(CCharacter *pHitTarget)
 
 		CCharacter *pOwner = GameServer()->GetPlayerChar(m_Owner);
 
-		GameServer()->CreateExplosion(m_Pos, m_Owner, WEAPON_GRENADE, true, 0, pOwner ? GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0) : -1LL);
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE, pOwner ? GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0) : -1LL);
+		GameServer()->CreateExplosion(
+			m_Pos,
+			m_Owner,
+			WEAPON_GRENADE,
+			true,
+			0,
+			pOwner ? pOwner->TeamMask() : CClientMask().set());
+		GameServer()->CreateSound(
+			m_Pos,
+			SOUND_GRENADE_EXPLODE,
+			pOwner ? pOwner->TeamMask() : CClientMask().set());
 
 		return true;
 	}

@@ -178,11 +178,11 @@ void CWeapon::Pickup()
 		}
 
 		if(m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_LASER)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChar->Teams()->TeamMask(pChar->Team()));
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChar->TeamMask());
 		else if(m_Type == WEAPON_GRENADE)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->TeamMask());
 		else if(m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->TeamMask());
 
 		Reset();
 		return;

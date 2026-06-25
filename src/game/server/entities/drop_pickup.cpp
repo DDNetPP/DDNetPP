@@ -109,9 +109,9 @@ void CDropPickup::Pickup()
 		}
 
 		if(m_Type == POWERUP_HEALTH)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, pChar->Teams()->TeamMask(pChar->Team()));
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, pChar->TeamMask());
 		else if(m_Type == POWERUP_ARMOR)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->TeamMask());
 
 		Delete();
 		return;

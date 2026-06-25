@@ -170,7 +170,7 @@ void CGameContext::BombTick()
 				if(GetPlayerChar(PlayerId)->m_IsBomb)
 				{
 					Player->m_Account.m_BombGamesPlayed++;
-					CreateExplosion(GetPlayerChar(PlayerId)->m_Pos, PlayerId, WEAPON_GRENADE, false, 0, GetPlayerChar(PlayerId)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
+					CreateExplosion(GetPlayerChar(PlayerId)->m_Pos, PlayerId, WEAPON_GRENADE, false, 0, GetPlayerChar(PlayerId)->TeamMask());
 					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(PlayerId));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 					GetPlayerChar(PlayerId)->Die(PlayerId, WEAPON_GAME);

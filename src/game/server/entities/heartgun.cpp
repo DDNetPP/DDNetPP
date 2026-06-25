@@ -6,6 +6,7 @@
 #include "character.h"
 
 #include <engine/shared/config.h>
+#include <engine/shared/protocol.h>
 
 #include <generated/protocol.h>
 #include <generated/server_data.h>
@@ -53,7 +54,7 @@ void CHeartGun::Tick()
 		return;
 	}
 
-	m_TeamMask = m_pOwner ? m_pOwner->TeamMask() : MAX_CLIENTS;
+	m_TeamMask = m_pOwner ? m_pOwner->TeamMask() : CClientMask().set();
 
 	m_LifeTime--;
 	if(m_LifeTime <= 0)
