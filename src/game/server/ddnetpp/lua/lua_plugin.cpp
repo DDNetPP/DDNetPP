@@ -1467,7 +1467,7 @@ int CLuaPlugin::CallbackSendModeratorAlert(lua_State *L)
 	CLuaGame *pGame = static_cast<CLuaPlugin *>(lua_touserdata(L, lua_upvalueindex(1)))->Game();
 	int ClientId = LuaCheckClientId(L, 1);
 	const char *pMessage = luaL_checkstring(L, 2);
-	pGame->GameServer()->SendModeratorAlert(pMessage, ClientId);
+	pGame->GameServer()->SendModeratorAlert(ClientId, pMessage);
 	return 0;
 }
 
