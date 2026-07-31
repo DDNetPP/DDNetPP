@@ -51,7 +51,7 @@
 #include <vector>
 
 //ChillerDragon (ddpp)
-#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
+#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i received from random russian guy giving no information what it is
 
 #include <base/ddpp_logs.h>
 

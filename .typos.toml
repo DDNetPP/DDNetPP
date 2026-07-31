@@ -26,6 +26,7 @@ extend-ignore-re = [
 	'hax_me_admin_mummy',
 	'vor', # TODO: remove german comments
 	'ein',
+	'Suche',
 	'als',
 	'ende',
 	'effekt',
