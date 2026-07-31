@@ -157,7 +157,7 @@ MACRO_CONFIG_INT(SvFreezeKillDelay, sv_freeze_kill_delay, 0, 0, 1000, CFGFLAG_SE
 
 //Farm and Dummy Stuff
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
-MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 1, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys can see each other 0 they dont")
+MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys can see each other 0 they dont")
 MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time 2=esctime+killban")
 MACRO_CONFIG_INT(SvSpawnareaLowX, sv_spawnarea_low_x, 325, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "low x position (as tile) of spawn area used for spawnblock prot")
 MACRO_CONFIG_INT(SvSpawnareaLowY, sv_spawnarea_low_y, 191, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "low y position (as tile) of spawn area used for spawnblock prot")
