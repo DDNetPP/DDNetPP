@@ -14,8 +14,7 @@ RECURSIVE              = YES
 EXCLUDE                = src/engine/external \
                          src/masterping/target \
                          src/mastersrv/target \
-                         src/external \
-                         src/rust-bridge
+                         src/external
 USE_MDFILE_AS_MAINPAGE = src/README.md
 GENERATE_LATEX         = NO
 MACRO_EXPANSION        = YES

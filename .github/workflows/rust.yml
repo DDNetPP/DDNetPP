@@ -7,6 +7,10 @@ on:
   pull_request:
   merge_group:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   rustdoc:
     runs-on: ubuntu-latest
@@ -44,6 +48,6 @@ jobs:
               ./
     - name: Run cxxbridge
       run: |
-        cargo install cxxbridge-cmd@1.0.194
+        cargo install cxxbridge-cmd@"$(python scripts/generate_rust_bridge.py --cxx-version)"
         python scripts/generate_rust_bridge.py
         git diff --exit-code

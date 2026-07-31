@@ -5,7 +5,7 @@ from threading import Thread
 from time import time
 from urllib import request
 from urllib.request import Request, urlopen
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 import io
 import json
 import os
@@ -126,7 +126,7 @@ class TestRunner:
 		self.timeout_multiplier = timeout_multiplier
 		self.valgrind_memcheck = valgrind_memcheck
 		if self.valgrind_memcheck:
-			self.timeout_multiplier *= 20
+			self.timeout_multiplier *= 25
 
 	def run_test(self, test):
 		tmp_dir = tempfile.mkdtemp(prefix=f"integration_{test.name}_", dir=self.test_dir)
@@ -412,7 +412,7 @@ class Runnable:
 		while True:
 			event = self.next_event(timeout_id)
 			if isinstance(event, Exit):
-				raise EOFError(f"program exited unexpectedly waiting for {description}")
+				raise EOFError(f"program exited unexpectedly waiting for {description}")  # noqa: TRY004 type-check-without-type-error
 			elif isinstance(event, Log):
 				if fn(event):
 					return event

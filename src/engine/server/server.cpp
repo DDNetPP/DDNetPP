@@ -17,6 +17,7 @@
 #include <engine/config.h>
 #include <engine/console.h>
 #include <engine/engine.h>
+#include <engine/http.h>
 #include <engine/map.h>
 #include <engine/server.h>
 #include <engine/server/authmanager.h>
@@ -28,7 +29,6 @@
 #include <engine/shared/fifo.h>
 #include <engine/shared/filecollection.h>
 #include <engine/shared/host_lookup.h>
-#include <engine/shared/http.h>
 #include <engine/shared/json.h>
 #include <engine/shared/jsonwriter.h>
 #include <engine/shared/linereader.h>
@@ -237,16 +237,13 @@ void CServer::CClient::Reset()
 	m_RedirectDropTime = 0;
 }
 
-CServer::CServer() :
-	m_pSnapshotDelta(CSnapshotDelta::New()),
-	m_pSnapshotDeltaSixup(CSnapshotDelta::New()),
-	m_pSnapshotBuilder(CSnapshotBuilder::New())
+CServer::CServer()
 {
 	m_pConfig = &g_Config;
 	for(int i = 0; i < MAX_CLIENTS; i++)
-		m_aDemoRecorder[i] = CDemoRecorder(&*m_pSnapshotDelta, true);
-	m_aDemoRecorder[RECORDER_MANUAL] = CDemoRecorder(&*m_pSnapshotDelta, false);
-	m_aDemoRecorder[RECORDER_AUTO] = CDemoRecorder(&*m_pSnapshotDelta, false);
+		m_aDemoRecorder[i] = CDemoRecorder(&m_SnapshotDelta, true);
+	m_aDemoRecorder[RECORDER_MANUAL] = CDemoRecorder(&m_SnapshotDelta, false);
+	m_aDemoRecorder[RECORDER_AUTO] = CDemoRecorder(&m_SnapshotDelta, false);
 
 	m_pGameServer = nullptr;
 
@@ -1034,9 +1031,9 @@ void CServer::DoSnapshot()
 		CSnapshotBuffer Data;
 
 		// build snap and possibly add some messages
-		m_pSnapshotBuilder->Init(false);
+		m_SnapshotBuilder.Init();
 		GameServer()->OnSnap(-1, IsGlobalSnap, true);
-		int SnapshotSize = m_pSnapshotBuilder->Finish(Data);
+		int SnapshotSize = m_SnapshotBuilder.Finish(&Data);
 
 		// write snapshot
 		if(m_aDemoRecorder[RECORDER_MANUAL].IsRecording())
@@ -1065,14 +1062,14 @@ void CServer::DoSnapshot()
 			continue;
 
 		{
-			m_pSnapshotBuilder->Init(m_aClients[i].m_Sixup);
+			m_SnapshotBuilder.Init(m_aClients[i].m_Sixup);
 
 			// only snap events on global ticks
 			GameServer()->OnSnap(i, IsGlobalSnap, m_aDemoRecorder[i].IsRecording());
 
 			// finish snapshot
 			CSnapshotBuffer Data;
-			int SnapshotSize = m_pSnapshotBuilder->Finish(Data);
+			int SnapshotSize = m_SnapshotBuilder.Finish(&Data);
 
 			if(m_aDemoRecorder[i].IsRecording())
 			{
@@ -1082,9 +1079,14 @@ void CServer::DoSnapshot()
 
 			int Crc = Data.AsSnapshot()->Crc();
 
-			// remove old snapshots
-			// keep 3 seconds worth of snapshots
-			m_aClients[i].m_Snapshots.PurgeUntil(m_CurrentGameTick - TickSpeed() * 3);
+			// Remove old snapshots. Only the last acked snapshot
+			// is still needed as delta base, keep at most 3
+			// seconds worth for clients that aren't acking.
+			//
+			// This also works for the sentinel value -1 of
+			// `m_LastAckedSnapshot` (before the first ack):
+			// the max then falls back to the 3 second cap.
+			m_aClients[i].m_Snapshots.PurgeUntil(std::max(m_CurrentGameTick - TickSpeed() * 3, m_aClients[i].m_LastAckedSnapshot));
 
 			// save the snapshot
 			m_aClients[i].m_Snapshots.Add(m_CurrentGameTick, time_get(), SnapshotSize, Data.AsSnapshot(), 0, nullptr);
@@ -1115,9 +1117,9 @@ void CServer::DoSnapshot()
 			}
 
 			// create delta
-			CSnapshotDelta *const pSnapshotDelta = IsSixup(i) ? &*m_pSnapshotDeltaSixup : &*m_pSnapshotDelta;
-			int32_t aDeltaData[CSnapshot::MAX_SIZE / sizeof(int32_t)];
-			int DeltaSize = pSnapshotDelta->CreateDelta(*pDeltashot, *Data.AsSnapshot(), rust::Slice(aDeltaData, std::size(aDeltaData)));
+			CSnapshotDelta *const pSnapshotDelta = IsSixup(i) ? &m_SnapshotDeltaSixup : &m_SnapshotDelta;
+			char aDeltaData[CSnapshot::MAX_SIZE];
+			int DeltaSize = pSnapshotDelta->CreateDelta(pDeltashot, Data.AsSnapshot(), aDeltaData);
 
 			if(DeltaSize)
 			{
@@ -2908,6 +2910,11 @@ void CServer::PumpNetwork(bool PacketWaiting)
 
 	m_NetServer.Update();
 
+	// Coalesce the flushes triggered while handling this burst of incoming
+	// packets (preinput broadcasts, timing/ping replies, ...) into one packet
+	// per recipient, flushed once all packets have been handled below.
+	m_NetServer.BeginFlushBatch();
+
 	if(PacketWaiting)
 	{
 		// process packets
@@ -2999,6 +3006,8 @@ void CServer::PumpNetwork(bool PacketWaiting)
 			ProcessClientPacket(&Packet);
 		}
 	}
+
+	m_NetServer.EndFlushBatch();
 
 	m_ServerBan.Update();
 	m_Econ.Update();
@@ -3225,7 +3234,7 @@ int CServer::Run()
 		log_error("server", "The configured bindaddr '%s' cannot be resolved", g_Config.m_Bindaddr);
 		return -1;
 	}
-	BindAddr.type = Config()->m_SvIpv4Only ? NETTYPE_IPV4 : NETTYPE_ALL;
+	BindAddr.type = Config()->m_SvIpv4Only ? (NETTYPE_IPV4 | NETTYPE_WEBSOCKET_IPV4) : NETTYPE_ALL;
 
 	int Port = Config()->m_SvPort;
 	for(BindAddr.port = Port != 0 ? Port : 8303; !m_NetServer.Open(BindAddr, &m_ServerBan, Config()->m_SvMaxClients, Config()->m_SvMaxClientsPerIp); BindAddr.port++)
@@ -4168,7 +4177,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 
 	if(!MysqlAvailable())
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "can't add MySQL server: compiled without MySQL support");
+		log_error("server", "can't add MySQL server: compiled without MySQL support");
 		return;
 	}
 
@@ -4177,7 +4186,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() != 7 && pResult->NumArguments() != 8)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "7 or 8 arguments are required");
+		log_error("server", "7 or 8 arguments are required");
 		return;
 	}
 
@@ -4193,7 +4202,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "choose either 'r' for SqlReadServer or 'w' for SqlWriteServer");
+		log_error("server", "choose either 'r' for SqlReadServer or 'w' for SqlWriteServer");
 		return;
 	}
 
@@ -4206,12 +4215,10 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 	Config.m_Port = pResult->GetInteger(6);
 	Config.m_Setup = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;
 
-	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf),
+	log_info("server",
 		"Adding new Sql%sServer: DB: '%s' Prefix: '%s' User: '%s' IP: <{%s}> Port: %d",
 		Write ? "Write" : "Read",
 		Config.m_aDatabase, Config.m_aPrefix, Config.m_aUser, Config.m_aIp, Config.m_Port);
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 	pSelf->DbPool()->RegisterMysqlDatabase(Write ? CDbConnectionPool::WRITE : CDbConnectionPool::READ, &Config);
 }
 
@@ -4221,16 +4228,16 @@ void CServer::ConDumpSqlServers(IConsole::IResult *pResult, void *pUserData)
 
 	if(str_comp_nocase(pResult->GetString(0), "w") == 0)
 	{
-		pSelf->DbPool()->Print(pSelf->Console(), CDbConnectionPool::WRITE);
-		pSelf->DbPool()->Print(pSelf->Console(), CDbConnectionPool::WRITE_BACKUP);
+		pSelf->DbPool()->Print(CDbConnectionPool::WRITE);
+		pSelf->DbPool()->Print(CDbConnectionPool::WRITE_BACKUP);
 	}
 	else if(str_comp_nocase(pResult->GetString(0), "r") == 0)
 	{
-		pSelf->DbPool()->Print(pSelf->Console(), CDbConnectionPool::READ);
+		pSelf->DbPool()->Print(CDbConnectionPool::READ);
 	}
 	else
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "choose either 'r' for SqlReadServer or 'w' for SqlWriteServer");
+		log_error("server", "choose either 'r' for SqlReadServer or 'w' for SqlWriteServer");
 		return;
 	}
 }
@@ -4599,19 +4606,19 @@ void CServer::SnapFreeId(int Id)
 	m_IdPool.FreeId(Id);
 }
 
-bool CServer::SnapNewItem(int Type, int Id, rust::Slice<const int32_t> Data)
+bool CServer::SnapNewItem(int Type, int Id, const void *pData, int Size)
 {
-	return m_pSnapshotBuilder->NewItem(Type, Id, Data);
+	return m_SnapshotBuilder.NewItem(Type, Id, pData, Size);
 }
 
 void CServer::SnapSetStaticsize(int ItemType, int Size)
 {
-	m_pSnapshotDelta->SetStaticsize(ItemType, Size);
+	m_SnapshotDelta.SetStaticsize(ItemType, Size);
 }
 
 void CServer::SnapSetStaticsize7(int ItemType, int Size)
 {
-	m_pSnapshotDeltaSixup->SetStaticsize(ItemType, Size);
+	m_SnapshotDeltaSixup.SetStaticsize(ItemType, Size);
 }
 
 CServer *CreateServer() { return new CServer(); }

@@ -7,6 +7,10 @@ on:
   pull_request:
   merge_group:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   build-cmake:
     runs-on: ${{ matrix.os }}
@@ -52,7 +56,27 @@ jobs:
         sudo apt-get update -y
         # mount: /var/lib/grub/esp: special device /dev/disk/by-id/scsi-... does not exist.
         # sudo apt-get upgrade -y
-        sudo apt-get install pkg-config ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libpng-dev valgrind gcovr libglew-dev -y
+        packages=(
+          # tidy-alphabetical-start
+          gcovr
+          libavcodec-dev
+          libavformat-dev
+          libavutil-dev
+          libfreetype6-dev
+          libglew-dev
+          libnotify-dev
+          libpng-dev
+          libsdl2-dev
+          libsqlite3-dev
+          libswresample-dev
+          libswscale-dev
+          libx264-dev
+          ninja-build
+          pkg-config
+          valgrind
+          # tidy-alphabetical-end
+        )
+        sudo apt-get install -y "${packages[@]}"
 
     - name: Prepare Linux (non-fancy)
       if: contains(matrix.os, 'ubuntu') && !matrix.fancy
@@ -94,7 +118,7 @@ jobs:
         brew update
         brew install ffmpeg molten-vk ninja pkg-config sdl2
         brew upgrade freetype
-        pip3 install --break-system-packages dmgbuild
+        pip3 install --break-system-packages dmgbuild pyobjc-framework-Quartz
         echo /Library/Frameworks/Python.framework/Versions/3.12/bin >> $GITHUB_PATH
         sudo rm -rf /Library/Developer/CommandLineTools
 

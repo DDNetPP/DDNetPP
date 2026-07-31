@@ -332,8 +332,15 @@ public:
 
 	vec2 m_LocalCharacterPos;
 
-	// predicted players
+	/**
+	 * Our prediction for the local character at tick
+	 * `IClient::PredGameTick() - 1`.
+	 */
 	CCharacterCore m_PredictedPrevChar;
+	/**
+	 * Our prediction for the local character at tick
+	 * `IClient::PredGameTick()`.
+	 */
 	CCharacterCore m_PredictedChar;
 
 	// snap pointers
@@ -923,6 +930,7 @@ private:
 		char m_aPath[IO_MAX_PATH_LENGTH];
 		bool m_IsDefault;
 		CImageInfo m_ImageInfo;
+		std::optional<CImageInfo> m_FallbackImageInfo;
 	};
 
 	CImageAsset LoadAssetFromPath(const char *pPath, bool AsDir, int AssetId, const char *pDirectory) const;

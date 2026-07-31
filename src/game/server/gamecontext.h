@@ -349,8 +349,6 @@ public:
 
 	void List(int ClientId, const char *pFilter);
 
-	//
-	void CheckPureTuning();
 	void SendTuningParams(int ClientId, int Zone = 0);
 
 	const CVoteOptionServer *GetVoteOption(int Index) const;
@@ -421,6 +419,7 @@ public:
 
 	CUuid GameUuid() const override;
 	const char *GameType() const override;
+	char m_aVersionString[32];
 	const char *Version() const override;
 	const char *NetVersion() const override;
 

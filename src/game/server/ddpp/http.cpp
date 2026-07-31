@@ -1,5 +1,5 @@
+#include <engine/http.h>
 #include <engine/shared/config.h>
-#include <engine/shared/http.h>
 #include <engine/shared/json.h>
 #include <engine/shared/jsonwriter.h>
 
@@ -15,7 +15,7 @@ void CGameContext::HttpPostStable(const char *pUrl, const char *pContent) const
 {
 	const int ContentSize = str_length(pContent);
 	// TODO: use HttpPostJson()
-	std::shared_ptr<CHttpRequest> pDiscord = HttpPost(pUrl, (const unsigned char *)pContent, ContentSize);
+	std::shared_ptr<IHttpRequest> pDiscord = HttpPost(pUrl, (const unsigned char *)pContent, ContentSize);
 	pDiscord->LogProgress(HTTPLOG::FAILURE);
 	pDiscord->IpResolve(IPRESOLVE::V4);
 	pDiscord->Timeout(CTimeout{4000, 15000, 500, 5});
