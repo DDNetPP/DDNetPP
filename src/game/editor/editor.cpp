@@ -4216,13 +4216,12 @@ void CEditor::RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &
 	const ColorRGBA DoorOuterColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorOutlineColor));
 	const ColorRGBA DoorInnerColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorInnerColor));
 
-	float aPoints[4];
-	Group.Mapping(aPoints);
+	CScreenRect ScreenRect = Group.Mapping();
 	const int ExtraBorder = 9; // doors extend beyond the tile on which they are placed
-	const int StartX = std::max(0, (int)std::floor(aPoints[0] / TileSize) - ExtraBorder);
-	const int EndX = std::min(TilesLayer.m_Width, (int)std::ceil(aPoints[2] / TileSize) + ExtraBorder);
-	const int StartY = std::max(0, (int)std::floor(aPoints[1] / TileSize) - ExtraBorder);
-	const int EndY = std::min(TilesLayer.m_Height, (int)std::ceil(aPoints[3] / TileSize) + ExtraBorder);
+	const int StartX = std::max(0, (int)std::floor(ScreenRect.m_TopLeft.x / TileSize) - ExtraBorder);
+	const int EndX = std::min(TilesLayer.m_Width, (int)std::ceil(ScreenRect.m_BottomRight.x / TileSize) + ExtraBorder);
+	const int StartY = std::max(0, (int)std::floor(ScreenRect.m_TopLeft.y / TileSize) - ExtraBorder);
+	const int EndY = std::min(TilesLayer.m_Height, (int)std::ceil(ScreenRect.m_BottomRight.y / TileSize) + ExtraBorder);
 	for(int y = StartY; y < EndY; y++)
 	{
 		for(int x = StartX; x < EndX; x++)
@@ -4479,15 +4478,18 @@ void CEditor::Init()
 	m_aCursorTextures[CURSOR_RESIZE_H] = Graphics()->LoadTexture("editor/cursor_resize.png", IStorage::TYPE_ALL);
 	m_aCursorTextures[CURSOR_RESIZE_V] = m_aCursorTextures[CURSOR_RESIZE_H];
 
-	m_pTilesetPicker = std::make_shared<CLayerTiles>(Map(), 16, 16);
+	m_pToolsMap = std::make_unique<CEditorMap>(this);
+
+	m_pTilesetPicker = std::make_shared<CLayerTiles>(m_pToolsMap.get(), 16, 16);
 	m_pTilesetPicker->MakePalette();
 	m_pTilesetPicker->m_Readonly = true;
+	m_pTilesetPicker->m_RenderOverlays = false;
 
-	m_pQuadsetPicker = std::make_shared<CLayerQuads>(Map());
+	m_pQuadsetPicker = std::make_shared<CLayerQuads>(m_pToolsMap.get());
 	m_pQuadsetPicker->NewQuad(0, 0, 64, 64);
 	m_pQuadsetPicker->m_Readonly = true;
 
-	m_pBrush = std::make_shared<CLayerGroup>(Map());
+	m_pBrush = std::make_shared<CLayerGroup>(m_pToolsMap.get());
 
 	Reset(false);
 }

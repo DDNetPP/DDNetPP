@@ -1717,6 +1717,7 @@ void CMenus::RenderPopupFullscreen(CUIRect Screen)
 		if(DoButton_Menu(&s_SkipTutorialButton, Localize("Skip Tutorial"), 0, &Skip) || Ui()->ConsumeHotkey(CUi::HOTKEY_ESCAPE))
 		{
 			Client()->RequestDDNetInfo();
+			m_JoinTutorial.m_Queued = false;
 			m_Popup = g_Config.m_BrIndicateFinished ? POPUP_POINTS : POPUP_NONE;
 		}
 
@@ -2441,7 +2442,7 @@ void CMenus::RenderBackground()
 {
 	const float ScreenHeight = 300.0f;
 	const float ScreenWidth = ScreenHeight * Graphics()->ScreenAspect();
-	Graphics()->MapScreen(0.0f, 0.0f, ScreenWidth, ScreenHeight);
+	Graphics()->MapScreenToSize(ScreenWidth, ScreenHeight);
 
 	// render background color
 	Graphics()->TextureClear();

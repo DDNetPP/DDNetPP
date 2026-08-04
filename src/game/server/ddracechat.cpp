@@ -1738,8 +1738,8 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 
 	if(GoRescue)
 	{
-		pChr->Rescue();
-		pChr->Unfreeze();
+		if(pChr->Rescue())
+			pChr->Unfreeze();
 	}
 }
 
@@ -1812,8 +1812,8 @@ void CGameContext::ConBack(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 		pChr->GetLastRescueTeeRef(pPlayer->m_RescueMode) = pPlayer->m_LastDeath.value();
-		pChr->Rescue();
-		pChr->Unfreeze();
+		if(pChr->Rescue())
+			pChr->Unfreeze();
 	}
 }
 
