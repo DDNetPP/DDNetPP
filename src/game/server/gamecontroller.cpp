@@ -740,19 +740,6 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_ENTITIES_RACE |
 		GAMEINFOFLAG_RACE;
 
-	// ddnet++
-	// TODO: move this to the ddnet-insta hook SnapGameInfoExFlags()
-	if(pPlayer)
-	{
-		if(GameServer()->IsMinigaming(pPlayer->GetCid()) && !pPlayer->m_IsJailed)
-		{
-			if(GameServer()->MinigameScoreType(SnappingClient) == EDisplayScore::TIME)
-				GameInfoEx.m_Flags |= GAMEINFOFLAG_TIMESCORE;
-		}
-		else if(pPlayer->m_DisplayScore == EDisplayScore::TIME)
-			GameInfoEx.m_Flags |= GAMEINFOFLAG_TIMESCORE;
-	}
-
 	GameInfoEx.m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE | GAMEINFOFLAG2_DDRACE_TEAM | GAMEINFOFLAG2_PREDICT_EVENTS;
 	if(g_Config.m_SvNoWeakHook)
 		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;

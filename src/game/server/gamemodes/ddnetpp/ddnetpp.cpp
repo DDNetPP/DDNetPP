@@ -19,6 +19,8 @@
 #include <game/server/score.h>
 #include <game/version.h>
 
+#include <insta/server/gamemodes/insta_core/insta_core.h>
+
 CGameControllerDDNetPP::CGameControllerDDNetPP(class CGameContext *pGameServer) :
 	CGameControllerInstaCore(pGameServer)
 {
@@ -32,7 +34,21 @@ CGameControllerDDNetPP::~CGameControllerDDNetPP() = default;
 
 int CGameControllerDDNetPP::SnapGameInfoExFlags(int SnappingClient, int DDRaceFlags)
 {
-	return Lua()->OnSnapGameInfoExFlags(SnappingClient, DDRaceFlags);
+	int Flags = CGameControllerInstaCore::SnapGameInfoExFlags(SnappingClient, DDRaceFlags);
+
+	CPlayer *pPlayer = GameServer()->GetPlayerOrNullptr(SnappingClient);
+	if(pPlayer)
+	{
+		if(GameServer()->IsMinigaming(pPlayer->GetCid()) && !pPlayer->m_IsJailed)
+		{
+			if(GameServer()->MinigameScoreType(SnappingClient) == EDisplayScore::TIME)
+				Flags |= GAMEINFOFLAG_TIMESCORE;
+		}
+		else if(pPlayer->m_DisplayScore == EDisplayScore::TIME)
+			Flags |= GAMEINFOFLAG_TIMESCORE;
+	}
+
+	return Lua()->OnSnapGameInfoExFlags(SnappingClient, Flags);
 }
 
 int CGameControllerDDNetPP::SnapGameInfoExFlags2(int SnappingClient, int DDRaceFlags)
