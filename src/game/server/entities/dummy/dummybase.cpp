@@ -8,6 +8,7 @@
 #include <game/mapitems.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
+#include <game/server/teeinfo.h>
 
 CDummyBase::CDummyBase(class CPlayer *pPlayer, int Mode)
 {
@@ -452,5 +453,8 @@ void CDummyBase::DebugColor(int DebugColor)
 	// else if(DebugColor == COLOR_WHITE)
 	// 	Color = BaseColor = 255;
 
-	m_pPlayer->m_TeeInfos.m_ColorBody = Color;
+	CTeeInfo Info = m_pPlayer->TeeInfos();
+	Info.m_ColorBody = Color;
+	Info.m_UseCustomColor = true;
+	m_pPlayer->SetTeeInfos(Info);
 }

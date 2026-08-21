@@ -155,6 +155,24 @@ void CPlayer::Reset()
 	m_CameraInfo.Reset();
 	UpdateNetworkClipRadius();
 	std::fill(std::begin(m_aStrongWeakId), std::end(m_aStrongWeakId), 0);
+	InvalidateClientInfo();
+}
+
+void CPlayer::SetTeeInfos(const CTeeInfo &TeeInfos)
+{
+	m_TeeInfos = TeeInfos;
+	InvalidateClientInfo();
+}
+
+void CPlayer::SetTeeInfos(const char *pSkinName, bool UseCustomColor, int ColorBody, int ColorFeet)
+{
+	str_copy(m_TeeInfos.m_aSkinName, pSkinName);
+	m_TeeInfos.m_UseCustomColor = UseCustomColor;
+	m_TeeInfos.m_ColorBody = ColorBody;
+	m_TeeInfos.m_ColorFeet = ColorFeet;
+	if(!Server()->IsSixup(m_ClientId))
+		m_TeeInfos.ToSixup();
+	InvalidateClientInfo();
 }
 
 static int PlayerFlags_SixToSeven(int Flags)
@@ -596,13 +614,13 @@ void CPlayer::SendConnect(int FakeId, int ClientId)
 	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
 	NewClientInfoMsg.m_Silent = 1;
 
-	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo(); // ddnet-insta
+	pPlayer->SetTeeInfos(pPlayer->m_SkinInfoManager.TeeInfo()); // ddnet-insta
 
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
-		NewClientInfoMsg.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_aaSkinPartNames[p];
-		NewClientInfoMsg.m_aUseCustomColors[p] = pPlayer->m_TeeInfos.m_aUseCustomColors[p];
-		NewClientInfoMsg.m_aSkinPartColors[p] = pPlayer->m_TeeInfos.m_aSkinPartColors[p];
+		NewClientInfoMsg.m_apSkinPartNames[p] = pPlayer->TeeInfos().m_aaSkinPartNames[p];
+		NewClientInfoMsg.m_aUseCustomColors[p] = pPlayer->TeeInfos().m_aUseCustomColors[p];
+		NewClientInfoMsg.m_aSkinPartColors[p] = pPlayer->TeeInfos().m_aSkinPartColors[p];
 	}
 
 	Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD | MSGFLAG_NOTRANSLATE, m_ClientId);

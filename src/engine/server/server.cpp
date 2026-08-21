@@ -414,6 +414,7 @@ bool CServer::SetClientNameImpl(int ClientId, const char *pNameRequest, bool Set
 		// set the client name
 		str_copy(m_aClients[ClientId].m_aName, aNameTry);
 		GameServer()->TeehistorianRecordPlayerName(ClientId, m_aClients[ClientId].m_aName);
+		GameServer()->OnClientInfoChange(ClientId);
 	}
 
 	return Changed;
@@ -451,10 +452,11 @@ bool CServer::SetClientClanImpl(int ClientId, const char *pClanRequest, bool Set
 
 	bool Changed = str_comp(m_aClients[ClientId].m_aClan, aTrimmedClan) != 0;
 
-	if(Set)
+	if(Set && Changed)
 	{
 		// set the client clan
 		str_copy(m_aClients[ClientId].m_aClan, aTrimmedClan);
+		GameServer()->OnClientInfoChange(ClientId);
 	}
 
 	return Changed;
@@ -485,7 +487,11 @@ void CServer::SetClientCountry(int ClientId, int Country)
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS || m_aClients[ClientId].m_State < CClient::STATE_READY)
 		return;
 
+	if(m_aClients[ClientId].m_Country == Country)
+		return;
+
 	m_aClients[ClientId].m_Country = Country;
+	GameServer()->OnClientInfoChange(ClientId);
 }
 
 void CServer::SetClientScore(int ClientId, std::optional<int> Score)
@@ -2915,7 +2921,7 @@ void CServer::UpdateServerInfo(bool Resend)
 	m_ServerInfoNeedsUpdate = false;
 }
 
-void CServer::PumpNetwork(bool PacketWaiting)
+void CServer::PumpNetwork()
 {
 	CNetChunk Packet;
 	SECURITY_TOKEN ResponseToken;
@@ -2927,7 +2933,8 @@ void CServer::PumpNetwork(bool PacketWaiting)
 	// per recipient, flushed once all packets have been handled below.
 	m_NetServer.BeginFlushBatch();
 
-	if(PacketWaiting)
+	// Receive unconditionally, `net_udp_recv()` can hold packets that
+	// `net_socket_read_wait()` does not see.
 	{
 		// process packets
 		ResponseToken = NET_SECURITY_TOKEN_UNKNOWN;
@@ -3170,7 +3177,9 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 			Client.m_DDNetVersion = DDNET_VERSION_NUMBER;
 			Client.m_GotDDNetVersionPacket = true;
 			Client.m_DDNetVersionSettled = true;
-			str_format(Client.m_aName, sizeof(Client.m_aName), "Debug dummy %d", DummyIndex + 1);
+			char aDummyName[MAX_NAME_LENGTH];
+			str_format(aDummyName, sizeof(aDummyName), "Debug dummy %d", DummyIndex + 1);
+			SetClientName(ClientId, aDummyName);
 			GameServer()->OnClientEnter(ClientId);
 		}
 		else if(!AddDummy && Client.m_DebugDummy)
@@ -3322,7 +3331,6 @@ int CServer::Run()
 	// start game
 	{
 		bool NonActive = false;
-		bool PacketWaiting = false;
 
 		m_GameStartTime = time_get();
 
@@ -3330,7 +3338,7 @@ int CServer::Run()
 		while(m_RunServer < STOPPING)
 		{
 			if(NonActive)
-				PumpNetwork(PacketWaiting);
+				PumpNetwork();
 
 			set_new_tick();
 
@@ -3548,7 +3556,7 @@ int CServer::Run()
 			}
 
 			if(!NonActive)
-				PumpNetwork(PacketWaiting);
+				PumpNetwork();
 
 			NonActive = true;
 			for(const auto &Client : m_aClients)
@@ -3587,14 +3595,15 @@ int CServer::Run()
 				!m_aDemoRecorder[RECORDER_MANUAL].IsRecording() &&
 				!m_aDemoRecorder[RECORDER_AUTO].IsRecording())
 			{
-				PacketWaiting = net_socket_read_wait(m_NetServer.Socket(), 1s);
+				net_socket_read_wait(m_NetServer.Socket(), 1s);
 			}
 			else
 			{
 				set_new_tick();
 				LastTime = time_get();
 				const auto MicrosecondsToWait = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::nanoseconds(TickStartTime(m_CurrentGameTick + 1) - LastTime)) + 1us;
-				PacketWaiting = MicrosecondsToWait > 0us ? net_socket_read_wait(m_NetServer.Socket(), MicrosecondsToWait) : true;
+				if(MicrosecondsToWait > 0us)
+					net_socket_read_wait(m_NetServer.Socket(), MicrosecondsToWait);
 			}
 			if(IsInterrupted())
 			{
@@ -4795,6 +4804,10 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	m_NetServer.ResumeOldConnection(ClientId, OrigId);
 
 	m_aClients[ClientId].m_Sixup = m_aClients[OrigId].m_Sixup;
+	// This slot keeps playing with the resumed connection, which can use the other
+	// protocol version, so its snapshots must not be used as delta base anymore.
+	m_aClients[ClientId].m_Snapshots.PurgeAll();
+	m_aClients[ClientId].m_LastAckedSnapshot = -1;
 	m_aClients[ClientId].m_AuthKey = -1;
 	m_aClients[ClientId].m_Flags = m_aClients[OrigId].m_Flags;
 	m_aClients[ClientId].m_DDNetVersion = m_aClients[OrigId].m_DDNetVersion;

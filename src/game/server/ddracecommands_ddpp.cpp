@@ -21,6 +21,7 @@
 #include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
 #include <game/server/teams.h>
+#include <game/server/teeinfo.h>
 #include <game/version.h>
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
@@ -199,9 +200,11 @@ void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && pPlayer->m_IsDummy)
 	{
-		pPlayer->m_TeeInfos.m_UseCustomColor = true;
-		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
-		pPlayer->m_TeeInfos.m_ColorFeet = pResult->GetInteger(0);
+		CTeeInfo Info = pPlayer->TeeInfos();
+		Info.m_UseCustomColor = true;
+		Info.m_ColorBody = pResult->GetInteger(0);
+		Info.m_ColorFeet = pResult->GetInteger(0);
+		pPlayer->SetTeeInfos(Info);
 	}
 }
 
@@ -215,7 +218,11 @@ void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+	{
+		CTeeInfo Info = pPlayer->TeeInfos();
+		str_copy(Info.m_aSkinName, pResult->GetString(0), sizeof(Info.m_aSkinName));
+		pPlayer->SetTeeInfos(Info);
+	}
 }
 
 void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
@@ -229,9 +236,11 @@ void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && !pPlayer->m_IsDummy)
 	{
-		pPlayer->m_TeeInfos.m_UseCustomColor = true;
-		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
-		pPlayer->m_TeeInfos.m_ColorFeet = pResult->GetInteger(0);
+		CTeeInfo Info = pPlayer->TeeInfos();
+		Info.m_UseCustomColor = true;
+		Info.m_ColorBody = pResult->GetInteger(0);
+		Info.m_ColorFeet = pResult->GetInteger(0);
+		pPlayer->SetTeeInfos(Info);
 	}
 }
 
@@ -245,7 +254,11 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+	{
+		CTeeInfo Info = pPlayer->TeeInfos();
+		str_copy(Info.m_aSkinName, pResult->GetString(0), sizeof(Info.m_aSkinName));
+		pPlayer->SetTeeInfos(Info);
+	}
 }
 
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)

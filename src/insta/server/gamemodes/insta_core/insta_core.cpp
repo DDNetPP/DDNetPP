@@ -20,6 +20,7 @@
 #include <game/server/player.h>
 #include <game/server/score.h>
 #include <game/server/teams.h>
+#include <game/server/teeinfo.h>
 #include <game/version.h>
 
 CGameControllerInstaCore::CGameControllerInstaCore(class CGameContext *pGameServer) :
@@ -69,22 +70,22 @@ bool CGameControllerInstaCore::OnSkinChange7(protocol7::CNetMsg_Cl_SkinChange *p
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 
 	// parse 0.7 info
-	pPlayer->m_TeeInfos = CTeeInfo(pMsg->m_apSkinPartNames, pMsg->m_aUseCustomColors, pMsg->m_aSkinPartColors);
-	pPlayer->m_TeeInfos.FromSixup();
+	CTeeInfo TeeInfo = CTeeInfo(pMsg->m_apSkinPartNames, pMsg->m_aUseCustomColors, pMsg->m_aSkinPartColors);
+	TeeInfo.FromSixup();
 
 	// store user request
-	pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos);
+	pPlayer->m_SkinInfoManager.SetUserChoice(TeeInfo);
 
 	// enforce server set info
-	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo();
+	pPlayer->SetTeeInfos(pPlayer->m_SkinInfoManager.TeeInfo());
 
 	protocol7::CNetMsg_Sv_SkinChange Msg;
 	Msg.m_ClientId = ClientId;
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
-		Msg.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_aaSkinPartNames[p];
-		Msg.m_aSkinPartColors[p] = pPlayer->m_TeeInfos.m_aSkinPartColors[p];
-		Msg.m_aUseCustomColors[p] = pPlayer->m_TeeInfos.m_aUseCustomColors[p];
+		Msg.m_apSkinPartNames[p] = pPlayer->TeeInfos().m_aaSkinPartNames[p];
+		Msg.m_aSkinPartColors[p] = pPlayer->TeeInfos().m_aSkinPartColors[p];
+		Msg.m_aUseCustomColors[p] = pPlayer->TeeInfos().m_aUseCustomColors[p];
 	}
 
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);

@@ -27,6 +27,7 @@
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/ddnet.h>
 #include <game/server/player.h>
+#include <game/server/teeinfo.h>
 
 #include <cinttypes>
 
@@ -325,8 +326,10 @@ void CCharacter::SetSpookyGhost()
 		m_Core.m_aWeapons[1].m_Ammo = -1;
 	}
 
-	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_aSkinName));
-	m_pPlayer->m_TeeInfos.m_UseCustomColor = false;
+	CTeeInfo Info = m_pPlayer->TeeInfos();
+	str_copy(Info.m_aSkinName, "ghost", sizeof(Info.m_aSkinName));
+	Info.m_UseCustomColor = false;
+	m_pPlayer->SetTeeInfos(Info);
 
 	m_pPlayer->m_SpookyGhostActive = 1;
 }
@@ -350,8 +353,10 @@ void CCharacter::UnsetSpookyGhost()
 		m_SpookyGhostWeaponsBackupped = false;
 	}
 
-	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, m_pPlayer->m_RealSkinName, sizeof(m_pPlayer->m_TeeInfos.m_aSkinName));
-	m_pPlayer->m_TeeInfos.m_UseCustomColor = m_pPlayer->m_RealUseCustomColor;
+	CTeeInfo Info = m_pPlayer->TeeInfos();
+	str_copy(Info.m_aSkinName, m_pPlayer->m_RealSkinName, sizeof(Info.m_aSkinName));
+	Info.m_UseCustomColor = m_pPlayer->m_RealUseCustomColor;
+	m_pPlayer->SetTeeInfos(Info);
 
 	m_pPlayer->m_SpookyGhostActive = 0;
 }
@@ -360,8 +365,8 @@ void CCharacter::SaveRealInfos()
 {
 	if(!m_pPlayer->m_SpookyGhostActive)
 	{
-		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->m_TeeInfos.m_aSkinName, sizeof(m_pPlayer->m_RealSkinName));
-		m_pPlayer->m_RealUseCustomColor = m_pPlayer->m_TeeInfos.m_UseCustomColor;
+		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->TeeInfos().m_aSkinName, sizeof(m_pPlayer->m_RealSkinName));
+		m_pPlayer->m_RealUseCustomColor = m_pPlayer->TeeInfos().m_UseCustomColor;
 		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCid()), sizeof(m_pPlayer->m_RealClan));
 		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCid()), sizeof(m_pPlayer->m_RealName));
 	}

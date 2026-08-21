@@ -70,7 +70,7 @@ void CDummyFNN::OnTick()
 		Jump(0);
 		StopMoving();
 		Fire(0);
-		m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
+		// m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
 	}
 	else if(!m_DummyNnReady) //first get the right start pos
 	{
@@ -200,7 +200,7 @@ void CDummyFNN::OnTick()
 		}
 
 		//always set to black
-		m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+		// m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
 		if(m_pPlayer->m_Dmm25 == -1) //error
 		{
@@ -208,7 +208,7 @@ void CDummyFNN::OnTick()
 			Jump(0);
 			StopMoving();
 			Fire(0);
-			m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
+			// m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
 		}
 		else if(m_pPlayer->m_Dmm25 == 0) //submode[0] write
 		{
@@ -278,12 +278,12 @@ void CDummyFNN::OnTick()
 			if(TileIndexL == TILE_FREEZE)
 			{
 				Right();
-				m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+				// m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
 			}
 			else if(TileIndexR == TILE_FREEZE)
 			{
 				Left();
-				m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+				// m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
 			}
 			else
 			{
@@ -292,12 +292,12 @@ void CDummyFNN::OnTick()
 			if(TileIndexB == TILE_FREEZE)
 			{
 				Jump();
-				m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+				// m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
 			}
 
 			if(TileIndexB == TILE_NOHOOK)
 			{
-				m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
+				// m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
 			}
 			// StopMoving();
 			// Hook(0);

@@ -1926,7 +1926,7 @@ void CGameContext::ChilliClanTick(int i)
 	CPlayer *pPlayer = m_apPlayers[i];
 
 	int AbstandWarnungen = 10;
-	if((str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_aSkinName, "greensward") != 0) && (!pPlayer->m_SpookyGhostActive))
+	if((str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->TeeInfos().m_aSkinName, "greensward") != 0) && (!pPlayer->m_SpookyGhostActive))
 	{
 		if(pPlayer->m_LastWarning + AbstandWarnungen * Server()->TickSpeed() <= Server()->Tick())
 		{
@@ -2819,13 +2819,14 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile, EDummyT
 	pPlayer->SetDummyMode(Mode);
 	Server()->BotJoin(DummyId);
 
-	str_copy(pPlayer->m_TeeInfos.m_aSkinName, "greensward", MAX_NAME_LENGTH);
-	pPlayer->m_TeeInfos.m_UseCustomColor = true;
-	pPlayer->m_TeeInfos.m_ColorFeet = 0;
-	pPlayer->m_TeeInfos.m_ColorBody = 0;
-	pPlayer->m_TeeInfos.ToSixup();
-	pPlayer->m_SkinInfoManager.SetUserChoice(pPlayer->m_TeeInfos);
-	pPlayer->m_TeeInfos = pPlayer->m_SkinInfoManager.TeeInfo();
+	CTeeInfo Info;
+	str_copy(Info.m_aSkinName, "greensward", MAX_NAME_LENGTH);
+	Info.m_UseCustomColor = true;
+	Info.m_ColorFeet = 0;
+	Info.m_ColorBody = 0;
+	Info.ToSixup();
+	pPlayer->m_SkinInfoManager.SetUserChoice(Info);
+	pPlayer->SetTeeInfos(pPlayer->m_SkinInfoManager.TeeInfo());
 
 	pPlayer->m_DummySpawnTile = Tile;
 	pPlayer->m_DummyTest = TestMode;
