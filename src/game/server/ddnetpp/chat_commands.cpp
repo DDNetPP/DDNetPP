@@ -35,4 +35,3 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	for(const char *pLine : CREDITS)
 		log_info("chatresp", "%s", pLine);
 }
-
