@@ -235,6 +235,9 @@ void CServer::CClient::Reset()
 	m_NextMapChunk = 0;
 	m_Flags = 0;
 	m_RedirectDropTime = 0;
+
+	std::fill(std::begin(m_aIdMap), std::end(m_aIdMap), -1);
+	std::fill(std::begin(m_aReverseIdMap), std::end(m_aReverseIdMap), -1);
 }
 
 CServer::CServer()
@@ -1047,6 +1050,10 @@ void CServer::DoSnapshot()
 	{
 		// client must be ingame to receive snapshots
 		if(m_aClients[i].m_State != CClient::STATE_INGAME)
+			continue;
+
+		// don't send snapshots to clients that haven't identified as DDNet-based yet, can crash them.
+		if(!m_aClients[i].m_Sixup && m_aClients[i].m_DDNetVersion < VERSION_DDNET_OLD)
 			continue;
 
 		// this client is trying to recover, don't spam snapshots
@@ -1920,7 +1927,12 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if(m_aClients[Id].m_SnapRate != CClient::SNAPRATE_FULL)
 							continue;
 
+						if(!Translate(PreInput.m_Owner, Id))
+							continue;
+
 						SendPackMsg(&PreInput, MSGFLAG_FLUSH | MSGFLAG_NORECORD, Id);
+						// Reset for others after translating and sending
+						PreInput.m_Owner = ClientId;
 					}
 				}
 			}
@@ -2518,7 +2530,7 @@ void CServer::CacheServerInfo(CCache *pCache, int Type, bool SendClients)
 
 			if(Type == SERVERINFO_EXTENDED)
 			{
-				if(q.Size() >= NET_MAX_PAYLOAD - 18) // 8 bytes for type, 10 bytes for the largest token
+				if(q.Size() >= NET_MAX_CONNLESS_PAYLOAD - 18) // 8 bytes for type, 10 bytes for the largest token
 				{
 					// Retry current player.
 					i--;
@@ -2609,7 +2621,7 @@ void CServer::CacheServerInfoSixup(CCache *pCache, bool SendClients, int MaxCons
 				Packer.AddInt(m_aClients[i].m_Score.value_or(-1)); // client score
 				Packer.AddInt(GameServer()->IsClientPlayer(i) ? 0 : 1); // flag spectator=1, bot=2 (player=0)
 
-				const int MaxPacketSize = NET_MAX_PAYLOAD - 128;
+				const int MaxPacketSize = NET_MAX_CONNLESS_PAYLOAD - 128;
 				if(MaxConsideredClients == MAX_CLIENTS)
 				{
 					if(Packer.Size() > MaxPacketSize - 32) // -32 because repacking will increase the length of the name
@@ -2992,7 +3004,7 @@ void CServer::PumpNetwork(bool PacketWaiting)
 		}
 	}
 	{
-		unsigned char aBuffer[NET_MAX_PAYLOAD];
+		unsigned char aBuffer[NET_MAX_CHUNK_SIZE];
 		int Flags;
 		mem_zero(&Packet, sizeof(Packet));
 		Packet.m_pData = aBuffer;
@@ -3155,6 +3167,9 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 
 			GameServer()->OnClientConnected(ClientId, nullptr);
 			Client.m_State = CClient::STATE_INGAME;
+			Client.m_DDNetVersion = DDNET_VERSION_NUMBER;
+			Client.m_GotDDNetVersionPacket = true;
+			Client.m_DDNetVersionSettled = true;
 			str_format(Client.m_aName, sizeof(Client.m_aName), "Debug dummy %d", DummyIndex + 1);
 			GameServer()->OnClientEnter(ClientId);
 		}
@@ -3629,11 +3644,11 @@ void CServer::ConKick(IConsole::IResult *pResult, void *pUser)
 	{
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "Kicked (%s)", pResult->GetString(1));
-		((CServer *)pUser)->Kick(pResult->GetInteger(0), aBuf);
+		((CServer *)pUser)->Kick(pResult->GetVictim(), aBuf);
 	}
 	else
 	{
-		((CServer *)pUser)->Kick(pResult->GetInteger(0), "Kicked by console");
+		((CServer *)pUser)->Kick(pResult->GetVictim(), "Kicked by console");
 	}
 }
 
@@ -4189,9 +4204,9 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->Config()->m_SvUseSql)
 		return;
 
-	if(pResult->NumArguments() != 7 && pResult->NumArguments() != 8)
+	if(pResult->NumArguments() < 7 || pResult->NumArguments() > 9)
 	{
-		log_error("server", "7 or 8 arguments are required");
+		log_error("server", "7 to 9 arguments are required");
 		return;
 	}
 
@@ -4218,7 +4233,11 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 	str_copy(Config.m_aIp, pResult->GetString(5));
 	Config.m_aBindaddr[0] = '\0';
 	Config.m_Port = pResult->GetInteger(6);
-	Config.m_Setup = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;
+	Config.m_Setup = pResult->NumArguments() >= 8 ? pResult->GetInteger(7) : true;
+	Config.m_UseSsl = pResult->NumArguments() >= 9 ? pResult->GetInteger(8) != 0 : false;
+	str_copy(Config.m_aSslCa, g_Config.m_SvSqlSslCa);
+	str_copy(Config.m_aSslCert, g_Config.m_SvSqlSslCert);
+	str_copy(Config.m_aSslKey, g_Config.m_SvSqlSslKey);
 
 	log_info("server",
 		"Adding new Sql%sServer: DB: '%s' Prefix: '%s' User: '%s' IP: <{%s}> Port: %d",
@@ -4532,7 +4551,7 @@ void CServer::RegisterCommands()
 	m_pLua = Kernel()->RequestInterface<ILuaController>();
 
 	// register console commands
-	Console()->Register("kick", "i[id] ?r[reason]", CFGFLAG_SERVER, ConKick, this, "Kick player with specified id for any reason");
+	Console()->Register("kick", "v[id] ?r[reason]", CFGFLAG_SERVER, ConKick, this, "Kick player with specified id for any reason");
 	Console()->Register("status", "?r[name]", CFGFLAG_SERVER, ConStatus, this, "List players containing name or all players");
 	Console()->Register("shutdown", "?r[reason]", CFGFLAG_SERVER, ConShutdown, this, "Shut down");
 	Console()->Register("logout", "", CFGFLAG_SERVER, ConLogout, this, "Logout of rcon");
@@ -4545,7 +4564,7 @@ void CServer::RegisterCommands()
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
 
-	Console()->Register("add_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]", CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConAddSqlServer, this, "add a sqlserver");
+	Console()->Register("add_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?] ?i[SSL ?]", CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConAddSqlServer, this, "add a sqlserver");
 	Console()->Register("dump_sqlservers", "s['r'|'w']", CFGFLAG_SERVER, ConDumpSqlServers, this, "dumps all sqlservers readservers = r, writeservers = w");
 
 	Console()->Register("auth_add", "s[ident] s[level] r[pw]", CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConAuthAdd, this, "Add a rcon key");
@@ -4752,7 +4771,12 @@ void CServer::InitMaplist()
 
 int *CServer::GetIdMap(int ClientId)
 {
-	return m_aIdMap + VANILLA_MAX_CLIENTS * ClientId;
+	return m_aClients[ClientId].m_aIdMap;
+}
+
+int *CServer::GetReverseIdMap(int ClientId)
+{
+	return m_aClients[ClientId].m_aReverseIdMap;
 }
 
 bool CServer::SetTimedOut(int ClientId, int OrigId)
@@ -4771,13 +4795,21 @@ bool CServer::SetTimedOut(int ClientId, int OrigId)
 	m_NetServer.ResumeOldConnection(ClientId, OrigId);
 
 	m_aClients[ClientId].m_Sixup = m_aClients[OrigId].m_Sixup;
-
-	DelClientCallback(OrigId, "Timeout Protection used", this);
 	m_aClients[ClientId].m_AuthKey = -1;
 	m_aClients[ClientId].m_Flags = m_aClients[OrigId].m_Flags;
 	m_aClients[ClientId].m_DDNetVersion = m_aClients[OrigId].m_DDNetVersion;
 	m_aClients[ClientId].m_GotDDNetVersionPacket = m_aClients[OrigId].m_GotDDNetVersionPacket;
 	m_aClients[ClientId].m_DDNetVersionSettled = m_aClients[OrigId].m_DDNetVersionSettled;
+
+	DelClientCallback(OrigId, "Timeout Protection used", this);
+
+	// OnSetTimedOut must be called after DelClientCallback to preserve the client id.
+	// The order is important for the player initialization algorithm in CPlayerMapping::CPlayerMap::InitPlayer
+	// because it loops over all players to find others with the same ip address.
+	// IP matching is important for hammerfly/dummy copy to work by guaran-tee-ing dummy and player map have the same ids
+	// Never forget: 0.7 really implemented netmsgs for join/leave, means client ids have to be stable across using timeout protection.
+	// When InitPlayer runs it has to assign the same client id as before since local id cant be changed in 0.7
+	GameServer()->OnSetTimedOut(ClientId);
 	return true;
 }
 

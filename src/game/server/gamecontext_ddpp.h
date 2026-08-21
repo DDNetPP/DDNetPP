@@ -970,6 +970,7 @@ private:
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 
 	//info
+	static void ConCredits(IConsole::IResult *pResult, void *pUserData);
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);

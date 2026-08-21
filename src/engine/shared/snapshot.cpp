@@ -152,13 +152,25 @@ bool CSnapshot::IsValid(size_t ActualSize) const
 	// validate item offsets
 	const int *pOffsets = Offsets();
 	for(int Index = 0; Index < m_NumItems; Index++)
-		if(pOffsets[Index] < 0 || pOffsets[Index] > m_DataSize)
+	{
+		if(pOffsets[Index] < 0 ||
+			pOffsets[Index] > m_DataSize ||
+			pOffsets[Index] % sizeof(int32_t) != 0)
+		{
 			return false;
+		}
+	}
 
 	// validate item sizes
 	for(int Index = 0; Index < m_NumItems; Index++)
-		if(GetItemSize(Index) < 0) // the offsets must be validated before using this
+	{
+		const int ItemSize = GetItemSize(Index); // the offsets must be validated before using this
+		if(ItemSize < 0 ||
+			ItemSize % sizeof(int32_t) != 0)
+		{
 			return false;
+		}
+	}
 
 	return true;
 }
@@ -878,7 +890,18 @@ void *CSnapshotBuilder::NewItemRaw(int Type, int Id, int Size)
 	const bool Extended = Type >= OFFSET_UUID;
 	dbg_assert((Type >= 0 && Type <= CSnapshot::MAX_TYPE) || Extended || (m_Sixup && Type >= -CSnapshot::MAX_TYPE && Type < 0), "Invalid snap item Type: %d", Type);
 	dbg_assert(Id >= 0 && Id <= CSnapshot::MAX_ID, "Invalid snap item Id: %d", Id);
-	dbg_assert(Size >= 0 && (size_t)Size <= CSnapshot::MAX_SIZE - sizeof(CSnapshot) - sizeof(CSnapshotItem) - sizeof(int), "Invalid snap item Size: %d", Size);
+	dbg_assert(Size >= 0 && (size_t)Size <= CSnapshot::MAX_SIZE - sizeof(CSnapshot) - sizeof(CSnapshotItem) - sizeof(int) && Size % sizeof(int32_t) == 0, "Invalid snap item Size: %d", Size);
+
+	// resolve extended types first for capacity checks below
+	if(Extended)
+	{
+		const int ExtendedItemTypeIndex = GetExtendedItemTypeIndex(Type);
+		if(ExtendedItemTypeIndex == -1)
+		{
+			return nullptr;
+		}
+		Type = GetTypeFromIndex(ExtendedItemTypeIndex);
+	}
 
 	if(m_NumItems >= CSnapshot::MAX_ITEMS)
 	{
@@ -890,16 +913,6 @@ void *CSnapshotBuilder::NewItemRaw(int Type, int Id, int Size)
 	if(sizeof(CSnapshot) + OffsetSize + m_DataSize + ItemSize > CSnapshot::MAX_SIZE)
 	{
 		return nullptr;
-	}
-
-	if(Extended)
-	{
-		const int ExtendedItemTypeIndex = GetExtendedItemTypeIndex(Type);
-		if(ExtendedItemTypeIndex == -1)
-		{
-			return nullptr;
-		}
-		Type = GetTypeFromIndex(ExtendedItemTypeIndex);
 	}
 
 	CSnapshotItem *pObj = (CSnapshotItem *)(m_aData + m_DataSize);

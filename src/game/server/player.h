@@ -69,6 +69,9 @@ public:
 	void PostPostTick();
 	void Snap(int SnappingClient);
 	void FakeSnap();
+	void SendConnect(int FakeId, int ClientId);
+	void SendDisconnect(int FakeId);
+	int m_aStrongWeakId[LEGACY_MAX_CLIENTS];
 
 	void OnDirectInput(const CNetObj_PlayerInput *pNewInput);
 	void OnPredictedInput(const CNetObj_PlayerInput *pNewInput);
@@ -221,6 +224,10 @@ public:
 		void Reset();
 	} m_CameraInfo;
 
+	// effective radius for network clipping, updated every tick since it depends on the dynamic camera offset
+	vec2 m_NetworkClipRadius;
+	void UpdateNetworkClipRadius();
+
 	int m_ChatScore;
 
 	bool m_Moderating;
@@ -241,6 +248,9 @@ public:
 
 	bool m_EyeEmoteEnabled;
 	int m_TimerType;
+
+	// Tick at which to kick the client if it still hasn't identified as a DDNet-based client
+	int m_DDNetVersionKickTick;
 
 	int GetDefaultEmote() const;
 	void OverrideDefaultEmote(int Emote, int Tick);

@@ -60,7 +60,7 @@ static tm time_localtime_threadlocal(time_t *time_data)
 	thread_local tm time_info_buf; // NOLINT(misc-use-internal-linkage) // TODO: remove NOLINT when updating clang-tidy version
 	tm *time = localtime_r(time_data, &time_info_buf);
 #endif
-	dbg_assert(time != nullptr, "Failed to get local time for time data %" PRId64, (int64_t)time_data);
+	dbg_assert(time != nullptr, "Failed to get local time for time data %" PRId64, (int64_t)*time_data);
 	return *time;
 }
 
@@ -94,8 +94,8 @@ static bool time_iseasterday(time_t time_data, tm time_info)
 	// (now-1d ≤ easter ≤ now+2d) <=> (easter-2d ≤ now ≤ easter+1d) <=> (Good Friday ≤ now ≤ Easter Monday)
 	for(int day_offset = -1; day_offset <= 2; day_offset++)
 	{
-		time_data = time_data + day_offset * 60 * 60 * 24;
-		const tm offset_time_info = time_localtime_threadlocal(&time_data);
+		time_t offset_time_data = time_data + day_offset * 60 * 60 * 24;
+		const tm offset_time_info = time_localtime_threadlocal(&offset_time_data);
 		if(offset_time_info.tm_mon == month - 1 && offset_time_info.tm_mday == day)
 			return true;
 	}

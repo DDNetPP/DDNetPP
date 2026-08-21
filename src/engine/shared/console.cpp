@@ -11,6 +11,7 @@
 #include <base/ddpp_logs.h>
 #include <base/io.h>
 #include <base/log.h>
+#include <base/log_color.h>
 #include <base/math.h>
 #include <base/mem.h>
 #include <base/str.h>
@@ -355,14 +356,6 @@ int IConsole::ToLogLevelFilter(int Level)
 	return Level + 2;
 }
 
-static LOG_COLOR ColorToLogColor(ColorRGBA Color)
-{
-	return LOG_COLOR{
-		(uint8_t)(Color.r * 255.0),
-		(uint8_t)(Color.g * 255.0),
-		(uint8_t)(Color.b * 255.0)};
-}
-
 void CConsole::Print(int Level, const char *pFrom, const char *pStr, ColorRGBA PrintColor) const
 {
 	char aBuf[1024];
@@ -376,7 +369,7 @@ void CConsole::Print(int Level, const char *pFrom, const char *pStr, ColorRGBA P
 	// if console colors are not enabled or if the color is pure white, use default terminal color
 	if(g_Config.m_ConsoleEnableColors && PrintColor != CONSOLE_DEFAULT_COLOR)
 	{
-		log_log_color(LogLevel, ColorToLogColor(PrintColor), pFrom, "%s", pStr);
+		log_log_color(LogLevel, color_cast<LOG_COLOR>(PrintColor), pFrom, "%s", pStr);
 	}
 	else
 	{
@@ -749,11 +742,9 @@ bool CConsole::ExecuteFile(const char *pFilename, int ClientId, bool LogFailure,
 	// exec the file
 	CLineReader LineReader;
 	bool Success = false;
-	char aBuf[32 + IO_MAX_PATH_LENGTH];
 	if(LineReader.OpenFile(m_pStorage->OpenFile(pFilename, IOFLAG_READ, StorageType)))
 	{
-		str_format(aBuf, sizeof(aBuf), "executing '%s'", pFilename);
-		Print(IConsole::OUTPUT_LEVEL_STANDARD, "console", aBuf);
+		log_info("console", "executing '%s'", pFilename);
 
 		while(const char *pLine = LineReader.Get())
 		{
@@ -764,8 +755,7 @@ bool CConsole::ExecuteFile(const char *pFilename, int ClientId, bool LogFailure,
 	}
 	else if(LogFailure)
 	{
-		str_format(aBuf, sizeof(aBuf), "failed to open '%s'", pFilename);
-		Print(IConsole::OUTPUT_LEVEL_STANDARD, "console", aBuf);
+		log_error("console", "failed to open '%s'", pFilename);
 	}
 
 	m_pFirstExec = pPrev;
@@ -774,7 +764,7 @@ bool CConsole::ExecuteFile(const char *pFilename, int ClientId, bool LogFailure,
 
 void CConsole::Con_Echo(IResult *pResult, void *pUserData)
 {
-	((CConsole *)pUserData)->Print(IConsole::OUTPUT_LEVEL_STANDARD, "console", pResult->GetString(0));
+	log_info("console", "%s", pResult->GetString(0));
 }
 
 void CConsole::Con_Exec(IResult *pResult, void *pUserData)

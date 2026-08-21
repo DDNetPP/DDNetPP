@@ -80,7 +80,19 @@ int CNetClient::Recv(CNetChunk *pChunk, SECURITY_TOKEN *pResponseToken, bool Six
 	{
 		// Unpack next chunk from stored packet if available
 		if(m_PacketChunkUnpacker.UnpackNextChunk(pChunk))
-			return 1;
+		{
+			// Only return the pending packet if the peer is still
+			// available, the caller might have dropped them in
+			// response to the previous chunk.
+			if(m_Connection.State() != CNetConnection::EState::OFFLINE)
+			{
+				return 1;
+			}
+			else
+			{
+				m_PacketChunkUnpacker.Reset();
+			}
+		}
 
 		// TODO: empty the recvinfo
 		NETADDR Addr;
@@ -146,11 +158,7 @@ int CNetClient::Recv(CNetChunk *pChunk, SECURITY_TOKEN *pResponseToken, bool Six
 
 int CNetClient::Send(CNetChunk *pChunk)
 {
-	if(pChunk->m_DataSize >= NET_MAX_PAYLOAD)
-	{
-		dbg_msg("netclient", "chunk payload too big. %d. dropping chunk", pChunk->m_DataSize);
-		return -1;
-	}
+	pChunk->AssertSizeSanity();
 
 	if(pChunk->m_Flags & NETSENDFLAG_CONNLESS)
 	{

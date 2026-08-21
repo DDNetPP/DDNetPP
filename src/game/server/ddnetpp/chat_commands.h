@@ -124,6 +124,7 @@ CHAT_COMMAND("spawn", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawn, this, "tel
 CHAT_COMMAND("quest", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConQuest, this, "play little quest and earn rewards.")
 CHAT_COMMAND("bounty", "?sii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBounty, this, "blocker hitman command")
 CHAT_COMMAND("fng", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConFng, this, "configurate some fng settings '/fng help' for more help")
+CHAT_COMMAND("credits", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConCredits, this, "credits")
 
 // CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")
 
