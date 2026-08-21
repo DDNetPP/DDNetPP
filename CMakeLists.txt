@@ -3029,6 +3029,7 @@ if(SERVER)
     # tidy-alphabetical-start
     captcha.cpp
     captcha.h
+    ddnetpp/chat_commands.cpp
     ddnetpp/chat_commands.h
     ddnetpp/db/accounts.cpp
     ddnetpp/db/accounts.h
