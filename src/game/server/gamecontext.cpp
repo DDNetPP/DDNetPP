@@ -1331,7 +1331,7 @@ void CGameContext::OnTick()
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_apPlayers[i])
+		if(m_apPlayers[i] && !m_apPlayers[i]->m_IsDummy)
 		{
 			// By supporting 128 players with full backwards compatibility (in +spectate menu too), it's basically impossible and
 			// really unnecessary to have old 16 player clients supported
