@@ -189,7 +189,7 @@
 + `force_jail` jails player by adminforce
 + `ninjasteam` activates a awesome NINJASTEAM
 + `hammerfightmode` activates hammerfightmode for a player
-+ `freeze_shotgun` Gives you a freeze Shotgun
++ `freezeshotgun` Gives you a freeze Shotgun
 + `Damage` Makes a player vulnerable
 + `register_ban` Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'
 + `register_ban_id` Ban a player from the registration system

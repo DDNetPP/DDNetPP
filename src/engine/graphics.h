@@ -242,6 +242,9 @@ class IGraphics : public IInterface
 protected:
 	int m_ScreenWidth;
 	int m_ScreenHeight;
+	int m_ViewportX = 0;
+	int m_DrawableWidth;
+	int m_DrawableHeight;
 	int m_ScreenRefreshRate;
 	float m_ScreenHiDPIScale;
 	ivec2 m_DesktopSize;
@@ -278,6 +281,16 @@ public:
 	float ScreenHiDPIScale() const { return m_ScreenHiDPIScale; }
 	int WindowWidth() const { return m_ScreenWidth / m_ScreenHiDPIScale; }
 	int WindowHeight() const { return m_ScreenHeight / m_ScreenHiDPIScale; }
+
+	// Size of the whole drawable area, in the same units as ScreenWidth()/ScreenHeight().
+	// The rendered image is clamped to an aspect ratio of at most 5:4 and excludes the
+	// area covered by the cutout of the display, so it can be smaller than that area.
+	// The rest of the drawable area is not rendered to.
+	vec2 DrawableSize() const { return vec2(m_DrawableWidth, m_DrawableHeight); }
+
+	// Distance of the rendered image from the left edge of the drawable area, in the
+	// same units as ScreenWidth(). The image is always aligned to the top edge.
+	int ViewportX() const { return m_ViewportX; }
 
 	virtual void WarnPngliteIncompatibleImages(bool Warn) = 0;
 	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless) = 0;
@@ -535,21 +548,13 @@ public:
 	virtual void DrawRect4(float x, float y, float w, float h, ColorRGBA ColorTopLeft, ColorRGBA ColorTopRight, ColorRGBA ColorBottomLeft, ColorRGBA ColorBottomRight, int Corners, float Rounding) = 0;
 	virtual void DrawCircle(float CenterX, float CenterY, float Radius, int Segments) = 0;
 
-	struct CColorVertex
-	{
-		int m_Index;
-		float m_R, m_G, m_B, m_A;
-		CColorVertex() = default;
-		CColorVertex(int i, float r, float g, float b, float a) :
-			m_Index(i), m_R(r), m_G(g), m_B(b), m_A(a) {}
-		CColorVertex(int i, ColorRGBA Color) :
-			m_Index(i), m_R(Color.r), m_G(Color.g), m_B(Color.b), m_A(Color.a) {}
-	};
-	virtual void SetColorVertex(const CColorVertex *pArray, size_t Num) = 0;
+	/**
+	 * @deprecated Use @link SetColor(ColorRGBA) @endlink instead of this function (avoid primitive obsession code smell).
+	 */
 	virtual void SetColor(float r, float g, float b, float a) = 0;
 	virtual void SetColor(ColorRGBA Color) = 0;
+	virtual void SetColor2(ColorRGBA First, ColorRGBA Second) = 0;
 	virtual void SetColor4(ColorRGBA TopLeft, ColorRGBA TopRight, ColorRGBA BottomLeft, ColorRGBA BottomRight) = 0;
-	virtual void ChangeColorOfCurrentQuadVertices(float r, float g, float b, float a) = 0;
 	virtual void ChangeColorOfQuadVertices(size_t QuadOffset, unsigned char r, unsigned char g, unsigned char b, unsigned char a) = 0;
 
 	/**

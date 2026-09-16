@@ -86,7 +86,7 @@ public:
 
 		// DDRace
 
-		virtual int GetVictim() const = 0;
+		virtual int GetVictim(unsigned Slot) const = 0;
 	};
 
 	class ICommandInfo
@@ -96,6 +96,8 @@ public:
 		virtual const char *Name() const = 0;
 		virtual const char *Help() const = 0;
 		virtual const char *Params() const = 0;
+		// Whether any parameter of this command is a client id, see `Register`
+		virtual bool TakesClientId() const = 0;
 		virtual int Flags() const = 0;
 		virtual EAccessLevel GetAccessLevel() const = 0;
 	};

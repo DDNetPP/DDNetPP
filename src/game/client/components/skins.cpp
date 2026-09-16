@@ -57,10 +57,7 @@ CSkins::CSkinContainer::CSkinContainer(CSkins *pSkins, const char *pName, EType 
 
 CSkins::CSkinContainer::~CSkinContainer()
 {
-	if(m_pLoadJob)
-	{
-		m_pLoadJob->Abort();
-	}
+	dbg_assert(m_pLoadJob == nullptr, "Skin container load job was not cleared");
 }
 
 bool CSkins::CSkinContainer::operator<(const CSkinContainer &Other) const
@@ -357,6 +354,7 @@ bool CSkins::LoadSkinData(const char *pName, CSkinLoadData &Data) const
 		Data.m_BloodColor = ColorRGBA(NormalizedColor.x, NormalizedColor.y, NormalizedColor.z);
 	}
 
+	Data.m_Metrics.Reset();
 	CheckMetrics(Data.m_Metrics.m_Body, Data.m_Info.m_pData, Pitch, 0, 0, BodyWidth, BodyHeight);
 	CheckMetrics(Data.m_Metrics.m_Body, Data.m_Info.m_pData, Pitch, BodyOutlineOffsetX, BodyOutlineOffsetY, BodyOutlineWidth, BodyOutlineHeight);
 	CheckMetrics(Data.m_Metrics.m_Feet, Data.m_Info.m_pData, Pitch, FeetOffsetX, FeetOffsetY, FeetWidth, FeetHeight);
@@ -514,6 +512,7 @@ void CSkins::OnShutdown()
 		if(pSkinContainer->m_pLoadJob)
 		{
 			pSkinContainer->m_pLoadJob->Abort();
+			pSkinContainer->m_pLoadJob = nullptr;
 		}
 	}
 	m_Skins.clear();
@@ -689,6 +688,7 @@ void CSkins::Refresh(TSkinLoadedCallback &&SkinLoadedCallback)
 		if(pSkinContainer->m_pLoadJob)
 		{
 			pSkinContainer->m_pLoadJob->Abort();
+			pSkinContainer->m_pLoadJob = nullptr;
 		}
 		if(pSkinContainer->m_pSkin)
 		{

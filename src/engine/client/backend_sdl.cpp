@@ -13,6 +13,10 @@
 #include <engine/shared/config.h>
 #include <engine/shared/localization.h>
 
+#if defined(CONF_PLATFORM_IOS)
+#include <ios/ios_main.h>
+#endif
+
 #include <SDL.h>
 #include <SDL_messagebox.h>
 #include <SDL_vulkan.h>
@@ -65,7 +69,7 @@ void CGraphicsBackend_Threaded::ThreadFunc(void *pUser)
 		pSelf->m_BufferSwapCond.wait(Lock, [&pSelf] { return pSelf->m_pBuffer != nullptr || pSelf->m_Shutdown; });
 		if(pSelf->m_pBuffer)
 		{
-#ifdef CONF_PLATFORM_MACOS
+#if defined(CONF_PLATFORM_MACOS) || defined(CONF_PLATFORM_IOS)
 			CAutoreleasePool AutoreleasePool;
 #endif
 			pSelf->m_pProcessor->RunBuffer(pSelf->m_pBuffer);
@@ -1537,6 +1541,8 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 		CmdSDL2.m_Y = 0;
 		CmdSDL2.m_Width = *pCurrentWidth;
 		CmdSDL2.m_Height = *pCurrentHeight;
+		CmdSDL2.m_DrawableWidth = *pCurrentWidth;
+		CmdSDL2.m_DrawableHeight = *pCurrentHeight;
 		CmdSDL2.m_ByResize = true;
 		CmdBuffer.AddCommandUnsafe(CmdSDL2);
 		RunBuffer(&CmdBuffer);
@@ -1780,6 +1786,16 @@ void CGraphicsBackend_SDL_GL::GetViewportSize(int &w, int &h)
 		SDL_GL_GetDrawableSize(m_pWindow, &w, &h);
 	else
 		SDL_Vulkan_GetDrawableSize(m_pWindow, &w, &h);
+}
+
+void CGraphicsBackend_SDL_GL::GetDisplayCutoutInsets(int &Left, int &Right)
+{
+#if defined(CONF_PLATFORM_IOS)
+	IosDisplayCutoutInsets(m_pWindow, &Left, &Right);
+#else
+	Left = 0;
+	Right = 0;
+#endif
 }
 
 void CGraphicsBackend_SDL_GL::NotifyWindow()

@@ -407,7 +407,7 @@ void CServer::ConRedirect(IConsole::IResult *pResult, void *pUser)
 	CServer *pThis = (CServer *)pUser;
 	char aBuf[512];
 
-	int VictimId = pResult->GetVictim();
+	int VictimId = pResult->GetVictim(0);
 	int Port = pResult->GetInteger(1);
 
 	if(VictimId == pResult->m_ClientId)

@@ -31,7 +31,7 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -51,7 +51,7 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 
@@ -75,7 +75,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // 		return;
 
 // 	int Seconds = -1;
-// 	int Victim = pResult->GetVictim();
+// 	int Victim = pResult->GetVictim(0);
 
 // 	char aBuf[128];
 
@@ -110,7 +110,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // 	if(!CheckClientId(pResult->m_ClientId))
 // 		return;
 
-// 	int Victim = pResult->GetVictim();
+// 	int Victim = pResult->GetVictim(0);
 // 	static bool Warning = false;
 // 	char aBuf[128];
 // 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
@@ -141,7 +141,7 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -171,7 +171,7 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 	int Mode = pResult->GetInteger(1);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
@@ -195,7 +195,7 @@ void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && pPlayer->m_IsDummy)
@@ -214,7 +214,7 @@ void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && pPlayer->m_IsDummy)
@@ -231,7 +231,7 @@ void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && !pPlayer->m_IsDummy)
@@ -250,7 +250,7 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
@@ -267,7 +267,7 @@ void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -291,7 +291,7 @@ void CGameContext::Conninjasteam(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -313,7 +313,7 @@ void CGameContext::ConGodmode(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -335,7 +335,7 @@ void CGameContext::ConHidePlayer(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(!pPlayer)
 	{
@@ -356,7 +356,7 @@ void CGameContext::ConVerifyPlayer(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(!pPlayer)
 	{
@@ -378,7 +378,7 @@ void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -400,7 +400,7 @@ void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -426,7 +426,7 @@ void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -448,7 +448,7 @@ void CGameContext::ConInfBloody(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -470,7 +470,7 @@ void CGameContext::ConOldAtom(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -492,7 +492,7 @@ void CGameContext::ConInfAtom(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -514,7 +514,7 @@ void CGameContext::ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -536,7 +536,7 @@ void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -558,7 +558,7 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -602,7 +602,7 @@ void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -624,7 +624,7 @@ void CGameContext::ConInfTrail(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
@@ -646,7 +646,7 @@ void CGameContext::ConForceJail(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	int Seconds = 60;
 	if(pResult->NumArguments() > 1)
@@ -672,20 +672,20 @@ void CGameContext::ConForceUnJail(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_Account.m_JailTime = 0;
 
-		if(pSelf->m_apPlayers[pResult->GetVictim()]->GetCharacter())
+		if(pSelf->m_apPlayers[pResult->GetVictim(0)]->GetCharacter())
 		{
 			vec2 JailReleaseSpawn = pSelf->Collision()->GetRandomTile(TILE_JAILRELEASE);
 
 			if(JailReleaseSpawn != vec2(-1, -1))
 			{
-				pSelf->m_apPlayers[pResult->GetVictim()]->GetCharacter()->SetPosition(JailReleaseSpawn);
+				pSelf->m_apPlayers[pResult->GetVictim(0)]->GetCharacter()->SetPosition(JailReleaseSpawn);
 			}
 			else //no jailrelease
 			{
@@ -706,7 +706,7 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -729,7 +729,7 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
@@ -768,7 +768,7 @@ void CGameContext::ConRegisterBan(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 	if(!pSelf->Server()->ClientIngame(Victim))
 	{
 		log_error("rcon", "no player with client id %d connected", Victim);
@@ -801,7 +801,7 @@ void CGameContext::ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aIpBuf[64];
 	char aBuf[64];
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	if(Victim < 0 || Victim >= pSelf->m_NumRegisterBans)
 		return;
@@ -854,7 +854,7 @@ void CGameContext::ConLoginBan(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 	if(!pSelf->Server()->ClientIngame(Victim))
 	{
 		log_error("rcon", "no player with client id %d connected", Victim);
@@ -887,7 +887,7 @@ void CGameContext::ConUnLoginBan(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aIpBuf[64];
 	char aBuf[64];
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	if(Victim < 0 || Victim >= pSelf->m_NumLoginBans)
 		return;
@@ -940,7 +940,7 @@ void CGameContext::ConNameChangeMute(IConsole::IResult *pResult, void *pUserData
 void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 	if(!pSelf->Server()->ClientIngame(Victim))
 	{
 		log_error("rcon", "no player with client id %d connected", Victim);
@@ -973,7 +973,7 @@ void CGameContext::ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserDa
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aIpBuf[64];
 	char aBuf[64];
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	if(Victim < 0 || Victim >= pSelf->m_NumNameChangeMutes)
 		return;
@@ -1317,7 +1317,7 @@ void CGameContext::ConRconApiSayId(IConsole::IResult *pResult, void *pUserData)
 	}
 	dbg_msg("RCON_API", "some non client executed an api command");
 
-	int ClientId = pResult->GetVictim();
+	int ClientId = pResult->GetVictim(0);
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
@@ -1474,7 +1474,7 @@ void CGameContext::ConchainDisplayScore(IConsole::IResult *pResult, void *pUserD
 void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 
@@ -1494,7 +1494,7 @@ void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConLaserGun(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 	CPlayer *pPlayer = pSelf->GetPlayerOrNullptr(Victim);
 
 	if(!pPlayer)
@@ -1513,7 +1513,7 @@ void CGameContext::ConLaserGun(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConHeartGun(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int Victim = pResult->GetVictim();
+	int Victim = pResult->GetVictim(0);
 
 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 

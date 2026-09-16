@@ -16,8 +16,9 @@
 #include <mutex>
 #include <vector>
 
-#if defined(CONF_PLATFORM_MACOS)
-#include <objc/objc-runtime.h>
+#if defined(CONF_PLATFORM_MACOS) || defined(CONF_PLATFORM_IOS)
+#include <objc/message.h>
+#include <objc/runtime.h>
 
 class CAutoreleasePool
 {
@@ -258,6 +259,7 @@ public:
 	void SetWindowGrab(bool Grab) override;
 	bool ResizeWindow(int w, int h, int RefreshRate) override;
 	void GetViewportSize(int &w, int &h) override;
+	void GetDisplayCutoutInsets(int &Left, int &Right) override;
 	void NotifyWindow() override;
 	bool IsScreenKeyboardShown() override;
 

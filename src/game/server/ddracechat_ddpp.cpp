@@ -7191,7 +7191,7 @@ void CGameContext::ConTROLL166(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->Server()->GetAuthedState(pResult->m_ClientId))
 		return;
 
-	int VictimCid = pResult->GetVictim();
+	int VictimCid = pResult->GetVictim(0);
 	CPlayer *pPlayer = pSelf->m_apPlayers[VictimCid];
 	if(pPlayer)
 	{
@@ -7208,7 +7208,7 @@ void CGameContext::ConTROLL420(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->Server()->GetAuthedState(pResult->m_ClientId))
 		return;
 
-	int VictimCid = pResult->GetVictim();
+	int VictimCid = pResult->GetVictim(0);
 	CPlayer *pPlayer = pSelf->m_apPlayers[VictimCid];
 	if(pPlayer)
 	{
