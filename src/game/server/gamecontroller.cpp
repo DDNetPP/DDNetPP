@@ -741,11 +741,15 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_RACE;
 	GameInfoEx.m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE |
 			      GAMEINFOFLAG2_DDRACE_TEAM |
-			      GAMEINFOFLAG2_PREDICT_EVENTS |
-			      GAMEINFOFLAG2_SUPPORTS_128_TEAMS;
+			      GAMEINFOFLAG2_PREDICT_EVENTS;
 	if(g_Config.m_SvNoWeakHook)
 		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK;
+	if(g_Config.m_SvOldLaser)
+		GameInfoEx.m_Flags2 |= GAMEINFOFLAG2_OLD_LASER;
 	GameInfoEx.m_Version = GAMEINFO_CURVERSION;
+	GameInfoEx.m_MinTeamSize = g_Config.m_SvMinTeamSize;
+	GameInfoEx.m_MaxTeamSize = g_Config.m_SvMaxTeamSize;
+	GameInfoEx.m_NumDDRaceTeams = NUM_DDRACE_TEAMS;
 	GameInfoEx.m_Flags = SnapGameInfoExFlags(SnappingClient, GameInfoEx.m_Flags); // ddnet-insta
 	GameInfoEx.m_Flags2 = SnapGameInfoExFlags2(SnappingClient, GameInfoEx.m_Flags2); // ddnet-insta
 	Server()->SnapNewItem(0, GameInfoEx);

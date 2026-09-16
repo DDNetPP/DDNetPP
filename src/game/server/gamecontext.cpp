@@ -1179,11 +1179,12 @@ void CGameContext::SendVoteStatus(int ClientId, int Total, int Yes, int No)
 		return;
 	}
 
-	if(Total > LEGACY_MAX_CLIENTS && m_apPlayers[ClientId] && m_apPlayers[ClientId]->GetClientVersion() < VERSION_DDNET_128_PLAYERS)
+	const int MaxClients = Server()->GetMaxClients(ClientId);
+	if(Total > MaxClients && !Server()->ClientSupportsServerMaxClients(ClientId))
 	{
-		Yes = (Yes * LEGACY_MAX_CLIENTS) / (float)Total;
-		No = (No * LEGACY_MAX_CLIENTS) / (float)Total;
-		Total = LEGACY_MAX_CLIENTS;
+		Yes = (Yes * MaxClients) / (float)Total;
+		No = (No * MaxClients) / (float)Total;
+		Total = MaxClients;
 	}
 
 	CNetMsg_Sv_VoteStatus Msg = {0};
@@ -1333,14 +1334,16 @@ void CGameContext::OnTick()
 	{
 		if(m_apPlayers[i] && !m_apPlayers[i]->m_IsDummy)
 		{
-			// By supporting 128 players with full backwards compatibility (in +spectate menu too), it's basically impossible and
-			// really unnecessary to have old 16 player clients supported
 			IServer::CClientInfo Info;
-			if(Server()->Tick() >= m_apPlayers[i]->m_DDNetVersionKickTick && !Server()->IsSixup(i) &&
+			if(m_apPlayers[i]->m_DDNetVersionKickTick > 0 && Server()->Tick() >= m_apPlayers[i]->m_DDNetVersionKickTick && !Server()->IsSixup(i) &&
 				Server()->GetClientInfo(i, &Info) && Info.m_DDNetVersion < VERSION_DDNET_OLD)
 			{
-				Server()->Kick(i, "Old Teeworlds 0.6 versions are unsupported. Use DDNet client or Teeworlds 0.7");
-				continue;
+				if(!g_Config.m_SvVanillaConnections)
+				{
+					Server()->Kick(i, "Old Teeworlds 0.6 versions are unsupported. Use DDNet client or Teeworlds 0.7");
+					continue;
+				}
+				m_apPlayers[i]->m_DDNetVersionKickTick = -1;
 			}
 
 			// send vote options
@@ -1752,19 +1755,6 @@ void CGameContext::OnClientPredictedEarlyInput(int ClientId, const void *pInput)
 	}
 }
 
-const CVoteOptionServer *CGameContext::GetVoteOption(int Index) const
-{
-	const CVoteOptionServer *pCurrent;
-	for(pCurrent = m_pVoteOptionFirst;
-		Index > 0 && pCurrent;
-		Index--, pCurrent = pCurrent->m_pNext)
-		;
-
-	if(Index > 0)
-		return nullptr;
-	return pCurrent;
-}
-
 void CGameContext::ProgressVoteOptions(int ClientId)
 {
 	if(SendExtraVoteMenuEntry(ClientId)) // ddnet++
@@ -1807,8 +1797,11 @@ void CGameContext::ProgressVoteOptions(int ClientId)
 	OptionMsg.m_pDescription13 = "";
 	OptionMsg.m_pDescription14 = "";
 
-	// get current vote option by index
-	const CVoteOptionServer *pCurrent = GetVoteOption(pPl->m_SendVoteIndex);
+	const CVoteOptionServer *pCurrent;
+	if(pPl->m_SendVoteIndex == 0)
+		pCurrent = m_pVoteOptionFirst;
+	else
+		pCurrent = pPl->m_pLastSentVoteOption == nullptr ? nullptr : pPl->m_pLastSentVoteOption->m_pNext;
 
 	while(CurIndex < NumVotesToSend && pCurrent != nullptr)
 	{
@@ -1831,6 +1824,7 @@ void CGameContext::ProgressVoteOptions(int ClientId)
 		case 14: OptionMsg.m_pDescription14 = pCurrent->m_aDescription; break;
 		}
 
+		pPl->m_pLastSentVoteOption = pCurrent;
 		CurIndex++;
 		pCurrent = pCurrent->m_pNext;
 	}
@@ -2561,10 +2555,10 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 	// ddnet++
 	if(m_pController->OnCallVoteNetMessage(pMsg, ClientId))
 		return;
-	if(RateLimitPlayerVote(ClientId) || m_VoteCloseTime)
+	if(str_comp_nocase(pMsg->m_pType, "option") != 0 && m_PlayerMapping.DoSeeOthers(ClientId, str_toint(pMsg->m_pValue), true))
 		return;
 
-	if(str_comp_nocase(pMsg->m_pType, "option") != 0 && m_PlayerMapping.DoSeeOthers(ClientId, str_toint(pMsg->m_pValue), true))
+	if(RateLimitPlayerVote(ClientId) || m_VoteCloseTime)
 		return;
 
 	m_apPlayers[ClientId]->UpdatePlaytime();
@@ -2942,7 +2936,12 @@ void CGameContext::OnIsDDNetLegacyNetMessage(const CNetMsg_Cl_IsDDNetLegacy *pMs
 		DDNetVersion = VERSION_DDRACE;
 	}
 	Server()->SetClientDDNetVersion(ClientId, DDNetVersion);
-	OnClientDDNetVersionKnown(ClientId);
+	if(OnClientDDNetVersionKnown(ClientId))
+		return;
+	// Initial identification, currently identified as 16p client, make sure we allow 64 slots
+	CPlayerMapping::CSixupCfg SixupCfg;
+	SixupCfg.m_ClearSlots = true;
+	m_PlayerMapping.InitPlayerMap(ClientId, SixupCfg);
 }
 
 void CGameContext::OnShowOthersLegacyNetMessage(const CNetMsg_Cl_ShowOthersLegacy *pMsg, int ClientId)
@@ -5674,9 +5673,12 @@ bool CGameContext::PracticeByDefault() const
 	return g_Config.m_SvPracticeByDefault && g_Config.m_SvTestingCommands;
 }
 
-void CGameContext::OnSetTimedOut(int ClientId)
+void CGameContext::ReinitPlayerMap(int ClientId, bool Timeout)
 {
-	// Timeout=true when calling InitPlayerMap because that will make sure each disconnect packet gets sent out to 0.7 clients correctly before inserting
-	// new players on their slots. Resend=true will also trigger teams state update, otherwise you wouldn't see teams correctly in some cases.
-	m_PlayerMapping.InitPlayerMap(ClientId, true);
+	// Timeout, when calling InitPlayerMap because that will make sure each disconnect packet gets sent out to 0.7 clients correctly before inserting
+	// new players on their slots. will also trigger teams state update, otherwise you wouldn't see teams correctly in some cases.
+	CPlayerMapping::CSixupCfg SixupCfg;
+	SixupCfg.m_SkipTimeoutedId = Timeout;
+	SixupCfg.m_ClearSlots = true;
+	m_PlayerMapping.InitPlayerMap(ClientId, SixupCfg);
 }
