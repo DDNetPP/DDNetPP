@@ -5,7 +5,6 @@
 #include "compression.h"
 #include "uuid_manager.h"
 
-#include <base/bytes.h>
 #include <base/dbg.h>
 #include <base/math.h>
 #include <base/mem.h>
@@ -53,9 +52,7 @@ int CSnapshot::GetExternalItemType(int InternalType) const
 		return -1;
 	}
 	const CSnapshotItem *pTypeItem = GetItem(TypeItemIndex);
-	CUuid Uuid;
-	for(size_t i = 0; i < sizeof(CUuid) / sizeof(int32_t); i++)
-		uint_to_bytes_be(&Uuid.m_aData[i * sizeof(int32_t)], pTypeItem->Data()[i]);
+	const CUuid Uuid = UuidFromInts(pTypeItem->Data());
 
 	return g_UuidManager.LookupUuid(Uuid);
 }
@@ -82,9 +79,8 @@ const void *CSnapshot::FindItem(int Type, int Id) const
 	if(Type >= OFFSET_UUID)
 	{
 		CUuid TypeUuid = g_UuidManager.GetUuid(Type);
-		int aTypeUuidItem[sizeof(CUuid) / sizeof(int32_t)];
-		for(size_t i = 0; i < sizeof(CUuid) / sizeof(int32_t); i++)
-			aTypeUuidItem[i] = bytes_be_to_uint(&TypeUuid.m_aData[i * sizeof(int32_t)]);
+		int aTypeUuidItem[UUID_INT_SIZE];
+		UuidToInts(TypeUuid, aTypeUuidItem);
 
 		bool Found = false;
 		for(int i = 0; i < m_NumItems; i++)
@@ -299,9 +295,9 @@ const CSnapshotDelta::CData *CSnapshotDelta::EmptyDelta() const
 }
 
 // TODO: OPT: this should be made much faster
-int CSnapshotDelta::CreateDelta(const CSnapshot *pFrom, const CSnapshot *pTo, void *pDstData)
+int CSnapshotDelta::CreateDelta(const CSnapshot *pFrom, const CSnapshot *pTo, CSnapshotDeltaBuffer *pDstData)
 {
-	CData *pDelta = (CData *)pDstData;
+	CData *pDelta = (CData *)pDstData->m_aData;
 	int *pData = (int *)pDelta->m_aData;
 
 	pDelta->m_NumDeletedItems = 0;
@@ -379,7 +375,7 @@ int CSnapshotDelta::CreateDelta(const CSnapshot *pFrom, const CSnapshot *pTo, vo
 	if(!pDelta->m_NumDeletedItems && !pDelta->m_NumUpdateItems && !pDelta->m_NumTempItems)
 		return 0;
 
-	return (int)((char *)pData - (char *)pDstData);
+	return (int)((char *)pData - (char *)pDelta);
 }
 
 int CSnapshotDelta::DebugDumpDelta(const void *pSrcData, int DataSize)
@@ -419,12 +415,12 @@ int CSnapshotDelta::DebugDumpDelta(const void *pSrcData, int DataSize)
 		dbg_msg("delta_dump", "|  Invalid delta. Number of deleted items %d is negative.", pDelta->m_NumDeletedItems);
 		return -201;
 	}
-	pData += pDelta->m_NumDeletedItems;
-	if(pData > pEnd)
+	if(pDelta->m_NumDeletedItems > pEnd - pData)
 	{
 		dbg_msg("delta_dump", "|  Invalid delta. Read past the end.");
 		return -101;
 	}
+	pData += pDelta->m_NumDeletedItems;
 
 	// list deleted items
 	// (all other items should be copied from the last full snap)
@@ -527,9 +523,9 @@ int CSnapshotDelta::UnpackDelta(const CSnapshot *pFrom, CSnapshotBuffer *pTo, co
 	int *pDeleted = pData;
 	if(pDelta->m_NumDeletedItems < 0)
 		return -201;
-	pData += pDelta->m_NumDeletedItems;
-	if(pData > pEnd)
+	if(pDelta->m_NumDeletedItems > pEnd - pData)
 		return -101;
+	pData += pDelta->m_NumDeletedItems;
 
 	// copy all non deleted stuff
 	for(int i = 0; i < pFrom->NumItems(); i++)
@@ -840,10 +836,7 @@ bool CSnapshotBuilder::AddExtendedItemType(int Index)
 
 	const int TypeId = m_aExtendedItemTypes[Index];
 	const CUuid Uuid = g_UuidManager.GetUuid(TypeId);
-	for(size_t i = 0; i < sizeof(CUuid) / sizeof(int32_t); i++)
-	{
-		pUuidItem[i] = bytes_be_to_uint(&Uuid.m_aData[i * sizeof(int32_t)]);
-	}
+	UuidToInts(Uuid, pUuidItem);
 	return true;
 }
 

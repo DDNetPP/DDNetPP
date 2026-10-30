@@ -221,7 +221,7 @@ public:
 
 	// DDRace
 
-	static void ConUserCommandStatus(IConsole::IResult *pResult, void *pUser);
+	static void ConCmdlistChat(IConsole::IResult *pResult, void *pUser);
 
 	bool Cheated() const override { return m_Cheated; }
 

@@ -43,6 +43,17 @@ void thread_wait(void *thread);
 void thread_yield();
 
 /**
+ * Requests the most precise timer wakeups that the system offers for the calling thread.
+ *
+ * @ingroup Threads
+ *
+ * @remark Wakeups from sleeping and waiting are delayed to save power by default,
+ * on macOS by a quarter of the requested duration and on Linux by 50 microseconds.
+ * On Windows SDL already raises the timer resolution while initializing.
+ */
+void thread_request_precise_wakeups();
+
+/**
  * Puts the thread in the detached state, guaranteeing that
  * resources of the thread will be freed immediately when the
  * thread terminates.
@@ -52,16 +63,5 @@ void thread_yield();
  * @param thread Thread to detach.
  */
 void thread_detach(void *thread);
-
-/**
- * Creates a new thread and detaches it.
- *
- * @ingroup Threads
- *
- * @param threadfunc Entry point for the new thread.
- * @param user Pointer to pass to the thread.
- * @param name Name describing the use of the thread.
- */
-void thread_init_and_detach(void (*threadfunc)(void *), void *user, const char *name);
 
 #endif

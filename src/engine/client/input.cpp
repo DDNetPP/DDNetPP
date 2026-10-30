@@ -2,14 +2,13 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "input.h"
 
-#include "keynames.h"
-
 #include <base/dbg.h>
 #include <base/log.h>
 #include <base/str.h>
 #include <base/time.h>
 #include <base/windows.h>
 
+#include <engine/client/keyboard.h>
 #include <engine/console.h>
 #include <engine/graphics.h>
 #include <engine/input.h>
@@ -142,7 +141,8 @@ bool CInput::OpenJoystick(int JoystickIndex)
 	}
 	if(std::find_if(m_vJoysticks.begin(), m_vJoysticks.end(), [pJoystick](const CJoystick &Joystick) -> bool { return Joystick.m_pDelegate == pJoystick; }) != m_vJoysticks.end())
 	{
-		// Joystick has already been added
+		// Joystick has already been added, drop the extra reference from SDL_JoystickOpen
+		SDL_JoystickClose(pJoystick);
 		return false;
 	}
 	m_vJoysticks.emplace_back(this, m_vJoysticks.size(), pJoystick);
@@ -406,12 +406,6 @@ bool CInput::KeyPress(int Key) const
 	return m_aFrameKeyStates[Key];
 }
 
-const char *CInput::KeyName(int Key) const
-{
-	dbg_assert(Key >= KEY_FIRST && Key < KEY_LAST, "Key invalid: %d", Key);
-	return g_aaKeyStrings[Key];
-}
-
 int CInput::FindKeyByName(const char *pKeyName) const
 {
 	// check for numeric
@@ -531,6 +525,10 @@ void CInput::HandleJoystickRemovedEvent(const SDL_JoyDeviceEvent &Event)
 	if(RemovedJoystick != m_vJoysticks.end())
 	{
 		log_info("joystick", "Closed joystick %d '%s'", (*RemovedJoystick).GetIndex(), (*RemovedJoystick).GetName());
+		// NOTE: The SDL_QuitSubSystem() in CloseJoysticks() only runs at shutdown,
+		// so a joystick removed mid-session must be closed here explicitly,
+		// otherwise every plug/unplug cycle leaks its SDL_Joystick allocation until restart.
+		SDL_JoystickClose((*RemovedJoystick).m_pDelegate);
 		auto NextJoystick = m_vJoysticks.erase(RemovedJoystick);
 		// Adjust indices of following joysticks
 		while(NextJoystick != m_vJoysticks.end())

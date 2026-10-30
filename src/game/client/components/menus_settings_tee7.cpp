@@ -15,7 +15,6 @@
 #include <game/client/components/console.h>
 #include <game/client/components/skins7.h>
 #include <game/client/components/sounds.h>
-#include <game/client/components/tooltips.h>
 #include <game/client/gameclient.h>
 #include <game/client/ui.h>
 #include <game/client/ui_listbox.h>
@@ -202,7 +201,7 @@ void CMenus::RenderSettingsTee7(CUIRect MainView)
 		Storage()->CreateFolder("skins7", IStorage::TYPE_SAVE);
 		Client()->ViewFile(aBuf);
 	}
-	GameClient()->m_Tooltips.DoToolTip(&s_DirectoryButton, &DirectoryButton, Localize("Open the directory to add custom skins"));
+	Ui()->DoToolTip(&s_DirectoryButton, &DirectoryButton, Localize("Open the directory to add custom skins"));
 
 	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGNMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
@@ -229,6 +228,7 @@ void CMenus::PopupConfirmDeleteSkin7()
 		return;
 	}
 	m_pSelectedSkin = nullptr;
+	m_DeletedSkinIndex7 = m_SelectedSkinIndex7;
 }
 
 void CMenus::RenderSettingsTeeCustom7(CUIRect MainView)
@@ -293,7 +293,7 @@ void CMenus::RenderSettingsTeeCustom7(CUIRect MainView)
 	}
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
-	GameClient()->m_Tooltips.DoToolTip(&s_RandomSkinButton, &RandomSkinButton, Localize("Create a random skin"));
+	Ui()->DoToolTip(&s_RandomSkinButton, &RandomSkinButton, Localize("Create a random skin"));
 }
 
 void CMenus::RenderSkinSelection7(CUIRect MainView)
@@ -317,18 +317,18 @@ void CMenus::RenderSkinSelection7(CUIRect MainView)
 	}
 
 	m_pSelectedSkin = nullptr;
-	int OldSelected = -1;
+	m_SelectedSkinIndex7 = -1;
 	for(int i = 0; i < (int)s_vpSkinList.size(); ++i)
 	{
 		const CSkins7::CSkin *pSkin = s_vpSkinList[i];
 		if(!str_comp(pSkin->m_aName, CSkins7::ms_apSkinNameVariables[m_Dummy]))
 		{
 			m_pSelectedSkin = pSkin;
-			OldSelected = i;
+			m_SelectedSkinIndex7 = i;
 			break;
 		}
 	}
-	s_ListBox.DoStart(50.0f, s_vpSkinList.size(), 4, 1, OldSelected, &MainView);
+	s_ListBox.DoStart(50.0f, s_vpSkinList.size(), 4, 1, m_SelectedSkinIndex7, &MainView);
 
 	for(const CSkins7::CSkin *pSkin : s_vpSkinList)
 	{
@@ -350,9 +350,7 @@ void CMenus::RenderSkinSelection7(CUIRect MainView)
 		{
 			// interactive tee: tee is happy to be selected
 			int TeeEmote = (Item.m_Selected && s_LastSelectionTime + 0.75f > Client()->GlobalTime()) ? EMOTE_HAPPY : EMOTE_NORMAL;
-			vec2 OffsetToMid;
-			CRenderTools::GetRenderTeeOffsetToRenderedTee(CAnimState::GetIdle(), &Info, OffsetToMid);
-			RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, TeeEmote, vec2(1.0f, 0.0f), TeePreview.Center() + OffsetToMid);
+			RenderTools()->RenderIdleTeeAtCenter(&Info, TeePreview.Center(), TeeEmote);
 		}
 
 		SLabelProperties Props;
@@ -360,8 +358,14 @@ void CMenus::RenderSkinSelection7(CUIRect MainView)
 		Ui()->DoLabel(&Label, pSkin->m_aName, 12.0f, TEXTALIGN_ML, Props);
 	}
 
-	const int NewSelected = s_ListBox.DoEnd();
-	if(NewSelected != -1 && NewSelected != OldSelected)
+	int NewSelected = s_ListBox.DoEnd();
+	if(m_DeletedSkinIndex7 >= 0)
+	{
+		// Select the skin which took the place of the deleted skin, or the last skin
+		NewSelected = std::min(m_DeletedSkinIndex7, (int)s_vpSkinList.size() - 1);
+		m_DeletedSkinIndex7 = -1;
+	}
+	if(NewSelected != -1 && NewSelected != m_SelectedSkinIndex7)
 	{
 		s_LastSelectionTime = Client()->GlobalTime();
 		m_pSelectedSkin = s_vpSkinList[NewSelected];
@@ -429,19 +433,16 @@ void CMenus::RenderSkinPartSelection7(CUIRect MainView)
 		}
 		Info.m_Size = 50.0f;
 
-		vec2 OffsetToMid;
-		CRenderTools::GetRenderTeeOffsetToRenderedTee(CAnimState::GetIdle(), &Info, OffsetToMid);
-		const vec2 TeePos = Item.m_Rect.Center() + OffsetToMid;
 		if(m_TeePartSelected == protocol7::SKINPART_HANDS)
 		{
-			// RenderTools()->RenderTeeHand(&Info, TeePos, vec2(1.0f, 0.0f), -pi*0.5f, vec2(18, 0));
+			// RenderTools()->RenderTeeHand(&Info, Item.m_Rect.Center(), vec2(1.0f, 0.0f), -pi*0.5f, vec2(18, 0));
 		}
 		int TeePartEmote = EMOTE_NORMAL;
 		if(m_TeePartSelected == protocol7::SKINPART_EYES)
 		{
 			TeePartEmote = (int)(Client()->GlobalTime() * 0.5f) % NUM_EMOTES;
 		}
-		RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, TeePartEmote, vec2(1.0f, 0.0f), TeePos);
+		RenderTools()->RenderIdleTeeAtCenter(&Info, Item.m_Rect.Center(), TeePartEmote);
 
 		Ui()->DoLabel(&Label, pPart->m_aName, 12.0f, TEXTALIGN_MC);
 	}

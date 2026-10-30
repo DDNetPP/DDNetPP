@@ -25,6 +25,7 @@ public:
 		AUTOMATED,
 	};
 
+	bool m_aMouseOnAction[NUM_DUMMIES];
 	vec2 m_aMousePos[NUM_DUMMIES];
 	vec2 m_aMousePosOnAction[NUM_DUMMIES];
 	vec2 m_aTargetPos[NUM_DUMMIES];
@@ -59,5 +60,9 @@ private:
 	static void ConKeyInputCounter(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyInputSet(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyInputNextPrevWeapon(IConsole::IResult *pResult, void *pUserData);
+	static void ConTpToCursor(IConsole::IResult *pResult, void *pUserData);
+	static void ConTpDummyToCursor(IConsole::IResult *pResult, void *pUserData);
+	vec2 CursorWorldPos() const;
+	void SendPracticeTeleportToCursor(int Conn);
 };
 #endif

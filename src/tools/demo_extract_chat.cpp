@@ -15,7 +15,7 @@
 
 #include <memory>
 
-static const char *TOOL_NAME = "demo_extract_chat";
+static constexpr const char *const TOOL_NAME = "demo_extract_chat";
 
 class CClientSnapshotHandler
 {
@@ -211,7 +211,7 @@ static int ExtractDemoChat(const char *pDemoFilePath, CSnapshotDelta *pSnapshotD
 {
 	CDemoPlayer DemoPlayer(pSnapshotDelta, pSnapshotDeltaSixup, false);
 
-	if(DemoPlayer.Load(pStorage, nullptr, pDemoFilePath, IStorage::TYPE_ALL_OR_ABSOLUTE) == -1)
+	if(DemoPlayer.Load(pStorage, pDemoFilePath, IStorage::TYPE_ALL_OR_ABSOLUTE) == -1)
 	{
 		log_error(TOOL_NAME, "Demo file '%s' failed to load: %s", pDemoFilePath, DemoPlayer.ErrorMessage());
 		return -1;
@@ -270,7 +270,9 @@ int main(int argc, const char *argv[])
 	std::unique_ptr<IStorage> pStorage = CreateLocalStorage();
 
 	CCmdlineFix CmdlineFix(&argc, &argv);
-	log_set_global_logger_default();
+	ILogger *pDefaultLogger = log_logger_default().release();
+	pDefaultLogger->SetFilter(CLogFilter{LEVEL_WARN});
+	log_set_global_logger(pDefaultLogger);
 
 	if(!pStorage)
 	{
@@ -280,7 +282,7 @@ int main(int argc, const char *argv[])
 
 	if(argc != 2)
 	{
-		log_error(TOOL_NAME, "Usage: %s <demo_filename>", TOOL_NAME);
+		log_error(TOOL_NAME, "Usage: %s <demo_filename>", argc > 0 ? argv[0] : TOOL_NAME);
 		return -1;
 	}
 

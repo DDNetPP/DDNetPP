@@ -37,6 +37,7 @@
 #include <game/client/ui_scrollregion.h>
 #include <game/localization.h>
 
+#include <algorithm>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -93,12 +94,12 @@ void CMenus::RenderGame(CUIRect MainView)
 	if(!Client()->DummyAllowed())
 	{
 		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button);
-		GameClient()->m_Tooltips.DoToolTip(&s_DummyButton, &Button, Localize("Dummy is not allowed on this server"));
+		Ui()->DoToolTip(&s_DummyButton, &Button, Localize("Dummy is not allowed on this server"));
 	}
 	else if(Client()->DummyConnectingDelayed())
 	{
 		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button);
-		GameClient()->m_Tooltips.DoToolTip(&s_DummyButton, &Button, Localize("Please wait…"));
+		Ui()->DoToolTip(&s_DummyButton, &Button, Localize("Please wait…"));
 	}
 	else if(Client()->DummyConnecting())
 	{
@@ -246,7 +247,7 @@ void CMenus::RenderGame(CUIRect MainView)
 			GameClient()->m_Camera.ToggleAutoSpecCamera();
 		}
 		GameClient()->m_Camera.UpdateAutoSpecCameraTooltip();
-		GameClient()->m_Tooltips.DoToolTip(&s_AutoCameraButton, &Button, GameClient()->m_Camera.AutoSpecCameraTooltip());
+		Ui()->DoToolTip(&s_AutoCameraButton, &Button, GameClient()->m_Camera.AutoSpecCameraTooltip());
 	}
 
 	if(g_Config.m_ClTouchControls)
@@ -565,13 +566,9 @@ void CMenus::RenderPlayers(CUIRect MainView)
 		CTeeRenderInfo TeeInfo = CurrentClient.m_RenderInfo;
 		TeeInfo.m_Size = Button.h;
 
-		const CAnimState *pIdleState = CAnimState::GetIdle();
-		vec2 OffsetToMid;
-		CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
-		vec2 TeeRenderPos(Button.x + Button.h / 2, Button.y + Button.h / 2 + OffsetToMid.y);
-		RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+		RenderTools()->RenderIdleTeeAtCenter(&TeeInfo, vec2(Button.x + Button.h / 2, Button.y + Button.h / 2));
 		Ui()->DoButtonLogic(&s_aPlayerIds[Index][3], 0, &Button, BUTTONFLAG_NONE);
-		GameClient()->m_Tooltips.DoToolTip(&s_aPlayerIds[Index][3], &Button, CurrentClient.m_aSkinName);
+		Ui()->DoToolTip(&s_aPlayerIds[Index][3], &Button, CurrentClient.m_aSkinName);
 
 		Player.HSplitTop(1.5f, nullptr, &Player);
 		Player.VSplitMid(&Player, &Button);
@@ -682,7 +679,7 @@ void CMenus::RenderServerInfo(CUIRect MainView)
 			m_CommunityIcons.Render(pIcon, Label, true);
 			static char s_CommunityTooltipButtonId;
 			Ui()->DoButtonLogic(&s_CommunityTooltipButtonId, 0, &Label, BUTTONFLAG_NONE);
-			GameClient()->m_Tooltips.DoToolTip(&s_CommunityTooltipButtonId, &Label, pCommunity->Name());
+			Ui()->DoToolTip(&s_CommunityTooltipButtonId, &Label, pCommunity->Name());
 		}
 	}
 
@@ -934,12 +931,7 @@ bool CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators, bo
 		CTeeRenderInfo TeeInfo = GameClient()->m_aClients[aPlayerIds[i]].m_RenderInfo;
 		TeeInfo.m_Size = TeeRect.h;
 
-		const CAnimState *pIdleState = CAnimState::GetIdle();
-		vec2 OffsetToMid;
-		CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
-		vec2 TeeRenderPos(TeeRect.x + TeeInfo.m_Size / 2, TeeRect.y + TeeInfo.m_Size / 2 + OffsetToMid.y);
-
-		RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+		RenderTools()->RenderIdleTeeAtCenter(&TeeInfo, vec2(TeeRect.x + TeeInfo.m_Size / 2, TeeRect.y + TeeInfo.m_Size / 2));
 
 		Ui()->DoLabel(&Label, GameClient()->m_aClients[aPlayerIds[i]].m_aName, 16.0f, TEXTALIGN_ML);
 	}
@@ -1173,7 +1165,7 @@ void CMenus::RenderInGameNetwork(CUIRect MainView)
 	{
 		NewPage = PAGE_INTERNET;
 	}
-	GameClient()->m_Tooltips.DoToolTip(&s_InternetButton, &Button, Localize("Internet"));
+	Ui()->DoToolTip(&s_InternetButton, &Button, Localize("Internet"));
 
 	TabBar.VSplitLeft(75.0f, &Button, &TabBar);
 	static CButtonContainer s_LanButton;
@@ -1181,7 +1173,7 @@ void CMenus::RenderInGameNetwork(CUIRect MainView)
 	{
 		NewPage = PAGE_LAN;
 	}
-	GameClient()->m_Tooltips.DoToolTip(&s_LanButton, &Button, Localize("LAN"));
+	Ui()->DoToolTip(&s_LanButton, &Button, Localize("LAN"));
 
 	TabBar.VSplitLeft(75.0f, &Button, &TabBar);
 	static CButtonContainer s_FavoritesButton;
@@ -1189,7 +1181,7 @@ void CMenus::RenderInGameNetwork(CUIRect MainView)
 	{
 		NewPage = PAGE_FAVORITES;
 	}
-	GameClient()->m_Tooltips.DoToolTip(&s_FavoritesButton, &Button, Localize("Favorites"));
+	Ui()->DoToolTip(&s_FavoritesButton, &Button, Localize("Favorites"));
 
 	const int MaxPage = PAGE_FAVORITES + ServerBrowser()->FavoriteCommunities().size();
 	if(
@@ -1223,7 +1215,7 @@ void CMenus::RenderInGameNetwork(CUIRect MainView)
 		{
 			NewPage = Page;
 		}
-		GameClient()->m_Tooltips.DoToolTip(&s_aFavoriteCommunityButtons[FavoriteCommunityIndex], &Button, pCommunity->Name());
+		Ui()->DoToolTip(&s_aFavoriteCommunityButtons[FavoriteCommunityIndex], &Button, pCommunity->Name());
 
 		++FavoriteCommunityIndex;
 		if(FavoriteCommunityIndex >= std::size(s_aFavoriteCommunityButtons))
@@ -1283,7 +1275,7 @@ void CMenus::GhostlistPopulate()
 	for(auto &Ghost : m_vGhosts)
 	{
 		Ghost.m_Failed = false;
-		if(str_comp(Ghost.m_aPlayer, Client()->PlayerName()) == 0 && (!pOwnGhost || Ghost < *pOwnGhost))
+		if(str_comp(Ghost.m_aPlayer, Client()->PlayerName()) == 0 && (!pOwnGhost || Ghost.m_Time < pOwnGhost->m_Time))
 			pOwnGhost = &Ghost;
 	}
 
@@ -1332,7 +1324,7 @@ void CMenus::UpdateOwnGhost(CGhostItem Item)
 
 	Item.m_Date = std::time(nullptr);
 	Item.m_Failed = false;
-	m_vGhosts.insert(std::lower_bound(m_vGhosts.begin(), m_vGhosts.end(), Item), Item);
+	m_vGhosts.push_back(Item);
 	SortGhostlist();
 }
 
@@ -1436,9 +1428,27 @@ void CMenus::RenderGhost(CUIRect MainView)
 
 	View.Draw(ColorRGBA(0, 0, 0, 0.15f), 0, 0);
 
-	const int NumGhosts = m_vGhosts.size();
-	int NumFailed = 0;
-	int NumActivated = 0;
+	int NumGhosts;
+	int NumFailed;
+	int NumActivated;
+	const auto &&UpdateCounts = [&]() {
+		NumGhosts = m_vGhosts.size();
+		NumFailed = 0;
+		NumActivated = 0;
+		for(const CGhostItem &Ghost : m_vGhosts)
+		{
+			if(Ghost.m_Failed || !Ghost.HasFile())
+			{
+				NumFailed++;
+			}
+			else if(Ghost.Active())
+			{
+				NumActivated++;
+			}
+		}
+	};
+	UpdateCounts();
+
 	static int s_SelectedIndex = 0;
 	static CListBox s_ListBox;
 	s_ListBox.DoStart(17.0f, NumGhosts, 1, 3, s_SelectedIndex, &View, false);
@@ -1447,11 +1457,6 @@ void CMenus::RenderGhost(CUIRect MainView)
 	{
 		const CGhostItem *pGhost = &m_vGhosts[i];
 		const CListboxItem Item = s_ListBox.DoNextItem(pGhost);
-
-		if(pGhost->m_Failed)
-			NumFailed++;
-		if(pGhost->Active())
-			NumActivated++;
 
 		if(!Item.m_Visible)
 			continue;
@@ -1526,6 +1531,7 @@ void CMenus::RenderGhost(CUIRect MainView)
 	{
 		GameClient()->m_Ghost.UnloadAll();
 		GhostlistPopulate();
+		UpdateCounts();
 	}
 
 	Status.VSplitLeft(5.0f, &Button, &Status);
@@ -1550,22 +1556,28 @@ void CMenus::RenderGhost(CUIRect MainView)
 			for(int i = 0; i < NumGhosts; i++)
 			{
 				CGhostItem *pGhost = &m_vGhosts[i];
-				if(pGhost->m_Failed || (ActivateAll && pGhost->m_Slot != -1))
+				if(pGhost->m_Failed || !pGhost->HasFile())
 					continue;
 
 				if(ActivateAll)
 				{
-					if(!GameClient()->m_Ghost.FreeSlots())
-						break;
+					if(!pGhost->Active())
+					{
+						if(!GameClient()->m_Ghost.FreeSlots())
+							break;
 
-					pGhost->m_Slot = GameClient()->m_Ghost.Load(pGhost->m_aFilename);
-					if(pGhost->m_Slot == -1)
-						pGhost->m_Failed = true;
+						pGhost->m_Slot = GameClient()->m_Ghost.Load(pGhost->m_aFilename);
+						if(pGhost->m_Slot == -1)
+							pGhost->m_Failed = true;
+					}
 				}
 				else
 				{
-					GameClient()->m_Ghost.UnloadAll();
-					pGhost->m_Slot = -1;
+					if(pGhost->Active())
+					{
+						GameClient()->m_Ghost.Unload(pGhost->m_Slot);
+						pGhost->m_Slot = -1;
+					}
 				}
 			}
 		}
@@ -1609,6 +1621,12 @@ void CMenus::RenderGhost(CUIRect MainView)
 		if(pGhost->Active())
 			GameClient()->m_Ghost.Unload(pGhost->m_Slot);
 		DeleteGhostItem(s_SelectedIndex);
+		s_SelectedIndex = std::min(s_SelectedIndex, (int)m_vGhosts.size() - 1);
+		if(s_SelectedIndex == -1)
+		{
+			return;
+		}
+		pGhost = &m_vGhosts[s_SelectedIndex];
 	}
 
 	Status.VSplitRight(5.0f, &Status, nullptr);

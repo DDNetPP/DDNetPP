@@ -27,6 +27,7 @@ class CScoreboard : public CComponent
 	void RenderTitleBar(CUIRect TitleBar, int Team, const char *pTitle);
 	void RenderGoals(CUIRect Goals);
 	void RenderSpectators(CUIRect Spectators);
+	void RenderMouseHint(CUIRect MouseHint);
 	void RenderScoreboard(CUIRect Scoreboard, int Team, int CountStart, int CountEnd, CScoreboardRenderState &State, int NumPlayersForSize = -1);
 	void RenderRecordingNotification(float x);
 
@@ -77,7 +78,9 @@ class CScoreboard : public CComponent
 	{
 	public:
 		char m_PlayerButtonId;
+		char m_TimeTooltipId;
 		char m_SpectatorSecondLineButtonId;
+		char m_aTimeTooltip[32];
 
 		CCachedText m_Score;
 		CCachedText m_ScoreMillis;

@@ -4,12 +4,14 @@
 #define GAME_CLIENT_UI_H
 
 #include "lineinput.h"
+#include "tooltips.h"
 #include "ui_rect.h"
 
 #include <engine/input.h>
 #include <engine/textrender.h>
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,6 +19,7 @@ class CScrollRegion;
 class IClient;
 class IGraphics;
 class IKernel;
+class CTooltip;
 
 enum class EEditState
 {
@@ -216,6 +219,7 @@ struct SLabelProperties
 	bool m_EnableWidthCheck = true;
 	float m_MinimumFontSize = 5.0f;
 	std::vector<STextColorSplit> m_vColorSplits;
+	void *m_pTooltipId = nullptr;
 
 	void SetColor(const ColorRGBA &Color);
 };
@@ -317,6 +321,7 @@ class CCachedText
 	int m_CursorFlags = 0;
 	STextBoundingBox m_BoundingBox = {0.0f, 0.0f, 0.0f, 0.0f};
 	float m_MaxCharacterHeight = 0.0f;
+	float m_AlignedFontSize = 0.0f;
 
 public:
 	CCachedText() = default;
@@ -330,6 +335,7 @@ public:
 
 	float Width() const { return m_BoundingBox.m_W; }
 	float MaxCharacterHeight() const { return m_MaxCharacterHeight; }
+	float AlignedFontSize() const { return m_AlignedFontSize; }
 };
 
 class CUi
@@ -490,6 +496,7 @@ private:
 
 	std::vector<CUIElement *> m_vpOwnUIElements; // ui elements maintained by CUi class
 	std::vector<CUIElement *> m_vpUIElements;
+	std::unique_ptr<CTooltips> m_pTooltips;
 
 public:
 	static const CLinearScrollbarScale ms_LinearScrollbarScale;
@@ -691,6 +698,7 @@ public:
 	bool DoEditBox_Search(CLineInput *pLineInput, const CUIRect *pRect, float FontSize, bool HotkeyEnabled);
 
 	int DoButton_Menu(CUIElement &UIElement, const CButtonContainer *pId, const std::function<const char *()> &GetTextLambda, const CUIRect *pRect, const SMenuButtonProperties &Props = {});
+	void DrawButton_FontIcon(const char *pText, const CUIRect *pRect, ColorRGBA Color, int Corners = IGraphics::CORNER_ALL, bool Enabled = true) const;
 	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, unsigned Flags, int Corners = IGraphics::CORNER_ALL, bool Enabled = true, std::optional<ColorRGBA> ButtonColor = std::nullopt);
 	// only used for popup menus
 	int DoButton_PopupMenu(CButtonContainer *pButtonContainer, const char *pText, const CUIRect *pRect, float Size, int Align, float Padding = 0.0f, bool TransparentInactive = false, bool Enabled = true, std::optional<ColorRGBA> ButtonColor = std::nullopt);
@@ -837,6 +845,23 @@ public:
 		bool m_Init = false;
 	};
 	int DoDropDown(CUIRect *pRect, int CurSelection, const char **pStrs, int Num, SDropDownState &State);
+
+	// tooltips
+	/**
+	 * Adds the tooltip to a cache and renders it when active.
+	 *
+	 * On the first call to this function, the data passed is cached, afterwards the calls are used to detect if the tooltip should be activated.
+	 * If multiple tooltips cover the same rect or the rects intersect, then the tooltip that is added later has priority.
+	 *
+	 * @param pId The ID of the tooltip. Usually a reference to some g_Config value.
+	 * @param pNearRect Place the tooltip near this rect.
+	 * @param pText The text to display in the tooltip.
+	 * @param WidthHint The maximum width of the tooltip, or -1.0f for unlimited.
+	 */
+	void DoToolTip(const void *pId, const CUIRect *pNearRect, const char *pText, float WidthHint = -1.0f) const;
+	void DoToolTip(const CTooltip &Tooltip) const;
+	void OnRenderTooltip() const { m_pTooltips->OnRender(); }
+	void OnReset() const { m_pTooltips->OnReset(); }
 };
 
 #endif

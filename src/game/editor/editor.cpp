@@ -16,6 +16,7 @@
 #include <base/time.h>
 
 #include <engine/client.h>
+#include <engine/client/keyboard.h>
 #include <engine/engine.h>
 #include <engine/font_icons.h>
 #include <engine/gfx/image_loader.h>
@@ -126,6 +127,8 @@ bool CEditor::CallbackSaveMap(const char *pFilename, int StorageType, void *pUse
 	dbg_assert(StorageType == IStorage::TYPE_SAVE, "Saving only allowed for IStorage::TYPE_SAVE");
 
 	CEditor *pEditor = static_cast<CEditor *>(pUser);
+	const bool CloseAfterSave = pEditor->m_CloseMapAfterSave;
+	pEditor->m_CloseMapAfterSave = false;
 
 	// Save map to specified file
 	if(pEditor->Save(pFilename))
@@ -137,6 +140,7 @@ bool CEditor::CallbackSaveMap(const char *pFilename, int StorageType, void *pUse
 		pEditor->Map()->m_ValidSaveFilename = true;
 		pEditor->Map()->m_Modified = false;
 		pEditor->UpdateMapDisplayNames();
+		pEditor->Map()->m_CloseOnSave = CloseAfterSave;
 	}
 	else
 	{
@@ -619,7 +623,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 			// flip buttons
 			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_FlipXButton = 0;
-			if(DoButton_FontIcon(&s_FlipXButton, FontIcon::ARROWS_LEFT_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[N] Flip the brush horizontally.", IGraphics::CORNER_L) || (Input()->KeyPress(KEY_N) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
+			if(DoButton_FontIcon(&s_FlipXButton, FontIcon::ARROWS_LEFT_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[N] Flip the brush horizontally.", IGraphics::CORNER_L) || (Input()->KeyPress(KEY_N) && !ModPressed && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
 				for(auto &pLayer : m_pBrush->m_vpLayers)
 					pLayer->BrushFlipX();
@@ -627,7 +631,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 
 			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_FlipyButton = 0;
-			if(DoButton_FontIcon(&s_FlipyButton, FontIcon::ARROWS_UP_DOWN, Enabled, &Button, BUTTONFLAG_LEFT, "[M] Flip the brush vertically.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_M) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
+			if(DoButton_FontIcon(&s_FlipyButton, FontIcon::ARROWS_UP_DOWN, Enabled, &Button, BUTTONFLAG_LEFT, "[M] Flip the brush vertically.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_M) && !ModPressed && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
 				for(auto &pLayer : m_pBrush->m_vpLayers)
 					pLayer->BrushFlipY();
@@ -648,7 +652,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 				}
 
 			static int s_CcwButton = 0;
-			if(DoButton_FontIcon(&s_CcwButton, FontIcon::ARROW_ROTATE_LEFT, Enabled, &Button, BUTTONFLAG_LEFT, "[R] Rotate the brush counter-clockwise.", IGraphics::CORNER_L) || (Input()->KeyPress(KEY_R) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
+			if(DoButton_FontIcon(&s_CcwButton, FontIcon::ARROW_ROTATE_LEFT, Enabled, &Button, BUTTONFLAG_LEFT, "[R] Rotate the brush counter-clockwise.", IGraphics::CORNER_L) || (Input()->KeyPress(KEY_R) && !ModPressed && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
 				for(auto &pLayer : m_pBrush->m_vpLayers)
 					pLayer->BrushRotate(-s_RotationAmount / 360.0f * pi * 2);
@@ -660,7 +664,7 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 
 			ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 			static int s_CwButton = 0;
-			if(DoButton_FontIcon(&s_CwButton, FontIcon::ARROW_ROTATE_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[T] Rotate the brush clockwise.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_T) && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
+			if(DoButton_FontIcon(&s_CwButton, FontIcon::ARROW_ROTATE_RIGHT, Enabled, &Button, BUTTONFLAG_LEFT, "[T] Rotate the brush clockwise.", IGraphics::CORNER_R) || (Input()->KeyPress(KEY_T) && !ModPressed && m_Dialog == DIALOG_NONE && CLineInput::GetActiveInput() == nullptr && !Ui()->IsPopupOpen()))
 			{
 				for(auto &pLayer : m_pBrush->m_vpLayers)
 					pLayer->BrushRotate(s_RotationAmount / 360.0f * pi * 2);
@@ -2080,7 +2084,11 @@ void CEditor::DoQuadEnvelopes(const CLayerQuads *pLayerQuads)
 			const vec2 Offset = vec2(fx2f(EnvPoint.m_aValues[0]), fx2f(EnvPoint.m_aValues[1]));
 			const float Rotation = fx2f(EnvPoint.m_aValues[2]) / 180.0f * pi;
 
-			const float Alpha = (Map()->m_SelectedQuadEnvelope == pQuad->m_PosEnv && Map()->IsEnvPointSelected(PointIndex)) ? 0.65f : 0.35f;
+			const float Alpha =
+				((Map()->m_SelectedQuadEnvelope == pQuad->m_PosEnv && Map()->m_SelectedQuadEnvelopePoint == (int)PointIndex) ||
+					(m_EnvelopeEditor.IsPointOperationActive() && Map()->m_SelectedEnvelope == pQuad->m_PosEnv && Map()->IsEnvPointSelected(PointIndex))) ?
+					0.65f :
+					0.35f;
 			Graphics()->SetColor4(
 				ColorRGBA(pQuad->m_aColors[0].r, pQuad->m_aColors[0].g, pQuad->m_aColors[0].b, pQuad->m_aColors[0].a).Multiply(1.0f / 255.0f).WithMultipliedAlpha(Alpha),
 				ColorRGBA(pQuad->m_aColors[1].r, pQuad->m_aColors[1].g, pQuad->m_aColors[1].b, pQuad->m_aColors[1].a).Multiply(1.0f / 255.0f).WithMultipliedAlpha(Alpha),
@@ -2162,6 +2170,13 @@ void CEditor::DoQuadEnvPoint(const CQuad *pQuad, CEnvelope *pEnvelope, int QuadI
 			Ui()->DisableMouseLock();
 			m_QuadEnvelopePointOperation = EQuadEnvelopePointOperation::NONE;
 			Ui()->SetActiveItem(nullptr);
+			Map()->m_SelectedQuadEnvelope = -1;
+			Map()->m_SelectedQuadEnvelopePoint = -1;
+		}
+		else
+		{
+			Map()->m_SelectedQuadEnvelope = pQuad->m_PosEnv;
+			Map()->m_SelectedQuadEnvelopePoint = PointIndex;
 		}
 
 		Graphics()->SetColor(ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
@@ -2183,14 +2198,14 @@ void CEditor::DoQuadEnvPoint(const CQuad *pQuad, CEnvelope *pEnvelope, int QuadI
 				m_QuadEnvelopePointOperation = EQuadEnvelopePointOperation::MOVE;
 			}
 			Map()->SelectQuad(QuadIndex);
-			Map()->SelectEnvPoint(PointIndex);
 			Map()->m_SelectedQuadEnvelope = pQuad->m_PosEnv;
+			Map()->m_SelectedQuadEnvelopePoint = PointIndex;
 			Ui()->SetActiveItem(pPoint);
 		}
 		else
 		{
-			Map()->DeselectEnvPoints();
 			Map()->m_SelectedQuadEnvelope = -1;
+			Map()->m_SelectedQuadEnvelopePoint = -1;
 		}
 	}
 	else
@@ -4096,7 +4111,7 @@ void CEditor::RenderPressedKeys(CUIRect View)
 		{
 			if(NKeys)
 				TextRender()->TextEx(&Cursor, " + ", -1);
-			TextRender()->TextEx(&Cursor, Input()->KeyName(i), -1);
+			TextRender()->TextEx(&Cursor, KeyName(i), -1);
 			NKeys++;
 		}
 	}
@@ -4349,8 +4364,16 @@ void CEditor::RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &
 				}
 				else if(Index == ENTITY_HEALTH_1)
 				{
-					Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupHealth);
-					Graphics()->GetSpriteScale(SPRITE_PICKUP_HEALTH, Scale.x, Scale.y);
+					if(DDNetOrCustomEntities)
+					{
+						Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupFreeze);
+						Graphics()->GetSpriteScale(SPRITE_PICKUP_FREEZE, Scale.x, Scale.y);
+					}
+					else
+					{
+						Graphics()->TextureSet(pGameClient->m_GameSkin.m_SpritePickupHealth);
+						Graphics()->GetSpriteScale(SPRITE_PICKUP_HEALTH, Scale.x, Scale.y);
+					}
 					VisualSize = 64;
 				}
 				else if(Index == ENTITY_WEAPON_SHOTGUN)
@@ -4505,6 +4528,7 @@ void CEditor::CloseMap(size_t Index, bool Confirm)
 		Reset();
 	}
 
+	Ui()->ClosePopupMenu(&m_PopupMapTab);
 	m_vpMaps.erase(m_vpMaps.begin() + Index);
 	if(m_vpMaps.empty())
 	{
@@ -4935,6 +4959,7 @@ void CEditor::OnClose()
 void CEditor::OnDialogClose()
 {
 	m_Dialog = DIALOG_NONE;
+	m_CloseMapAfterSave = false;
 	m_FileBrowser.OnDialogClose();
 }
 

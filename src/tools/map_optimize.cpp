@@ -1,4 +1,3 @@
-#include <base/dbg.h>
 #include <base/fs.h>
 #include <base/logger.h>
 #include <base/mem.h>
@@ -6,6 +5,7 @@
 #include <base/str.h>
 
 #include <engine/gfx/image_manipulation.h>
+#include <engine/map.h>
 #include <engine/shared/datafile.h>
 #include <engine/storage.h>
 
@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <vector>
+
+static constexpr const char *const TOOL_NAME = "map_optimize";
 
 static void ClearTransparentPixels(uint8_t *pImg, int Width, int Height)
 {
@@ -88,12 +90,12 @@ int main(int argc, const char **argv)
 	std::unique_ptr<IStorage> pStorage = std::unique_ptr<IStorage>(CreateStorage(IStorage::EInitializationType::BASIC, argc, argv));
 	if(!pStorage)
 	{
-		log_error("map_optimize", "Error creating basic storage");
+		log_error(TOOL_NAME, "Error creating basic storage");
 		return -1;
 	}
 	if(argc <= 1 || argc > 3)
 	{
-		dbg_msg("map_optimize", "Usage: map_optimize <source map filepath> [<dest map filepath>]");
+		log_error(TOOL_NAME, "Usage: %s <source map filepath> [<dest map filepath>]", argc > 0 ? argv[0] : TOOL_NAME);
 		return -1;
 	}
 
@@ -120,17 +122,17 @@ int main(int argc, const char **argv)
 		str_format(aFilename, sizeof(aFilename), "out/%s.map", aBuff);
 	}
 
-	CDataFileReader Reader;
-	if(!Reader.Open(pStorage.get(), argv[1], IStorage::TYPE_ABSOLUTE))
+	std::shared_ptr<IMap> pMap = CreateMap();
+	if(!pMap->Load(pStorage.get(), argv[1], IStorage::TYPE_ABSOLUTE))
 	{
-		dbg_msg("map_optimize", "Failed to open source file.");
+		log_error(TOOL_NAME, "Failed to open source file '%s'.", argv[1]);
 		return -1;
 	}
 
 	CDataFileWriter Writer;
 	if(!Writer.Open(pStorage.get(), aFilename, IStorage::TYPE_ABSOLUTE))
 	{
-		dbg_msg("map_optimize", "Failed to open target file.");
+		log_error(TOOL_NAME, "Failed to open target file '%s'.", aFilename);
 		return -1;
 	}
 
@@ -155,11 +157,11 @@ int main(int argc, const char **argv)
 	std::vector<SMapOptimizeItem> vDataFindHelper;
 
 	// add all items
-	for(int Index = 0, i = 0; Index < Reader.NumItems(); Index++)
+	for(int Index = 0, i = 0; Index < pMap->NumItems(); Index++)
 	{
 		int Type, Id;
 		CUuid Uuid;
-		void *pPtr = Reader.GetItem(Index, &Type, &Id, &Uuid);
+		void *pPtr = pMap->GetItem(Index, &Type, &Id, &Uuid);
 
 		// Filter ITEMTYPE_EX items, they will be automatically added again.
 		if(Type == ITEMTYPE_EX)
@@ -178,16 +180,14 @@ int main(int argc, const char **argv)
 				{
 					aImageFlags[pTLayer->m_Image] |= 1;
 					// check tiles that are used in this image
-					unsigned int DataSize = Reader.GetDataSize(pTLayer->m_Data);
-					void *pTiles = Reader.GetData(pTLayer->m_Data);
-
-					if(DataSize >= (size_t)pTLayer->m_Width * pTLayer->m_Height * sizeof(CTile))
+					const CTile *pTiles = static_cast<const CTile *>(pMap->GetData(pTLayer->m_Data));
+					if(pTiles != nullptr)
 					{
 						for(int y = 0; y < pTLayer->m_Height; ++y)
 						{
 							for(int x = 0; x < pTLayer->m_Width; ++x)
 							{
-								int TileIndex = ((CTile *)pTiles)[y * pTLayer->m_Width + x].m_Index;
+								int TileIndex = pTiles[y * pTLayer->m_Width + x].m_Index;
 								if(TileIndex > 0)
 								{
 									aaImageTiles[pTLayer->m_Image][TileIndex] = true;
@@ -223,16 +223,16 @@ int main(int argc, const char **argv)
 			++i;
 		}
 
-		int Size = Reader.GetItemSize(Index);
+		int Size = pMap->GetItemSize(Index);
 		Writer.AddItem(Type, Id, Size, pPtr, &Uuid);
 	}
 
 	// add all data
-	for(int Index = 0; Index < Reader.NumData(); Index++)
+	for(int Index = 0; Index < pMap->NumData(); Index++)
 	{
 		bool DeletePtr = false;
-		void *pPtr = Reader.GetData(Index);
-		int Size = Reader.GetDataSize(Index);
+		void *pPtr = pMap->GetData(Index);
+		int Size = pMap->GetDataSize(Index);
 		auto MapDataItemIterator = std::find_if(vDataFindHelper.begin(), vDataFindHelper.end(), [Index](const SMapOptimizeItem &Other) -> bool { return Other.m_Data == Index || Other.m_Text == Index; });
 		if(MapDataItemIterator != vDataFindHelper.end())
 		{
@@ -307,8 +307,8 @@ int main(int argc, const char **argv)
 			else if(MapDataItemIterator->m_Text == Index)
 			{
 				char *pImgName = (char *)pPtr;
-				uint8_t *pImgBuff = (uint8_t *)Reader.GetData(MapDataItemIterator->m_Data);
-				int ImgSize = Reader.GetDataSize(MapDataItemIterator->m_Data);
+				uint8_t *pImgBuff = (uint8_t *)pMap->GetData(MapDataItemIterator->m_Data);
+				int ImgSize = pMap->GetDataSize(MapDataItemIterator->m_Data);
 
 				char aSHA256Str[SHA256_MAXSTRSIZE];
 				// This is the important function, that calculates the SHA256 in a special way
@@ -333,7 +333,7 @@ int main(int argc, const char **argv)
 			free(pPtr);
 	}
 
-	Reader.Close();
+	pMap->Unload();
 	Writer.Finish();
 
 	return 0;

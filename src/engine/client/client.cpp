@@ -22,6 +22,7 @@
 #include <base/process.h>
 #include <base/secure.h>
 #include <base/str.h>
+#include <base/thread.h>
 #include <base/time.h>
 #include <base/windows.h>
 
@@ -747,7 +748,7 @@ void CClient::DisconnectWithReason(const char *pReason)
 	m_DemoPlayer.Stop();
 	for(int Recorder = 0; Recorder < RECORDER_MAX; Recorder++)
 	{
-		DemoRecorder(Recorder)->Stop(Recorder == RECORDER_REPLAYS ? IDemoRecorder::EStopMode::REMOVE_FILE : IDemoRecorder::EStopMode::KEEP_FILE);
+		DemoRecorder_Stop(Recorder);
 	}
 
 	m_aRconAuthed[0] = 0;
@@ -1230,9 +1231,9 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, const std
 	static char s_aErrorMsg[128];
 
 	SetState(IClient::STATE_LOADING);
-	SetLoadingStateDetail(IClient::LOADING_STATE_DETAIL_LOADING_MAP);
+	SetLoadingStateDetail(IClient::ELoadingStateDetail::LOADING_MAP);
 	if((bool)m_LoadingCallback)
-		m_LoadingCallback(IClient::LOADING_CALLBACK_DETAIL_MAP);
+		m_LoadingCallback(IClient::ELoadingCallbackDetail::MAP);
 
 	// Stop demo recording before loading a new map.
 	for(int Recorder = 0; Recorder < RECORDER_MAX; Recorder++)
@@ -1763,7 +1764,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			if(LoadMapSearch(pMap, MapSha256, MapCrc) == nullptr)
 			{
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client/network", "loading done");
-				SetLoadingStateDetail(IClient::LOADING_STATE_DETAIL_SENDING_READY);
+				SetLoadingStateDetail(IClient::ELoadingStateDetail::SENDING_READY);
 				SendReady(CONN_MAIN);
 			}
 			else
@@ -2161,7 +2162,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 				if((NumParts < CSnapshot::MAX_PARTS && m_aSnapshotParts[Conn] == (((uint64_t)(1) << NumParts) - 1)) ||
 					(NumParts == CSnapshot::MAX_PARTS && m_aSnapshotParts[Conn] == std::numeric_limits<uint64_t>::max()))
 				{
-					unsigned char aTmpBuffer2[CSnapshot::MAX_SIZE];
+					CSnapshotDeltaBuffer TmpBuffer2;
 					CSnapshotBuffer TmpBuffer3;
 
 					// reset snapshotting
@@ -2195,12 +2196,12 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 
 					if(m_aSnapshotIncomingDataSize[Conn])
 					{
-						int IntSize = CVariableInt::Decompress(m_aaSnapshotIncomingData[Conn], m_aSnapshotIncomingDataSize[Conn], aTmpBuffer2, sizeof(aTmpBuffer2));
+						int IntSize = CVariableInt::Decompress(m_aaSnapshotIncomingData[Conn], m_aSnapshotIncomingDataSize[Conn], TmpBuffer2.m_aData, sizeof(TmpBuffer2.m_aData));
 
 						if(IntSize < 0) // failure during decompression
 							return;
 
-						pDeltaData = aTmpBuffer2;
+						pDeltaData = TmpBuffer2.m_aData;
 						DeltaSize = IntSize;
 					}
 
@@ -2713,7 +2714,7 @@ void CClient::PumpNetwork()
 			// we switched to online
 			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", "connected, sending info", CLIENT_NETWORK_PRINT_COLOR);
 			SetState(IClient::STATE_LOADING);
-			SetLoadingStateDetail(IClient::LOADING_STATE_DETAIL_INITIAL);
+			SetLoadingStateDetail(IClient::ELoadingStateDetail::INITIAL);
 			SendInfo(CONN_MAIN);
 		}
 
@@ -2825,6 +2826,12 @@ void CClient::UpdateDemoIntraTimers()
 void CClient::Update()
 {
 	PumpNetwork();
+
+	// update editor/gameclient, before input snapping
+	if(m_EditorActive)
+		m_pEditor->OnUpdate();
+	else
+		GameClient()->OnUpdate();
 
 	if(State() == IClient::STATE_DEMOPLAYBACK)
 	{
@@ -3104,12 +3111,6 @@ void CClient::Update()
 	// update the server browser
 	m_ServerBrowser.Update();
 
-	// update editor/gameclient
-	if(m_EditorActive)
-		m_pEditor->OnUpdate();
-	else
-		GameClient()->OnUpdate();
-
 	Discord()->Update();
 	Steam()->Update();
 	if(Steam()->GetConnectAddress())
@@ -3161,7 +3162,7 @@ void CClient::InitInterfaces()
 	m_pNotifications = Kernel()->RequestInterface<INotifications>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
 
-	m_DemoEditor.Init(&m_SnapshotDelta, &m_SnapshotDeltaSixup, m_pConsole, m_pStorage);
+	m_DemoEditor.Init(&m_SnapshotDelta, &m_SnapshotDeltaSixup, m_pStorage);
 
 	m_ServerBrowser.SetBaseInfo(&m_aNetClient[CONN_CONTACT], m_pGameClient->NetVersion());
 
@@ -3325,8 +3326,8 @@ void CClient::Run()
 	bool LastE = false;
 	bool LastG = false;
 
-	auto LastTime = time_get_nanoseconds();
-	int64_t LastRenderTime = time_get();
+	int64_t NextUpdateTime = time_get();
+	int64_t NextRenderTime = time_get();
 
 	while(true)
 	{
@@ -3400,6 +3401,9 @@ void CClient::Run()
 			g_Config.m_ClEditor = g_Config.m_ClEditor ^ 1;
 		}
 
+		bool Inactive = false;
+		int64_t WakeTime = std::numeric_limits<int64_t>::max();
+
 		// render
 		{
 			if(g_Config.m_ClEditor)
@@ -3424,7 +3428,24 @@ void CClient::Run()
 
 			bool AsyncRenderOld = g_Config.m_GfxAsyncRenderOld;
 
+			// Update at cl_refresh_rate, or at cl_refresh_rate_inactive while the window is inactive.
+			Inactive = g_Config.m_ClRefreshRateInactive && !m_pGraphics->WindowActive();
+			const int RefreshRate = Inactive ? g_Config.m_ClRefreshRateInactive : g_Config.m_ClRefreshRate;
+			bool UpdateDue = true;
+			if(RefreshRate)
+			{
+				UpdateDue = Now >= NextUpdateTime;
+				if(UpdateDue)
+				{
+					// Stay on the grid so that late wakeups do not lower the rate, unless a whole interval was missed.
+					NextUpdateTime = std::max(NextUpdateTime + time_freq() / RefreshRate, Now);
+				}
+			}
+
+			// Render on the updates, unless gfx_refresh_rate is lower.
 			int GfxRefreshRate = g_Config.m_GfxRefreshRate;
+			if(RefreshRate && GfxRefreshRate >= RefreshRate)
+				GfxRefreshRate = 0;
 
 #if defined(CONF_VIDEORECORDER)
 			// keep rendering synced
@@ -3435,9 +3456,10 @@ void CClient::Run()
 			}
 #endif
 
+			const bool RenderDue = GfxRefreshRate ? Now >= NextRenderTime : UpdateDue;
 			if(IsRenderActive &&
 				(!AsyncRenderOld || m_pGraphics->IsIdle()) &&
-				(!GfxRefreshRate || (time_freq() / (int64_t)g_Config.m_GfxRefreshRate) <= Now - LastRenderTime))
+				RenderDue)
 			{
 				// update frametime
 				m_RenderFrameTime = (Now - m_LastRenderTime) / (float)time_freq();
@@ -3458,21 +3480,24 @@ void CClient::Run()
 
 				m_FrameTimeAverage = m_FrameTimeAverage * 0.9f + m_RenderFrameTime * 0.1f;
 
-				// keep the overflow time - it's used to make sure the gfx refreshrate is reached
-				int64_t AdditionalTime = g_Config.m_GfxRefreshRate ? ((Now - LastRenderTime) - (time_freq() / (int64_t)g_Config.m_GfxRefreshRate)) : 0;
-				// if the value is over the frametime of a 60 fps frame, reset the additional time (drop the frames, that are lost already)
-				if(AdditionalTime > (time_freq() / 60))
-					AdditionalTime = (time_freq() / 60);
-				LastRenderTime = Now - AdditionalTime;
+				if(GfxRefreshRate)
+					NextRenderTime = std::max(NextRenderTime + time_freq() / GfxRefreshRate, Now);
 				m_LastRenderTime = Now;
 
 				Render();
 				m_pGraphics->Swap();
 			}
-			else if(!IsRenderActive)
+
+			// Wake up for the next update or frame, whichever comes first. While playing, also wake up for
+			// the next prediction tick to send its input without delay, unless the window is inactive or
+			// the loop is not rate limited at all.
+			if(RefreshRate)
 			{
-				// if the client does not render, it should reset its render time to a time where it would render the first frame, when it wakes up again
-				LastRenderTime = g_Config.m_GfxRefreshRate ? (Now - (time_freq() / (int64_t)g_Config.m_GfxRefreshRate)) : Now;
+				WakeTime = NextUpdateTime;
+				if(IsRenderActive && GfxRefreshRate && NextRenderTime > Now)
+					WakeTime = std::min(WakeTime, NextRenderTime);
+				if(State() == IClient::STATE_ONLINE && m_aPredTick[g_Config.m_ClDummy] > 0 && !Inactive)
+					WakeTime = std::min(WakeTime, Now + (m_aPredTick[g_Config.m_ClDummy] * time_freq() / GameTickSpeed() - m_PredictedTime.Get(Now)));
 			}
 		}
 
@@ -3486,47 +3511,23 @@ void CClient::Run()
 			break;
 
 		// beNice
-		auto Now = time_get_nanoseconds();
-		decltype(Now) SleepTimeInNanoSeconds{0};
-		bool Slept = false;
-		if(g_Config.m_ClRefreshRateInactive && !m_pGraphics->WindowActive())
+		if(WakeTime != std::numeric_limits<int64_t>::max())
 		{
-			SleepTimeInNanoSeconds = (std::chrono::nanoseconds(1s) / (int64_t)g_Config.m_ClRefreshRateInactive) - (Now - LastTime);
-			std::this_thread::sleep_for(SleepTimeInNanoSeconds);
-			Slept = true;
-		}
-		else if(g_Config.m_ClRefreshRate)
-		{
-			SleepTimeInNanoSeconds = (std::chrono::nanoseconds(1s) / (int64_t)g_Config.m_ClRefreshRate) - (Now - LastTime);
-			auto SleepTimeInNanoSecondsInner = SleepTimeInNanoSeconds;
-			auto NowInner = Now;
-			while(std::chrono::duration_cast<std::chrono::microseconds>(SleepTimeInNanoSecondsInner) > 0us)
+			const std::chrono::nanoseconds Deadline(WakeTime);
+			std::chrono::nanoseconds WaitTime = Deadline - time_get_nanoseconds();
+			if(Inactive)
 			{
-				net_socket_read_wait(m_aNetClient[CONN_MAIN].m_Socket, SleepTimeInNanoSecondsInner);
-				auto NowInnerCalc = time_get_nanoseconds();
-				SleepTimeInNanoSecondsInner -= (NowInnerCalc - NowInner);
-				NowInner = NowInnerCalc;
+				// Without focus, save power by not waking up for packets.
+				std::this_thread::sleep_for(WaitTime);
 			}
-			Slept = true;
-		}
-		if(Slept)
-		{
-			// if the diff gets too small it shouldn't get even smaller (drop the updates, that could not be handled)
-			if(SleepTimeInNanoSeconds < -16666666ns)
-				SleepTimeInNanoSeconds = -16666666ns;
-			// don't go higher than the frametime of a 60 fps frame
-			else if(SleepTimeInNanoSeconds > 16666666ns)
-				SleepTimeInNanoSeconds = 16666666ns;
-			// the time diff between the time that was used actually used and the time the thread should sleep/wait
-			// will be calculated in the sleep time of the next update tick by faking the time it should have slept/wait.
-			// so two cases (and the case it slept exactly the time it should):
-			//	- the thread slept/waited too long, then it adjust the time to sleep/wait less in the next update tick
-			//	- the thread slept/waited too less, then it adjust the time to sleep/wait more in the next update tick
-			LastTime = Now + SleepTimeInNanoSeconds;
-		}
-		else
-		{
-			LastTime = Now;
+			else
+			{
+				// Packets end the wait early. The wait can overshoot by a fraction of its duration, so approach the deadline in halving steps.
+				while(WaitTime > 0ns && net_socket_read_wait(m_aNetClient[CONN_MAIN].m_Socket, WaitTime > 1000us ? WaitTime / 2 : 0ns) == 0)
+				{
+					WaitTime = Deadline - time_get_nanoseconds();
+				}
+			}
 		}
 
 		// update local and global time
@@ -4081,13 +4082,13 @@ const char *CClient::DemoPlayer_Play(const char *pFilename, int StorageType)
 	m_aNetClient[CONN_MAIN].ResetErrorString();
 
 	SetState(IClient::STATE_LOADING);
-	SetLoadingStateDetail(IClient::LOADING_STATE_DETAIL_LOADING_DEMO);
+	SetLoadingStateDetail(IClient::ELoadingStateDetail::LOADING_DEMO);
 	if((bool)m_LoadingCallback)
-		m_LoadingCallback(IClient::LOADING_CALLBACK_DETAIL_DEMO);
+		m_LoadingCallback(IClient::ELoadingCallbackDetail::DEMO);
 
 	// try to start playback
 	m_DemoPlayer.SetListener(this);
-	if(m_DemoPlayer.Load(Storage(), m_pConsole, pFilename, StorageType))
+	if(m_DemoPlayer.Load(Storage(), pFilename, StorageType))
 	{
 		DisconnectWithReason(m_DemoPlayer.ErrorMessage());
 		return m_DemoPlayer.ErrorMessage();
@@ -4189,6 +4190,22 @@ void CClient::Con_DemoSpeed(IConsole::IResult *pResult, void *pUserData)
 	pSelf->m_DemoPlayer.SetSpeed(pResult->GetFloat(0));
 }
 
+void CClient::DemoRecorder_Stop(int Recorder)
+{
+	if(Recorder == RECORDER_AUTO && DemoRecorder(RECORDER_AUTO)->IsRecording() && DemoRecorder(RECORDER_AUTO)->HasMarkers())
+	{
+		char aFilename[IO_MAX_PATH_LENGTH];
+		const char *pBaseName = fs_filename(DemoRecorder(Recorder)->CurrentFilename());
+		str_format(aFilename, sizeof(aFilename), "demos/auto/marked/%s", pBaseName);
+
+		DemoRecorder(Recorder)->Stop(IDemoRecorder::EStopMode::KEEP_FILE, aFilename);
+	}
+	else if(Recorder == RECORDER_REPLAYS)
+		DemoRecorder(Recorder)->Stop(IDemoRecorder::EStopMode::REMOVE_FILE);
+	else
+		DemoRecorder(Recorder)->Stop(IDemoRecorder::EStopMode::KEEP_FILE);
+}
+
 void CClient::DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int Recorder)
 {
 	dbg_assert(State() == IClient::STATE_ONLINE, "Client must be online to record demo");
@@ -4207,7 +4224,6 @@ void CClient::DemoRecorder_Start(const char *pFilename, bool WithTimestamp, int 
 
 	DemoRecorders()[Recorder].Start(
 		Storage(),
-		m_pConsole,
 		aFilename,
 		IsSixup() ? GameClient()->NetVersion7() : GameClient()->NetVersion(),
 		GameClient()->Map()->BaseName(),
@@ -4264,7 +4280,11 @@ void CClient::DemoRecorder_UpdateReplayRecorder()
 
 void CClient::DemoRecorder_AddDemoMarker(int Recorder)
 {
-	DemoRecorders()[Recorder].AddDemoMarker();
+	auto &DemoRecorder = DemoRecorders()[Recorder];
+	if(DemoRecorder.IsRecording())
+	{
+		DemoRecorder.AddDemoMarker();
+	}
 }
 
 CDemoRecorder (&CClient::DemoRecorders())[RECORDER_MAX]
@@ -5229,12 +5249,6 @@ int main(int argc, const char **argv)
 	SDL_SetHint(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, "1");
 #endif
 
-#if defined(CONF_PLATFORM_MACOS)
-	// Hints will not be set if there is an existing override hint or environment variable that takes precedence.
-	// So this respects cli environment overrides.
-	SDL_SetHint("SDL_MAC_OPENGL_ASYNC_DISPATCH", "1");
-#endif
-
 #if defined(CONF_FAMILY_WINDOWS)
 	SDL_SetHint("SDL_IME_SHOW_UI", g_Config.m_InpImeNativeUi ? "1" : "0");
 #else
@@ -5261,6 +5275,9 @@ int main(int argc, const char **argv)
 		PerformAllCleanup();
 		return -1;
 	}
+
+	// SDL raises the timer resolution on Windows while initializing, the other platforms need this.
+	thread_request_precise_wakeups();
 
 	// run the client
 	log_trace("client", "initialization finished after %.2fms, starting...", (time_get() - MainStart) * 1000.0f / (float)time_freq());
@@ -5306,7 +5323,6 @@ void CClient::RaceRecord_Start(const char *pFilename)
 
 	DemoRecorders()[RECORDER_RACE].Start(
 		Storage(),
-		m_pConsole,
 		pFilename,
 		IsSixup() ? GameClient()->NetVersion7() : GameClient()->NetVersion(),
 		GameClient()->Map()->BaseName(),
@@ -5434,10 +5450,10 @@ int CClient::PredictionMargin() const
 	return m_ServerCapabilities.m_SyncWeaponInput ? g_Config.m_ClPredictionMargin : 10;
 }
 
-int CClient::UdpConnectivity(int NetType)
+IClient::EConnectivity CClient::UdpConnectivity(int NetType)
 {
 	static const int NETTYPES[2] = {NETTYPE_IPV6, NETTYPE_IPV4};
-	int Connectivity = CONNECTIVITY_UNKNOWN;
+	EConnectivity Connectivity = EConnectivity::UNKNOWN;
 	for(int PossibleNetType : NETTYPES)
 	{
 		if((NetType & PossibleNetType) == 0)
@@ -5445,33 +5461,33 @@ int CClient::UdpConnectivity(int NetType)
 			continue;
 		}
 		NETADDR GlobalUdpAddr;
-		int NewConnectivity;
-		switch(m_aNetClient[CONN_MAIN].GetConnectivity(PossibleNetType, &GlobalUdpAddr))
+		EConnectivity NewConnectivity;
+		const CONNECTIVITY NetworkConnectivity = m_aNetClient[CONN_MAIN].GetConnectivity(PossibleNetType, &GlobalUdpAddr);
+		switch(NetworkConnectivity)
 		{
 		case CONNECTIVITY::UNKNOWN:
-			NewConnectivity = CONNECTIVITY_UNKNOWN;
+			NewConnectivity = EConnectivity::UNKNOWN;
 			break;
 		case CONNECTIVITY::CHECKING:
-			NewConnectivity = CONNECTIVITY_CHECKING;
+			NewConnectivity = EConnectivity::CHECKING;
 			break;
 		case CONNECTIVITY::UNREACHABLE:
-			NewConnectivity = CONNECTIVITY_UNREACHABLE;
+			NewConnectivity = EConnectivity::UNREACHABLE;
 			break;
 		case CONNECTIVITY::REACHABLE:
-			NewConnectivity = CONNECTIVITY_REACHABLE;
+			NewConnectivity = EConnectivity::REACHABLE;
 			break;
 		case CONNECTIVITY::ADDRESS_KNOWN:
 			GlobalUdpAddr.port = 0;
 			if(m_HaveGlobalTcpAddr && NetType == (int)m_GlobalTcpAddr.type && net_addr_comp(&m_GlobalTcpAddr, &GlobalUdpAddr) != 0)
 			{
-				NewConnectivity = CONNECTIVITY_DIFFERING_UDP_TCP_IP_ADDRESSES;
+				NewConnectivity = EConnectivity::DIFFERING_UDP_TCP_IP_ADDRESSES;
 				break;
 			}
-			NewConnectivity = CONNECTIVITY_REACHABLE;
+			NewConnectivity = EConnectivity::REACHABLE;
 			break;
 		default:
-			dbg_assert(0, "invalid connectivity value");
-			return CONNECTIVITY_UNKNOWN;
+			dbg_assert_failed("Invalid connectivity value: %d", (int)NetworkConnectivity);
 		}
 		Connectivity = std::max(Connectivity, NewConnectivity);
 	}

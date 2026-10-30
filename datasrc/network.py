@@ -49,7 +49,7 @@ SaveStates = ["PENDING", "DONE", "FALLBACKFILE", "WARNING", "ERROR"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
-Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA", "ARMOR_SHOTGUN", "ARMOR_GRENADE", "ARMOR_NINJA", "ARMOR_LASER"]
+Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA", "ARMOR_SHOTGUN", "ARMOR_GRENADE", "ARMOR_NINJA", "ARMOR_LASER", "FREEZE"]
 Authed = ["NO", "HELPER", "MOD", "ADMIN"]
 EntityClasses = ["PROJECTILE", "DOOR", "DRAGGER_WEAK", "DRAGGER_NORMAL", "DRAGGER_STRONG", "GUN_NORMAL", "GUN_EXPLOSIVE", "GUN_FREEZE", "GUN_UNFREEZE", "LIGHT", "PICKUP"]
 Teams = ["ALL", "SPECTATORS", "RED", "BLUE", "WHISPER_SEND", "WHISPER_RECV"]
@@ -569,6 +569,11 @@ Messages = [
 		NetIntAny("m_Zoom"),
 		NetIntAny("m_Deadzone"),
 		NetIntAny("m_FollowFactor"),
+	]),
+
+	NetMessageEx("Cl_PracticeTeleport", "practice-teleport@netmsg.ddnet.org", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
 	]),
 
 	NetMessageEx("Sv_TeamsState", "teamsstate@netmsg.ddnet.tw", []),

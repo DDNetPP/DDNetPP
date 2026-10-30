@@ -15,8 +15,8 @@
 
 void IGameController::OnCharacterDeathImpl(CCharacter *pVictim, int Killer, int Weapon, bool SendKillMsg)
 {
-	if(Killer != WEAPON_GAME && pVictim->m_SetSavePos[RESCUEMODE_AUTO])
-		pVictim->GetPlayer()->m_LastDeath = pVictim->m_RescueTee[RESCUEMODE_AUTO];
+	if(Killer != WEAPON_GAME && pVictim->m_aSetSavePos[RESCUEMODE_AUTO])
+		pVictim->GetPlayer()->m_LastDeath = pVictim->m_aRescueTee[RESCUEMODE_AUTO];
 	pVictim->StopRecording();
 
 	// TODO: remove DDPP_DIE and use the ddnet-insta approach instead

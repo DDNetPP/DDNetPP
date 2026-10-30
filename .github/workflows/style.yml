@@ -56,7 +56,6 @@ jobs:
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2.9.2
       with:
-          cache-bin: false # WORKAROUND(https://github.com/Swatinem/rust-cache/issues/341)
           workspaces: |
               src/mastersrv
               src/masterping
@@ -146,12 +145,12 @@ jobs:
     - name: Check languages
       run: scripts/languages/update_all.py
 
-    - name: Build dilate tool
+    - name: Build dilate and map_test tools
       run: |
         mkdir release
         cd release
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCLIENT=OFF -DDOWNLOAD_GTEST=OFF ..
-        cmake --build . --config Release --target dilate
+        cmake --build . --config Release --target dilate map_test
 
     - name: Check dilated images
       run: scripts/check_dilate.py release data

@@ -18,7 +18,7 @@
 
 #include <game/localization.h>
 
-#include <limits>
+constexpr float TOOLTIP_FONTSIZE = 14.0f;
 
 void CUIElement::Init(CUi *pUI, int RequestedRectCount)
 {
@@ -115,6 +115,8 @@ void CUi::Init(IKernel *pKernel)
 	CUIRect::Init(m_pGraphics);
 	CLineInput::Init(m_pClient, m_pGraphics, m_pInput, m_pTextRender);
 	CUIElementBase::Init(this);
+	m_pTooltips = std::make_unique<CTooltips>();
+	m_pTooltips->Init(this, m_pTextRender);
 }
 
 CUi::CUi()
@@ -821,6 +823,15 @@ CLabelResult CUi::DoLabel(const CUIRect *pRect, const char *pText, float Size, i
 	Cursor.m_vColorSplits = LabelProps.m_vColorSplits;
 	Cursor.m_LineWidth = (float)LabelProps.m_MaxWidth;
 	TextRender()->TextEx(&Cursor, pText, -1);
+	if(Cursor.m_Truncated && LabelProps.m_pTooltipId)
+	{
+		DoToolTip({LabelProps.m_pTooltipId,
+			*pRect,
+			pText,
+			-1,
+			Size,
+			true});
+	}
 	return CLabelResult{.m_Truncated = Cursor.m_Truncated};
 }
 
@@ -849,7 +860,7 @@ void CUi::DoLabel(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, cons
 	TextRender()->CreateTextContainer(RectEl.m_UITextContainer, &Cursor, pText, StrLen);
 	TextRender()->TextColor(RectEl.m_TextColor);
 	TextRender()->TextOutlineColor(RectEl.m_TextOutlineColor);
-	RectEl.m_Cursor = Cursor;
+	RectEl.m_Cursor = std::move(Cursor);
 }
 
 void CUi::DoLabelStreamed(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps, int StrLen, const CTextCursor *pReadCursor) const
@@ -905,6 +916,16 @@ void CUi::DoLabelStreamed(CUIElement::SUIElementRect &RectEl, const CUIRect *pRe
 	{
 		const vec2 CursorPos = CalcAlignedCursorPos(pRect, vec2(RectEl.m_Cursor.m_LongestLineWidth, RectEl.m_Cursor.Height()), Align);
 		TextRender()->RenderTextContainer(RectEl.m_UITextContainer, RectEl.m_TextColor, RectEl.m_TextOutlineColor, CursorPos.x, CursorPos.y);
+
+		if(RectEl.m_Cursor.m_Truncated && LabelProps.m_pTooltipId)
+		{
+			DoToolTip({LabelProps.m_pTooltipId,
+				*pRect,
+				pText,
+				-1,
+				Size,
+				true});
+		}
 	}
 }
 
@@ -1165,9 +1186,9 @@ int CUi::DoButton_Menu(CUIElement &UIElement, const CButtonContainer *pId, const
 	return DoButtonLogic(pId, Props.m_Checked, pRect, Props.m_Flags);
 }
 
-int CUi::DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const unsigned Flags, int Corners, bool Enabled, const std::optional<ColorRGBA> ButtonColor)
+void CUi::DrawButton_FontIcon(const char *pText, const CUIRect *pRect, ColorRGBA Color, int Corners, bool Enabled) const
 {
-	pRect->Draw(ButtonColor.value_or(ColorRGBA(1.0f, 1.0f, 1.0f, (Checked ? 0.1f : 0.5f) * ButtonColorMul(pButtonContainer))), Corners, 5.0f);
+	pRect->Draw(Color, Corners, 5.0f);
 
 	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING);
@@ -1189,7 +1210,11 @@ int CUi::DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText
 
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
+}
 
+int CUi::DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const unsigned Flags, int Corners, bool Enabled, const std::optional<ColorRGBA> ButtonColor)
+{
+	DrawButton_FontIcon(pText, pRect, ButtonColor.value_or(ColorRGBA(1.0f, 1.0f, 1.0f, (Checked ? 0.1f : 0.5f) * ButtonColorMul(pButtonContainer))), Corners, Enabled);
 	return DoButtonLogic(pButtonContainer, Checked, pRect, Flags);
 }
 
@@ -1398,6 +1423,15 @@ float CUi::DoScrollbarV(const void *pId, const CUIRect *pRect, float Current)
 		const float Max = Rail.h - Handle.h;
 		const float Cur = MouseY() - m_ActiveScrollbarOffset;
 		ReturnValue = std::clamp((Cur - Min) / Max, 0.0f, 1.0f);
+
+		DoToolTip({
+			pId,
+			Handle,
+			Localize("Hold Shift to be more precise."),
+			-1.0f,
+			TOOLTIP_FONTSIZE,
+			false,
+		});
 	}
 
 	// render
@@ -1488,6 +1522,15 @@ float CUi::DoScrollbarH(const void *pId, const CUIRect *pRect, float Current, co
 		const float Max = Rail.w - Handle.w;
 		const float Cur = MouseX() - m_ActiveScrollbarOffset;
 		ReturnValue = std::clamp((Cur - Min) / Max, 0.0f, 1.0f);
+
+		DoToolTip({
+			pId,
+			Handle,
+			Localize("Hold Shift to be more precise."),
+			-1.0f,
+			TOOLTIP_FONTSIZE,
+			false,
+		});
 	}
 
 	// render
@@ -1611,6 +1654,7 @@ void CCachedText::Update(ITextRender *pTextRender, const char *pText, float Font
 
 	m_BoundingBox = Cursor.BoundingBox();
 	m_MaxCharacterHeight = Cursor.m_MaxCharacterHeight;
+	m_AlignedFontSize = Cursor.m_AlignedFontSize;
 }
 
 void CCachedText::Render(ITextRender *pTextRender, vec2 Pos, ColorRGBA Color) const
@@ -1651,27 +1695,31 @@ void CUi::RenderTime(CUIRect TimeRect, float FontSize, int Seconds, bool NotFini
 	// show milliseconds or centiseconds if we are under an hour
 	if(Millis >= 0 && Seconds < 60 * 60)
 	{
-		constexpr float GoldenRatio = 0.61803398875f;
-		const float CentisecondFontSize = FontSize * GoldenRatio;
+		constexpr float Ratio = 0.7f;
+		const float CentisecondFontSize = FontSize * Ratio;
 
-		// format 2 or 3 digits
-		char aMillis[4];
+		// format dot plus 2 or 3 digits
+		char aMillis[5];
 		Millis %= 1000;
 		if(!TrueMilliseconds)
-			str_format(aMillis, sizeof(aMillis), "%02d", (int)std::round(Millis / 10));
+			str_format(aMillis, sizeof(aMillis), ".%02d", (int)std::round(Millis / 10));
 		else
-			str_format(aMillis, sizeof(aMillis), "%03d", Millis);
+			str_format(aMillis, sizeof(aMillis), ".%03d", Millis);
 		MillisText.Update(TextRender(), aMillis, CentisecondFontSize);
 
 		const float MillisWidth = MillisText.Width();
 
-		// make space for millis, but put them 1/6th of a char tighter together
-		Cursor.x -= MillisWidth - (TrueMilliseconds ? MillisWidth / (3 * 6) : MillisWidth / (2 * 6));
+		// pull the fractional block (dot + digits) slightly closer to the seconds
+		constexpr float FractionKern = 0.35f;
+		const float DotWidth = MillisWidth / (TrueMilliseconds ? 4 : 3);
+		const float Kern = DotWidth * FractionKern;
+		Cursor.x -= MillisWidth - Kern;
 
 		vec2 CursorMillis = TimeRect.TopLeft();
 		CursorMillis.x += TimeRect.w - MillisWidth; // align right
-		CursorMillis.y += ((TimeRect.h - MillisText.MaxCharacterHeight()) / 2.0f - (CentisecondFontSize - MillisText.MaxCharacterHeight()));
-		CursorMillis.y -= (CursorMillis.y - Cursor.y) * GoldenRatio;
+
+		// Align the bottom of the fractional text with the bottom of the seconds.
+		CursorMillis.y = Cursor.y + (SecondsText.AlignedFontSize() - MillisText.AlignedFontSize());
 
 		SecondsText.Render(TextRender(), Cursor, Color);
 		MillisText.Render(TextRender(), CursorMillis, Color);
@@ -1813,4 +1861,19 @@ void CUi::RenderBackButton()
 	DoLabel(&m_BackButtonRect, FontIcon::CHEVRON_LEFT, m_BackButtonRect.w * 0.5f, TEXTALIGN_MC);
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
+}
+
+void CUi::DoToolTip(const void *pId, const CUIRect *pNearRect, const char *pText, float WidthHint) const
+{
+	DoToolTip({pId,
+		*pNearRect,
+		pText,
+		WidthHint,
+		TOOLTIP_FONTSIZE,
+		false});
+}
+
+void CUi::DoToolTip(const CTooltip &Tooltip) const
+{
+	m_pTooltips->DoToolTip(Tooltip);
 }

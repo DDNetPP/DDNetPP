@@ -1094,8 +1094,8 @@ public:
 	int CreateQuadContainer(bool AutomaticUpload = true) override;
 	void QuadContainerChangeAutomaticUpload(int ContainerIndex, bool AutomaticUpload) override;
 	void QuadContainerUpload(int ContainerIndex) override;
-	int QuadContainerAddQuads(int ContainerIndex, CQuadItem *pArray, int Num) override;
-	int QuadContainerAddQuads(int ContainerIndex, CFreeformItem *pArray, int Num) override;
+	int QuadContainerAddQuads(int ContainerIndex, const CQuadItem *pArray, int Num) override;
+	int QuadContainerAddQuads(int ContainerIndex, const CFreeformItem *pArray, int Num) override;
 	void QuadContainerReset(int ContainerIndex) override;
 	void DeleteQuadContainer(int &ContainerIndex) override;
 	void RenderQuadContainer(int ContainerIndex, int QuadDrawNum) override;
@@ -1236,6 +1236,8 @@ public:
 	void ReadPixel(ivec2 Position, ColorRGBA *pColor) override;
 	void TakeScreenshot(const char *pFilename) override;
 	void TakeCustomScreenshot(const char *pFilename) override;
+	void ReadFramebuffer(CImageInfo &Image);
+	void SetScreenSize(int Width, int Height);
 	void Swap() override;
 	bool SetVSync(bool State) override;
 	bool SetMultiSampling(uint32_t ReqMultiSamplingCount, uint32_t &MultiSamplingCountBackend) override;
