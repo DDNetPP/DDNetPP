@@ -8,6 +8,7 @@
 #include <base/types.h>
 #include <base/vmath.h>
 
+#include <engine/server/authmanager.h>
 #include <engine/server/server.h>
 #include <engine/shared/protocol.h>
 
@@ -1159,6 +1160,39 @@ bool CLuaPlugin::CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num
 	}
 	lua_pushinteger(LuaState(), Num1);
 	lua_pushinteger(LuaState(), Num2);
+	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
+	{
+		const char *pErrorMsg = lua_tostring(LuaState(), -1);
+		log_error("lua", "plugin '%s' failed to call %s() with error: %s", Name(), pFunction, pErrorMsg);
+		SetError(pErrorMsg);
+		lua_pop(LuaState(), 1);
+	}
+	// pop global "ddnetpp"
+	lua_pop(LuaState(), 1);
+	return true;
+}
+
+bool CLuaPlugin::CallLuaVoidWithIntAndStr(const char *pFunction, int Num1, const char *pStr2)
+{
+	LUA_CHECK_STACK_DETAIL(LuaState(), pFunction);
+	lua_getglobal(LuaState(), "ddnetpp");
+	lua_getfield(LuaState(), -1, pFunction);
+	if(lua_isnoneornil(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is nil", pFunction);
+		return false;
+	}
+	if(!lua_isfunction(LuaState(), -1))
+	{
+		// pop getglobal and function because we dont run pcall
+		lua_pop(LuaState(), 2);
+		// log_error("lua", "%s is not a function", pFunction);
+		return false;
+	}
+	lua_pushinteger(LuaState(), Num1);
+	lua_pushstring(LuaState(), pStr2);
 	if(lua_pcall(LuaState(), 2, 0, 0) != LUA_OK)
 	{
 		const char *pErrorMsg = lua_tostring(LuaState(), -1);
@@ -4315,16 +4349,18 @@ bool CLuaPlugin::OnChatCommand(int ClientId, const char *pCommand, const char *p
 	return true;
 }
 
-void CLuaPlugin::OnSetAuthed(int ClientId, int Level)
+void CLuaPlugin::OnSetAuthed(int ClientId, const CRconRole *pRole)
 {
 	dbg_assert(IsActive(), "called inactive plugin");
 
-	// TODO: rethink this api, actually I do not want to expose level to lua
-	//       it should already implement the planned ddnet role api
-	//       and have callbacks like "on_rcon_authed(clientid, rolename)"
-	//                          and  "on_rcon_logout(clientid)"
-
-	CallLuaVoidWithTwoInts("on_rcon_authed", ClientId, Level);
+	if(pRole)
+	{
+		CallLuaVoidWithIntAndStr("on_rcon_authed", ClientId, pRole->Name());
+	}
+	else
+	{
+		CallLuaVoidWithOneInt("on_rcon_logout", ClientId);
+	}
 }
 
 bool CLuaPlugin::OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos)

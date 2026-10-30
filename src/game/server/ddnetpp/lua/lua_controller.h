@@ -6,6 +6,7 @@
 #include <base/types.h>
 #include <base/vmath.h>
 
+#include <engine/server/authmanager.h>
 #include <engine/shared/ddnetpp/lua_controller.h>
 #include <engine/shared/protocol.h>
 
@@ -129,7 +130,7 @@ public:
 	std::optional<vec2> OnPickSpawnPos(CPlayer *pPlayer);
 	bool OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
-	void OnSetAuthed(int ClientId, int Level);
+	void OnSetAuthed(int ClientId, const CRconRole *pRole);
 	// return true to drop fire
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 	bool OnCallVote(int ClientId, const CNetMsg_Cl_CallVote *pMsg);

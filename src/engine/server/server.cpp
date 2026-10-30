@@ -43,9 +43,9 @@
 #include <engine/shared/snapshot.h>
 #include <engine/storage.h>
 
-#include <game/server/gamecontext.h>
 #include <generated/protocol.h>
 
+#include <game/server/gamecontext.h>
 #include <game/version.h>
 
 #include <zlib.h>

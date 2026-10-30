@@ -8,6 +8,8 @@
 #include <base/types.h>
 #include <base/vmath.h>
 
+#include <engine/server/authmanager.h>
+
 #include <generated/protocol.h>
 
 #include <game/server/ddnetpp/lua/lua_game.h>
@@ -168,6 +170,8 @@ private:
 	std::optional<bool> CallLuaBoolWithOneInt(const char *pFunction, int Num1);
 	// returns true if the function was found
 	bool CallLuaVoidWithTwoInts(const char *pFunction, int Num1, int Num2);
+	// returns true if the function was found
+	bool CallLuaVoidWithIntAndStr(const char *pFunction, int Num1, const char *pStr2);
 	// returns value if the function was found
 	std::optional<int> CallLuaIntWithTwoInts(const char *pFunction, int Num1, int Num2);
 	// returns true if the function was found
@@ -317,7 +321,7 @@ public:
 	bool OnCharacterTakeDamage(vec2 &Force, int &Dmg, int &From, int &Weapon, CCharacter &Character);
 	bool OnRconCommand(int ClientId, const char *pCommand, const char *pArguments);
 	bool OnChatCommand(int ClientId, const char *pCommand, const char *pArguments);
-	void OnSetAuthed(int ClientId, int Level);
+	void OnSetAuthed(int ClientId, const CRconRole *pRole);
 	bool OnFireWeapon(int ClientId, int Weapon, vec2 Direction, vec2 MouseTarget, vec2 ProjStartPos);
 	bool OnCallVote(int ClientId, const CNetMsg_Cl_CallVote *pMsg);
 	bool OnVote(int ClientId, const CNetMsg_Cl_Vote *pMsg);

@@ -48,8 +48,8 @@
 #include <game/version.h>
 
 #include <cstddef>
-#include <new>
 #include <memory>
+#include <new>
 #include <vector>
 
 //ChillerDragon (ddpp)
@@ -4918,7 +4918,7 @@ void CGameContext::OnSetAuthed(int ClientId, CRconRole *pRole)
 	// this check is from the ddnet code below
 	// when is this null? for econ logins?
 	if(m_apPlayers[ClientId])
-		m_pController->Lua()->OnSetAuthed(ClientId, Level);
+		m_pController->Lua()->OnSetAuthed(ClientId, pRole);
 	// ddnet++ end
 
 	if(m_apPlayers[ClientId] && m_VoteCloseTime && pRole)

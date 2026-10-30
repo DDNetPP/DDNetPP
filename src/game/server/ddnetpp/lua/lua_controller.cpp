@@ -5,6 +5,7 @@
 #include <base/str.h>
 #include <base/types.h>
 
+#include <engine/server/authmanager.h>
 #include <engine/server/server.h>
 #include <engine/shared/protocol.h>
 
@@ -1052,7 +1053,7 @@ bool CLuaController::OnRconCommand(int ClientId, const char *pCommand, const cha
 #endif
 }
 
-void CLuaController::OnSetAuthed(int ClientId, int Level)
+void CLuaController::OnSetAuthed(int ClientId, const CRconRole *pRole)
 {
 #ifdef CONF_LUA
 	// ignore Level because the server api is more stable
@@ -1081,7 +1082,7 @@ void CLuaController::OnSetAuthed(int ClientId, int Level)
 		if(!pPlugin->IsActive())
 			continue;
 
-		pPlugin->OnSetAuthed(ClientId, Level);
+		pPlugin->OnSetAuthed(ClientId, pRole);
 	}
 #endif
 }
