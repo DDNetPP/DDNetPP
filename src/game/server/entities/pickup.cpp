@@ -32,10 +32,10 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int N
 
 void CPickup::SetSpawnTick()
 {
-	//testy all the code in this function was commented out in ddnet
-	//ChillerDragon uncommented all to let pickups respawn (needed if players in m_IsVanillaWeapons mode pick up pickups)
-	if(g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
-		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
+	// ddnet++ vanilla pickups
+	int SpawnDelay = m_Type == POWERUP_NINJA ? 90 : 0;
+	if(SpawnDelay > 0)
+		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * SpawnDelay;
 	else
 		m_SpawnTick = -1;
 }
