@@ -59,31 +59,40 @@ namespace MapRenderer
 	{
 	public:
 		CMapRenderEnvelopeEval(IMap *pMap, int TimeOffsetMillis) :
-			m_pMap(pMap), m_TimeOffsetMillis(TimeOffsetMillis)
+			m_TimeOffsetMillis(TimeOffsetMillis)
 		{
 			m_pEnvelopePoints = std::make_shared<CMapBasedEnvelopePointAccess>(pMap);
 		}
 
 		void EnvelopeEval(int TimeOffsetMillis, int EnvelopeIndex, ColorRGBA &Result, size_t Channels) const override
 		{
-			int EnvelopeStart, EnvelopeNum;
-			m_pMap->GetType(MAPITEMTYPE_ENVELOPE, &EnvelopeStart, &EnvelopeNum);
-			if(EnvelopeIndex < 0 || EnvelopeIndex >= EnvelopeNum)
+			if(EnvelopeIndex < 0)
+			{
 				return;
-
-			const CMapItemEnvelope *pItem = (CMapItemEnvelope *)m_pMap->GetItem(EnvelopeStart + EnvelopeIndex);
-			if(pItem->m_Channels <= 0)
+			}
+			const std::vector<const CMapItemEnvelope *> &vpEnvelopes = m_pEnvelopePoints->Envelopes();
+			if(EnvelopeIndex >= (int)vpEnvelopes.size())
+			{
 				return;
-			Channels = std::min({Channels, (size_t)pItem->m_Channels, (size_t)CEnvPoint::MAX_CHANNELS});
+			}
 
-			m_pEnvelopePoints->SetPointsRange(pItem->m_StartPoint, pItem->m_NumPoints);
+			const CMapItemEnvelope *pEnvelope = vpEnvelopes[EnvelopeIndex];
+			if(pEnvelope->m_Channels <= 0)
+			{
+				return;
+			}
+			Channels = std::min({Channels, (size_t)pEnvelope->m_Channels, (size_t)CEnvPoint::MAX_CHANNELS});
+
+			m_pEnvelopePoints->SetPointsRange(pEnvelope->m_StartPoint, pEnvelope->m_NumPoints);
 			if(m_pEnvelopePoints->NumPoints() == 0)
+			{
 				return;
+			}
+
 			CRenderMap::RenderEvalEnvelope(m_pEnvelopePoints.get(), std::chrono::milliseconds(TimeOffsetMillis) + std::chrono::milliseconds(m_TimeOffsetMillis), Result, Channels);
 		}
 
 	private:
-		IMap *m_pMap;
 		std::shared_ptr<CMapBasedEnvelopePointAccess> m_pEnvelopePoints;
 		int m_TimeOffsetMillis;
 	};
@@ -463,7 +472,7 @@ int main(int argc, const char **argv)
 	MapRenderer.OnInit(&Graphics, nullptr, &RenderMap);
 
 	CMapRenderEnvelopeEval EnvelopeEval(pMap.get(), TimeOffsetMillis);
-	MapRenderer.Load(RENDERTYPE_FULL_DESIGN, &Layers, &MapImages, &EnvelopeEval, std::nullopt);
+	MapRenderer.Load(RENDERTYPE_FULL_DESIGN, &Layers, &MapImages, &EnvelopeEval, std::nullopt, false);
 
 	// Override the forced viewport from AdjustViewport (which clamps aspect ratio)
 	Graphics.SetScreenSize(OutputWidth, OutputHeight);
@@ -493,7 +502,6 @@ int main(int argc, const char **argv)
 	RenderParams.m_Zoom = Zoom;
 	RenderParams.m_RenderText = false;
 	RenderParams.m_RenderInvalidTiles = false;
-	RenderParams.m_TileAndQuadBuffering = false;
 	RenderParams.m_RenderTileBorder = true;
 	RenderParams.m_DebugRenderGroupClips = false;
 	RenderParams.m_DebugRenderQuadClips = false;

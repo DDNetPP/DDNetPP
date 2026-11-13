@@ -1788,9 +1788,8 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	// unpack msgid and system flag
 	int Msg;
 	bool Sys;
-	CUuid Uuid;
 
-	int Result = UnpackMessageId(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	int Result = UnpackMessageId(&Msg, &Sys, &Unpacker, &Packer);
 	if(Result == UNPACKMESSAGE_ERROR)
 	{
 		return;
@@ -1981,16 +1980,23 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 			IntendedTick = std::max(IntendedTick, Tick() + 1);
 
-			CClient::CInput *pInput = &m_aClients[ClientId].m_aInputs[m_aClients[ClientId].m_CurrentInput];
-			pInput->m_GameTick = IntendedTick;
+			int aInputData[MAX_INPUT_SIZE];
 			for(int i = 0; i < Size / (int)sizeof(int32_t); i++)
 			{
-				pInput->m_aData[i] = Unpacker.GetInt();
+				aInputData[i] = Unpacker.GetInt();
 			}
 			if(Unpacker.Error())
 			{
 				return;
 			}
+
+			CClient::CInput *pInput = &m_aClients[ClientId].m_aInputs[m_aClients[ClientId].m_CurrentInput];
+			pInput->m_GameTick = IntendedTick;
+			mem_copy(pInput->m_aData, aInputData, Size);
+
+			// Bound before the pre-input relay below, so that the other clients predict
+			// with the same input as this server uses
+			GameServer()->OnClientPrepareInput(ClientId, pInput->m_aData);
 
 			if(g_Config.m_SvPreInput &&
 				IntendedTick <= Tick() + 4 * TickSpeed() + 1 &&
@@ -2040,7 +2046,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 			}
 
-			GameServer()->OnClientPrepareInput(ClientId, pInput->m_aData);
 			mem_copy(m_aClients[ClientId].m_LatestInput.m_aData, pInput->m_aData, sizeof(m_aClients[ClientId].m_LatestInput.m_aData));
 
 			m_aClients[ClientId].m_CurrentInput++;
@@ -3642,44 +3647,31 @@ int CServer::Run()
 				GameServer()->OnPreTickTeehistorian();
 				UpdateDebugDummies(false);
 
-				for(int c = 0; c < MAX_CLIENTS; c++)
+				const CClient::CInput *apInput[MAX_CLIENTS] = {};
+				for(int ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
 				{
-					if(m_aClients[c].m_State != CClient::STATE_INGAME)
+					if(m_aClients[ClientId].m_State != CClient::STATE_INGAME)
 						continue;
-					bool ClientHadInput = false;
-					for(auto &Input : m_aClients[c].m_aInputs)
+					for(const auto &Input : m_aClients[ClientId].m_aInputs)
 					{
 						if(Input.m_GameTick == Tick() + 1)
 						{
-							GameServer()->OnClientPredictedEarlyInput(c, Input.m_aData);
-							ClientHadInput = true;
+							apInput[ClientId] = &Input;
 							break;
 						}
 					}
-					if(!ClientHadInput)
-						GameServer()->OnClientPredictedEarlyInput(c, nullptr);
+					GameServer()->OnClientPredictedEarlyInput(ClientId, apInput[ClientId] == nullptr ? nullptr : apInput[ClientId]->m_aData);
 				}
 
 				m_CurrentGameTick++;
 				NewTicks++;
 
 				// apply new input
-				for(int c = 0; c < MAX_CLIENTS; c++)
+				for(int ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
 				{
-					if(m_aClients[c].m_State != CClient::STATE_INGAME)
+					if(m_aClients[ClientId].m_State != CClient::STATE_INGAME)
 						continue;
-					bool ClientHadInput = false;
-					for(auto &Input : m_aClients[c].m_aInputs)
-					{
-						if(Input.m_GameTick == Tick())
-						{
-							GameServer()->OnClientPredictedInput(c, Input.m_aData);
-							ClientHadInput = true;
-							break;
-						}
-					}
-					if(!ClientHadInput)
-						GameServer()->OnClientPredictedInput(c, nullptr);
+					GameServer()->OnClientPredictedInput(ClientId, apInput[ClientId] == nullptr ? nullptr : apInput[ClientId]->m_aData);
 				}
 
 				GameServer()->OnTick();

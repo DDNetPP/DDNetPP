@@ -1644,9 +1644,8 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 	// unpack msgid and system flag
 	int Msg;
 	bool Sys;
-	CUuid Uuid;
 
-	int Result = UnpackMessageId(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	int Result = UnpackMessageId(&Msg, &Sys, &Unpacker, &Packer);
 	if(Result == UNPACKMESSAGE_ERROR)
 	{
 		return;
@@ -2800,9 +2799,8 @@ void CClient::OnDemoPlayerMessage(void *pData, int Size)
 	// unpack msgid and system flag
 	int Msg;
 	bool Sys;
-	CUuid Uuid;
 
-	int Result = UnpackMessageId(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	int Result = UnpackMessageId(&Msg, &Sys, &Unpacker, &Packer);
 	if(Result == UNPACKMESSAGE_ERROR)
 	{
 		return;
@@ -3608,7 +3606,7 @@ bool CClient::InitNetworkClientImpl(NETADDR BindAddr, int Conn, char *pError, si
 	}
 	if(m_aNetClient[Conn].State() != NETSTATE_OFFLINE)
 	{
-		str_format(pError, ErrorSize, "Could not open network client %s while already connected.", pName);
+		str_format(pError, ErrorSize, "Could not open network client '%s' while already connected.", pName);
 		return false;
 	}
 	if(*pPort < 1024) // Reject users setting ports that we don't want to use
@@ -3622,13 +3620,16 @@ bool CClient::InitNetworkClientImpl(NETADDR BindAddr, int Conn, char *pError, si
 		if(RemainingAttempts == 0)
 		{
 			if(g_Config.m_Bindaddr[0])
-				str_format(pError, ErrorSize, "Could not open network client %s, try changing or unsetting the bindaddr '%s'.", pName, g_Config.m_Bindaddr);
+				str_format(pError, ErrorSize, "Could not open network client '%s', try changing or unsetting the bindaddr '%s'.", pName, g_Config.m_Bindaddr);
 			else
-				str_format(pError, ErrorSize, "Could not open network client %s.", pName);
+				str_format(pError, ErrorSize, "Could not open network client '%s'.", pName);
 			return false;
 		}
 		if(BindAddr.port != 0)
+		{
+			log_warn("client", "Could not open network client '%s' with port %d, choosing random port instead.", pName, BindAddr.port);
 			BindAddr.port = 0;
+		}
 	}
 	return true;
 }
@@ -3708,7 +3709,10 @@ void CClient::Con_Ping(IConsole::IResult *pResult, void *pUserData)
 void CClient::ConNetReset(IConsole::IResult *pResult, void *pUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
-	pSelf->ResetSocket();
+	if(pSelf->m_LocalStartTime > 0)
+	{
+		pSelf->ResetSocket();
+	}
 }
 
 void CClient::AutoScreenshot_Start()
@@ -4616,8 +4620,10 @@ void CClient::ConchainNetReset(IConsole::IResult *pResult, void *pUserData, ICon
 {
 	CClient *pSelf = (CClient *)pUserData;
 	pfnCallback(pResult, pCallbackUserData);
-	if(pResult->NumArguments())
+	if(pResult->NumArguments() && pSelf->m_LocalStartTime > 0)
+	{
 		pSelf->ResetSocket();
+	}
 }
 
 void CClient::ConchainLoglevel(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)

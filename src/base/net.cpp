@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <iterator> // std::size
+#include <limits>
 #include <string_view>
 
 #if defined(CONF_WEBSOCKETS)
@@ -313,28 +314,28 @@ void net_addr_str(const NETADDR *addr, char *string, int max_length, bool add_po
 	}
 }
 
-static int parse_int(int *out, const char **str)
+template<typename T>
+static int parse_uint(T *out, const char **str)
 {
-	int i = 0;
+	static_assert(std::numeric_limits<T>::max() <= (std::numeric_limits<int>::max() - 9) / 10);
 	*out = 0;
 	if(!str_isnum(**str))
 		return -1;
+	// A leading zero means octal to inet_aton and friends, reject it rather than
+	// read the same string as a different address than the system does
+	if(**str == '0' && str_isnum(*(*str + 1)))
+		return -1;
 
-	i = **str - '0';
-	(*str)++;
-
-	while(true)
+	int i = 0;
+	while(str_isnum(**str))
 	{
-		if(!str_isnum(**str))
-		{
-			*out = i;
-			return 0;
-		}
-
 		i = (i * 10) + (**str - '0');
+		if(i > std::numeric_limits<T>::max())
+			return -1;
 		(*str)++;
 	}
 
+	*out = i;
 	return 0;
 }
 
@@ -343,28 +344,6 @@ static int parse_char(char c, const char **str)
 	if(**str != c)
 		return -1;
 	(*str)++;
-	return 0;
-}
-
-static int parse_uint8(unsigned char *out, const char **str)
-{
-	int i;
-	if(parse_int(&i, str) != 0)
-		return -1;
-	if(i < 0 || i > 0xff)
-		return -1;
-	*out = i;
-	return 0;
-}
-
-static int parse_uint16(unsigned short *out, const char **str)
-{
-	int i;
-	if(parse_int(&i, str) != 0)
-		return -1;
-	if(i < 0 || i > 0xffff)
-		return -1;
-	*out = i;
 	return 0;
 }
 
@@ -474,7 +453,7 @@ int net_addr_from_str(NETADDR *addr, const char *string)
 			if(*str == ':')
 			{
 				str++;
-				if(parse_uint16(&addr->port, &str))
+				if(parse_uint(&addr->port, &str))
 					return -1;
 			}
 			else
@@ -490,24 +469,24 @@ int net_addr_from_str(NETADDR *addr, const char *string)
 	else
 	{
 		/* ipv4 */
-		if(parse_uint8(&addr->ip[0], &str))
+		if(parse_uint(&addr->ip[0], &str))
 			return -1;
 		if(parse_char('.', &str))
 			return -1;
-		if(parse_uint8(&addr->ip[1], &str))
+		if(parse_uint(&addr->ip[1], &str))
 			return -1;
 		if(parse_char('.', &str))
 			return -1;
-		if(parse_uint8(&addr->ip[2], &str))
+		if(parse_uint(&addr->ip[2], &str))
 			return -1;
 		if(parse_char('.', &str))
 			return -1;
-		if(parse_uint8(&addr->ip[3], &str))
+		if(parse_uint(&addr->ip[3], &str))
 			return -1;
 		if(*str == ':')
 		{
 			str++;
-			if(parse_uint16(&addr->port, &str))
+			if(parse_uint(&addr->port, &str))
 				return -1;
 		}
 		if(*str != '\0')
@@ -864,7 +843,7 @@ static int priv_net_create_socket(int domain, int type, const NETADDR *bindaddr,
 
 #if defined(CONF_FAMILY_UNIX)
 	// On TCP sockets set SO_REUSEADDR to fix port rebind on restart
-	if(domain == AF_INET && type == SOCK_STREAM)
+	if(type == SOCK_STREAM)
 	{
 		int reuse_addr = 1;
 		if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse_addr, sizeof(reuse_addr)) != 0)

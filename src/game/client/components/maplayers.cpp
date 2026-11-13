@@ -15,7 +15,6 @@ CMapLayers::CMapLayers(ERenderType Type, bool OnlineOnly)
 	// static parameters for ingame rendering
 	m_Params.m_RenderType = m_Type;
 	m_Params.m_RenderInvalidTiles = false;
-	m_Params.m_TileAndQuadBuffering = true;
 	m_Params.m_RenderTileBorder = true;
 }
 
@@ -45,13 +44,15 @@ void CMapLayers::OnMapLoad()
 
 	m_EnvEvaluator = CEnvelopeState(m_pLayers->Map(), m_OnlineOnly);
 	m_EnvEvaluator.OnInterfacesInit(GameClient());
-	m_MapRenderer.Load(m_Type, m_pLayers, m_pImages, &m_EnvEvaluator, ProgressBarCallback);
+	m_MapRenderer.Load(m_Type, m_pLayers, m_pImages, &m_EnvEvaluator, ProgressBarCallback, true);
 }
 
 void CMapLayers::OnRender()
 {
 	if(m_OnlineOnly && Client()->State() != IClient::STATE_ONLINE && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 		return;
+
+	m_EnvEvaluator.Update();
 
 	// dynamic parameters for ingame rendering
 	m_Params.m_EntityOverlayVal = m_Type == RENDERTYPE_FULL_DESIGN ? 0 : g_Config.m_ClOverlayEntities;

@@ -602,16 +602,16 @@ void CEditor::DoToolbarLayers(CUIRect ToolBar)
 		// undo/redo group
 		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_UndoButton = 0;
-		if(DoButton_FontIcon(&s_UndoButton, FontIcon::UNDO, Map()->m_EditorHistory.CanUndo() - 1, &Button, BUTTONFLAG_LEFT, "[Ctrl+Z] Undo the last action.", IGraphics::CORNER_L))
+		if(DoButton_FontIcon(&s_UndoButton, FontIcon::UNDO, m_QuickActionUndo.Disabled() ? -1 : 0, &Button, BUTTONFLAG_LEFT, m_QuickActionUndo.Description(), IGraphics::CORNER_L))
 		{
-			Map()->m_EditorHistory.Undo();
+			m_QuickActionUndo.Call();
 		}
 
 		ToolbarTop.VSplitLeft(25.0f, &Button, &ToolbarTop);
 		static int s_RedoButton = 0;
-		if(DoButton_FontIcon(&s_RedoButton, FontIcon::REDO, Map()->m_EditorHistory.CanRedo() - 1, &Button, BUTTONFLAG_LEFT, "[Ctrl+Y] Redo the last action.", IGraphics::CORNER_R))
+		if(DoButton_FontIcon(&s_RedoButton, FontIcon::REDO, m_QuickActionRedo.Disabled() ? -1 : 0, &Button, BUTTONFLAG_LEFT, m_QuickActionRedo.Description(), IGraphics::CORNER_R))
 		{
-			Map()->m_EditorHistory.Redo();
+			m_QuickActionRedo.Call();
 		}
 
 		ToolbarTop.VSplitLeft(5.0f, nullptr, &ToolbarTop);
@@ -859,14 +859,6 @@ void CEditor::DoToolbarSounds(CUIRect ToolBar)
 		static int s_PlayPauseButton, s_StopButton, s_SeekBar = 0;
 		DoAudioPreview(ToolBarBottom, &s_PlayPauseButton, &s_StopButton, &s_SeekBar, m_ToolbarPreviewSound);
 	}
-}
-
-static void Rotate(const CPoint *pCenter, CPoint *pPoint, float Rotation)
-{
-	int x = pPoint->x - pCenter->x;
-	int y = pPoint->y - pCenter->y;
-	pPoint->x = (int)(x * std::cos(Rotation) - y * std::sin(Rotation) + pCenter->x);
-	pPoint->y = (int)(x * std::sin(Rotation) + y * std::cos(Rotation) + pCenter->y);
 }
 
 void CEditor::DoSoundSource(int LayerIndex, CSoundSource *pSource, int Index)
@@ -1495,8 +1487,9 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 		return ivec2(f2fx(Pos.x) - s_OriginalPosition.x, f2fx(Pos.y) - s_OriginalPosition.y);
 	};
 
+	const bool QuadSelected = Map()->IsQuadSelected(Index);
 	// draw selection background
-	if(Map()->IsQuadSelected(Index))
+	if(QuadSelected)
 	{
 		Graphics()->SetColor(0, 0, 0, 1);
 		IGraphics::CQuadItem QuadItem(CenterX, CenterY, 7.0f * MapView()->MouseWorldScale(), 7.0f * MapView()->MouseWorldScale());
@@ -1511,7 +1504,7 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 			{
 				if(distance_squared(s_MouseStart, Ui()->MousePos()) > 20.0f)
 				{
-					if(!Map()->IsQuadSelected(Index))
+					if(!QuadSelected)
 						Map()->SelectQuad(Index);
 
 					s_OriginalPosition = pQuad->m_aPoints[4];
@@ -1590,8 +1583,8 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 					for(int v = 0; v < 4; v++)
 					{
 						pCurrentQuad->m_aPoints[v] = s_vvRotatePoints[i][v];
-						Rotate(&pCurrentQuad->m_aPoints[4], &pCurrentQuad->m_aPoints[v], s_RotateAngle);
 					}
+					RotatePoints(pCurrentQuad->m_aPoints[4], pCurrentQuad->m_aPoints, 4, s_RotateAngle);
 				}
 
 				s_RotateAngle += Ui()->MouseDeltaX() * (Input()->ShiftIsPressed() ? 0.0001f : 0.002f);
@@ -1742,7 +1735,7 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 			{
 				s_Operation = OP_DELETE;
 
-				if(!Map()->IsQuadSelected(Index))
+				if(!QuadSelected)
 					Map()->SelectQuad(Index);
 
 				Ui()->SetActiveItem(pId);
@@ -1751,7 +1744,7 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 			{
 				s_Operation = OP_CONTEXT_MENU;
 
-				if(!Map()->IsQuadSelected(Index))
+				if(!QuadSelected)
 					Map()->SelectQuad(Index);
 
 				Ui()->SetActiveItem(pId);
@@ -1759,7 +1752,14 @@ void CEditor::DoQuad(int LayerIndex, const std::shared_ptr<CLayerQuads> &pLayer,
 		}
 	}
 	else
-		Graphics()->SetColor(0, 1, 0, 1);
+	{
+		constexpr ColorRGBA QuadPivotColor = ColorRGBA(0.0f, 1.0f, 0.0f, 1.0f);
+		constexpr ColorRGBA InvertedQuadPivotColor = color_invert(QuadPivotColor).WithAlpha(QuadPivotColor.a);
+		if(QuadSelected)
+			Graphics()->SetColor(InvertedQuadPivotColor);
+		else
+			Graphics()->SetColor(QuadPivotColor);
+	}
 
 	IGraphics::CQuadItem QuadItem(CenterX, CenterY, 5.0f * MapView()->MouseWorldScale(), 5.0f * MapView()->MouseWorldScale());
 	Graphics()->QuadsDraw(&QuadItem, 1);
@@ -1771,8 +1771,9 @@ void CEditor::DoQuadPoint(int LayerIndex, const std::shared_ptr<CLayerQuads> &pL
 	const vec2 Center = vec2(fx2f(pQuad->m_aPoints[V].x), fx2f(pQuad->m_aPoints[V].y));
 	const bool IgnoreGrid = Input()->AltIsPressed();
 
+	const bool QuadPointSelected = Map()->IsQuadPointSelected(QuadIndex, V);
 	// draw selection background
-	if(Map()->IsQuadPointSelected(QuadIndex, V))
+	if(QuadPointSelected)
 	{
 		Graphics()->SetColor(0, 0, 0, 1);
 		IGraphics::CQuadItem QuadItem(Center.x, Center.y, 7.0f * MapView()->MouseWorldScale(), 7.0f * MapView()->MouseWorldScale());
@@ -1811,7 +1812,7 @@ void CEditor::DoQuadPoint(int LayerIndex, const std::shared_ptr<CLayerQuads> &pL
 			{
 				if(distance_squared(s_MouseStart, Ui()->MousePos()) > 20.0f)
 				{
-					if(!Map()->IsQuadPointSelected(QuadIndex, V))
+					if(!QuadPointSelected)
 						Map()->SelectQuadPoint(QuadIndex, V);
 
 					if(Input()->ShiftIsPressed())
@@ -1965,12 +1966,19 @@ void CEditor::DoQuadPoint(int LayerIndex, const std::shared_ptr<CLayerQuads> &pL
 
 			Ui()->SetActiveItem(pId);
 
-			if(!Map()->IsQuadPointSelected(QuadIndex, V))
+			if(!QuadPointSelected)
 				Map()->SelectQuadPoint(QuadIndex, V);
 		}
 	}
 	else
-		Graphics()->SetColor(1, 0, 0, 1);
+	{
+		constexpr ColorRGBA QuadPointColor = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
+		constexpr ColorRGBA InvertedQuadPointColor = color_invert(QuadPointColor).WithAlpha(QuadPointColor.a);
+		if(QuadPointSelected)
+			Graphics()->SetColor(InvertedQuadPointColor);
+		else
+			Graphics()->SetColor(QuadPointColor);
+	}
 
 	IGraphics::CQuadItem QuadItem(Center.x, Center.y, 5.0f * MapView()->MouseWorldScale(), 5.0f * MapView()->MouseWorldScale());
 	Graphics()->QuadsDraw(&QuadItem, 1);
@@ -2097,19 +2105,17 @@ void CEditor::DoQuadEnvelopes(const CLayerQuads *pLayerQuads)
 
 			const CPoint *pPoints;
 			CPoint aRotated[4];
-			if(Rotation != 0.0f)
-			{
-				std::copy_n(pQuad->m_aPoints, std::size(aRotated), aRotated);
-				for(auto &Point : aRotated)
-				{
-					Rotate(&pQuad->m_aPoints[4], &Point, Rotation);
-				}
-				pPoints = aRotated;
-			}
-			else
+			if(Rotation == 0.0f)
 			{
 				pPoints = pQuad->m_aPoints;
 			}
+			else
+			{
+				std::copy_n(pQuad->m_aPoints, std::size(aRotated), aRotated);
+				RotatePoints(pQuad->m_aPoints[4], aRotated, std::size(aRotated), Rotation);
+				pPoints = aRotated;
+			}
+
 			Graphics()->QuadsSetSubsetFree(
 				fx2f(pQuad->m_aTexcoords[0].x), fx2f(pQuad->m_aTexcoords[0].y),
 				fx2f(pQuad->m_aTexcoords[1].x), fx2f(pQuad->m_aTexcoords[1].y),

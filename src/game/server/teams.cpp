@@ -1210,9 +1210,10 @@ void CGameTeams::ProcessSaveTeam()
 			}
 			for(int i = 0; i < Size; i++)
 			{
-				if(m_apSaveTeamResult[Team]->m_SavedTeam.m_pSavedTees->IsHooking())
+				const CSaveTee &SavedTee = m_apSaveTeamResult[Team]->m_SavedTeam.m_pSavedTees[i];
+				if(SavedTee.IsHooking())
 				{
-					int ClientId = m_apSaveTeamResult[Team]->m_SavedTeam.m_pSavedTees->GetClientId();
+					const int ClientId = SavedTee.GetClientId();
 					if(GameServer()->m_apPlayers[ClientId] != nullptr)
 						GameServer()->SendChatTarget(ClientId, "Start holding the hook before loading the savegame to keep the hook");
 				}
@@ -1293,6 +1294,10 @@ void CGameTeams::OnCharacterSpawn(int ClientId)
 		if(!m_aTeamFlock[Team])
 			CheckTeamFinished(Team);
 	}
+
+	CPlayer *pPlayer = GetPlayer(ClientId);
+	if(!g_Config.m_SvPauseable && pPlayer->IsPaused() == -1 * CPlayer::PAUSE_SPEC && !IsPractice(m_Core.Team(ClientId)))
+		pPlayer->Pause(CPlayer::PAUSE_PAUSED, true);
 }
 
 void CGameTeams::OnCharacterDeath(int ClientId, int Weapon)
@@ -1337,7 +1342,7 @@ void CGameTeams::OnCharacterDeath(int ClientId, int Weapon)
 				{
 					for(int ClientId1 = 0; ClientId1 < MAX_CLIENTS; ClientId1++)
 					{
-						if(m_Core.Team(ClientId1) == Team)
+						if(ClientId1 != ClientId && m_Core.Team(ClientId1) == Team)
 						{
 							CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId1];
 							if(pPlayer && pPlayer->IsPaused() == -1 * CPlayer::PAUSE_SPEC)

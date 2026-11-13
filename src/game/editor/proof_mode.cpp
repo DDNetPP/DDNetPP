@@ -151,7 +151,7 @@ void CProofMode::RenderScreenSizes()
 			Graphics()->SetColor(1, 0, 0, 1);
 			for(int Pass = 0; Pass < 2; Pass++)
 			{
-				const float aAspects[] = {4.0f / 3.0f, 16.0f / 10.0f, 5.0f / 4.0f, 16.0f / 9.0f};
+				const float aAspects[] = {4.0f / 3.0f, 16.0f / 10.0f};
 				const ColorRGBA aColors[] = {ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), ColorRGBA(0.0f, 1.0f, 0.0f, 1.0f)};
 				float Zoom = IsModeMenu() ? 0.7f : 1.0f;
 				CScreenRect ScreenRect = Graphics()->MapScreenToWorld(
@@ -178,23 +178,27 @@ void CProofMode::RenderScreenSizes()
 			{
 				Graphics()->SetColor(0, 1, 0, 0.3f);
 
-				const std::vector<vec2> &Positions = MenuBackgroundPositions();
-				std::set<int> Indices;
-				for(int i = 0; i < (int)Positions.size(); i++)
-					Indices.insert(i);
+				const std::vector<vec2> &vPositions = MenuBackgroundPositions();
+				const vec2 CurrentPos = vPositions[CurrentMenuProofIndex()];
+				bool aSkip[CMenuBackground::NUM_POS];
+				std::fill(std::begin(aSkip), std::end(aSkip), false);
 
-				while(!Indices.empty())
+				for(int i = 0; i < (int)vPositions.size(); i++)
 				{
-					int i = *Indices.begin();
-					Indices.erase(i);
-					for(int k : MenuBackgroundCollisions(i))
-						Indices.erase(k);
-
-					vec2 Pos = Positions[i];
-					Pos += WorldOffset - Positions[CurrentMenuProofIndex()];
-
-					if(Pos == WorldOffset)
+					if(aSkip[i])
+					{
 						continue;
+					}
+					for(int k : MenuBackgroundCollisions(i))
+					{
+						aSkip[k] = true;
+					}
+
+					const vec2 Pos = vPositions[i] + (WorldOffset - CurrentPos);
+					if(Pos == WorldOffset)
+					{
+						continue;
+					}
 
 					Graphics()->DrawCircle(Pos.x, Pos.y - 3.0f, 20.0f, 32);
 				}

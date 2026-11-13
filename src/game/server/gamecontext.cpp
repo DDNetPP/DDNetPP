@@ -372,8 +372,8 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMas
 		CNetEvent_DamageInd *pEvent = m_Events.Create<CNetEvent_DamageInd>(Mask);
 		if(pEvent)
 		{
-			pEvent->m_X = (int)Pos.x;
-			pEvent->m_Y = (int)Pos.y;
+			pEvent->m_X = round_truncate(Pos.x);
+			pEvent->m_Y = round_truncate(Pos.y);
 			pEvent->m_Angle = (int)(f * 256.0f);
 		}
 	}
@@ -395,8 +395,8 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	CNetEvent_Explosion *pEvent = m_Events.Create<CNetEvent_Explosion>(Mask);
 	if(pEvent)
 	{
-		pEvent->m_X = (int)Pos.x;
-		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_X = round_truncate(Pos.x);
+		pEvent->m_Y = round_truncate(Pos.y);
 	}
 
 	// deal damage
@@ -497,8 +497,8 @@ void CGameContext::CreateSound(vec2 Pos, int Sound, CClientMask Mask)
 	CNetEvent_SoundWorld *pEvent = m_Events.Create<CNetEvent_SoundWorld>(Mask);
 	if(pEvent)
 	{
-		pEvent->m_X = (int)Pos.x;
-		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_X = round_truncate(Pos.x);
+		pEvent->m_Y = round_truncate(Pos.y);
 		pEvent->m_SoundId = Sound;
 	}
 }
@@ -921,11 +921,17 @@ void CGameContext::SendModeratorAlert(int ToClientId, const char *pMessage)
 	dbg_assert(in_range(ToClientId, 0, MAX_CLIENTS - 1), "SendImportantAlert ToClientId invalid: %d", ToClientId);
 	dbg_assert(m_apPlayers[ToClientId] != nullptr, "Client not online: %d", ToClientId);
 
-	if(m_apPlayers[ToClientId]->GetClientVersion() >= VERSION_DDNET_IMPORTANT_ALERT)
+	const int ClientVersion = m_apPlayers[ToClientId]->GetClientVersion();
+	if(ClientVersion >= VERSION_DDNET_IMPORTANT_ALERT)
 	{
 		CNetMsg_Sv_ModeratorAlert Msg;
 		Msg.m_pMessage = pMessage;
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientId);
+
+		if(ClientVersion < VERSION_DDNET_IMPORTANT_ALERT_DUMMY_FIXED)
+		{
+			log_info("moderator_alert", "Notice: player uses an old client version and may not see moderator alerts: %s (ID %d)", Server()->ClientName(ToClientId), ToClientId);
+		}
 	}
 	else
 	{
@@ -1687,6 +1693,13 @@ void CGameContext::OnClientPrepareInput(int ClientId, void *pInput)
 
 	if(Server()->IsSixup(ClientId))
 		pPlayerInput->m_PlayerFlags = PlayerFlags_SevenToSix(pPlayerInput->m_PlayerFlags);
+
+	constexpr int MaxTarget = 1 << 20;
+	pPlayerInput->m_TargetX = std::clamp(pPlayerInput->m_TargetX, -MaxTarget, MaxTarget);
+	pPlayerInput->m_TargetY = std::clamp(pPlayerInput->m_TargetY, -MaxTarget, MaxTarget);
+
+	if(pPlayerInput->m_WantedWeapon < 0 || pPlayerInput->m_WantedWeapon > NUM_WEAPONS)
+		pPlayerInput->m_WantedWeapon = 0;
 }
 
 void CGameContext::OnClientDirectInput(int ClientId, const void *pInput)
@@ -1997,13 +2010,22 @@ void CGameContext::OnClientDrop(int ClientId, const char *pReason, bool Silent)
 	delete m_apPlayers[ClientId];
 	m_apPlayers[ClientId] = nullptr;
 
-	delete m_apSavedTeams[ClientId];
-	m_apSavedTeams[ClientId] = nullptr;
-
 	delete m_apSavedTees[ClientId];
 	m_apSavedTees[ClientId] = nullptr;
 
+	const int SavedTeam = m_aTeamMapping[ClientId];
 	m_aTeamMapping[ClientId] = -1;
+	if(SavedTeam != -1)
+	{
+		bool TeamStillPending = false;
+		for(int MappedTeam : m_aTeamMapping)
+			TeamStillPending |= MappedTeam == SavedTeam;
+		if(!TeamStillPending)
+		{
+			delete m_apSavedTeams[SavedTeam];
+			m_apSavedTeams[SavedTeam] = nullptr;
+		}
+	}
 
 	if(g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO && PracticeByDefault())
 		m_pController->Teams().SetPractice(GetDDRaceTeam(ClientId), true);

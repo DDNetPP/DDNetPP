@@ -87,6 +87,11 @@ void SIntConfigVariable::Serialize(char *pOut, size_t Size) const
 	Serialize(pOut, Size, *m_pVariable);
 }
 
+void SIntConfigVariable::SerializeHumanReadable(char *pOut, size_t Size) const
+{
+	Serialize(pOut, Size);
+}
+
 void SIntConfigVariable::SetValue(int Value)
 {
 	if(CheckReadOnly())
@@ -158,6 +163,12 @@ void SColorConfigVariable::Serialize(char *pOut, size_t Size, unsigned Value) co
 void SColorConfigVariable::Serialize(char *pOut, size_t Size) const
 {
 	Serialize(pOut, Size, *m_pVariable);
+}
+
+void SColorConfigVariable::SerializeHumanReadable(char *pOut, size_t Size) const
+{
+	const ColorRGBA Rgba = color_cast<ColorRGBA>(ColorHSLA(*m_pVariable, m_Alpha).UnclampLighting(m_DarkestLighting));
+	str_format(pOut, Size, "%s $%0*X", m_pScriptName, m_Alpha ? 8 : 6, Rgba.PackAlphaLast(m_Alpha));
 }
 
 void SColorConfigVariable::SetValue(unsigned Value)
@@ -235,6 +246,11 @@ void SStringConfigVariable::Serialize(char *pOut, size_t Size, const char *pValu
 void SStringConfigVariable::Serialize(char *pOut, size_t Size) const
 {
 	Serialize(pOut, Size, m_pStr);
+}
+
+void SStringConfigVariable::SerializeHumanReadable(char *pOut, size_t Size) const
+{
+	Serialize(pOut, Size);
 }
 
 void SStringConfigVariable::SetValue(const char *pValue)
@@ -329,9 +345,9 @@ void CConfigManager::Init()
 #undef MACRO_CONFIG_COL
 #undef MACRO_CONFIG_STR
 
-	m_pConsole->Register("reset", "s[config-name]", CFGFLAG_SERVER | CFGFLAG_CLIENT | CFGFLAG_STORE, Con_Reset, this, "Reset a config to its default value");
-	m_pConsole->Register("toggle", "s[config-option] s[value 1] s[value 2]", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_Toggle, this, "Toggle config value");
-	m_pConsole->Register("+toggle", "s[config-option] s[value 1] s[value 2]", CFGFLAG_CLIENT, Con_ToggleStroke, this, "Toggle config value via keypress");
+	m_pConsole->Register("reset", "s[config]", CFGFLAG_SERVER | CFGFLAG_CLIENT | CFGFLAG_STORE, Con_Reset, this, "Reset a config to its default value");
+	m_pConsole->Register("toggle", "s[config] s[value 1] s[value 2]", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_Toggle, this, "Toggle config value");
+	m_pConsole->Register("+toggle", "s[config] s[value 1] s[value 2]", CFGFLAG_CLIENT, Con_ToggleStroke, this, "Toggle config value via keypress");
 }
 
 void CConfigManager::Reset(const char *pScriptName)
@@ -345,7 +361,7 @@ void CConfigManager::Reset(const char *pScriptName)
 		}
 	}
 
-	log_error("config", "Invalid command: '%s'.", pScriptName);
+	log_error("config", "Invalid config variable: '%s'", pScriptName);
 }
 
 void CConfigManager::ResetGameSettings()
@@ -366,7 +382,8 @@ void CConfigManager::SetReadOnly(const char *pScriptName, bool ReadOnly)
 			return;
 		}
 	}
-	dbg_assert_failed("Invalid command for SetReadOnly: '%s'", pScriptName);
+
+	dbg_assert_failed("Invalid config variable for SetReadOnly: '%s'", pScriptName);
 }
 
 void CConfigManager::SetGameSettingsReadOnly(bool ReadOnly)
@@ -481,6 +498,16 @@ void CConfigManager::PossibleConfigVariables(const char *pStr, int FlagMask, POS
 	}
 }
 
+const SConfigVariable *CConfigManager::FindVariable(const char *pScriptName) const
+{
+	for(const auto *pVariable : m_vpAllVariables)
+	{
+		if(str_comp(pVariable->m_pScriptName, pScriptName) == 0)
+			return pVariable;
+	}
+	return nullptr;
+}
+
 void CConfigManager::Con_Reset(IConsole::IResult *pResult, void *pUserData)
 {
 	static_cast<CConfigManager *>(pUserData)->Reset(pResult->GetString(0));
@@ -522,7 +549,7 @@ void CConfigManager::Con_Toggle(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	log_error("config", "Invalid command: '%s'.", pScriptName);
+	log_error("config", "Invalid config variable: '%s'", pScriptName);
 }
 
 void CConfigManager::Con_ToggleStroke(IConsole::IResult *pResult, void *pUserData)
@@ -545,7 +572,7 @@ void CConfigManager::Con_ToggleStroke(IConsole::IResult *pResult, void *pUserDat
 		return;
 	}
 
-	log_error("config", "Invalid command: '%s'.", pScriptName);
+	log_error("config", "Invalid config variable: '%s'", pScriptName);
 }
 
 IConfigManager *CreateConfigManager() { return new CConfigManager; }
